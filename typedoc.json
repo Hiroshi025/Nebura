@@ -1,0 +1,6 @@
+{
+  "out": "docs",
+  "excludeExternals": true,
+  "hideGenerator": true,
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-zod"] // Soporte para Zod
+}

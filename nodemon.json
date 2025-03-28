@@ -1,0 +1,12 @@
+{
+  "watch": ["src"],
+  "ext": "ts,json",
+  "ignore": ["node_modules", "dist", "__tests__"],
+  "exec": "node --loader ts-node-dev/esm --no-warnings=ExperimentalWarning",
+  "restartable": "rs",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "verbose": true,
+  "delay": "500ms"
+}

@@ -1,0 +1,34 @@
+# ./config.yml (en la raíz del proyecto)
+project:
+  name: "Nebura Works"  # Ejemplo: Nombre del proyecto
+  version: "1.0.0"
+  type: "monorepo"  # Opcional: Si usas workspaces
+
+environments:
+  default: &default
+    api:
+      port: 3000
+      host: "localhost"
+      sessions:
+        websecret: "dev_secret"  # Cambia esto en producción
+      swagger:
+        local: ""
+        name: ""
+        version: "" 
+        url: ""
+        docs: ""
+        auth:
+          name: ""
+          password: ""
+    database:
+      sessions:
+        url: "./src/infra/database/"
+        name: "sessions"
+
+  production:
+    <<: *default  # Hereda configs de 'default'
+    api:
+      port: 8080
+      host: "" 
+      sessions:
+        websecret: "prod_secret"
