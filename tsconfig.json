@@ -13,14 +13,14 @@
     "noFallthroughCasesInSwitch": true, // Evita casos no manejados en switch
 
     /* Rendimiento y modularidad */
-    "module": "NodeNext", // Usa ES Modules (mejor para ESM + CommonJS)
-    "moduleResolution": "NodeNext", // Resolución moderna de módulos
+    "module": "CommonJS", // Usa ES Modules (mejor para ESM + CommonJS)
+    "moduleResolution": "node10", // Resolución moderna de módulos
     "esModuleInterop": true, // Compatibilidad entre ESM y CommonJS
     "skipLibCheck": true, // Mejor rendimiento (evita chequear tipos en node_modules)
     "forceConsistentCasingInFileNames": true, // Evita errores en sistemas case-sensitive
 
     /* Soporte para features modernos */
-    "target": "ES2022", // Sintaxis JS moderna (ajusta según tu entorno)
+    "target": "ESNext", // Sintaxis JS moderna (ajusta según tu entorno)
     "lib": ["ES2022", "DOM"], // APIs disponibles (añade "DOM" si hay frontend)
     "experimentalDecorators": true, // Habilita decoradores (útil para ORMs/NestJS)
     "emitDecoratorMetadata": true, // Metadatos para decoradores (TypeORM/NestJS)
@@ -39,13 +39,14 @@
       "@tests/*": ["./__tests__/*"], // Alias para tests (ajusta según tu estructura)
       "@types/*": ["./src/types/*"], // Alias para tipos personalizados
       "@utils/*": ["src/shared/utils/*"], // Alias para utilidades
-      "@config/*": ["./config/*"] // Alias para configuración
+      "@config/*": ["./config/*"], // Alias para configuración
+      "@backend/*": ["./src/backend/*"] // Alias para backend
     },
     "outDir": "./dist", // Carpeta de salida para JS compilado
     "rootDir": "./", // Raíz del proyecto
     "types": ["node", "jest"],
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "tsconfig.json", "config/*.json"], // Incluye todos los archivos .ts y tsconfig.json
+  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json"], // Incluye todos los archivos .ts y tsconfig.json
   "exclude": ["node_modules", "dist"] // Excluye estas carpetas
 }

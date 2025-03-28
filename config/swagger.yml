@@ -1,0 +1,217 @@
+openapi: "3.0.0"
+info:
+  title: "NEBURA AI"
+  description: |
+    Asistent API is a RESTful API that allows you to interact with the Bot Asistent platform.
+    You can use this API to manage your account and interact with the Bot Asistent platform.
+    This API is built with Node.js, Express.js, and MongoDB.
+
+    This API is built by Hiroshi.
+    You can find more info about this API in the documentation.
+    You can find the documentation in the following link: [Bot Asistent API Documentation](https://docs.hiroshi-dev.me)
+
+    This API is built for educational purposes.
+    You can find the source code in the following link: [Bot Asistent API Source Code](  )
+  version: "0.1.1-alpha"
+  contact:
+    name: "Hiroshi"
+    email: "contact@hiroshi-dev.me"
+    url: "https://docs.hiroshi-dev.me"
+  termsOfService: "https://docs.hiroshi-dev.me/mas/terminos-y-usos"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+
+paths:
+  ###### AUTH ROUTES #######
+
+  /auth/{id}:
+    get:
+      operationId: getUserData
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      description: Retrieve user data from the API using the provided JWT token.
+      summary: Get user data from the API.
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to retrieve.
+          required: true
+          schema:
+            type: string
+            example: "userId123"
+        - name: Authorization
+          in: header
+          description: JWT token for authentication.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User data retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "userId123"
+                  discord:
+                    type: string
+                    example: "123456789"
+                  name:
+                    type: string
+                    example: "John Doe"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-30T14:53:44.077Z"
+                  rol:
+                    type: string
+                    example: "user"
+                  email:
+                    type: string
+                    example: "user@example.com"
+                  password:
+                    type: string
+                    example: "hashed-password"
+                required:
+                  - id
+                  - discord
+                  - name
+                  - createdAt
+                  - rol
+                  - email
+                  - password
+        400:
+          description: Bad request due to invalid parameters or token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags:
+        - Auth
+      security: []
+      description: Register a new user in the API and generate a JWT token.
+      summary: Register a user in the API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "secure-password"
+                name:
+                  type: string
+                  example: "John Doe"
+                discord:
+                  type: string
+                  example: "123456789"
+      responses:
+        200:
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/register"
+              example:
+                id: "userId123"
+                email: "user@example.com"
+                name: "John Doe"
+                discord: "123456789"
+        400:
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              example:
+                status: false
+                message: "Invalid request parameters"
+                data: "Email already exists"
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags:
+        - Auth
+      security: []
+      description: Authenticate a user and return a JWT token for subsequent requests.
+      summary: Login a user in the API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "secure-password"
+      responses:
+        200:
+          description: User logged in successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/login"
+              example:
+                id: "userId123"
+                email: "user@example.com"
+                name: "John Doe"
+                discord: "123456789"
+                token: "jwt-token-123"
+        400:
+          description: Bad request due to invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              example:
+                status: false
+                message: "Invalid email or password"
+                data: null
+components:
+  schemas:
+    error:
+      description: "Error response"
+      type: object
+      properties:
+        message:
+          type: string
+        details:
+          type: string
+    register:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        id:
+          type: string
+    login:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        token:
+          type: string

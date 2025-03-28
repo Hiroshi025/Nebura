@@ -3,12 +3,12 @@ import { debug } from "node:console";
 import SwaggerParser from "swagger-parser";
 import swStats from "swagger-stats";
 
-import { MainGlobal } from "@/main";
+import { API } from "@/backend";
 import { logWithLabel } from "@/shared/infra/functions/console";
 import { config } from "@/shared/utils/config";
 import emojis from "@config/json/emojis.json";
 
-export const SwaggerMonitor = (main: MainGlobal) => {
+export const SwaggerMonitor = (main: API) => {
   const projectconfig = config.environments.default.api.swagger;
   let swaggerSpec = null;
   SwaggerParser.prototype.validate(projectconfig.local, function (err, api) {
@@ -19,7 +19,7 @@ export const SwaggerMonitor = (main: MainGlobal) => {
         `  ${emojis.circle_check}  ${chalk.grey("Swagger API Metrics")}`,
       ].join("\n"));
       swaggerSpec = api;
-      main.api.app.use(
+      main.app.use(
         swStats.getMiddleware({
           name: projectconfig.name,
           version: projectconfig.version,

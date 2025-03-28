@@ -5,7 +5,6 @@ import helmet from "helmet";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import { main } from "@/main";
 import { logWithLabel } from "@/shared/infra/functions/console";
 import { config } from "@/shared/utils/config";
 import emojis from "@config/json/emojis.json";
@@ -34,7 +33,7 @@ export class API {
     this.app.use(express.json());
     this.app.use(router);
 
-    await SwaggerMonitor(main);
+    await SwaggerMonitor(this);
   }
 
   private async Routes() {

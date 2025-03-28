@@ -9,7 +9,8 @@ import { logWithLabel } from "@/shared/infra/functions/console";
  * Array of directories containing route files.
  */
 const routesDirs = [
-  path.resolve(__dirname, "../domain/routes"),
+  path.resolve(__dirname, "../interfaces/http/routes/auth"),
+  path.resolve(__dirname, "../interfaces/http/routes"),
 ];
 
 /**
@@ -36,7 +37,8 @@ const router = Router();
 
     // Cargar las rutas de forma asincrónica
     const imports = files.map(async (file) => {
-      const modulePath = path.join(routesDir, file);
+      const modulePath = path.join(routesDir, file)
+      
       try {
         const module = await import(modulePath);
         if (module.default) {
@@ -60,12 +62,13 @@ const router = Router();
     "custom",
     [
       `Loading Routes-Endpoints Express`,
-      chalk.grey(`✅ Finished Loading Routes-Endpoints Express`),
-      chalk.grey(`🟢 Routes-Endpoints Loaded Successfully: ${routerLoadeds.length}`),
-      chalk.grey(`🕛 Took: ${((end - start) / 1000).toFixed(2)}s`),
+      chalk.grey(`  ✅  Finished Loading Routes-Endpoints Express`),
+      chalk.grey(`  🟢  Routes-Endpoints Loaded Successfully: ${routerLoadeds.length}`),
+      chalk.grey(`  🕛  Took: ${((end - start) / 1000).toFixed(2)}s`),
     ].join("\n"),
     "Express",
   );
 })();
 
 export { router };
+

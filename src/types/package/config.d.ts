@@ -18,6 +18,7 @@ export interface EnvironmentConfig {
     host: string; // Dirección del host
     sessions: {
       websecret: string; // Secreto para la sesión web
+      jwtsecret: string; // Secreto para el JWT
     };
     swagger: {
       local: string; // Ruta local del archivo Swagger

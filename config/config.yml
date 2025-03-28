@@ -11,15 +11,16 @@ environments:
       host: "localhost"
       sessions:
         websecret: "dev_secret"  # Cambia esto en producción
+        jwtsecret: ""
       swagger:
-        local: ""
+        local: "config/swagger.yml"  # Ruta al archivo swagger.yml
         name: ""
         version: "" 
         url: ""
         docs: ""
         auth:
-          name: ""
-          password: ""
+          name: "luis"
+          password: "luis"
     database:
       sessions:
         url: "./src/infra/database/"
