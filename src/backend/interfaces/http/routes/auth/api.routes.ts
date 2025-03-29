@@ -1,13 +1,28 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
-import { TRoutesInput } from "../../../../../types/backend";
+import { TRoutesInput } from "@/types/backend";
+
 import { AuthApiController } from "../../controllers/auth.controllers";
+import { authenticateToken } from "../../middlewares/auth.middleware";
 
-const format = (str: string): string => `/api/v1/auth${str}`;
+// Constantes para paths base y versionado
+const BASE_PATH = "/auth";
+const API_VERSION = "/api/v1";
 
+/**
+ * Formatea las rutas de autenticación con el prefijo correcto
+ * @param path Ruta específica del endpoint
+ * @returns Ruta completa formateada
+ */
+const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}`;
 export default ({ app }: TRoutesInput) => {
-  app.post(format("/register"), AuthApiController.Register);
-  app.post(format("/login"), AuthApiController.Login);
-  app.get(format("/:id"), AuthApiController.Info);
+
+  // Agrupar rutas relacionadas
+  app.post(formatRoute("/register"), AuthApiController.register);
+  app.post(formatRoute("/login"), AuthApiController.login);
+
+  // Rutas protegidas (requieren autenticación)
+  app.put(formatRoute("/update/:id"), authenticateToken, AuthApiController.update);
+  app.get(formatRoute("/:id"), authenticateToken, AuthApiController.info);
 };

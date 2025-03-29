@@ -4,7 +4,7 @@ import SwaggerParser from "swagger-parser";
 import swStats from "swagger-stats";
 
 import { API } from "@/backend";
-import { logWithLabel } from "@/shared/infra/functions/console";
+import { logWithLabel } from "@/shared/lib/functions/console";
 import { config } from "@/shared/utils/config";
 import emojis from "@config/json/emojis.json";
 
@@ -13,11 +13,14 @@ export const SwaggerMonitor = (main: API) => {
   let swaggerSpec = null;
   SwaggerParser.prototype.validate(projectconfig.local, function (err, api) {
     if (!err) {
-      logWithLabel("api", [
-        `Monitoring API: ${api?.info.title} v${api?.info.version}`,
-        `  ${emojis.circle_check}  ${chalk.grey("Swagger API Loaded")}`,
-        `  ${emojis.circle_check}  ${chalk.grey("Swagger API Metrics")}`,
-      ].join("\n"));
+      logWithLabel(
+        "api",
+        [
+          `Monitoring API: ${api?.info.title} v${api?.info.version}`,
+          `  ${emojis.circle_check}  ${chalk.grey("Swagger API Loaded")}`,
+          `  ${emojis.circle_check}  ${chalk.grey("Swagger API Metrics")}`,
+        ].join("\n"),
+      );
       swaggerSpec = api;
       main.app.use(
         swStats.getMiddleware({

@@ -56,12 +56,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: string
-                    example: "userId123"
-                  discord:
-                    type: string
-                    example: "123456789"
                   name:
                     type: string
                     example: "John Doe"
@@ -69,9 +63,6 @@ paths:
                     type: string
                     format: date-time
                     example: "2024-08-30T14:53:44.077Z"
-                  rol:
-                    type: string
-                    example: "user"
                   email:
                     type: string
                     example: "user@example.com"
@@ -79,11 +70,8 @@ paths:
                     type: string
                     example: "hashed-password"
                 required:
-                  - id
-                  - discord
                   - name
                   - createdAt
-                  - rol
                   - email
                   - password
         400:
@@ -92,6 +80,82 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+    put:
+      operationId: updateUser
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      description: Update user data in the API using the provided JWT token.
+      summary: Update user data.
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to update.
+          required: true
+          schema:
+            type: string
+            example: "userId123"
+        - name: Authorization
+          in: header
+          description: JWT token for authentication.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: User data to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "new-hashed-password"
+              required:
+                - name
+                - email
+      responses:
+        200:
+          description: User data updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User data updated successfully."
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-31T15:00:00.000Z"
+        400:
+          description: Bad request due to invalid data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unauthorized - invalid or missing JWT token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        404:
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
   /auth/register:
     post:
       operationId: registerUser
@@ -116,9 +180,6 @@ paths:
                 name:
                   type: string
                   example: "John Doe"
-                discord:
-                  type: string
-                  example: "123456789"
       responses:
         200:
           description: User registered successfully.
@@ -127,10 +188,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/register"
               example:
-                id: "userId123"
                 email: "user@example.com"
                 name: "John Doe"
-                discord: "123456789"
         400:
           description: Bad request due to invalid input data.
           content:
@@ -141,6 +200,7 @@ paths:
                 status: false
                 message: "Invalid request parameters"
                 data: "Email already exists"
+
   /auth/login:
     post:
       operationId: loginUser
@@ -173,7 +233,6 @@ paths:
                 id: "userId123"
                 email: "user@example.com"
                 name: "John Doe"
-                discord: "123456789"
                 token: "jwt-token-123"
         400:
           description: Bad request due to invalid credentials.
@@ -185,6 +244,7 @@ paths:
                 status: false
                 message: "Invalid email or password"
                 data: null
+
 components:
   schemas:
     error:

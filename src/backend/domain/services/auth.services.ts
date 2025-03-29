@@ -1,8 +1,9 @@
+import { UserEntity } from "@/backend/domain/entities/user.entity";
 import { encrypt, signToken, verified } from "@/backend/utils/token";
 import { main } from "@/main";
 import { User } from "@/types/backend";
 
-import { AuthL, AuthR } from "../dto/auth.zod";
+import { AuthL, AuthR } from "../../interfaces/http/dto/auth.zod";
 
 export const getAuth = async (id: string) => {
   const data = await main.prisma.userAPI.findUnique({ where: { id } });
@@ -11,8 +12,8 @@ export const getAuth = async (id: string) => {
 };
 
 export const NewAuth = async (body: Partial<User>) => {
-  const { email, password, name, discord } = body;
-  if (!email || !password || !name || !discord) return "missing_data";
+  const { email, password, name } = body;
+  if (!email || !password || !name) return "missing_data";
   const validate = AuthR.safeParse(body);
   if (!validate.success)
     return {
@@ -55,4 +56,38 @@ export const LoginAuth = async ({ email, password }: Partial<User>) => {
   const token = signToken(checkIs.email);
   const data = { token, user: checkIs };
   return data;
+};
+
+export const UpdateAuth = async (id: string, body: Partial<User>) => {
+  const { email, password, name } = body;
+  if (!email || !password || !name || !id) return "missing_data";
+  const validate = AuthR.safeParse(body);
+  if (!validate.success)
+    return {
+      errors: validate.error.errors,
+      data: null,
+    };
+
+  const checkIs = await main.prisma.userAPI.findUnique({ where: { id } });
+  if (!checkIs) return "user_not_found";
+
+  const entity = new UserEntity(checkIs.id, checkIs.name, checkIs.email, checkIs.password);
+
+  entity.changeEmail(email);
+  entity.changePassword(password);
+  entity.changeName(name);
+
+  const passHash = await encrypt(entity.password);
+  if (!passHash) return "err_encrypt_password";
+
+  const updateAuth = await main.prisma.userAPI.update({
+    where: { id },
+    data: {
+      email: entity.email,
+      password: passHash,
+      name: entity.name,
+    },
+  });
+
+  return updateAuth;
 };

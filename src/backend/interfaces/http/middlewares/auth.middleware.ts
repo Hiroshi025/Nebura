@@ -2,50 +2,68 @@ import { NextFunction, Request, Response } from "express";
 
 import { getToken } from "@/backend/utils/token";
 
-// Extend the Request interface to include the 'user' property
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user?: any
     }
   }
 }
 
-export const TokenApi = async (req: Request, res: Response, next: NextFunction) => {
+// Constantes para mensajes de error
+const ERROR_MESSAGES = {
+  TOKEN_NOT_FOUND: "Authorization token not found in headers",
+  INVALID_TOKEN: "Invalid or expired authentication token",
+  SERVER_ERROR: "Authentication service unavailable"
+};
+
+export const authenticateToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const jwtByUser = req.headers["authorization"] || "";
-    const jwt = jwtByUser.split(" ").pop();
-    if (!jwt) {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader?.split(" ")[1]; // Bearer <token>
+
+    if (!token) {
       return res.status(401).json({
-        data: null,
-        errors: {
-          message: "Token not found in headers",
-          date: new Date(),
-        },
+        success: false,
+        error: {
+          message: ERROR_MESSAGES.TOKEN_NOT_FOUND,
+          timestamp: new Date().toISOString()
+        }
       });
     }
 
-    const isUser = getToken(`${jwt}`);
-    if (!isUser) {
-      return res.status(401).json({
-        data: null,
-        errors: {
-          message: "Token not valid",
-          date: new Date(),
-        },
+    const user = await getToken(token);
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          message: ERROR_MESSAGES.INVALID_TOKEN,
+          timestamp: new Date().toISOString()
+        }
       });
     }
 
-    req.user = isUser;
-    return next();
-  } catch (e: any) {
-    return res.status(500).json({
-      data: null,
-      errors: {
-        message: "Internal server error",
-        details: e.message,
-        date: new Date(),
-      },
+    req.user = user;
+    next();
+    return;
+
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    console.error(`[Auth Middleware Error]: ${errorMessage}`);
+    
+    res.status(500).json({
+      success: false,
+      error: {
+        message: ERROR_MESSAGES.SERVER_ERROR,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined,
+        timestamp: new Date().toISOString(),
+      //requestId: req.id Asumiendo que tienes un request ID
+      }
     });
   }
+  return;
 };

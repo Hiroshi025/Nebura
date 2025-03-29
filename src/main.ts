@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 import { API } from "./backend";
+import { ProyectError } from "./infra/extenders/errors.extender";
 
 process.loadEnvFile();
 export class MainGlobal {
@@ -20,6 +21,5 @@ export class MainGlobal {
 
 export const main = new MainGlobal();
 main.Start().catch((err) => {
-  console.error("Error starting the application:", err);
-  process.exit(1);
+  throw new ProyectError(`Error starting the application: ${err}`);
 });

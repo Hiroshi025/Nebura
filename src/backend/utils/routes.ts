@@ -3,7 +3,7 @@ import { Router } from "express";
 import fs from "fs";
 import path from "path";
 
-import { logWithLabel } from "@/shared/infra/functions/console";
+import { logWithLabel } from "@/shared/lib/functions/console";
 
 /**
  * Array of directories containing route files.
@@ -37,8 +37,8 @@ const router = Router();
 
     // Cargar las rutas de forma asincrónica
     const imports = files.map(async (file) => {
-      const modulePath = path.join(routesDir, file)
-      
+      const modulePath = path.join(routesDir, file);
+
       try {
         const module = await import(modulePath);
         if (module.default) {
@@ -71,4 +71,3 @@ const router = Router();
 })();
 
 export { router };
-

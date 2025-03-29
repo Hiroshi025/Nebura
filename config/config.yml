@@ -13,7 +13,7 @@ environments:
         websecret: "dev_secret"  # Cambia esto en producción
         jwtsecret: ""
       swagger:
-        local: "config/swagger.yml"  # Ruta al archivo swagger.yml
+        local: "config/documents/swagger.yml"  # Ruta al archivo swagger.yml
         name: ""
         version: "" 
         url: ""
@@ -25,6 +25,12 @@ environments:
       sessions:
         url: "./src/infra/database/"
         name: "sessions"
+    artificial:
+      services:
+        gemini:
+          model: ""
+          configsystem: "" 
+          api-key: ""
 
   production:
     <<: *default  # Hereda configs de 'default'

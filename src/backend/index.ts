@@ -5,11 +5,11 @@ import helmet from "helmet";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import { logWithLabel } from "@/shared/infra/functions/console";
+import { logWithLabel } from "@/shared/lib/functions/console";
 import { config } from "@/shared/utils/config";
 import emojis from "@config/json/emojis.json";
 
-import { SwaggerMonitor } from "../infra/monitoring/monitor";
+import { SwaggerMonitor } from "./utils/monitor";
 import { router } from "./utils/routes";
 
 export class API {
@@ -54,13 +54,12 @@ export class API {
 
     this.io.on("connection", (socket) => {
       logWithLabel(
-        "custom",
+        "api",
         [
           `Socket Connection Established: ${socket.id}`,
           `  ${emojis.circle_check}  ${chalk.grey("Socket Connected")}`,
           `  ${emojis.circle_check}  ${chalk.grey("Socket ID:")} ${socket.id}`,
-        ].join("\n"),
-        "Express",
+        ].join("\n")
       );
     });
   }
@@ -73,7 +72,7 @@ export class API {
           `API Server is running on port ${config.environments.default.api.port}`,
           `  ${emojis.circle_check}  ${chalk.grey("API Server Started")}`,
           `  ${emojis.circle_check}  ${chalk.grey("API Port:")} ${config.environments.default.api.port}`,
-          `  ${emojis.circle_check}  ${chalk.grey("API URL:")} https://${config.environments.default.api.host}`,
+          `  ${emojis.circle_check}  ${chalk.grey("API URL:")} https://${config.environments.default.api.host}/`,
         ].join("\n"),
       );
     });
