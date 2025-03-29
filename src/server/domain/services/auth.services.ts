@@ -1,7 +1,8 @@
-import { UserEntity } from "@/backend/domain/entities/user.entity";
-import { encrypt, signToken, verified } from "@/backend/utils/token";
+import { Roles } from "@/infra/constants/user.constants";
 import { main } from "@/main";
-import { User } from "@/types/backend";
+import { UserEntity } from "@/server/domain/entities/user.entity";
+import { encrypt, signToken, verified } from "@/server/shared/utils/token";
+import { User } from "@/types/utils";
 
 import { AuthL, AuthR } from "../../interfaces/http/dto/auth.zod";
 
@@ -71,7 +72,13 @@ export const UpdateAuth = async (id: string, body: Partial<User>) => {
   const checkIs = await main.prisma.userAPI.findUnique({ where: { id } });
   if (!checkIs) return "user_not_found";
 
-  const entity = new UserEntity(checkIs.id, checkIs.name, checkIs.email, checkIs.password);
+  const entity = new UserEntity(
+    checkIs.id,
+    checkIs.name,
+    checkIs.email,
+    checkIs.password,
+    checkIs.role as Roles,
+  );
 
   entity.changeEmail(email);
   entity.changePassword(password);

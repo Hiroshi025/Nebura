@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "./src/infra/database/prisma/generated"
 }
 
 datasource db {
@@ -19,6 +18,7 @@ model UserAPI {
   name      String
   email     String   @unique
   password  String
+  role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

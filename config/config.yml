@@ -3,6 +3,7 @@ project:
   name: "Nebura Works"  # Ejemplo: Nombre del proyecto
   version: "1.0.0"
   type: "monorepo"  # Opcional: Si usas workspaces
+  api-version: "v1"  # Versión de la API
 
 environments:
   default: &default
@@ -16,8 +17,8 @@ environments:
         local: "config/documents/swagger.yml"  # Ruta al archivo swagger.yml
         name: ""
         version: "" 
-        url: ""
-        docs: ""
+        url: "/api/v1/admin-monitor"
+        docs: "/api/v1/docs"  # URL para acceder a la documentación
         auth:
           name: "luis"
           password: "luis"
@@ -31,6 +32,9 @@ environments:
           model: ""
           configsystem: "" 
           api-key: ""
+    key-secrets:
+      administrator: ""
+
 
   production:
     <<: *default  # Hereda configs de 'default'

@@ -3,6 +3,7 @@ export interface ProyectConfig {
     name: string; // Nombre del proyecto
     version: string; // Versión del proyecto
     type?: string; // Tipo de proyecto (opcional)
+    "api-version": string; // Versión de la API
   };
   modules?: Record<string, unknown>; // Módulos adicionales (opcional)
 
@@ -27,6 +28,7 @@ export interface SwaggerConfig {
   name: string; // Nombre de la API
   version: string; // Versión de la API
   url: string; // URL de la API
+  docs: string; // Ruta de los documentos de la API
   auth: {
     name: string; // Nombre de usuario para la autenticación
     password: string; // Contraseña para la autenticación
@@ -52,4 +54,7 @@ export interface EnvironmentConfig {
     };
   };
   artificial: Artificial; // Configuración de servicios artificiales
+  "key-secrets": {
+    administrator: string; // Clave secreta del administrador
+  }
 }

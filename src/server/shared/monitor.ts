@@ -3,7 +3,7 @@ import { debug } from "node:console";
 import SwaggerParser from "swagger-parser";
 import swStats from "swagger-stats";
 
-import { API } from "@/backend";
+import { API } from "@/server";
 import { logWithLabel } from "@/shared/lib/functions/console";
 import { config } from "@/shared/utils/config";
 import emojis from "@config/json/emojis.json";
@@ -26,7 +26,7 @@ export const SwaggerMonitor = (main: API) => {
         swStats.getMiddleware({
           name: projectconfig.name,
           version: projectconfig.version,
-          hostname: projectconfig.url,
+          hostname: `${projectconfig.url}`,
           timelineBucketDuration: 60000,
           swaggerSpec: swaggerSpec,
           uriPath: projectconfig.url,

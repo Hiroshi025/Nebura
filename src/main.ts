@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
-import { API } from "./backend";
 import { ProyectError } from "./infra/extenders/errors.extender";
+import { API } from "./server";
 
 process.loadEnvFile();
 export class MainGlobal {

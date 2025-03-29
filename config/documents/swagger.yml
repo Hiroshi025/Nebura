@@ -5,13 +5,6 @@ info:
     Asistent API is a RESTful API that allows you to interact with the Bot Asistent platform.
     You can use this API to manage your account and interact with the Bot Asistent platform.
     This API is built with Node.js, Express.js, and MongoDB.
-
-    This API is built by Hiroshi.
-    You can find more info about this API in the documentation.
-    You can find the documentation in the following link: [Bot Asistent API Documentation](https://docs.hiroshi-dev.me)
-
-    This API is built for educational purposes.
-    You can find the source code in the following link: [Bot Asistent API Source Code](  )
   version: "0.1.1-alpha"
   contact:
     name: "Hiroshi"
@@ -23,6 +16,92 @@ info:
     url: "https://opensource.org/licenses/MIT"
 
 paths:
+  ###### ADMIN ROUTES #######
+
+  /admin/update-role/{id}:
+    put:
+      operationId: updateUserRole
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      description: Update the role of a user in the API.
+      summary: Update user role.
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to update.
+          required: true
+          schema:
+            type: string
+            example: "userId123"
+        - name: Authorization
+          in: header
+          description: JWT token for authentication.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Role to assign to the user.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  example: "admin"
+              required:
+                - role
+      responses:
+        200:
+          description: User role updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User role updated successfully."
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "userId123"
+                      role:
+                        type: string
+                        example: "admin"
+                      name:
+                        type: string
+                        example: "John Doe"
+                      email:
+                        type: string
+                        example: "0001222@example.com"
+                      password:
+                        type: string
+                        example: "hashed-password"
+        400:
+          description: Bad request due to invalid data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unauthorized - invalid or missing JWT token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        404:
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
   ###### AUTH ROUTES #######
 
   /auth/{id}:

@@ -1,7 +1,16 @@
 import chalk from "chalk";
-import { Labels } from "src/types/package/utils";
 
-/* --- Define colors for log labels --- */
+export type Labels =
+  | "error"
+  | "success"
+  | "debug"
+  | "info"
+  | "warn"
+  | "cache"
+  | "api"
+  | "maintenance";
+
+  /* --- Define colors for log labels --- */
 export const labelColors: Record<Labels, chalk.Chalk> = {
   error: chalk.redBright,
   success: chalk.greenBright,

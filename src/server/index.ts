@@ -4,13 +4,15 @@ import session from "express-session";
 import helmet from "helmet";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import swaggerUi from "swagger-ui-express";
 
 import { logWithLabel } from "@/shared/lib/functions/console";
 import { config } from "@/shared/utils/config";
 import emojis from "@config/json/emojis.json";
 
-import { SwaggerMonitor } from "./utils/monitor";
-import { router } from "./utils/routes";
+import { SwaggerMonitor } from "./shared/monitor";
+import swaggerSetup from "./shared/swagger-doc";
+import { router } from "./shared/utils/routes";
 
 export class API {
   public app: Application;
@@ -26,14 +28,19 @@ export class API {
   }
 
   private async Middleware() {
-    this.app.use(helmet({ contentSecurityPolicy: false }));
     this.app.use(express.urlencoded({ extended: true }));
     this.app.disable("x-powered-by");
     this.app.set("trust proxy", 1);
     this.app.use(express.json());
     this.app.use(router);
 
+    this.app.use(helmet({ contentSecurityPolicy: false }));
     await SwaggerMonitor(this);
+    this.app.use(
+      config.environments.default.api.swagger.docs,
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerSetup),
+    );
   }
 
   private async Routes() {
@@ -59,7 +66,7 @@ export class API {
           `Socket Connection Established: ${socket.id}`,
           `  ${emojis.circle_check}  ${chalk.grey("Socket Connected")}`,
           `  ${emojis.circle_check}  ${chalk.grey("Socket ID:")} ${socket.id}`,
-        ].join("\n")
+        ].join("\n"),
       );
     });
   }

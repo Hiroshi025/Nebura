@@ -1,10 +1,10 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
-import { TRoutesInput } from "@/types/backend";
+import { TRoutesInput } from "@/types/utils";
 
+import { authenticateToken } from "../../../../shared/middlewares/auth.middleware";
 import { AuthApiController } from "../../controllers/auth.controllers";
-import { authenticateToken } from "../../middlewares/auth.middleware";
 
 // Constantes para paths base y versionado
 const BASE_PATH = "/auth";
@@ -17,7 +17,6 @@ const API_VERSION = "/api/v1";
  */
 const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}`;
 export default ({ app }: TRoutesInput) => {
-
   // Agrupar rutas relacionadas
   app.post(formatRoute("/register"), AuthApiController.register);
   app.post(formatRoute("/login"), AuthApiController.login);

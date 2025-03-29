@@ -1,6 +1,8 @@
 import z from "zod";
 
+import { Roles } from "@/infra/constants/user.constants";
 import { DomainError } from "@/infra/extenders/errors.extender";
+import { main } from "@/main";
 
 export class UserEntity {
   constructor(
@@ -8,6 +10,7 @@ export class UserEntity {
     public name: string,
     public email: string,
     public password: string,
+    public role: Roles = "user",
   ) {}
 
   changeEmail(newEmail: string) {
@@ -34,6 +37,22 @@ export class UserEntity {
       this.name = newName;
     } catch {
       throw new DomainError("Invalid name format");
+    }
+  }
+
+  async changeRole(newRole: Roles, currentRole: Roles, id: string) {
+    try {
+      z.enum(["admin", "user", "guest", "developer"]).parse(newRole);
+      if (currentRole !== "admin") {
+        throw new DomainError("Only admin can change roles");
+      }
+
+      const data = await main.prisma.userAPI.findUnique({ where: { id } });
+      if (!data) throw new DomainError("User not found");
+
+      this.role = newRole;
+    } catch {
+      throw new DomainError("Invalid role format");
     }
   }
 }

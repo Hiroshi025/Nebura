@@ -40,13 +40,13 @@
       "@types/*": ["./src/types/*"], // Alias para tipos personalizados
       "@utils/*": ["src/shared/utils/*"], // Alias para utilidades
       "@config/*": ["./config/*"], // Alias para configuración
-      "@backend/*": ["./src/backend/*"] // Alias para backend
+      "@backend/*": ["src/server/*"] // Alias para backend
     },
     "outDir": "./dist", // Carpeta de salida para JS compilado
     "rootDir": "./", // Raíz del proyecto
     "types": ["node", "jest"],
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json"], // Incluye todos los archivos .ts y tsconfig.json
+  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/types/.d.ts"], // Incluye todos los archivos .ts y tsconfig.json
   "exclude": ["node_modules", "dist"] // Excluye estas carpetas
 }
