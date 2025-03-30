@@ -4,7 +4,7 @@ import YAML from "yaml";
 
 import { ProyectConfig } from "@/types/package/config";
 
-import { logWithLabel } from "../lib/functions/console";
+import { logWithLabel } from "./functions/console";
 
 /**
  * Reads a YAML configuration file and returns its parsed contents.

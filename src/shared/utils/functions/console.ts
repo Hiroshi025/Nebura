@@ -19,7 +19,7 @@ import chalk from "chalk";
 
 import { labelColors, labelNames, Labels } from "@/infra/constants/tools.constants";
 
-import { config } from "../../utils/config";
+import { config } from "../config";
 
 /**
  * The function `logWithLabel` logs messages to the console with specific formatting and colors based

@@ -1,56 +1,153 @@
 import { AuthLogin, AuthRegister } from "@/infra/constants/user.constants";
 import { main } from "@/main";
 import { encrypt, signToken, verified } from "@/server/shared/utils/token";
+import { logWithLabel } from "@/shared/utils/functions/console";
 import { User } from "@/types/utils";
+import { Prisma } from "@prisma/client";
 
-export const getAuth = async (id: string) => {
-  const data = await main.prisma.userAPI.findUnique({ where: { id } });
-  if (!data) return "user_not_found";
-  return data;
-};
+export class AuthService {
+  /**
+   * Obtiene un usuario por su ID
+   * @param id - ID del usuario
+   * @returns Promise<UserResponse | ErrorResponse>
+   */
+  async getAuth(id: string) {
+    try {
+      const user = await main.prisma.userAPI.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
-export const NewAuth = async (body: Partial<User>) => {
-  const { email, password, name, discord } = body;
-  if (!email || !password || !name || !discord) return "missing_data";
-  const validate = AuthRegister.safeParse(body);
-  if (!validate.success)
-    return {
-      errors: validate.error.errors,
-      data: null,
-    };
+      if (!user) {
+        return { error: "USER_NOT_FOUND", message: "User not found" };
+      }
 
-  const checkIs = await main.prisma.userAPI.findUnique({ where: { email } });
-  if (checkIs) return "user_already_exist";
-  const passHash = await encrypt(password);
-  if (!passHash) return "err_encrypt_password";
-  const createAuth = await main.prisma.userAPI.create({
-    data: {
-      email: email,
-      password: passHash,
-      name: name,
-    },
-  });
+      return user;
+    } catch (error) {
+      logWithLabel("error", "The user not found");
+      return { error: "INTERNAL_SERVER_ERROR", message: "An error occurred while fetching user" };
+    }
+  }
 
-  return createAuth;
-};
+  /**
+   * Crea un nuevo usuario
+   * @param body - Datos del usuario
+   * @returns Promise<UserResponse | ErrorResponse>
+   */
+  async createAuth(body: Partial<User>) {
+    try {
+      const { email, password, name, discord } = body;
 
-export const LoginAuth = async ({ email, password }: Partial<User>) => {
-  if (!email || !password) return "missing_data";
-  const validate = AuthLogin.safeParse({ email, password });
-  if (!validate.success)
-    return {
-      errors: validate.error.errors,
-      data: null,
-    };
+      // Validar campos requeridos
+      if (!email || !password || !name || !discord) {
+        return { error: "MISSING_DATA", message: "Required fields are missing" };
+      }
 
-  const checkIs = await main.prisma.userAPI.findUnique({ where: { email } });
-  if (!checkIs) return "date_incorrect";
+      // Validar estructura de datos
+      const validation = AuthRegister.safeParse(body);
+      if (!validation.success) {
+        return {
+          error: "VALIDATION_ERROR",
+          message: "Invalid data format",
+          details: validation.error.errors,
+        };
+      }
 
-  const passwordHash = checkIs.password;
-  const isCorrect = await verified(password, passwordHash);
+      // Verificar si el usuario ya existe
+      const existingUser = await main.prisma.userAPI.findUnique({ where: { email } });
+      if (existingUser) {
+        return { error: "USER_EXISTS", message: "User with this email already exists" };
+      }
 
-  if (!isCorrect) return "password_incorrect";
-  const token = signToken(checkIs.email);
-  const data = { token, user: checkIs };
-  return data;
-};
+      // Encriptar contraseña
+      const passwordHash = await encrypt(password);
+      if (!passwordHash) {
+        return { error: "ENCRYPTION_ERROR", message: "Failed to encrypt password" };
+      }
+
+      // Crear usuario
+      const newUser = await main.prisma.userAPI.create({
+        data: {
+          email,
+          password: passwordHash,
+          name,
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+        },
+      });
+
+      return { user: newUser };
+    } catch (error) {
+      logWithLabel("error", "Failed to create user");
+
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return {
+          error: "DATABASE_ERROR",
+          message: "Database operation failed",
+          details: error.meta,
+        };
+      }
+
+      return { error: "INTERNAL_SERVER_ERROR", message: "Failed to create user" };
+    }
+  }
+
+  /**
+   * Autentica un usuario
+   * @param credentials - Credenciales de login
+   * @returns Promise<{token: string, user: User} | ErrorResponse>
+   */
+  async login(credentials: Partial<User>) {
+    try {
+      const { email, password } = credentials;
+
+      // Validar campos requeridos
+      if (!email || !password) {
+        return { error: "MISSING_DATA", message: "Email and password are required" };
+      }
+
+      // Validar estructura de datos
+      const validation = AuthLogin.safeParse({ email, password });
+      if (!validation.success) {
+        return {
+          error: "VALIDATION_ERROR",
+          message: "Invalid credentials format",
+          details: validation.error.errors,
+        };
+      }
+
+      // Buscar usuario
+      const user = await main.prisma.userAPI.findUnique({ where: { email } });
+      if (!user) {
+        return { error: "INVALID_CREDENTIALS", message: "Invalid email or password" };
+      }
+
+      // Verificar contraseña
+      const isPasswordValid = await verified(password, user.password);
+      if (!isPasswordValid) {
+        return { error: "INVALID_CREDENTIALS", message: "Invalid email or password" };
+      }
+
+      // Generar token JWT
+      const token = signToken(user.id);
+
+      // Eliminar contraseña del objeto usuario
+      const { password: _, ...userWithoutPassword } = user;
+
+      return { token, user: userWithoutPassword };
+    } catch (error) {
+      console.error("Error in login:", error);
+      return { error: "INTERNAL_SERVER_ERROR", message: "Failed to authenticate user" };
+    }
+  }
+}

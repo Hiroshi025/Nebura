@@ -6,8 +6,8 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 
-import { logWithLabel } from "@/shared/lib/functions/console";
 import { config } from "@/shared/utils/config";
+import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
 import { SwaggerMonitor } from "./shared/monitor";
@@ -35,6 +35,7 @@ export class API {
     this.app.use(router);
 
     this.app.use(helmet({ contentSecurityPolicy: false }));
+    //this.app.use(IPBlocker.getInstance().getMiddleware());
     await SwaggerMonitor(this);
     this.app.use(
       config.environments.default.api.swagger.docs,

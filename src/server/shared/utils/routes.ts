@@ -3,7 +3,7 @@ import { Router } from "express";
 import fs from "fs";
 import path from "path";
 
-import { logWithLabel } from "@/shared/lib/functions/console";
+import { logWithLabel } from "@/shared/utils/functions/console";
 
 /**
  * Array of directories containing route files.
