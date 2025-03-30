@@ -4,7 +4,7 @@ import { ErrorResponse } from "@/infra/constants/user.constants";
 
 // Métodos helper
 export function isErrorResponse(response: any): response is ErrorResponse {
-  return (response as ErrorResponse).errors !== undefined || typeof response === "string";
+  return (response as ErrorResponse).error !== undefined || typeof response === "string";
 }
 
 export function normalizeError(error: unknown): string[] {

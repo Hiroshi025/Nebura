@@ -1,7 +1,7 @@
 import { TRoutesInput } from "@/types/utils";
 
-import { authenticateToken, isAdmin } from "../../../../shared/middlewares/auth.middleware";
-import { LicenseController } from "../../controllers/license.controllers";
+import { authenticateToken, isAdmin } from "../../../../../shared/middlewares/auth.middleware";
+import { LicenseController } from "../../../controllers/license/license.controllers";
 
 const BASE_PATH = "/licences";
 const API_VERSION = "/api/v1";

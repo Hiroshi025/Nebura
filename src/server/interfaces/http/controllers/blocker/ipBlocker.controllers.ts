@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { IPBlocker } from "@/server/shared/ipBlocker";
+import { IPBlocker } from "@/shared/ipBlocker";
 
 class IPBlockController {
   async blockIP(req: Request, res: Response) {

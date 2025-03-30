@@ -1,7 +1,7 @@
 import { main } from "@/main";
-import { CreateLicenseDto, UpdateLicenseDto } from "@/server/interfaces/http/dto/license.dtos";
 
-import { LicenseEntity } from "../entities/license.entity";
+import { CreateLicenseDto, UpdateLicenseDto } from "../../../interfaces/http/dto/license.dtos";
+import { LicenseEntity } from "../../entities/license.entity";
 
 export class LicenseService {
   async create(createDto: CreateLicenseDto): Promise<LicenseEntity> {

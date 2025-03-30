@@ -1,11 +1,12 @@
 import chalk from "chalk";
-import express, { Application } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import session from "express-session";
 import helmet from "helmet";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 
+import { IPBlocker } from "@/shared/ipBlocker";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
@@ -35,13 +36,17 @@ export class API {
     this.app.use(router);
 
     this.app.use(helmet({ contentSecurityPolicy: false }));
-    //this.app.use(IPBlocker.getInstance().getMiddleware());
     await SwaggerMonitor(this);
     this.app.use(
       config.environments.default.api.swagger.docs,
       swaggerUi.serve,
       swaggerUi.setup(swaggerSetup),
     );
+
+    this.app.use(async (req: Request, res: Response, next: NextFunction) => {
+      const middleware = await IPBlocker.getInstance().getMiddleware();
+      middleware(req, res, next);
+    });
   }
 
   private async Routes() {

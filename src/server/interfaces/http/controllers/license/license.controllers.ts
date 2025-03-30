@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 
-import { LicenseService } from "@/server/domain/services/license.service";
-
-import { CreateLicenseDto, UpdateLicenseDto } from "../dto/license.dtos";
+import { LicenseService } from "../../../../domain/services/license/license.service";
+import { CreateLicenseDto, UpdateLicenseDto } from "../../dto/license.dtos";
 
 export class LicenseController {
   private service = new LicenseService();

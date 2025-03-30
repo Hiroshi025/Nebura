@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { ErrorResponse } from "@/infra/constants/user.constants";
-import { AuthService } from "@/server/domain/services/auth.service";
+import { AuthService } from "@/server/domain/services/auth/auth.service";
 
 export class AuthController {
   private service = new AuthService();

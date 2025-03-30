@@ -3,8 +3,8 @@
 
 import { TRoutesInput } from "@/types/utils";
 
-import { authenticateToken } from "../../../../shared/middlewares/auth.middleware";
-import { AuthController } from "../../controllers/auth.controllers";
+import { authenticateToken } from "../../../../../shared/middlewares/auth.middleware";
+import { AuthController } from "../../../controllers/auth/auth.controllers";
 
 // Constantes para paths base y versionado
 const BASE_PATH = "/auth";

@@ -2,9 +2,9 @@ openapi: "3.0.0"
 info:
   title: "NEBURA AI"
   description: |
-    Asistent API is a RESTful API that allows you to interact with the Bot Asistent platform.
-    You can use this API to manage your account and interact with the Bot Asistent platform.
-    This API is built with Node.js, Express.js, and MongoDB.
+    Comprehensive API for managing blocked IP addresses within the system.
+    Provides endpoints for blocking, unblocking, and listing IP addresses with detailed filtering capabilities.
+    All endpoints require authentication and appropriate user privileges.
   version: "0.1.1-alpha"
   contact:
     name: "Hiroshi"
@@ -16,6 +16,162 @@ info:
     url: "https://opensource.org/licenses/MIT"
 
 paths:
+  ###### BLOCK IP ROUTES ######
+
+  /block-ip:
+    post:
+      tags:
+        - IP Management
+      summary: Block an IP address
+      description: Adds an IP address to the system's block list
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ipAddress:
+                  type: string
+                  format: ipv4
+                  example: "192.168.1.100"
+                  description: IP address to be blocked
+                reason:
+                  type: string
+                  example: "Multiple failed login attempts"
+                  description: Reason for blocking (for audit logs)
+                expiresAt:
+                  type: string
+                  format: date-time
+                  example: "2023-12-31T23:59:59Z"
+                  description: Expiration date/time for automatic unblock (optional)
+              required:
+                - ipAddress
+      responses:
+        "200":
+          description: IP successfully blocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "IP blocked successfully"
+        "400":
+          description: Invalid request or malformed parameters
+        "401":
+          description: Authentication required or invalid token
+        "403":
+          description: User lacks required permissions
+        "500":
+          description: Internal server error
+
+  /unblock-ip/{ipAddress}:
+    delete:
+      tags:
+        - IP Management
+      summary: Unblock an IP address
+      description: Removes an IP address from the active block list
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ipAddress
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ipv4
+          example: "192.168.1.100"
+          description: IP address to be unblocked
+      responses:
+        "200":
+          description: IP successfully unblocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "IP unblocked successfully"
+        "400":
+          description: Invalid IP format or parameters
+        "401":
+          description: Authentication required
+        "403":
+          description: Insufficient user privileges
+        "404":
+          description: Specified IP address is not currently blocked
+        "500":
+          description: Server error processing request
+
+  /blocked-ips:
+    get:
+      tags:
+        - IP Management
+      summary: List blocked IP addresses
+      description: Returns a paginated list of currently blocked IP addresses in the system
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number to retrieve (pagination)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of results per page
+      responses:
+        "200":
+          description: Successfully retrieved blocked IP list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ipAddress:
+                      type: string
+                      example: "192.168.1.100"
+                      description: Blocked IP address
+                    blockedAt:
+                      type: string
+                      format: date-time
+                      example: "2023-01-15T10:30:00Z"
+                      description: Date/time when block was initiated
+                    reason:
+                      type: string
+                      example: "Brute force attack attempt"
+                      description: Documented reason for blocking
+                    expiresAt:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: "2023-02-15T10:30:00Z"
+                      description: Block expiration date/time (if applicable)
+                    blockedBy:
+                      type: string
+                      example: "admin@domain.com"
+                      description: User who performed the block
+
   ###### LICENSE ROUTES #######
 
   /licenses:
