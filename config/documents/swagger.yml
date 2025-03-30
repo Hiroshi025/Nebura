@@ -16,91 +16,198 @@ info:
     url: "https://opensource.org/licenses/MIT"
 
 paths:
-  ###### ADMIN ROUTES #######
+  ###### LICENSE ROUTES #######
 
-  /admin/update-role/{id}:
-    put:
-      operationId: updateUserRole
+  /licenses:
+    post:
+      operationId: createLicense
       tags:
-        - Admin
+        - Licenses
       security:
         - bearerAuth: []
-      description: Update the role of a user in the API.
-      summary: Update user role.
+      summary: Create a new license
+      description: |
+        Creates a new software license with specified parameters.
+        Requires admin privileges.
       parameters:
-        - name: id
-          in: path
-          description: ID of the user to update.
-          required: true
-          schema:
-            type: string
-            example: "userId123"
         - name: Authorization
           in: header
-          description: JWT token for authentication.
+          description: Bearer token for authentication
           required: true
           schema:
             type: string
+            example: "Bearer your.jwt.token.here"
       requestBody:
-        description: Role to assign to the user.
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                role:
-                  type: string
-                  example: "admin"
-              required:
-                - role
+              $ref: "#/components/schemas/CreateLicenseRequest"
+      responses:
+        201:
+          description: License created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+
+    get:
+      operationId: listLicenses
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: List all licenses
+      description: Retrieve a list of all licenses in the system
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
       responses:
         200:
-          description: User role updated successfully.
+          description: Successful operation
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "User role updated successfully."
-                  data:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        example: "userId123"
-                      role:
-                        type: string
-                        example: "admin"
-                      name:
-                        type: string
-                        example: "John Doe"
-                      email:
-                        type: string
-                        example: "0001222@example.com"
-                      password:
-                        type: string
-                        example: "hashed-password"
-        400:
-          description: Bad request due to invalid data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+                type: array
+                items:
+                  $ref: "#/components/schemas/License"
         401:
-          description: Unauthorized - invalid or missing JWT token.
+          $ref: "#/components/responses/Unauthorized"
+
+  /licenses/{id}:
+    get:
+      operationId: getLicense
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: Get license details
+      description: Retrieve detailed information about a specific license
+      parameters:
+        - $ref: "#/components/parameters/licenseId"
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      responses:
+        200:
+          description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                $ref: "#/components/schemas/LicenseResponse"
         404:
-          description: User not found.
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      operationId: updateLicense
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: Update a license
+      description: Update license properties
+      parameters:
+        - $ref: "#/components/parameters/licenseId"
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLicenseRequest"
+      responses:
+        200:
+          description: License updated successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                $ref: "#/components/schemas/LicenseResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+
+    delete:
+      operationId: deleteLicense
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: Delete a license
+      description: Permanently remove a license from the system
+      parameters:
+        - $ref: "#/components/parameters/licenseId"
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      responses:
+        204:
+          description: License deleted successfully
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /licenses/validate/{key}:
+    post:
+      operationId: validateLicense
+      tags:
+        - Licenses
+      summary: Validate a license key
+      description: Check if a license key is valid and meets all requirements
+      parameters:
+        - name: key
+          in: path
+          description: License key to validate
+          required: true
+          schema:
+            type: string
+            example: "LIC-123-456-789"
+        - name: hwid
+          in: query
+          description: Hardware ID to validate against
+          required: true
+          schema:
+            type: string
+            example: "HWID12345"
+      responses:
+        200:
+          description: License validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResponse"
+        403:
+          description: License validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
 
   ###### AUTH ROUTES #######
 
@@ -135,6 +242,12 @@ paths:
               schema:
                 type: object
                 properties:
+                  id:
+                    type: string
+                    example: "userId123"
+                  discord:
+                    type: string
+                    example: "123456789"
                   name:
                     type: string
                     example: "John Doe"
@@ -142,6 +255,9 @@ paths:
                     type: string
                     format: date-time
                     example: "2024-08-30T14:53:44.077Z"
+                  rol:
+                    type: string
+                    example: "user"
                   email:
                     type: string
                     example: "user@example.com"
@@ -149,8 +265,11 @@ paths:
                     type: string
                     example: "hashed-password"
                 required:
+                  - id
+                  - discord
                   - name
                   - createdAt
+                  - rol
                   - email
                   - password
         400:
@@ -159,82 +278,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-    put:
-      operationId: updateUser
-      tags:
-        - Auth
-      security:
-        - bearerAuth: []
-      description: Update user data in the API using the provided JWT token.
-      summary: Update user data.
-      parameters:
-        - name: id
-          in: path
-          description: ID of the user to update.
-          required: true
-          schema:
-            type: string
-            example: "userId123"
-        - name: Authorization
-          in: header
-          description: JWT token for authentication.
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: User data to update.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: "John Doe"
-                email:
-                  type: string
-                  example: "user@example.com"
-                password:
-                  type: string
-                  example: "new-hashed-password"
-              required:
-                - name
-                - email
-      responses:
-        200:
-          description: User data updated successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "User data updated successfully."
-                  updatedAt:
-                    type: string
-                    format: date-time
-                    example: "2024-08-31T15:00:00.000Z"
-        400:
-          description: Bad request due to invalid data.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        401:
-          description: Unauthorized - invalid or missing JWT token.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        404:
-          description: User not found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
   /auth/register:
     post:
       operationId: registerUser
@@ -259,6 +302,9 @@ paths:
                 name:
                   type: string
                   example: "John Doe"
+                discord:
+                  type: string
+                  example: "123456789"
       responses:
         200:
           description: User registered successfully.
@@ -267,8 +313,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/register"
               example:
+                id: "userId123"
                 email: "user@example.com"
                 name: "John Doe"
+                discord: "123456789"
         400:
           description: Bad request due to invalid input data.
           content:
@@ -279,7 +327,6 @@ paths:
                 status: false
                 message: "Invalid request parameters"
                 data: "Email already exists"
-
   /auth/login:
     post:
       operationId: loginUser
@@ -312,6 +359,7 @@ paths:
                 id: "userId123"
                 email: "user@example.com"
                 name: "John Doe"
+                discord: "123456789"
                 token: "jwt-token-123"
         400:
           description: Bad request due to invalid credentials.
@@ -354,3 +402,213 @@ components:
           type: string
         token:
           type: string
+    CreateLicenseRequest:
+      type: object
+      required:
+        - type
+        - userId
+        - adminId
+        - hwid
+        - validUntil
+      properties:
+        type:
+          $ref: "#/components/schemas/LicenseType"
+        userId:
+          type: string
+          description: ID of user this license is assigned to
+          example: "507f1f77bcf86cd799439011"
+        adminId:
+          type: string
+          description: ID of admin creating the license
+          example: "507f1f77bcf86cd799439012"
+        hwid:
+          type: array
+          items:
+            type: string
+          description: List of allowed hardware IDs
+          example: ["HWID12345"]
+        requestLimit:
+          type: integer
+          description: Maximum allowed API requests
+          default: 1000
+          example: 5000
+        validUntil:
+          type: string
+          format: date-time
+          description: Expiration date
+          example: "2024-12-31T23:59:59Z"
+        metadata:
+          type: object
+          description: Additional custom data
+          example: { "features": ["premium", "api-access"] }
+
+    UpdateLicenseRequest:
+      type: object
+      properties:
+        hwid:
+          type: array
+          items:
+            type: string
+          description: Updated list of hardware IDs
+          example: ["HWID12345", "HWID67890"]
+        requestLimit:
+          type: integer
+          description: New request limit
+          example: 10000
+        validUntil:
+          type: string
+          format: date-time
+          description: New expiration date
+          example: "2025-12-31T23:59:59Z"
+        status:
+          $ref: "#/components/schemas/LicenseStatus"
+
+    LicenseResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "License created successfully"
+        data:
+          $ref: "#/components/schemas/License"
+
+    License:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "507f1f77bcf86cd799439013"
+        type:
+          $ref: "#/components/schemas/LicenseType"
+        userId:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        adminId:
+          type: string
+          example: "507f1f77bcf86cd799439012"
+        hwid:
+          type: array
+          items:
+            type: string
+          example: ["HWID12345"]
+        requestLimit:
+          type: integer
+          example: 5000
+        requestCount:
+          type: integer
+          example: 42
+        validFrom:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        validUntil:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+        status:
+          $ref: "#/components/schemas/LicenseStatus"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-02T00:00:00Z"
+
+    ValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+        remainingRequests:
+          type: integer
+          example: 4958
+        expiresAt:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+
+    ValidationError:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: false
+        reason:
+          type: string
+          example: "HWID_MISMATCH"
+        message:
+          type: string
+          example: "License not valid for this hardware"
+
+    LicenseType:
+      type: string
+      enum: [FREE, BASIC, PREMIUM, ENTERPRISE, CUSTOM]
+      example: "PREMIUM"
+
+    LicenseStatus:
+      type: string
+      enum: [ACTIVE, EXPIRED, BANNED, REVOKED]
+      example: "ACTIVE"
+
+  parameters:
+    licenseId:
+      name: id
+      in: path
+      description: License ID
+      required: true
+      schema:
+        type: string
+        example: "507f1f77bcf86cd799439013"
+
+  responses:
+    BadRequest:
+      description: "Invalid request data"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Invalid HWID format"
+
+    Unauthorized:
+      description: "Missing or invalid authentication"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Authentication required"
+
+    Forbidden:
+      description: "Insufficient permissions"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Admin privileges required"
+
+    NotFound:
+      description: "Resource not found"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "License not found"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

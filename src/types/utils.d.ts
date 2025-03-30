@@ -12,13 +12,10 @@ export interface TRoutesInput {
 }
 
 export interface User {
-  id: string;
   email: string;
   name: string;
-  discord: string;
   password: string;
-  rol: string;
-  createdAt: Date;
+  role: string;
 }
 
 interface LoginInput {
@@ -33,4 +30,14 @@ interface RegisterInput extends LoginInput {
 
 interface UpdateInput extends Partial<RegisterInput> {
   id: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  discord: string;
+  password: string;
+  rol: string;
+  createdAt: Date;
 }

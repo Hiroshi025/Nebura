@@ -4,7 +4,7 @@
 import { TRoutesInput } from "@/types/utils";
 
 import { authenticateToken } from "../../../../shared/middlewares/auth.middleware";
-import { AuthApiController } from "../../controllers/auth.controllers";
+import { AuthApiCtrl } from "../../controllers/auth.controllers";
 
 // Constantes para paths base y versionado
 const BASE_PATH = "/auth";
@@ -18,10 +18,7 @@ const API_VERSION = "/api/v1";
 const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}`;
 export default ({ app }: TRoutesInput) => {
   // Agrupar rutas relacionadas
-  app.post(formatRoute("/register"), AuthApiController.register);
-  app.post(formatRoute("/login"), AuthApiController.login);
-
-  // Rutas protegidas (requieren autenticación)
-  app.put(formatRoute("/update/:id"), authenticateToken, AuthApiController.update);
-  app.get(formatRoute("/:id"), authenticateToken, AuthApiController.info);
+  app.get(formatRoute("/:id"), authenticateToken, AuthApiCtrl.Info);
+  app.post(formatRoute("/register"), AuthApiCtrl.Register);
+  app.post(formatRoute("/login"), AuthApiCtrl.Login);
 };

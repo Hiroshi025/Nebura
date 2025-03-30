@@ -12,7 +12,7 @@ environments:
       host: "localhost"
       sessions:
         websecret: "dev_secret"  # Cambia esto en producción
-        jwtsecret: ""
+        jwtsecret: "jwt_secret"
       swagger:
         local: "config/documents/swagger.yml"  # Ruta al archivo swagger.yml
         name: ""

@@ -9,8 +9,8 @@ import { logWithLabel } from "@/shared/lib/functions/console";
  * Array of directories containing route files.
  */
 const routesDirs = [
-  path.resolve(__dirname, "../interfaces/http/routes/api"),
-  path.resolve(__dirname, "../interfaces/http/routes"),
+  path.resolve(__dirname, "../../interfaces/http/routes/api"),
+  path.resolve(__dirname, "../../interfaces/http/routes"),
 ];
 
 /**

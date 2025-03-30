@@ -1,133 +1,58 @@
 import { Request, Response } from "express";
+import { ZodIssue } from "zod";
 
-import {
-  isErrorResponse,
-  normalizeError,
-  sendErrorResponse,
-  sendSuccessResponse,
-} from "@/server/shared/helper-method";
-import { LoginInput, RegisterInput, UpdateInput } from "@/types/utils";
+import { getAuth, LoginAuth, NewAuth } from "@/server/domain/services/auth.service";
 
-import { getAuth, LoginAuth, NewAuth, UpdateAuth } from "../../../domain/services/auth.services";
+type ResponseType = { errors: ZodIssue[]; data: null };
+export class AuthApiCtrl {
+  static Login = async ({ body }: Request, res: Response) => {
+    const { email, password } = body;
 
-// Constantes para mensajes de error
-const ERROR_MESSAGES = {
-  MISSING_USER_ID: "Missing user id",
-  MISSING_DATA: "Missing required fields",
-  INVALID_CREDENTIALS: "Invalid email or password",
-  USER_NOT_FOUND: "User not found",
-  REGISTRATION_FAILED: "Registration failed",
-  UPDATE_FAILED: "Update failed",
-  FETCH_FAILED: "Failed to fetch user info",
-};
-
-export class AuthApiController {
-  /**
-   * Maneja el inicio de sesión de usuarios
-   */
-  static async login(req: Request, res: Response) {
-    try {
-      const { email, password }: LoginInput = req.body;
-
-      if (!email || !password) {
-        return sendErrorResponse(res, 400, [ERROR_MESSAGES.MISSING_DATA]);
-      }
-
-      const response = await LoginAuth({ email, password });
-
-      if (isErrorResponse(response)) {
-        return sendErrorResponse(res, 400, normalizeError(response));
-      }
-
-      return sendSuccessResponse(res, 200, {
-        message: "Login successful",
-        data: response,
+    const response = await LoginAuth({ email, password });
+    if ((response as ResponseType).errors || typeof response === "string") {
+      return res.status(400).json({
+        errors: response,
       });
-    } catch (error) {
-      console.error("[AuthController] Login error:", error);
-      return sendErrorResponse(res, 500, [ERROR_MESSAGES.INVALID_CREDENTIALS]);
     }
-  }
 
-  /**
-   * Maneja el registro de nuevos usuarios
-   */
-  static async register(req: Request, res: Response) {
-    try {
-      const userData: RegisterInput = req.body;
+    return res.status(200).json({
+      data: response,
+      errors: [],
+    });
+  };
 
-      const response = await NewAuth(userData);
-
-      if (isErrorResponse(response)) {
-        return sendErrorResponse(res, 400, normalizeError(response));
-      }
-
-      return sendSuccessResponse(res, 201, {
-        message: "Registration successful",
-        data: response,
+  static Register = async ({ body }: Request, res: Response): Promise<Response> => {
+    const response = await NewAuth(body);
+    if ((response as ResponseType).errors || typeof response === "string") {
+      return res.status(400).json({
+        errors: response,
       });
-    } catch (error) {
-      console.error("[AuthController] Register error:", error);
-      return sendErrorResponse(res, 500, [ERROR_MESSAGES.REGISTRATION_FAILED]);
     }
-  }
 
-  /**
-   * Obtiene información del usuario
-   */
-  static async info(req: Request, res: Response) {
-    try {
-      const userId = req.params.id;
-
-      if (!userId) {
-        return sendErrorResponse(res, 400, [ERROR_MESSAGES.MISSING_USER_ID]);
-      }
-
-      const profile = await getAuth(userId);
-
-      if (typeof profile === "string") {
-        return sendErrorResponse(res, 404, [ERROR_MESSAGES.USER_NOT_FOUND]);
-      }
-
-      return sendSuccessResponse(res, 200, {
-        message: "User info retrieved successfully",
-        data: profile,
+    return res.status(201).json({
+      data: response,
+      errors: [],
+    });
+  };
+  
+  static Info = async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    if (!userId) {
+      return res.status(400).json({
+        errors: [{ message: "Missing user id" }],
       });
-    } catch (error) {
-      console.error("[AuthController] Info error:", error);
-      return sendErrorResponse(res, 500, [ERROR_MESSAGES.FETCH_FAILED]);
     }
-  }
 
-  /**
-   * Actualiza la información del usuario
-   */
-  static async update(req: Request, res: Response) {
-    try {
-      const userId = req.params.id;
-
-      if (!userId) {
-        return sendErrorResponse(res, 400, [ERROR_MESSAGES.MISSING_USER_ID]);
-      }
-
-      const updateData: UpdateInput = {
-        id: userId,
-        ...req.body,
-      };
-
-      const response = await UpdateAuth(userId, updateData);
-
-      if (isErrorResponse(response)) {
-        return sendErrorResponse(res, 400, normalizeError(response));
-      }
-
-      return sendSuccessResponse(res, 200, {
-        message: "User info updated successfully",
-        data: response,
+    const profile = await getAuth(userId);
+    if (typeof profile === "string")
+      return res.status(404).json({
+        data: null,
+        errors: profile,
       });
-    } catch (error) {
-      console.error("[AuthController] Update error:", error);
-      return sendErrorResponse(res, 500, [ERROR_MESSAGES.UPDATE_FAILED]);
-    }
-  }
+
+    return res.status(200).json({
+      data: profile,
+      errors: [],
+    });
+  };
 }
