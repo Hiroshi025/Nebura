@@ -1,52 +1,69 @@
 {
   "compilerOptions": {
-    /* Nivel de rigor y calidad */
-    "strict": true, // Habilita todas las opciones de strict*
-    "noImplicitAny": true, // Error si hay tipos implícitos 'any'
-    "strictNullChecks": true, // Null/undefined deben ser manejados explícitamente
-    "strictFunctionTypes": true, // Chequeo estricto en tipos de funciones
-    "strictBindCallApply": true, // Verifica bind/call/apply correctos
-    "strictPropertyInitialization": true, // Las propiedades de clase deben inicializarse
-    "noUnusedLocals": true, // Error en variables no usadas
-    "noUnusedParameters": true, // Error en parámetros no usados
-    "noImplicitReturns": true, // Error si falta un return en una función
-    "noFallthroughCasesInSwitch": true, // Evita casos no manejados en switch
-
-    /* Rendimiento y modularidad */
-    "module": "CommonJS", // Usa ES Modules (mejor para ESM + CommonJS)
-    "moduleResolution": "node10", // Resolución moderna de módulos
-    "esModuleInterop": true, // Compatibilidad entre ESM y CommonJS
-    "skipLibCheck": true, // Mejor rendimiento (evita chequear tipos en node_modules)
-    "forceConsistentCasingInFileNames": true, // Evita errores en sistemas case-sensitive
-
-    /* Soporte para features modernos */
-    "target": "ESNext", // Sintaxis JS moderna (ajusta según tu entorno)
-    "lib": ["ES2022", "DOM"], // APIs disponibles (añade "DOM" si hay frontend)
-    "experimentalDecorators": true, // Habilita decoradores (útil para ORMs/NestJS)
-    "emitDecoratorMetadata": true, // Metadatos para decoradores (TypeORM/NestJS)
-
-    /* Configuración para proyectos grandes */
-    "composite": true, // Habilita referencias entre proyectos (monorepos)
-    "incremental": true, // Mejora velocidad de compilación con caché
-    "declaration": true, // Genera archivos .d.ts (esencial para librerías)
-    "declarationMap": true, // Mapeo para navegar al código fuente desde .d.ts
-    "sourceMap": true, // Genera source maps para debugging
-
-    /* Paths y organización */
-    "baseUrl": "./", // Base para paths absolutos
-    "paths": {
-      "@/*": ["./src/*"], // Alias para facilitar imports
-      "@tests/*": ["./__tests__/*"], // Alias para tests (ajusta según tu estructura)
-      "@types/*": ["src/typings/*"], // Alias para tipos personalizados
-      "@utils/*": ["src/shared/utils/*"], // Alias para utilidades
-      "@config/*": ["./config/*"], // Alias para configuración
-      "@backend/*": ["src/server/*"] // Alias para backend
-    },
-    "outDir": "./dist", // Carpeta de salida para JS compilado
-    "rootDir": "./", // Raíz del proyecto
-    "types": ["node", "jest"],
-    "resolveJsonModule": true
+      "strict": true,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "strictBindCallApply": true,
+      "strictPropertyInitialization": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "module": "CommonJS",
+      "moduleResolution": "node10",
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "target": "ESNext",
+      "lib": [
+          "ES2022",
+          "DOM"
+      ],
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "composite": true,
+      "incremental": true,
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true,
+      "baseUrl": "./",
+      "paths": {
+          "@/*": [
+              "./src/*"
+          ],
+          "@tests/*": [
+              "./__tests__/*"
+          ],
+          "@types/*": [
+              "src/typings/*"
+          ],
+          "@utils/*": [
+              "src/shared/utils/*"
+          ],
+          "@config/*": [
+              "./config/*"
+          ],
+          "@backend/*": [
+              "src/server/*"
+          ]
+      },
+      "outDir": "./dist",
+      "rootDir": "./",
+      "types": [
+          "node",
+          "jest"
+      ],
+      "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/typings/.d.ts"], // Incluye todos los archivos .ts y tsconfig.json
-  "exclude": ["node_modules", "dist"] // Excluye estas carpetas
+  "include": [
+      "**/*.ts",
+      "tsconfig.json",
+      "config/json/*.json",
+      "src/typings/.d.ts"
+  ],
+  "exclude": [
+      "node_modules",
+      "dist"
+  ]
 }

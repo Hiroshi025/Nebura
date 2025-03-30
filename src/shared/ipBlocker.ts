@@ -34,7 +34,10 @@ export class IPBlocker {
 
       this.blockedIPs = new Set(activeBlocks.map((block) => block.ipAddress));
       this.lastUpdate = new Date();
-      logWithLabel("IPBlocker", `${this.blockedIPs.size} Ips is blocked and loaded in memory. Last update: ${this.lastUpdate.toISOString()}`);
+      logWithLabel(
+        "IPBlocker",
+        `${this.blockedIPs.size} Ips is blocked and loaded in memory. Last update: ${this.lastUpdate.toISOString()}`,
+      );
     } catch (error) {
       logWithLabel("IPBlocker", `Error loading blocked IPs: ${error}`, "error");
       throw error;
@@ -66,9 +69,12 @@ export class IPBlocker {
       });
 
       this.blockedIPs.add(ipAddress);
-      console.log(`[IPBlocker] IP ${ipAddress} bloqueada. Razón: ${reason}`);
+      logWithLabel(
+        "api",
+        `[IPBlocker] IP ${ipAddress} bloqueada por ${userId}. Motivo: ${reason || "No especificado"}`,
+      );
     } catch (error) {
-      console.error(`[IPBlocker] Error al bloquear IP ${ipAddress}:`, error);
+      logWithLabel("api", `[IPBlocker] Error al bloquear IP ${ipAddress}: ${error}`);
       throw error;
     }
   }
@@ -81,9 +87,9 @@ export class IPBlocker {
       });
 
       this.blockedIPs.delete(ipAddress);
-      console.log(`[IPBlocker] IP ${ipAddress} desbloqueada.`);
+      logWithLabel("api", `[IPBlocker] IP ${ipAddress} desbloqueada.`);
     } catch (error) {
-      console.error(`[IPBlocker] Error al desbloquear IP ${ipAddress}:`, error);
+      logWithLabel("api", `[IPBlocker] Error al desbloquear IP ${ipAddress}: ${error}`);
       throw error;
     }
   }
@@ -104,7 +110,7 @@ export class IPBlocker {
       const realIp = clientIp.split(",")[0].trim();
 
       if (this.isIPBlocked(realIp)) {
-        console.warn(`[IPBlocker] Intento de acceso desde IP bloqueada: ${realIp}`);
+        logWithLabel("api", `[IPBlocker] IP ${realIp} bloqueada. Acceso denegado.`);
         return res.status(403).json({
           error: "Access denied",
           reason: "Your IP address has been blocked",
@@ -133,29 +139,33 @@ export class IPBlocker {
       await main.prisma.failedAttempt.create({
         data: {
           ipAddress,
-          attemptTime: new Date()
-        }
+          attemptTime: new Date(),
+        },
       });
 
       // Verificar si supera el límite de intentos
       const attemptCount = await main.prisma.failedAttempt.count({
         where: {
           ipAddress,
-          attemptTime: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } // Últimas 24 horas
-        }
+          attemptTime: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Últimas 24 horas
+        },
       });
 
       // Bloquear automáticamente después de 5 intentos fallidos
       if (attemptCount >= 5) {
         await this.blockIP(
-          ipAddress, 
-          'system', 
-          'Automatic block due to multiple failed attempts',
-          new Date(Date.now() + 24 * 60 * 60 * 1000) // Bloqueo por 24 horas
+          ipAddress,
+          "system",
+          "Automatic block due to multiple failed attempts",
+          new Date(Date.now() + 24 * 60 * 60 * 1000), // Bloqueo por 24 horas
         );
       }
     } catch (error) {
-      console.error(`[IPBlocker] Error al registrar intento fallido desde ${ipAddress}:`, error);
+      logWithLabel(
+        "api",
+        `[IPBlocker] Error al registrar intento fallido desde IP ${ipAddress}: ${error}`,
+      );
+      throw error;
     }
   }
 }

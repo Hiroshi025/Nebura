@@ -11,6 +11,7 @@ import { logWithLabel } from "@/shared/utils/functions/console";
 const routesDirs = [
   path.resolve(__dirname, "../../interfaces/http/routes/api/license"),
   path.resolve(__dirname, "../../interfaces/http/routes/api/blocker"),
+  path.resolve(__dirname, "../../interfaces/http/routes/api/public"),
   path.resolve(__dirname, "../../interfaces/http/routes/api/auth"),
 ];
 

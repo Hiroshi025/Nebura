@@ -42,6 +42,10 @@ paths:
                   type: string
                   example: "Multiple failed login attempts"
                   description: Reason for blocking (for audit logs)
+                userId:
+                  type: string
+                  example: "507f1f77bcf86cd799439011"
+                  description: ID of the user performing the block (optional)
                 expiresAt:
                   type: string
                   format: date-time
@@ -434,6 +438,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+
   /auth/register:
     post:
       operationId: registerUser
@@ -483,6 +488,7 @@ paths:
                 status: false
                 message: "Invalid request parameters"
                 data: "Email already exists"
+
   /auth/login:
     post:
       operationId: loginUser
@@ -527,6 +533,259 @@ paths:
                 status: false
                 message: "Invalid email or password"
                 data: null
+
+  ###### STATUS ROUTES #######
+
+  /public/status:
+    get:
+      operationId: getStatus
+      tags:
+        - Status
+      summary: Get system status
+      description: Retrieve the current status of the system, including uptime and health checks.
+      responses:
+        200:
+          description: System status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "operational"
+                  uptime:
+                    type: number
+                    format: float
+                    example: 15.3353802
+                  database:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: "healthy"
+                      responseTime:
+                        type: string
+                        example: "283ms"
+                  system:
+                    type: object
+                    properties:
+                      platform:
+                        type: string
+                        example: "win32"
+                      arch:
+                        type: string
+                        example: "x64"
+                      nodeVersion:
+                        type: string
+                        example: "v20.18.0"
+                      memoryUsage:
+                        type: object
+                        properties:
+                          rss:
+                            type: integer
+                            example: 113950720
+                          heapTotal:
+                            type: integer
+                            example: 61710336
+                          heapUsed:
+                            type: integer
+                            example: 40272096
+                          external:
+                            type: integer
+                            example: 2482539
+                          arrayBuffers:
+                            type: integer
+                            example: 53510
+                      uptime:
+                        type: number
+                        format: float
+                        example: 15.0516304
+                      cpuUsage:
+                        type: object
+                        properties:
+                          user:
+                            type: integer
+                            example: 3375000
+                          system:
+                            type: integer
+                            example: 7078000
+                      systemLoad:
+                        type: array
+                        items:
+                          type: number
+                          format: float
+                        example: [0, 0, 0]
+                      freeMemory:
+                        type: integer
+                        example: 3459817472
+                      totalMemory:
+                        type: integer
+                        example: 14861852672
+                  meta:
+                    type: object
+                    properties:
+                      apiVersion:
+                        type: string
+                        example: "1.0.0"
+                      environment:
+                        type: string
+                        example: "development"
+                      startTime:
+                        type: string
+                        format: date-time
+                        example: "2025-03-30T11:21:25.486Z"
+        500:
+          description: Internal server error or system is down.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "System is currently down"
+                  error:
+                    type: string
+                    example: "Database connection failed"
+                  code:
+                    type: string
+                    example: "DB_CONN_ERR"
+        404:
+          description: Resource not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Resource not found"
+                  error:
+                    type: string
+                    example: "The requested resource does not exist"
+                  code:
+                    type: string
+                    example: "RESOURCE_NOT_FOUND"
+        401:
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Unauthorized access"
+                  error:
+                    type: string
+                    example: "Invalid or missing authentication token"
+                  code:
+                    type: string
+                    example: "UNAUTHORIZED"
+
+  ###### SECURITY ROUTES #######
+
+  /license-info/{licenseKey}:
+    get:
+      tags:
+        - Security
+      summary: Get license information
+      description: Retrieve detailed information about a specific license including associated IPs and usage statistics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: licenseKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique license key identifier
+          example: "5f8d04b3ab35de3a342f3a5b"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  license:
+                    $ref: '#/components/schemas/License'
+                  blockedIPs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BlockedIP'
+                  usageStats:
+                    $ref: '#/components/schemas/UsageStats'
+        '400':
+          description: Invalid license key format
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '403':
+          description: Forbidden - User doesn't have required permissions
+        '404':
+          description: License not found
+        '500':
+          description: Internal server error
+
+  /ip-info/{ipAddress}:
+    get:
+      tags:
+        - Security
+      summary: Get IP address information
+      description: Retrieve security information about a specific IP address including block status and related activity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ipAddress
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ipv4
+          description: IP address to query
+          example: "192.168.1.100"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ipAddress:
+                    type: string
+                    example: "192.168.1.100"
+                  isBlocked:
+                    type: boolean
+                    example: true
+                  blockedInfo:
+                    $ref: '#/components/schemas/BlockedIP'
+                  failedAttempts:
+                    type: integer
+                    example: 3
+                  licenseUsage:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LicenseUsage'
+        '400':
+          description: Invalid IP address format
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '403':
+          description: Forbidden - User doesn't have required permissions
+        '500':
+          description: Internal server error
 
 components:
   schemas:
@@ -752,6 +1011,9 @@ components:
               error:
                 type: string
                 example: "Admin privileges required"
+              message:
+                type: string
+                example: "You don't have permission to access this resource"
 
     NotFound:
       description: "Resource not found"
@@ -763,8 +1025,105 @@ components:
               error:
                 type: string
                 example: "License not found"
+
+    License:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5b"
+        type:
+          type: string
+          enum: [FREE, BASIC, PREMIUM, ENTERPRISE, CUSTOM]
+          example: "PREMIUM"
+        userId:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5c"
+        validUntil:
+          type: string
+          format: date-time
+          example: "2023-12-31T23:59:59Z"
+        requestLimit:
+          type: integer
+          example: 1000
+        requestCount:
+          type: integer
+          example: 342
+        hwid:
+          type: array
+          items:
+            type: string
+          example: ["HWID12345", "HWID67890"]
+
+    BlockedIP:
+      type: object
+      properties:
+        ipAddress:
+          type: string
+          example: "192.168.1.100"
+        reason:
+          type: string
+          example: "Multiple failed login attempts"
+        blockedAt:
+          type: string
+          format: date-time
+          example: "2023-01-15T10:30:00Z"
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2023-02-15T10:30:00Z"
+        blockedBy:
+          $ref: '#/components/schemas/UserReference'
+
+    UsageStats:
+      type: object
+      properties:
+        requestCount:
+          type: integer
+          example: 342
+        requestLimit:
+          type: integer
+          example: 1000
+        lastUsedAt:
+          type: string
+          format: date-time
+          example: "2023-01-20T14:30:00Z"
+        lastUsedIp:
+          type: string
+          example: "192.168.1.150"
+
+    LicenseUsage:
+      type: object
+      properties:
+        licenseId:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5b"
+        type:
+          type: string
+          example: "PREMIUM"
+        lastUsedAt:
+          type: string
+          format: date-time
+          example: "2023-01-20T14:30:00Z"
+
+    UserReference:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5d"
+        name:
+          type: string
+          example: "Admin User"
+        email:
+          type: string
+          format: email
+          example: "admin@example.com"
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: JWT token obtained during authentication

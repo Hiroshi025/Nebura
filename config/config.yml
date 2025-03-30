@@ -8,7 +8,7 @@ project:
 environments:
   default: &default
     api:
-      port: 3000
+      port: 0
       host: "localhost"
       sessions:
         websecret: "dev_secret"  # Cambia esto en producción
@@ -18,13 +18,13 @@ environments:
         name: ""
         version: "" 
         url: "/api/v1/admin-monitor"
-        docs: "/api/v1/docs"  # URL para acceder a la documentación
+        docs: "/api/v1/api-docs"  # URL para acceder a la documentación
         auth:
           name: "luis"
           password: "luis"
     database:
       sessions:
-        url: "./src/infra/database/"
+        url: "./src/infrastructure/database/"
         name: "sessions"
     artificial:
       services:
@@ -39,7 +39,7 @@ environments:
   production:
     <<: *default  # Hereda configs de 'default'
     api:
-      port: 8080
+      port: 0
       host: "" 
       sessions:
         websecret: "prod_secret"

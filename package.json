@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "tsc",
     "start:dev": "nodemon --exec ts-node-dev -r tsconfig-paths/register src/main.ts",
     "docs": "typedoc --out docs",
@@ -23,7 +23,7 @@
     ]
   },
   "prisma": {
-    "schema": "src/infra/database/prisma/schema.prisma"
+    "schema": "src/infrastructure/database/prisma/schema.prisma"
   },
   "description": "",
   "dependencies": {
@@ -35,9 +35,11 @@
     "connect-sqlite3": "^0.9.15",
     "discord.js": "^14.18.0",
     "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
     "express-session": "^1.18.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "node-notifier": "^10.0.1",
     "nodemon": "^3.1.9",
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",

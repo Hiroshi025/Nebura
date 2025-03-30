@@ -9,6 +9,7 @@ export type Labels =
   | "cache"
   | "api"
   | "IPBlocker"
+  | "LicenseIP"
   | "maintenance";
 
   /* --- Define colors for log labels --- */
@@ -22,6 +23,7 @@ export const labelColors: Record<Labels, chalk.Chalk> = {
   cache: chalk.hex("#5c143b"),
   api: chalk.hex("#FFA500"),
   IPBlocker: chalk.hex("#FFA500"),
+  LicenseIP: chalk.hex("#FFA500"),
 };
 
 /* --- Define labels for log messages --- */
@@ -35,4 +37,5 @@ export const labelNames: Record<Labels, string> = {
   cache: "Cache",
   IPBlocker: "IP Blocker",
   api: "API",
+  LicenseIP: "License IP",
 };

@@ -5,8 +5,7 @@ import { IPBlocker } from "@/shared/ipBlocker";
 class IPBlockController {
   async blockIP(req: Request, res: Response) {
     try {
-      const { ipAddress, reason, expiresAt } = req.body;
-      const userId = req.user.id; // Asume que tienes autenticación
+      const { ipAddress, reason, expiresAt, userId } = req.body;
 
       await IPBlocker.getInstance().blockIP(
         ipAddress, 

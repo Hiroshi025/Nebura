@@ -3,6 +3,10 @@ declare global {
   namespace Express {
     interface Request {
       user?: any;
+      license?: {
+        type: "FREE" | "BASIC" | "PREMIUM";
+      };
+      clientIp?: string;
     }
   }
 }
