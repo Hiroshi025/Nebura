@@ -37,7 +37,7 @@
     "paths": {
       "@/*": ["./src/*"], // Alias para facilitar imports
       "@tests/*": ["./__tests__/*"], // Alias para tests (ajusta según tu estructura)
-      "@types/*": ["./src/types/*"], // Alias para tipos personalizados
+      "@types/*": ["src/typings/*"], // Alias para tipos personalizados
       "@utils/*": ["src/shared/utils/*"], // Alias para utilidades
       "@config/*": ["./config/*"], // Alias para configuración
       "@backend/*": ["src/server/*"] // Alias para backend
@@ -47,6 +47,6 @@
     "types": ["node", "jest"],
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/types/.d.ts"], // Incluye todos los archivos .ts y tsconfig.json
+  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/typings/.d.ts"], // Incluye todos los archivos .ts y tsconfig.json
   "exclude": ["node_modules", "dist"] // Excluye estas carpetas
 }

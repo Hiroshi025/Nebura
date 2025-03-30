@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { ProyectError } from "./infra/extenders/errors.extender";
+import { ProyectError } from "./infrastructure/extenders/errors.extender";
 import { API } from "./server";
 
 process.loadEnvFile();

@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import YAML from "yaml";
 
-import { ProyectConfig } from "@/types/package/config";
+import { ProyectConfig } from "@/typings/package/config";
 
 import { logWithLabel } from "./functions/console";
 

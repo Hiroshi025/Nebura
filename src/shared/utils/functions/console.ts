@@ -17,7 +17,7 @@
 
 import chalk from "chalk";
 
-import { labelColors, labelNames, Labels } from "@/infra/constants/tools.constants";
+import { labelColors, labelNames, Labels } from "@/infrastructure/constants/tools.constants";
 
 import { config } from "../config";
 

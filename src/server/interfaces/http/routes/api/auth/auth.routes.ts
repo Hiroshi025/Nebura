@@ -1,7 +1,7 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
-import { TRoutesInput } from "@/types/utils";
+import { TRoutesInput } from "@/typings/utils";
 
 import { authenticateToken } from "../../../../../shared/middlewares/auth.middleware";
 import { AuthController } from "../../../controllers/auth/auth.controllers";
