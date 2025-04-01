@@ -1,4 +1,6 @@
 {
   "correct": "✅",
-  "circle_check": "🟢"
+  "circle_check": "🟢",
+  "circle_x": "🔴",
+  "moderator": "🛠️"
 }

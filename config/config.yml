@@ -44,3 +44,18 @@ environments:
       host: "" 
       sessions:
         websecret: "prod_secret"
+
+modules:
+  discord:
+    token: "" 
+    presence: 
+      status: "online"  # Opciones: online, idle, dnd, invisible
+      activity:
+        type: "WATCHING"  # Opciones: PLAYING, WATCHING, LISTENING, STREAMING
+        name: "Nebura Works"  # Nombre de la actividad
+        url: ""  # URL de la actividad (opcional)
+    configs: 
+      eventpath: "./src/modules/discord/bot/events"
+      bot-extensions:
+        - ".js"
+        - ".ts"

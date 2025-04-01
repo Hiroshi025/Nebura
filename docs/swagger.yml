@@ -1108,6 +1108,69 @@ components:
       enum: [ACTIVE, EXPIRED, BANNED, REVOKED]
       example: "ACTIVE"
 
+    BlockedIP:
+      type: object
+      properties:
+        ipAddress:
+          type: string
+          example: "192.168.1.100"
+        reason:
+          type: string
+          example: "Multiple failed login attempts"
+        blockedAt:
+          type: string
+          format: date-time
+          example: "2023-01-15T10:30:00Z"
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2023-02-15T10:30:00Z"
+        blockedBy:
+          $ref: '#/components/schemas/UserReference'
+    UserReference:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5d"
+        name:
+          type: string
+          example: "Admin User"
+        email:
+          type: string
+          format: email
+          example: "admin@example.com"
+    UsageStats:
+      type: object
+      properties:
+        requestCount:
+          type: integer
+          example: 342
+        requestLimit:
+          type: integer
+          example: 1000
+        lastUsedAt:
+          type: string
+          format: date-time
+          example: "2023-01-20T14:30:00Z"
+        lastUsedIp:
+          type: string
+          example: "192.168.1.150"
+    LicenseUsage:
+      type: object
+      properties:
+        licenseId:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5b"
+        type:
+          type: string
+          example: "PREMIUM"
+        lastUsedAt:
+          type: string
+          format: date-time
+          example: "2023-01-20T14:30:00Z"
+
   parameters:
     licenseId:
       name: id
@@ -1182,101 +1245,6 @@ components:
               error:
                 type: string
                 example: "License not found"
-
-    License:
-      type: object
-      properties:
-        id:
-          type: string
-          example: "5f8d04b3ab35de3a342f3a5b"
-        type:
-          type: string
-          enum: [FREE, BASIC, PREMIUM, ENTERPRISE, CUSTOM]
-          example: "PREMIUM"
-        userId:
-          type: string
-          example: "5f8d04b3ab35de3a342f3a5c"
-        validUntil:
-          type: string
-          format: date-time
-          example: "2023-12-31T23:59:59Z"
-        requestLimit:
-          type: integer
-          example: 1000
-        requestCount:
-          type: integer
-          example: 342
-        hwid:
-          type: array
-          items:
-            type: string
-          example: ["HWID12345", "HWID67890"]
-
-    BlockedIP:
-      type: object
-      properties:
-        ipAddress:
-          type: string
-          example: "192.168.1.100"
-        reason:
-          type: string
-          example: "Multiple failed login attempts"
-        blockedAt:
-          type: string
-          format: date-time
-          example: "2023-01-15T10:30:00Z"
-        expiresAt:
-          type: string
-          format: date-time
-          nullable: true
-          example: "2023-02-15T10:30:00Z"
-        blockedBy:
-          $ref: '#/components/schemas/UserReference'
-
-    UsageStats:
-      type: object
-      properties:
-        requestCount:
-          type: integer
-          example: 342
-        requestLimit:
-          type: integer
-          example: 1000
-        lastUsedAt:
-          type: string
-          format: date-time
-          example: "2023-01-20T14:30:00Z"
-        lastUsedIp:
-          type: string
-          example: "192.168.1.150"
-
-    LicenseUsage:
-      type: object
-      properties:
-        licenseId:
-          type: string
-          example: "5f8d04b3ab35de3a342f3a5b"
-        type:
-          type: string
-          example: "PREMIUM"
-        lastUsedAt:
-          type: string
-          format: date-time
-          example: "2023-01-20T14:30:00Z"
-
-    UserReference:
-      type: object
-      properties:
-        id:
-          type: string
-          example: "5f8d04b3ab35de3a342f3a5d"
-        name:
-          type: string
-          example: "Admin User"
-        email:
-          type: string
-          format: email
-          example: "admin@example.com"
 
   securitySchemes:
     bearerAuth:

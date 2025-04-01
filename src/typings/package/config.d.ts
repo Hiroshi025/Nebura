@@ -5,8 +5,23 @@ export interface ProyectConfig {
     type?: string; // Tipo de proyecto (opcional)
     "api-version": string; // Versión de la API
   };
-  modules?: Record<string, unknown>; // Módulos adicionales (opcional)
-
+  modules: {
+    discord: {
+      token: string; // Token de Discord
+      presence: {
+        status: string; // Estado de presencia
+        activity: {
+          name: string; // Nombre de la actividad
+          type: number; // Tipo de actividad (0-3)
+          url?: string; // URL de la actividad (opcional)
+        }
+      };
+      configs: {
+        eventpath: string; // Ruta de eventos
+        "bot-extensions": string[]; // Extensiones del bot
+      }
+    }
+  };
   environments: {
     default: EnvironmentConfig; // Configuración por defecto
     production?: Partial<EnvironmentConfig>; // Configuración para producción (hereda de 'default')

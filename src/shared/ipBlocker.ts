@@ -1,7 +1,9 @@
+import chalk from "chalk";
 import { NextFunction, Request, Response } from "express";
 
 import { main } from "@/main";
 import { logWithLabel } from "@/shared/utils/functions/console";
+import emojis from "@config/json/emojis.json";
 
 export class IPBlocker {
   private static instance: IPBlocker;
@@ -36,7 +38,10 @@ export class IPBlocker {
       this.lastUpdate = new Date();
       logWithLabel(
         "IPBlocker",
-        `${this.blockedIPs.size} Ips is blocked and loaded in memory. Last update: ${this.lastUpdate.toISOString()}`,
+        [
+          `${this.blockedIPs.size} Ips is blocked and loaded in memory.`,
+          `  ${chalk.grey(`${emojis.moderator}   Last update: ${this.lastUpdate.toISOString()}`)}`,
+        ].join("\n"),
       );
     } catch (error) {
       logWithLabel("IPBlocker", `Error loading blocked IPs: ${error}`, "error");

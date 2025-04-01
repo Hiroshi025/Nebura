@@ -24,11 +24,11 @@ export class API {
     this.server = createServer(this.app);
     this.io = new Server(this.server);
 
-    this.Routes();
-    this.Middleware();
+    this.routes();
+    this.middleware();
   }
 
-  private async Middleware() {
+  private async middleware() {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.disable("x-powered-by");
     this.app.set("trust proxy", 1);
@@ -49,7 +49,7 @@ export class API {
     });
   }
 
-  private async Routes() {
+  private async routes() {
     const environments = config.environments.default;
     this.app.use(
       session({
@@ -77,7 +77,7 @@ export class API {
     });
   }
 
-  public async Start() {
+  public async start() {
     this.server.listen(config.environments.default.api.port, () => {
       logWithLabel(
         "api",
