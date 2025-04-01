@@ -48,6 +48,12 @@ export class SecurityController {
         include: { blockedUser: { select: { id: true, name: true } } },
       });
 
+      if (!blockedInfo) return res.status(404).json({ 
+        data: null,
+        error: "IP address not found" 
+      });
+      
+
       const failedAttempts = await main.prisma.failedAttempt.count({
         where: { ipAddress },
       });
@@ -57,7 +63,7 @@ export class SecurityController {
         select: { id: true, type: true },
       });
 
-      res.json({
+      return res.json({
         ipAddress,
         isBlocked: !!blockedInfo,
         blockedInfo,
@@ -65,7 +71,7 @@ export class SecurityController {
         licenseUsage,
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to retrieve IP info" });
+      return res.status(500).json({ error: "Failed to retrieve IP info" });
     }
   }
 }

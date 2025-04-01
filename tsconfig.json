@@ -1,69 +1,43 @@
 {
   "compilerOptions": {
-      "strict": true,
-      "noImplicitAny": true,
-      "strictNullChecks": true,
-      "strictFunctionTypes": true,
-      "strictBindCallApply": true,
-      "strictPropertyInitialization": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "noImplicitReturns": true,
-      "noFallthroughCasesInSwitch": true,
-      "module": "CommonJS",
-      "moduleResolution": "node10",
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "target": "ESNext",
-      "lib": [
-          "ES2022",
-          "DOM"
-      ],
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "composite": true,
-      "incremental": true,
-      "declaration": true,
-      "declarationMap": true,
-      "sourceMap": true,
-      "baseUrl": "./",
-      "paths": {
-          "@/*": [
-              "./src/*"
-          ],
-          "@tests/*": [
-              "./__tests__/*"
-          ],
-          "@types/*": [
-              "src/typings/*"
-          ],
-          "@utils/*": [
-              "src/shared/utils/*"
-          ],
-          "@config/*": [
-              "./config/*"
-          ],
-          "@backend/*": [
-              "src/server/*"
-          ]
-      },
-      "outDir": "./dist",
-      "rootDir": "./",
-      "types": [
-          "node",
-          "jest"
-      ],
-      "resolveJsonModule": true
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "CommonJS",
+    "moduleResolution": "node10",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "target": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "composite": true,
+    "incremental": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@tests/*": ["./__tests__/*"],
+      "@types/*": ["src/typings/*"],
+      "@utils/*": ["src/shared/utils/*"],
+      "@config/*": ["./config/*"],
+      "@backend/*": ["src/server/*"]
+    },
+    "outDir": "./dist",
+    "rootDir": "./",
+    "types": ["node", "jest"],
+    "resolveJsonModule": true
   },
-  "include": [
-      "**/*.ts",
-      "tsconfig.json",
-      "config/json/*.json",
-      "src/typings/.d.ts"
-  ],
-  "exclude": [
-      "node_modules",
-      "dist"
-  ]
+  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/typings/.d.ts", "src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

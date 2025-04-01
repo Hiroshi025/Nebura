@@ -4,14 +4,27 @@ import { rateLimit } from "express-rate-limit";
 import { main } from "@/main";
 
 import { IPBlocker } from "./ipBlocker";
+import { Notification } from "./notification";
+import { config } from "./utils/config";
 import { logWithLabel } from "./utils/functions/console";
 
 const ipBlocker = IPBlocker.getInstance();
+const notification = new Notification();
+
+/**
+ * Manages rate limiting for the application, including default and custom configurations.
+ * Also handles IP blocking for repeated violations.
+ */
 export class RateLimitManager {
+  private notifications: typeof config.moderation.notifications;
   private static instance: RateLimitManager;
   private defaultLimiter: any;
 
+  /**
+   * Private constructor to enforce singleton pattern.
+   */
   private constructor() {
+    this.notifications = config.moderation.notifications;
     // Default rate limiter configuration
     this.defaultLimiter = rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
@@ -42,6 +55,10 @@ export class RateLimitManager {
     });
   }
 
+  /**
+   * Retrieves the singleton instance of the RateLimitManager.
+   * @returns {RateLimitManager} The singleton instance.
+   */
   public static getInstance(): RateLimitManager {
     if (!RateLimitManager.instance) {
       RateLimitManager.instance = new RateLimitManager();
@@ -49,10 +66,19 @@ export class RateLimitManager {
     return RateLimitManager.instance;
   }
 
+  /**
+   * Gets the default rate limiter middleware.
+   * @returns {any} The default rate limiter middleware.
+   */
   public getDefaultLimiter() {
     return this.defaultLimiter;
   }
 
+  /**
+   * Creates a custom rate limiter with specific options.
+   * @param {any} options - Configuration options for the custom rate limiter.
+   * @returns {any} The custom rate limiter middleware.
+   */
   public createCustomLimiter(options: any) {
     return rateLimit({
       ...options,
@@ -70,6 +96,12 @@ export class RateLimitManager {
     });
   }
 
+  /**
+   * Records a rate limit violation in the database.
+   * @param {string} ip - The IP address of the violator.
+   * @param {string} endpoint - The endpoint where the violation occurred.
+   * @returns {Promise<void>} A promise that resolves when the violation is recorded.
+   */
   private async recordRateLimitViolation(ip: string, endpoint: string): Promise<void> {
     try {
       await main.prisma.rateLimitViolation.create({
@@ -79,11 +111,34 @@ export class RateLimitManager {
           violationTime: new Date(),
         },
       });
+
+      // Enviar notificación si el token de webhook es válido
+      if (this.notifications.webhooks.token) {
+        await notification.sendWebhookNotification(
+          "Rate Limit Violation",
+          `IP: ${ip} ha excedido el límite de solicitudes en el endpoint: ${endpoint}`,
+          "#FF0000",
+          [
+            { name: "IP Address", value: ip, inline: true },
+            { name: "Endpoint", value: endpoint, inline: true },
+            { name: "Time", value: new Date().toISOString(), inline: true },
+          ],
+          {
+            content: "🚨 Alerta de Violación de Límite de Tasa",
+            username: "Rate Limit Manager",
+          },
+        );
+      }
     } catch (error) {
       logWithLabel("error", "Error recording rate limit violation:");
     }
   }
 
+  /**
+   * Retrieves the count of rate limit violations for a specific IP in the last 24 hours.
+   * @param {string} ip - The IP address to check.
+   * @returns {Promise<number>} The count of violations.
+   */
   private async getViolationCount(ip: string): Promise<number> {
     try {
       const count = await main.prisma.rateLimitViolation.count({
@@ -94,6 +149,25 @@ export class RateLimitManager {
           },
         },
       });
+
+      // Enviar notificación si el token de webhook es válido y el conteo es crítico
+      if (this.notifications.webhooks.token && count >= 3) {
+        await notification.sendWebhookNotification(
+          "Critical Rate Limit Violations",
+          `IP: ${ip} ha alcanzado ${count} violaciones en las últimas 24 horas.`,
+          "#FFA500",
+          [
+            { name: "IP Address", value: ip, inline: true },
+            { name: "Violation Count", value: count.toString(), inline: true },
+            { name: "Time", value: new Date().toISOString(), inline: true },
+          ],
+          {
+            content: "⚠️ Alerta Crítica de Violaciones",
+            username: "Rate Limit Manager",
+          },
+        );
+      }
+
       return count;
     } catch (error) {
       logWithLabel("error", "Error getting rate limit violation count:");
@@ -101,6 +175,13 @@ export class RateLimitManager {
     }
   }
 
+  /**
+   * Middleware to apply rate limiting based on license type or default settings.
+   * Also checks if the IP is blocked.
+   * @param {Request} req - The Express request object.
+   * @param {Response} res - The Express response object.
+   * @param {NextFunction} next - The next middleware function.
+   */
   public async getRateLimitMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
       // Check if IP is blocked first

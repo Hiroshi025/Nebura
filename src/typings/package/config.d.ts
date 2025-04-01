@@ -26,6 +26,17 @@ export interface ProyectConfig {
     default: EnvironmentConfig; // Configuración por defecto
     production?: Partial<EnvironmentConfig>; // Configuración para producción (hereda de 'default')
   };
+  moderation: {
+    notifications: {
+      urlapi: string; // URL de la API de notificaciones
+      version: string; // Versión de la API de notificaciones
+      webhooks: {
+        token: string; 
+        id: string;
+        avatarURL: string;
+      }
+    }
+  }
 }
 
 export interface Artificial {

@@ -14,7 +14,7 @@ environments:
         websecret: "dev_secret"  # Cambia esto en producción
         jwtsecret: "jwt_secret"
       swagger:
-        local: "docs/swagger.yml"  # Ruta al archivo swagger.yml
+        local: "config/api-docs/swagger.yml"  # Ruta al archivo swagger.yml
         name: ""
         version: "" 
         url: "/api/v1/admin-monitor"
@@ -24,7 +24,7 @@ environments:
           password: "luis"
     database:
       sessions:
-        url: "./src/infrastructure/database/"
+        url: "src/infrastructure/database/"
         name: "sessions"
     artificial:
       services:
@@ -47,7 +47,7 @@ environments:
 
 modules:
   discord:
-    token: "" 
+    token: "MTM1NjY0ODI0MDM2MzIxMzAxMQ.GpaulA.Hz4-1XALlpmVnK_lhMYkD-LMGa83eIPuDE73Y8" 
     presence: 
       status: "online"  # Opciones: online, idle, dnd, invisible
       activity:
@@ -55,7 +55,16 @@ modules:
         name: "Nebura Works"  # Nombre de la actividad
         url: ""  # URL de la actividad (opcional)
     configs: 
-      eventpath: "./src/modules/discord/bot/events"
+      eventpath: "src/modules/discord/bot/events/"
       bot-extensions:
         - ".js"
         - ".ts"
+
+moderation:
+  notifications:
+    urlapi: "https://discord.com/api" 
+    version: "v10"  # Versión de la API de Discord
+    webhooks: 
+      token: "" 
+      id: ""
+      avatarURL: ""

@@ -59,6 +59,7 @@ export default ({ app }: TRoutesInput) => {
       message: "Too many requests, please try again later.",
     }),
     authenticateToken,
+    isAdmin,
     controller.getAll.bind(controller),
   );
 

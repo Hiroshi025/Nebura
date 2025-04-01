@@ -2,5 +2,9 @@
   "out": "docs",
   "excludeExternals": true,
   "hideGenerator": true,
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-zod"] // Soporte para Zod
+  "name": "Nebura AI",
+  "plugin": ["typedoc-plugin-zod", "typedoc-github-theme"],
+  "tsconfig": "tsconfig.json",
+  "entryPoints": ["./src/**/*.ts"],
+  "entryPointStrategy": "expand"
 }

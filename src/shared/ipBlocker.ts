@@ -5,17 +5,32 @@ import { main } from "@/main";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
+import { Notification } from "./notification";
+import { config } from "./utils/config";
+
+/**
+ * Class to manage IP address blocking.
+ */
 export class IPBlocker {
   private static instance: IPBlocker;
+  private notifications: typeof config.moderation.notifications;
   private blockedIPs: Set<string> = new Set();
   private lastUpdate: Date = new Date(0);
 
+  /**
+   * Private constructor to implement the Singleton pattern.
+   */
   private constructor() {
+    this.notifications = config.moderation.notifications;
     this.loadBlockedIPs();
-    // Actualizar cada hora
+    // Update every hour
     setInterval(() => this.loadBlockedIPs(), 60 * 60 * 1000);
   }
 
+  /**
+   * Gets the unique instance of IPBlocker.
+   * @returns The IPBlocker instance.
+   */
   public static getInstance(): IPBlocker {
     if (!IPBlocker.instance) {
       IPBlocker.instance = new IPBlocker();
@@ -23,6 +38,10 @@ export class IPBlocker {
     return IPBlocker.instance;
   }
 
+  /**
+   * Loads blocked IP addresses from the database.
+   * @returns A promise that resolves when the IPs are loaded.
+   */
   private async loadBlockedIPs(): Promise<void> {
     try {
       logWithLabel("IPBlocker", "Loading blocked IPs...");
@@ -49,6 +68,14 @@ export class IPBlocker {
     }
   }
 
+  /**
+   * Blocks an IP address.
+   * @param ipAddress - The IP address to block.
+   * @param userId - The ID of the user performing the block.
+   * @param reason - The reason for the block (optional).
+   * @param expiresAt - The expiration date of the block (optional).
+   * @returns A promise that resolves when the IP is blocked.
+   */
   public async blockIP(
     ipAddress: string,
     userId: string,
@@ -77,14 +104,34 @@ export class IPBlocker {
       this.blockedIPs.add(ipAddress);
       logWithLabel(
         "api",
-        `[IPBlocker] IP ${ipAddress} bloqueada por ${userId}. Motivo: ${reason || "No especificado"}`,
+        `[IPBlocker] IP ${ipAddress} blocked by ${userId}. Reason: ${reason || "Not specified"}`,
       );
+
+      // Send notification if webhook token is valid
+      if (this.notifications.webhooks.token) {
+        const notification = new Notification();
+        await notification.sendWebhookNotification(
+          "IP Blocked",
+          `The IP address ${ipAddress} has been blocked.`,
+          "#FF0000",
+          [
+            { name: "Blocked By", value: userId, inline: true },
+            { name: "Reason", value: reason || "Not specified", inline: true },
+            { name: "Expires At", value: expiresAt?.toISOString() || "Indefinite", inline: true },
+          ],
+        );
+      }
     } catch (error) {
-      logWithLabel("api", `[IPBlocker] Error al bloquear IP ${ipAddress}: ${error}`);
+      logWithLabel("api", `[IPBlocker] Error blocking IP ${ipAddress}: ${error}`);
       throw error;
     }
   }
 
+  /**
+   * Unblocks an IP address.
+   * @param ipAddress - The IP address to unblock.
+   * @returns A promise that resolves when the IP is unblocked.
+   */
   public async unblockIP(ipAddress: string): Promise<void> {
     try {
       await main.prisma.blockedIP.updateMany({
@@ -93,17 +140,37 @@ export class IPBlocker {
       });
 
       this.blockedIPs.delete(ipAddress);
-      logWithLabel("api", `[IPBlocker] IP ${ipAddress} desbloqueada.`);
+      logWithLabel("api", `[IPBlocker] IP ${ipAddress} unblocked.`);
+
+      // Send notification if webhook token is valid
+      if (this.notifications.webhooks.token) {
+        const notification = new Notification();
+        await notification.sendWebhookNotification(
+          "IP Unblocked",
+          `The IP address ${ipAddress} has been unblocked.`,
+          "#00FF00",
+          [{ name: "IP Address", value: ipAddress, inline: true }],
+        );
+      }
     } catch (error) {
-      logWithLabel("api", `[IPBlocker] Error al desbloquear IP ${ipAddress}: ${error}`);
+      logWithLabel("api", `[IPBlocker] Error unblocking IP ${ipAddress}: ${error}`);
       throw error;
     }
   }
 
+  /**
+   * Checks if an IP address is blocked.
+   * @param ipAddress - The IP address to check.
+   * @returns `true` if the IP is blocked, otherwise `false`.
+   */
   public isIPBlocked(ipAddress: string): boolean {
     return this.blockedIPs.has(ipAddress);
   }
 
+  /**
+   * Gets the middleware to block requests from blocked IPs.
+   * @returns Express middleware.
+   */
   public getMiddleware() {
     return (req: Request, res: Response, next: NextFunction) => {
       const clientIp = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
@@ -112,11 +179,11 @@ export class IPBlocker {
         return res.status(400).json({ error: "Could not determine IP address" });
       }
 
-      // Extraer la IP real si está detrás de un proxy
+      // Extract the real IP if behind a proxy
       const realIp = clientIp.split(",")[0].trim();
 
       if (this.isIPBlocked(realIp)) {
-        logWithLabel("api", `[IPBlocker] IP ${realIp} bloqueada. Acceso denegado.`);
+        logWithLabel("api", `[IPBlocker] IP ${realIp} blocked. Access denied.`);
         return res.status(403).json({
           error: "Access denied",
           reason: "Your IP address has been blocked",
@@ -128,6 +195,12 @@ export class IPBlocker {
     };
   }
 
+  /**
+   * Retrieves a paginated list of blocked IP addresses.
+   * @param page - Page number (default is 1).
+   * @param limit - Number of results per page (default is 20).
+   * @returns A promise that resolves with the list of blocked IPs.
+   */
   public async getBlockedIPs(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
     return await main.prisma.blockedIP.findMany({
@@ -139,9 +212,15 @@ export class IPBlocker {
     });
   }
 
+  /**
+   * Logs a failed attempt from an IP address.
+   * If the allowed attempts are exceeded, the IP will be automatically blocked.
+   * @param ipAddress - The IP address of the failed attempt.
+   * @returns A promise that resolves when the attempt is logged.
+   */
   public async recordFailedAttempt(ipAddress: string): Promise<void> {
     try {
-      // Registrar el intento fallido en la base de datos
+      // Log the failed attempt in the database
       await main.prisma.failedAttempt.create({
         data: {
           ipAddress,
@@ -149,27 +228,42 @@ export class IPBlocker {
         },
       });
 
-      // Verificar si supera el límite de intentos
+      // Check if it exceeds the attempt limit
       const attemptCount = await main.prisma.failedAttempt.count({
         where: {
           ipAddress,
-          attemptTime: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Últimas 24 horas
+          attemptTime: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
         },
       });
 
-      // Bloquear automáticamente después de 5 intentos fallidos
+      // Automatically block after 5 failed attempts
       if (attemptCount >= 5) {
         await this.blockIP(
           ipAddress,
           "system",
           "Automatic block due to multiple failed attempts",
-          new Date(Date.now() + 24 * 60 * 60 * 1000), // Bloqueo por 24 horas
+          new Date(Date.now() + 24 * 60 * 60 * 1000), // Block for 24 hours
         );
+
+        // Send notification if webhook token is valid
+        if (this.notifications.webhooks.token) {
+          const notification = new Notification();
+          await notification.sendWebhookNotification(
+            "Automatic IP Block",
+            `The IP address ${ipAddress} has been automatically blocked due to multiple failed attempts.`,
+            "#FFA500",
+            [
+              { name: "IP Address", value: ipAddress, inline: true },
+              { name: "Reason", value: "Multiple failed attempts", inline: true },
+              { name: "Blocked Duration", value: "24 hours", inline: true },
+            ],
+          );
+        }
       }
     } catch (error) {
       logWithLabel(
         "api",
-        `[IPBlocker] Error al registrar intento fallido desde IP ${ipAddress}: ${error}`,
+        `[IPBlocker] Error logging failed attempt from IP ${ipAddress}: ${error}`,
       );
       throw error;
     }
