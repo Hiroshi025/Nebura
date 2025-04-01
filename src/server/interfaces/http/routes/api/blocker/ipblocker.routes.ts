@@ -1,10 +1,10 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
-import { authenticateToken } from "@/server/shared/middlewares/token.middleware";
+import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
 import { TRoutesInput } from "@/typings/utils";
 
-import { isAdmin } from "../../../../../shared/middlewares/auth.middleware";
+import { isAdmin } from "../../../../../shared/middlewares/jwt/auth.middleware";
 import ipBlockerControllers from "../../../controllers/blocker/ipBlocker.controllers";
 
 // Constantes para paths base y versionado

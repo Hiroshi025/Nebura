@@ -8,13 +8,13 @@ project:
 environments:
   default: &default
     api:
-      port: 0
+      port: 3000
       host: "localhost"
       sessions:
         websecret: "dev_secret"  # Cambia esto en producción
         jwtsecret: "jwt_secret"
       swagger:
-        local: "config/documents/swagger.yml"  # Ruta al archivo swagger.yml
+        local: "docs/swagger.yml"  # Ruta al archivo swagger.yml
         name: ""
         version: "" 
         url: "/api/v1/admin-monitor"
@@ -34,12 +34,13 @@ environments:
           api-key: ""
     key-secrets:
       administrator: ""
+      customer: ""
 
 
   production:
     <<: *default  # Hereda configs de 'default'
     api:
-      port: 0
+      port: 3000
       host: "" 
       sessions:
         websecret: "prod_secret"

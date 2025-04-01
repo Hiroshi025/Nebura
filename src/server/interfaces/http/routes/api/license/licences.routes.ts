@@ -1,8 +1,8 @@
-import { authenticateToken } from "@/server/shared/middlewares/token.middleware";
+import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
 import { RateLimitManager } from "@/shared/rateLimitMiddlware";
 import { TRoutesInput } from "@/typings/utils";
 
-import { isAdmin } from "../../../../../shared/middlewares/auth.middleware";
+import { isAdmin } from "../../../../../shared/middlewares/jwt/auth.middleware";
 import { LicenseController } from "../../../controllers/license/license.controllers";
 
 const BASE_PATH = "/license";

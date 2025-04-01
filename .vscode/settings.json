@@ -1,0 +1,12 @@
+{
+  "rest-client.environmentVariables": {
+    "local": {
+      "api_key": "your-api-key-here",
+      "host": "localhost:3000"
+    },
+    "production": {
+      "api_key": "prod-api-key-here",
+      "host": "api.yourservice.com"
+    }
+  }
+}

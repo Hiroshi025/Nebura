@@ -59,27 +59,12 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 export const isAdminToken = (req: Request, res: Response, next: NextFunction) => {
   try {
     const secretAdmin = config.environments.default["key-secrets"].administrator;
-    const user = req.user;
-
-    const UNAUTHORIZED_ERROR = {
-      message: "Unauthorized: Authentication required",
-      timestamp: new Date().toISOString(),
-      code: "UNAUTHORIZED",
-    };
 
     const FORBIDDEN_ERROR = {
       message: "Forbidden: Insufficient privileges",
       timestamp: new Date().toISOString(),
       code: "FORBIDDEN",
     };
-
-    // Verify user is authenticated
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        error: UNAUTHORIZED_ERROR,
-      });
-    }
 
     // Check for admin secret header
     const headerSecret = Array.isArray(req.headers["x-secret-admin"])
@@ -115,3 +100,47 @@ export const isAdminToken = (req: Request, res: Response, next: NextFunction) =>
     });
   }
 };
+
+export const isCustomerToken = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const secretCustomer = config.environments.default["key-secrets"].customer;
+    const FORBIDDEN_ERROR = {
+      message: "Forbidden: Insufficient privileges",
+      timestamp: new Date().toISOString(),
+      code: "FORBIDDEN",
+    };
+
+    const headerSecret = Array.isArray(req.headers["x-secret-customer"])
+      ? req.headers["x-secret-customer"][0]
+      : req.headers["x-secret-customer"];
+
+    if (!headerSecret) {
+      return res.status(403).json({
+        success: false,
+        error: FORBIDDEN_ERROR,
+      });
+    }
+
+    // Secure comparison to prevent timing attacks
+    if (!safeCompare(headerSecret, secretCustomer)) {
+      return res.status(403).json({
+        success: false,
+        error: FORBIDDEN_ERROR,
+      });
+    }
+
+    // If all checks pass, proceed
+    next();
+    return;
+  } catch (error) {
+    console.error("Customer check error:", error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        message: "Internal server error during authorization check",
+        timestamp: new Date().toISOString(),
+        code: "INTERNAL_SERVER_ERROR",
+      },
+    });
+  }
+}

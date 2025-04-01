@@ -1,14 +1,15 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
-import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
+import { isCustomerToken } from "@/server/shared/middlewares/jwt/token.middleware";
+import { validateTokenAI } from "@/server/shared/middlewares/tokens/google.middleware";
 import { RateLimitManager } from "@/shared/rateLimitMiddlware";
 import { TRoutesInput } from "@/typings/utils";
 
-import { AuthController } from "../../../controllers/auth/auth.controllers";
+import { GeminiController } from "../../../controllers/asistent/google.controllers";
 
 // Constantes para paths base y versionado
-const BASE_PATH = "/auth";
+const BASE_PATH = "/google";
 const API_VERSION = "/api/v1";
 
 /**
@@ -18,35 +19,37 @@ const API_VERSION = "/api/v1";
  */
 const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}`;
 export default ({ app }: TRoutesInput) => {
-  const controller = new AuthController();
-  // Agrupar rutas relacionadas
-  app.get(
-    formatRoute("/:id"),
-    RateLimitManager.getInstance().createCustomLimiter({
-      max: 10,
-      windowMs: 60 * 1000, // 1 minuto
-      message: "Too many requests, please try again later.",
-    }),
-    authenticateToken,
-    controller.getUserProfile,
-  );
-
   app.post(
-    formatRoute("/register"),
+    formatRoute("/model-ai/text"),
     RateLimitManager.getInstance().createCustomLimiter({
-      max: 10,
-      windowMs: 60 * 1000, // 1 minuto
+      max: 8,
+      windowMs: 60 * 1000,
       message: "Too many requests, please try again later.",
     }),
-    controller.register,
+    isCustomerToken,
+    validateTokenAI,
+    GeminiController.processText,
   );
   app.post(
-    formatRoute("/login"),
+    formatRoute("/model-ai/file"),
     RateLimitManager.getInstance().createCustomLimiter({
-      max: 10,
-      windowMs: 60 * 1000, // 1 minuto
+      max: 8,
+      windowMs: 60 * 1000,
       message: "Too many requests, please try again later.",
     }),
-    controller.login,
+    isCustomerToken,
+    validateTokenAI,
+    GeminiController.processFile,
+  );
+  app.post(
+    formatRoute("/model-ai/advanced"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 8,
+      windowMs: 60 * 1000,
+      message: "Too many requests, please try again later.",
+    }),
+    isCustomerToken,
+    validateTokenAI,
+    GeminiController.processCombined,
   );
 };

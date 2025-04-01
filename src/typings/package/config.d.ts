@@ -56,5 +56,6 @@ export interface EnvironmentConfig {
   artificial: Artificial; // Configuración de servicios artificiales
   "key-secrets": {
     administrator: string; // Clave secreta del administrador
+    customer: string ; // Clave secreta del cliente
   }
 }

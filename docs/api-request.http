@@ -1,0 +1,31 @@
+### Health Check
+GET http://localhost:3000/api/health
+
+### Process Text
+
+POST http://localhost:3000/api/gemini/text
+Content-Type: application/json
+x-gemini-api-key: your_actual_api_key_here
+x-gemini-model: gemini-1.5-pro
+
+{
+  "text": "Explain AI in simple terms",
+  "systemInstruction": "You are a teacher for 10-year-olds"
+}
+
+### Process PDF File
+POST http://localhost:3000/api/gemini/file
+Content-Type: multipart/form-data; boundary=boundary
+x-gemini-api-key: your_actual_api_key_here
+x-gemini-model: gemini-1.5-pro
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="document.pdf"
+Content-Type: application/pdf
+
+< ./samples/document.pdf
+--boundary
+Content-Disposition: form-data; name="text"
+
+Summarize this document
+--boundary--

@@ -65,6 +65,7 @@ export class IPBlocker {
           blockedBy: userId,
           expiresAt: expiresAt ? expiresAt.toISOString() : null,
           isActive: true,
+          blockedLicenseId: "default-license-id", // Replace with an appropriate value
         },
       });
 
