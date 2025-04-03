@@ -155,7 +155,7 @@ export class API {
           `API Server is running on port ${config.environments.default.api.port}`,
           `  ${emojis.circle_check}  ${chalk.grey("API Server Started")}`,
           `  ${emojis.circle_check}  ${chalk.grey("API Port:")} ${config.environments.default.api.port}`,
-          `  ${emojis.circle_check}  ${chalk.grey("API URL:")} https://${config.environments.default.api.host}/`,
+          `  ${emojis.circle_check}  ${chalk.grey("API Health:")} ${this.app.get("trust proxy")}`,
         ].join("\n"),
       );
     });

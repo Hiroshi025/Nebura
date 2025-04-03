@@ -1,4 +1,12 @@
-import { ClientEvents } from "discord.js";
+import {
+	ChatInputCommandInteraction, ClientEvents, ContextMenuCommandBuilder, SlashCommandBuilder,
+	SlashCommandOptionsOnlyBuilder, SlashCommandSubcommandsOnlyBuilder
+} from "discord.js";
+
+import { config } from "@/shared/utils/config";
+import { CommandOptions } from "@/typings/discord";
+
+import { MainDiscord } from "../client";
 
 /**
  * Class representing an event in the bot system.
@@ -49,5 +57,88 @@ export class Event<K extends keyof ClientEvents> {
     this.event = event;
     this.run = run;
     this.once = once;
+  }
+}
+
+/**
+ * @name Command
+ * @description A class that represents a command in the bot system.
+ * @version 0.0.3
+ * @author MikaboshiDev
+ *
+ * @alias Command
+ * @class
+ */
+export class Command {
+  /**
+   * The structure defining the command, which can be a Slash Command, Context Menu Command,
+   * or other specific command builders from `discord.js`.
+   *
+   * @type {SlashCommandBuilder | ContextMenuCommandBuilder | SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup | CommandBuilder'>}
+   * @readonly
+   */
+  readonly structure:
+    | SlashCommandBuilder
+    | ContextMenuCommandBuilder
+    | SlashCommandOptionsOnlyBuilder
+    | SlashCommandSubcommandsOnlyBuilder
+    | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+
+  /**
+   * The function that runs the command when invoked.
+   * It receives the `BotCore` client, the command interaction, and the configuration object.
+   *
+   * @type {(client: BotCore, interaction: ChatInputCommandInteraction, configuration: typeof config) => void}
+   * @readonly
+   */
+  readonly run: (
+    client: MainDiscord,
+    interaction: ChatInputCommandInteraction,
+    configuration: typeof config,
+  ) => void;
+
+  /**
+   * Optional configuration options for the command, such as cooldown or permissions.
+   *
+   * @type {CommandOptions | undefined}
+   * @readonly
+   */
+  readonly options: CommandOptions | undefined;
+
+  /**
+   * The cooldown time for the command in seconds.
+   *
+   * @type {number | undefined}
+   * @readonly
+   */
+  readonly cooldown?: number;
+
+  /**
+   * Creates an instance of Command.
+   *
+   * @param structure - The command structure, which can be a Slash Command, Context Menu Command, or other supported command builders.
+   * @param run - The function that runs when the command is executed, receiving the bot client, the interaction, and configuration.
+   * @param options - Optional settings for the command, such as cooldown and other command-related options.
+   * @param cooldown - Optional cooldown time in seconds to prevent command spam. Defaults to `0` (no cooldown).
+   */
+  constructor(
+    structure:
+      | SlashCommandBuilder
+      | ContextMenuCommandBuilder
+      | SlashCommandOptionsOnlyBuilder
+      | SlashCommandSubcommandsOnlyBuilder
+      | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">,
+    run: (
+      client: MainDiscord,
+      interaction: ChatInputCommandInteraction,
+      configuration: typeof config,
+    ) => void,
+    options?: CommandOptions,
+    cooldown: number = 0,
+  ) {
+    this.structure = structure;
+    this.run = run;
+    this.options = options;
+    this.cooldown = cooldown;
   }
 }

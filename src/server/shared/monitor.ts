@@ -8,11 +8,37 @@ import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
+/**
+ * Sets up and configures Swagger monitoring and metrics for the provided API instance.
+ *
+ * This function validates the Swagger API specification and, if successful, enables
+ * Swagger-stats middleware for monitoring API performance and metrics. It also provides
+ * authentication for accessing the metrics dashboard.
+ *
+ * @param main - The main API instance where the middleware will be applied.
+ *
+ * @remarks
+ * - The Swagger specification is validated using `swagger-parser`.
+ * - Metrics are exposed via `swagger-stats` middleware.
+ * - Authentication is required to access the metrics dashboard.
+ *
+ * @example
+ * ```typescript
+ * import { SwaggerMonitor } from "@/server/shared/monitor";
+ * import { API } from "@/server";
+ *
+ * const api = new API();
+ * SwaggerMonitor(api);
+ * ```
+ */
 export const SwaggerMonitor = (main: API) => {
   const projectconfig = config.environments.default.api.swagger;
   let swaggerSpec = null;
+
+  // Validate the Swagger API specification
   SwaggerParser.prototype.validate(projectconfig.local, function (err, api) {
     if (!err) {
+      // Log successful loading of the Swagger API
       logWithLabel(
         "api",
         [
@@ -21,7 +47,10 @@ export const SwaggerMonitor = (main: API) => {
           `  ${emojis.circle_check}  ${chalk.grey("Swagger API Metrics")}`,
         ].join("\n"),
       );
+
       swaggerSpec = api;
+
+      // Configure and apply the swagger-stats middleware
       main.app.use(
         swStats.getMiddleware({
           name: projectconfig.name,
@@ -44,6 +73,7 @@ export const SwaggerMonitor = (main: API) => {
         }),
       );
     } else {
+      // Log an error if the Swagger API specification fails validation
       logWithLabel("custom", `Swagger API: ${err}`, "Api");
       return;
     }

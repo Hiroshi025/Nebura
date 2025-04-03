@@ -48,6 +48,7 @@ environments:
 modules:
   discord:
     token: "MTM1NjY0ODI0MDM2MzIxMzAxMQ.GpaulA.Hz4-1XALlpmVnK_lhMYkD-LMGa83eIPuDE73Y8" 
+    clientId: "1356648240363213011"
     presence: 
       status: "online"  # Opciones: online, idle, dnd, invisible
       activity:
@@ -56,6 +57,7 @@ modules:
         url: ""  # URL de la actividad (opcional)
     configs: 
       eventpath: "src/modules/discord/bot/events/"
+      commandpath: "src/modules/discord/bot/commands/"
       bot-extensions:
         - ".js"
         - ".ts"

@@ -1,87 +1,278 @@
+/**
+ * Configuration for the project.
+ */
 export interface ProyectConfig {
+  /**
+   * General project information.
+   */
   project: {
-    name: string; // Nombre del proyecto
-    version: string; // Versión del proyecto
-    type?: string; // Tipo de proyecto (opcional)
-    "api-version": string; // Versión de la API
+    /**
+     * Name of the project.
+     */
+    name: string;
+    /**
+     * Version of the project.
+     */
+    version: string;
+    /**
+     * Type of the project (optional).
+     */
+    type?: string;
+    /**
+     * API version used by the project.
+     */
+    "api-version": string;
   };
+  /**
+   * Configuration for various modules.
+   */
   modules: {
+    /**
+     * Configuration for the Discord module.
+     */
     discord: {
-      token: string; // Token de Discord
+      /**
+       * Discord bot token.
+       */
+      token: string;
+      /**
+       * Discord client ID.
+       */
+      clientId: string;
+      /**
+       * Presence configuration for the Discord bot.
+       */
       presence: {
-        status: string; // Estado de presencia
+        /**
+         * Presence status (e.g., online, idle).
+         */
+        status: string;
+        /**
+         * Activity details for the bot's presence.
+         */
         activity: {
-          name: string; // Nombre de la actividad
-          type: number; // Tipo de actividad (0-3)
-          url?: string; // URL de la actividad (opcional)
-        }
+          /**
+           * Name of the activity.
+           */
+          name: string;
+          /**
+           * Type of activity (0-3).
+           */
+          type: number;
+          /**
+           * URL associated with the activity (optional).
+           */
+          url?: string;
+        };
       };
+      /**
+       * Additional configuration for Discord commands and events.
+       */
       configs: {
-        eventpath: string; // Ruta de eventos
-        "bot-extensions": string[]; // Extensiones del bot
-      }
-    }
+        /**
+         * Path to the event handlers.
+         */
+        eventpath: string;
+        /**
+         * Path to the command handlers.
+         */
+        commandpath: string;
+        /**
+         * List of bot extensions.
+         */
+        "bot-extensions": string[];
+      };
+    };
   };
+  /**
+   * Environment-specific configurations.
+   */
   environments: {
-    default: EnvironmentConfig; // Configuración por defecto
-    production?: Partial<EnvironmentConfig>; // Configuración para producción (hereda de 'default')
+    /**
+     * Default environment configuration.
+     */
+    default: EnvironmentConfig;
+    /**
+     * Production environment configuration (inherits from 'default').
+     */
+    production?: Partial<EnvironmentConfig>;
   };
+  /**
+   * Moderation-related configurations.
+   */
   moderation: {
+    /**
+     * Notification settings for moderation.
+     */
     notifications: {
-      urlapi: string; // URL de la API de notificaciones
-      version: string; // Versión de la API de notificaciones
+      /**
+       * API URL for notifications.
+       */
+      urlapi: string;
+      /**
+       * API version for notifications.
+       */
+      version: string;
+      /**
+       * Webhook configuration for notifications.
+       */
       webhooks: {
-        token: string; 
+        /**
+         * Webhook token.
+         */
+        token: string;
+        /**
+         * Webhook ID.
+         */
         id: string;
+        /**
+         * Avatar URL for the webhook.
+         */
         avatarURL: string;
-      }
-    }
-  }
+      };
+    };
+  };
 }
 
+/**
+ * Configuration for artificial services.
+ */
 export interface Artificial {
+  /**
+   * Services provided by the artificial system.
+   */
   services: {
+    /**
+     * Configuration for the Gemini service.
+     */
     gemini: {
-      model: string; // Modelo de Gemini
-      configsystem: string; // Sistema de configuración
-      "api-key": string; // Clave API
+      /**
+       * Model used by Gemini.
+       */
+      model: string;
+      /**
+       * Configuration system for Gemini.
+       */
+      configsystem: string;
+      /**
+       * API key for accessing Gemini.
+       */
+      "api-key": string;
     };
   };
 }
 
+/**
+ * Configuration for Swagger API documentation.
+ */
 export interface SwaggerConfig {
-  local: string; // Ruta local del archivo Swagger
-  name: string; // Nombre de la API
-  version: string; // Versión de la API
-  url: string; // URL de la API
-  docs: string; // Ruta de los documentos de la API
+  /**
+   * Local path to the Swagger file.
+   */
+  local: string;
+  /**
+   * Name of the API.
+   */
+  name: string;
+  /**
+   * Version of the API.
+   */
+  version: string;
+  /**
+   * URL of the API.
+   */
+  url: string;
+  /**
+   * Path to the API documentation.
+   */
+  docs: string;
+  /**
+   * Authentication details for accessing the API.
+   */
   auth: {
-    name: string; // Nombre de usuario para la autenticación
-    password: string; // Contraseña para la autenticación
+    /**
+     * Username for authentication.
+     */
+    name: string;
+    /**
+     * Password for authentication.
+     */
+    password: string;
   };
 }
 
+/**
+ * Configuration for the API server.
+ */
 export interface ApiConfig {
-  port: number; // Puerto del servidor API
-  host: string; // Dirección del host
+  /**
+   * Port number for the API server.
+   */
+  port: number;
+  /**
+   * Host address for the API server.
+   */
+  host: string;
+  /**
+   * Session-related configurations.
+   */
   sessions: {
-    websecret: string; // Secreto para la sesión web
-    jwtsecret: string; // Secreto para el JWT
+    /**
+     * Secret key for web sessions.
+     */
+    websecret: string;
+    /**
+     * Secret key for JWT sessions.
+     */
+    jwtsecret: string;
   };
-  swagger: SwaggerConfig; // Configuración de Swagger
+  /**
+   * Swagger configuration for API documentation.
+   */
+  swagger: SwaggerConfig;
 }
 
+/**
+ * Environment-specific configuration.
+ */
 export interface EnvironmentConfig {
-  api: ApiConfig; // Configuración de la API
+  /**
+   * API configuration for the environment.
+   */
+  api: ApiConfig;
+  /**
+   * Database-related configurations.
+   */
   database: {
+    /**
+     * Configuration for session storage.
+     */
     sessions: {
-      url: string; // Ruta de la base de datos de sesiones
-      name: string; // Nombre de la base de datos de sesiones
+      /**
+       * URL of the session database.
+       */
+      url: string;
+      /**
+       * Name of the session database.
+       */
+      name: string;
     };
   };
-  artificial: Artificial; // Configuración de servicios artificiales
+  /**
+   * Artificial services configuration.
+   */
+  artificial: Artificial;
+  /**
+   * Secret keys for various roles.
+   */
   "key-secrets": {
-    administrator: string; // Clave secreta del administrador
-    customer: string ; // Clave secreta del cliente
-  }
+    /**
+     * Administrator secret key.
+     */
+    administrator: string;
+    /**
+     * Customer secret key.
+     */
+    customer: string;
+  };
 }

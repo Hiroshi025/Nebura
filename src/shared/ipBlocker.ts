@@ -25,6 +25,8 @@ export class IPBlocker {
     this.loadBlockedIPs();
     // Update every hour
     setInterval(() => this.loadBlockedIPs(), 60 * 60 * 1000);
+    // Auto-unblock expired IPs every 10 minutes
+    setInterval(() => this.autoUnblockExpiredIPs(), 10 * 60 * 1000);
   }
 
   /**
@@ -65,6 +67,34 @@ export class IPBlocker {
     } catch (error) {
       logWithLabel("IPBlocker", `Error loading blocked IPs: ${error}`, "error");
       throw error;
+    }
+  }
+
+  /**
+   * Automatically unblocks IPs whose block duration has expired.
+   */
+  private async autoUnblockExpiredIPs(): Promise<void> {
+    try {
+      const now = new Date();
+      const expiredBlocks = await main.prisma.blockedIP.findMany({
+        where: {
+          isActive: true,
+          expiresAt: { lte: now },
+        },
+      });
+
+      for (const block of expiredBlocks) {
+        await this.unblockIP(block.ipAddress);
+      }
+
+      if (expiredBlocks.length > 0) {
+        logWithLabel(
+          "IPBlocker",
+          `${expiredBlocks.length} expired IP blocks have been automatically unblocked.`,
+        );
+      }
+    } catch (error) {
+      logWithLabel("IPBlocker", `Error during auto-unblock of expired IPs: ${error}`, "error");
     }
   }
 
@@ -173,7 +203,7 @@ export class IPBlocker {
    */
   public getMiddleware() {
     return (req: Request, res: Response, next: NextFunction) => {
-      const clientIp = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+      const clientIp = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
       if (typeof clientIp !== "string") {
         return res.status(400).json({ error: "Could not determine IP address" });

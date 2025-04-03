@@ -102,7 +102,7 @@ export class RateLimitManager {
    * @param {string} endpoint - The endpoint where the violation occurred.
    * @returns {Promise<void>} A promise that resolves when the violation is recorded.
    */
-  private async recordRateLimitViolation(ip: string, endpoint: string): Promise<void> {
+  public async recordRateLimitViolation(ip: string, endpoint: string): Promise<void> {
     try {
       await main.prisma.rateLimitViolation.create({
         data: {
@@ -112,11 +112,11 @@ export class RateLimitManager {
         },
       });
 
-      // Enviar notificación si el token de webhook es válido
+      // Send notification if the webhook token is valid
       if (this.notifications.webhooks.token) {
         await notification.sendWebhookNotification(
           "Rate Limit Violation",
-          `IP: ${ip} ha excedido el límite de solicitudes en el endpoint: ${endpoint}`,
+          `IP: ${ip} has exceeded the request limit on endpoint: ${endpoint}`,
           "#FF0000",
           [
             { name: "IP Address", value: ip, inline: true },
@@ -124,7 +124,7 @@ export class RateLimitManager {
             { name: "Time", value: new Date().toISOString(), inline: true },
           ],
           {
-            content: "🚨 Alerta de Violación de Límite de Tasa",
+            content: "🚨 Rate Limit Violation Alert",
             username: "Rate Limit Manager",
           },
         );
@@ -139,7 +139,7 @@ export class RateLimitManager {
    * @param {string} ip - The IP address to check.
    * @returns {Promise<number>} The count of violations.
    */
-  private async getViolationCount(ip: string): Promise<number> {
+  public async getViolationCount(ip: string): Promise<number> {
     try {
       const count = await main.prisma.rateLimitViolation.count({
         where: {
@@ -150,11 +150,11 @@ export class RateLimitManager {
         },
       });
 
-      // Enviar notificación si el token de webhook es válido y el conteo es crítico
+      // Send notification if the webhook token is valid and the count is critical
       if (this.notifications.webhooks.token && count >= 3) {
         await notification.sendWebhookNotification(
           "Critical Rate Limit Violations",
-          `IP: ${ip} ha alcanzado ${count} violaciones en las últimas 24 horas.`,
+          `IP: ${ip} has reached ${count} violations in the last 24 hours.`,
           "#FFA500",
           [
             { name: "IP Address", value: ip, inline: true },
@@ -162,7 +162,7 @@ export class RateLimitManager {
             { name: "Time", value: new Date().toISOString(), inline: true },
           ],
           {
-            content: "⚠️ Alerta Crítica de Violaciones",
+            content: "⚠️ Critical Rate Limit Violations Alert",
             username: "Rate Limit Manager",
           },
         );
