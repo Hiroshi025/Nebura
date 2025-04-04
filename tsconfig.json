@@ -38,6 +38,6 @@
     "types": ["node", "jest"],
     "resolveJsonModule": true
   },
-  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/typings/.d.ts", "src/**/*"],
+  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/typings/.d.ts", "src/**/*", "./**/*.json"],
   "exclude": ["node_modules", "dist"]
 }

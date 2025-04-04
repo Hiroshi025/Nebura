@@ -1,7 +1,8 @@
-import { Client, Collection, GatewayIntentBits, Partials } from "discord.js";
+import { Client, Collection, GatewayIntentBits, Options, Partials } from "discord.js";
 
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
+import { Buttons, Menus, Modals } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
 
 import { Command } from "./utils/builders";
@@ -13,7 +14,7 @@ import { DiscordHandler } from "./utils/handlers";
  */
 export class MainDiscord extends Client {
   /**
-   * Configuration settings for the Discord module.
+   * Configuration for the Discord module.
    * Loaded from the application's configuration file.
    */
   private settings: typeof config.modules.discord;
@@ -41,32 +42,93 @@ export class MainDiscord extends Client {
   public commands: Collection<string, Command> = new Collection();
 
   /**
+   * A collection of buttons, where the key is a string identifier for the button
+   * (e.g., button name) and the value is the button object.
+   *
+   * @type {Collection<string, Buttons>}
+   */
+  public buttons: Collection<string, Buttons> = new Collection();
+
+  /**
+   * A collection of modals, where the key is a string identifier for the modal
+   * and the value is the modal object.
+   *
+   * @type {Collection<string, Modals>}
+   */
+  public modals: Collection<string, Modals> = new Collection();
+
+  /**
+   * A collection of menus, where the key is a string identifier for the menu
+   * and the value is the menu object.
+   *
+   * @type {Collection<string, Menus>}
+   */
+  public menus: Collection<string, Menus> = new Collection();
+
+  /**
+   * A collection of addons, where the key is a string identifier for the addon
+   * and the value is the addon object.
+   *
+   * @type {Collection<string, unknown>}
+   */
+  public addons: Collection<unknown, unknown>;
+
+  /**
    * Initializes a new instance of the `MainDiscord` class.
-   * Sets up the client with specific intents and partials, and initializes the handlers and settings.
+   * Configures the client with specific intents and partials, and initializes handlers and settings.
    */
   constructor() {
     super({
+      makeCache: Options.cacheWithLimits({
+        ...Options.DefaultMakeCacheSettings,
+        ReactionManager: 0,
+        GuildScheduledEventManager: 0,
+        GuildBanManager: 0,
+        GuildEmojiManager: 0,
+      }),
       intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates,
       ],
       partials: [
         Partials.GuildScheduledEvent,
         Partials.GuildMember,
         Partials.User,
         Partials.Message,
+        Partials.Channel,
       ],
+      sweepers: {
+        ...Options.DefaultSweeperSettings,
+        messages: {
+          interval: 3_600, // Every hour.
+          lifetime: 1_800, // Remove messages older than 30 minutes.
+        },
+        users: {
+          interval: 3_600, // Every hour.
+          filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
+        },
+        threads: {
+          interval: 3_600, // Every hour.
+          lifetime: 86_400, // Remove threads older than 24 hours.
+        },
+      },
     });
 
     this.handlers = new DiscordHandler(this);
     this.settings = config.modules.discord;
+
     this.categories = new Collection();
     this.commands = new Collection();
+    this.buttons = new Collection();
+    this.modals = new Collection();
+    this.menus = new Collection();
+    this.addons = new Collection();
   }
 
   /**
-   * Starts the Discord client and initializes the application.
+   * Starts the Discord client and the application.
    *
    * - Logs the startup process.
    * - Validates the presence of a token in the configuration.
@@ -76,7 +138,7 @@ export class MainDiscord extends Client {
    * @returns {Promise<void>} Resolves when the client has successfully started or exits early if an error occurs.
    */
   public async start(): Promise<void> {
-    logWithLabel("debug", "APP Discord API Starting Proyect...");
+    logWithLabel("debug", "APP Discord API Starting Project...");
 
     // Check if the token is provided in the configuration
     if (!this.settings.token) {
@@ -91,7 +153,11 @@ export class MainDiscord extends Client {
       return;
     }
 
-    // Log in to Discord
+    /**
+      * Log in to Discord using the provided token.
+      * The token is expected to be a string that authenticates the client with the Discord API.
+      * This method is asynchronous and returns a promise that resolves when the login is successful.
+     */
     await this.login(this.settings.token);
     logWithLabel(
       "debug",
@@ -102,10 +168,15 @@ export class MainDiscord extends Client {
       ].join("\n"),
     );
 
-    // Load and deploy handlers
+    // Load and deploy the handlers
     await this.handlers._load();
     try {
-      await Promise.all([this.handlers.deploy()]);
+      await Promise.all([
+        this.handlers.loadAndSet(this, "buttons"),
+        this.handlers.loadAndSet(this, "modals"),
+        this.handlers.loadAndSet(this, "menus"),
+        this.handlers.deploy(),
+      ]);
     } catch (err) {
       logWithLabel(
         "error",

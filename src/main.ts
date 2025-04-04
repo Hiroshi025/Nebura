@@ -55,6 +55,7 @@ export class MainGlobal {
  * Global instance of the `MainGlobal` class.
  */
 export const main = new MainGlobal();
+export const client = main.discord;
 
 // Starts the application and handles any errors during the startup process.
 main.start().catch((err) => {

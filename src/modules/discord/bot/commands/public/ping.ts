@@ -1,5 +1,6 @@
-import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
+import { EmbedExtender } from "@/infrastructure/extenders/discord/embeds.extender";
 import { Command } from "@/modules/discord/infrastructure/utils/builders";
 
 export default new Command(
@@ -23,16 +24,14 @@ export default new Command(
     const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
 
     const latency = client.ws.ping;
-    const embed = new EmbedBuilder()
-      .setColor(0x00ff00)
+    const embed = new EmbedExtender()
+      .setError(false)
       .setTitle("🏓 Pong!")
       .setDescription("Here is the bot's latency and additional details:")
       .addFields(
         { name: "Latency", value: `${latency}ms`, inline: true },
         { name: "Message", value: message || "No message provided", inline: true },
-      )
-      .setFooter({ text: "Nebura AI Bot", iconURL: client.user?.displayAvatarURL() || "" })
-      .setTimestamp();
+      );
 
     await interaction.reply({
       embeds: [embed],

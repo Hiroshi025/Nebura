@@ -58,6 +58,8 @@ modules:
     configs: 
       eventpath: "src/modules/discord/bot/events/"
       commandpath: "src/modules/discord/bot/commands/"
+      componentspath: "src/modules/discord/bot/components"
+      addonspath: "src/modules/discord/addons/"
       bot-extensions:
         - ".js"
         - ".ts"

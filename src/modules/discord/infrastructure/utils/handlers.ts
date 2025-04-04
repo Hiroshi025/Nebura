@@ -1,22 +1,44 @@
 import chalk from "chalk";
 import { ClientEvents, REST, Routes } from "discord.js";
+import { Discord } from "eternal-support";
 import fs from "fs";
 
 import { filesLoaded } from "@/infrastructure/constants/tools.constants";
+import { DiscordError } from "@/infrastructure/extenders/errors.extender";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { getFiles } from "@/shared/utils/functions/files";
+import { FileType } from "@/typings/discord";
 
+import { Addons } from "../addons";
 import { MainDiscord } from "../client";
 import { Command, Event } from "./builders";
 
+/**
+ * Handles the core functionality for managing Discord commands, events, and addons.
+ *
+ * This class is responsible for:
+ * - Loading and initializing commands, events, and addons.
+ * - Deploying slash commands to the Discord API.
+ * - Managing interactive components like buttons, modals, and menus.
+ */
 export class DiscordHandler {
+  /**
+   * Configuration settings for the Discord module.
+   * @private
+   */
   private settings: typeof config.modules.discord;
+
+  /**
+   * The main Discord client instance.
+   * @private
+   */
   private client: MainDiscord;
 
   /**
-   * Initializes the DiscordHandler with the provided client.
-   * @param client The MainDiscord client instance.
+   * Initializes the `DiscordHandler` with the provided client instance.
+   *
+   * @param client - The `MainDiscord` client instance used to interact with Discord.
    */
   constructor(client: MainDiscord) {
     this.settings = config.modules.discord;
@@ -26,9 +48,24 @@ export class DiscordHandler {
   /**
    * Loads commands, events, and addons from their respective directories and initializes them.
    *
-   * - Loads command modules from the `commandpath` directory.
-   * - Loads event modules from the `eventpath` directory.
-   * - Logs the loading status of each module.
+   * ### Commands:
+   * - Reads command directories specified in the configuration.
+   * - Loads command modules and registers them in the client's command collection.
+   * - Categorizes commands based on their directory structure.
+   *
+   * ### Events:
+   * - Reads event directories specified in the configuration.
+   * - Loads event modules and binds them to the client.
+   * - Supports both `once` and `on` event listeners.
+   *
+   * ### Addons:
+   * - Reads addon files from the configured addons path.
+   * - Initializes and registers addons in the client's addon collection.
+   *
+   * Logs the loading status of each module and handles errors gracefully.
+   *
+   * @async
+   * @throws {Error} If there is an issue loading commands, events, or addons.
    */
   public async _load() {
     for (const dir of fs.readdirSync(this.settings.configs.commandpath)) {
@@ -63,14 +100,43 @@ export class DiscordHandler {
         }
       }
     }
+
+    const addonFiles = getFiles(this.settings.configs.addonspath, [".addons.ts", ".addons.js"]);
+
+    for (const file of addonFiles) {
+      const addonModule = require(file).default;
+      if (addonModule instanceof Addons) {
+        this.client.addons.set(addonModule.structure.name, addonModule);
+        await addonModule.initialize(this.client, config);
+      }
+    }
+
+    logWithLabel(
+      "custom",
+      [
+        "loaded the Addons-Client\n",
+        chalk.grey(`  ✅  Finished Loading the Addons Module`),
+        chalk.grey(`  🟢  Addon-Loaded Successfully: ${addonFiles.length}`),
+      ].join("\n"),
+      "Addons",
+    );
   }
 
   /**
-   * Deploys the bot's slash commands to the Discord API and logs the process.
+   * Deploys the bot's slash commands to the Discord API.
    *
-   * - Handles API rate limits with detailed logging.
-   * - Deploys commands using the Discord REST API.
+   * ### Features:
+   * - Uses the Discord REST API to register slash commands globally.
+   * - Handles API rate limits and logs detailed information about rate-limiting events.
+   * - Logs invalid request warnings and debug messages for troubleshooting.
+   *
+   * ### Process:
+   * - Collects all commands from the client's command collection.
+   * - Sends a PUT request to the Discord API to register the commands.
    * - Logs the time taken and the number of commands deployed.
+   *
+   * @async
+   * @throws {Error} If there is an issue deploying the commands to the Discord API.
    */
   public async deploy() {
     const startTime = performance.now();
@@ -129,5 +195,48 @@ export class DiscordHandler {
         chalk.grey(`  🕛  Took: ${Math.round((endTime - startTime) / 100)}s`),
       ].join("\n"),
     );
+  }
+
+  /**
+   * Loads and sets interactive components (e.g., buttons, modals, menus) into the client.
+   *
+   * ### Features:
+   * - Dynamically loads files from the specified folder based on the component type.
+   * - Registers each component in the corresponding client map (e.g., buttons, modals, menus).
+   *
+   * ### Supported Component Types:
+   * - `buttons`: Interactive buttons for Discord messages.
+   * - `modals`: Modal dialogs for user input.
+   * - `menus`: Dropdown menus for user selection.
+   *
+   * @param client - The `MainDiscord` client instance.
+   * @param fileType - The type of file to load (`buttons`, `modals`, `menus`).
+   * @async
+   * @throws {DiscordError} If there is an issue loading the components.
+   */
+  async loadAndSet(client: MainDiscord, fileType: FileType) {
+    const folderPath = `${config.modules.discord.configs.componentspath}/${fileType}`;
+    const files = await Discord.loadFiles(folderPath);
+    try {
+      files.forEach(async (file: string) => {
+        const item = (await import(file)).default;
+        if (!item.id) return;
+        switch (fileType) {
+          case "buttons":
+            client.buttons.set(item.id, item);
+            break;
+          case "modals":
+            client.modals.set(item.id, item);
+            break;
+          case "menus":
+            client.menus.set(item.id, item);
+            break;
+          default:
+            break;
+        }
+      });
+    } catch (e) {
+      throw new DiscordError(`Error loading ${fileType}: ${e}`);
+    }
   }
 }

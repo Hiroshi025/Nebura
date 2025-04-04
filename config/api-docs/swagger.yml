@@ -15,6 +15,12 @@ info:
     name: "MIT"
     url: "https://opensource.org/licenses/MIT"
 
+servers:
+  - url: "https://admin.hiroshi-dev.me/api/v1"
+    description: "Production server"
+  - url: "https://staging.hiroshi-dev.me/api/v1"
+    description: "Staging server"
+
 paths:
 
   ###### AI ROUTES ######

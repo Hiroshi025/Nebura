@@ -78,6 +78,14 @@ export interface ProyectConfig {
          */
         commandpath: string;
         /**
+         * Path to the bot's modals, menus, buttons.
+         */
+        componentspath: string;
+        /**
+         * Path to the addons
+         */
+        addonspath: string;
+        /**
          * List of bot extensions.
          */
         "bot-extensions": string[];
