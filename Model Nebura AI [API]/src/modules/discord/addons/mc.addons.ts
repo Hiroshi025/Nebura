@@ -1,5 +1,7 @@
 import axios from "axios";
-import { EmbedBuilder, TextChannel } from "discord.js";
+import {
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, TextChannel
+} from "discord.js";
 
 // import puppeteer from "puppeteer"; // Comentado temporalmente
 import { client, main } from "@/main";
@@ -167,6 +169,19 @@ export default new Addons(
               .setColor(0xff0000); // Red color for offline status
           }
 
+          const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setStyle(ButtonStyle.Link)
+              .setLabel("API")
+              .setEmoji(emojis.minecraft.server_ip)
+              .setURL(configuration.minecraftserver.api + configuration.minecraftserver.ip),
+            new ButtonBuilder()
+              .setStyle(ButtonStyle.Link)
+              .setLabel("Website")
+              .setEmoji(emojis.minecraft.server_seed)
+              .setURL(configuration.website),
+          );
+
           // Fetch the Discord channel
           const channel: TextChannel = (await main.discord.channels.fetch(
             configuration.channelid,
@@ -188,6 +203,7 @@ export default new Addons(
                 `Errors: None`,
               ].join("\n"),
               embeds: [embed],
+              components: [buttons],
               // files: attachment ? [attachment] : [], // Comentado temporalmente
             });
             configuration.messageid = message.id; // Save the new message ID
@@ -204,6 +220,7 @@ export default new Addons(
                 `Errors: None`,
               ].join("\n"),
               embeds: [embed],
+              components: [buttons],
               // files: attachment ? [attachment] : [], // Comentado temporalmente
             });
             configuration.messageid = message.id; // Save the new message ID
@@ -218,6 +235,7 @@ export default new Addons(
                 `Errors: None`,
               ].join("\n"),
               embeds: [embed],
+              components: [buttons],
               // files: attachment ? [attachment] : [], // Comentado temporalmente
             });
           }
@@ -237,21 +255,9 @@ export default new Addons(
 
     // Check if the status handler is enabled and call the main function
     if (configuration.enabled) {
-      Main()
-        .then(() =>
-          logWithLabel(
-            "custom",
-            [
-              "Status handler initialized successfully.",
-              `  ${emojis.monitor}  Status handler is enabled: ${configuration.enabled}`,
-              `  ${emojis.monitor}  Status handler timeout: ${configuration.timeout}ms`,
-            ].join("\n"),
-            "Status",
-          ),
-        )
-        .catch((error) => {
-          logWithLabel("error", `Error initializing status handler: ${error}`);
-        });
+      Main().catch((error) => {
+        logWithLabel("error", `Error initializing status handler: ${error}`);
+      });
     } else {
       logWithLabel("custom", "Status handler is disabled.", "Status");
     }
