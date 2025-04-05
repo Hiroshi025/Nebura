@@ -1,6 +1,5 @@
 import { compare, hash } from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
-import { z } from "zod";
 
 import { config } from "@/shared/utils/config";
 
@@ -18,8 +17,6 @@ const sessions = config.environments.default.api.sessions;
  * console.log(token);
  */
 const signToken = (id: string): string => {
-  const validate = z.string().email().safeParse(id);
-  if (!validate.success) throw new Error(validate.error.errors[0].message);
   if (!sessions.jwtsecret) throw new Error("No JWT secret provided");
 
   const jwt = sign({ id }, sessions.jwtsecret, {

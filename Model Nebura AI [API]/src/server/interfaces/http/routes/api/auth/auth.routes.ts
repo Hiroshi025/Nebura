@@ -2,7 +2,7 @@
 // import { Request, Response } from 'express';
 
 import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
-import { RateLimitManager } from "@/shared/rateLimitMiddlware";
+import { RateLimitManager } from "@/shared/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { AuthController } from "../../../controllers/auth/auth.controllers";
@@ -28,7 +28,7 @@ export default ({ app }: TRoutesInput) => {
       message: "Too many requests, please try again later.",
     }),
     authenticateToken,
-    controller.getUserProfile,
+    controller.getUserProfile.bind(controller),
   );
 
   app.post(
@@ -38,7 +38,7 @@ export default ({ app }: TRoutesInput) => {
       windowMs: 60 * 1000, // 1 minuto
       message: "Too many requests, please try again later.",
     }),
-    controller.register,
+    controller.register.bind(controller),
   );
   app.post(
     formatRoute("/login"),
@@ -47,6 +47,6 @@ export default ({ app }: TRoutesInput) => {
       windowMs: 60 * 1000, // 1 minuto
       message: "Too many requests, please try again later.",
     }),
-    controller.login,
+    controller.login.bind(controller),
   );
 };

@@ -4,6 +4,8 @@ import { ProyectError } from "./infrastructure/extenders/errors.extender";
 import { MyClient } from "./modules/discord/infrastructure/client";
 import { API } from "./server";
 
+//import { globalCleanup } from "./shared/utils/runCleanTask";
+
 process.loadEnvFile();
 
 /**
@@ -29,11 +31,12 @@ export class MainGlobal {
    * Constructor that initializes the core module instances.
    */
   constructor() {
-    this.discord = new MyClient();
-    this.api = new API();
     this.prisma = new PrismaClient({
       log: ["query", "info", "warn", "error"],
     });
+
+    this.discord = new MyClient();
+    this.api = new API();
   }
 
   /**
@@ -48,7 +51,17 @@ export class MainGlobal {
   public async start(): Promise<void> {
     await this.discord.start();
     await this.api.start();
+
+    //TODO Evitar que las tareas se eliminen en caso de que el bot se reinicie, solo se eliminaran segun la la fecha de vencimiento
+    //this.setup();
   }
+
+/*   private setup() {
+    const taskService = new TaskService();
+    globalCleanup("Global Tasks", () => taskService.cleanUpTasks());
+
+    return;
+  } */
 }
 
 /**

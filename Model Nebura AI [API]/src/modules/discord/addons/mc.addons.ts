@@ -33,14 +33,14 @@ export default new Addons(
   async () => {
     // Configuration object for the status handler
     const configuration = {
-      enabled: true,
+      enabled: false,
       timeout: 60000,
       website: "",
-      messageid: "1357441745721364561",
-      channelid: "1272419016216023075",
+      messageid: "",
+      channelid: "",
       minecraftserver: {
         type: "java",
-        ip: "play.castiamc.com",
+        ip: "",
         port: 25565,
         api: "https://api.mcsrvstat.us/3/",
       },

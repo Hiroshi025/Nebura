@@ -4,7 +4,7 @@ import { ErrorResponse } from "@/infrastructure/constants/user.constants";
 import { AuthService } from "@/server/domain/services/auth/auth.service";
 
 export class AuthController {
-  private service = new AuthService();
+  public service = new AuthService();
   /**
    * @desc    Login de usuario
    * @route   POST /api/auth/login

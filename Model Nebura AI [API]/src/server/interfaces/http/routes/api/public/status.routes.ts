@@ -4,7 +4,7 @@
 import { Request, Response } from "express";
 
 import { IPBlocker } from "@/shared/ipBlocker";
-import { RateLimitManager } from "@/shared/rateLimitMiddlware";
+import { RateLimitManager } from "@/shared/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { StatusController } from "../../../controllers/public/status.controller";

@@ -3,13 +3,13 @@
 
 import { isCustomerToken } from "@/server/shared/middlewares/jwt/token.middleware";
 import { validateTokenAI } from "@/server/shared/middlewares/tokens/google.middleware";
-import { RateLimitManager } from "@/shared/rateLimitMiddlware";
+import { RateLimitManager } from "@/shared/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { GeminiController } from "../../../controllers/asistent/google.controllers";
 
 // Constantes para paths base y versionado
-const BASE_PATH = "/google";
+const BASE_PATH = "/service/google";
 const API_VERSION = "/api/v1";
 
 /**

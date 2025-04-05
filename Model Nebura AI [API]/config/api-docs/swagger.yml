@@ -22,43 +22,219 @@ servers:
     description: "Staging server"
 
 paths:
+  ###### TASK ROUTES ####
 
-  ###### AI ROUTES ######
-
-  /google/model-ai/text:
-    post:
-      tags: [Gemini]
-      summary: Process text with Gemini
-      description: Send text to Gemini for processing
+  /service/tasks:
+    get:
+      tags: [Tasks]
+      summary: Obtener todas las tareas
+      description: Retorna una lista de tareas con opción de filtrado
       parameters:
-        - $ref: '#/components/parameters/XGeminiApiKey'
-        - $ref: '#/components/parameters/XGeminiModel'
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, completed, canceled]
+          description: Filtrar por estado de la tarea
+        - in: query
+          name: priority
+          schema:
+            type: string
+            enum: [low, medium, high]
+          description: Filtrar por prioridad
+        - in: query
+          name: createdBy
+          schema:
+            type: string
+          description: Filtrar por ID del creador
+        - in: query
+          name: tag
+          schema:
+            type: string
+          description: Filtrar por etiqueta
+      responses:
+        "200":
+          description: Lista de tareas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskResponse"
+        "500":
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    post:
+      tags: [Tasks]
+      summary: Crear una nueva tarea
+      description: Crea una tarea con los datos proporcionados
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GeminiTextRequest'
+              $ref: "#/components/schemas/CreateTask"
       responses:
-        '200':
+        "201":
+          description: Tarea creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "400":
+          description: Datos de entrada inválidos
+        "500":
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /service/tasks/{id}:
+    get:
+      tags: [Tasks]
+      summary: Obtener una tarea por ID
+      description: Retorna los detalles de una tarea específica
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID de la tarea
+      responses:
+        "200":
+          description: Detalles de la tarea
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          description: Tarea no encontrada
+        "500":
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    patch:
+      tags: [Tasks]
+      summary: Actualizar una tarea
+      description: Actualiza los campos especificados de una tarea
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID de la tarea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTask"
+      responses:
+        "200":
+          description: Tarea actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          description: Tarea no encontrada
+        "500":
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    delete:
+      tags: [Tasks]
+      summary: Eliminar una tarea
+      description: Elimina permanentemente una tarea
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID de la tarea
+      responses:
+        "204":
+          description: Tarea eliminada exitosamente
+        "404":
+          description: Tarea no encontrada
+        "500":
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /service/reminders:
+    get:
+      tags: [Reminders]
+      summary: Obtener recordatorios próximos
+      description: Retorna una lista de recordatorios que están por activarse
+      responses:
+        "200":
+          description: Lista de recordatorios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskResponse"
+        "500":
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  ###### AI ROUTES ######
+
+  /service/google/model-ai/text:
+    post:
+      tags: [Gemini]
+      summary: Process text with Gemini
+      description: Send text to Gemini for processing
+      parameters:
+        - $ref: "#/components/parameters/XGeminiApiKey"
+        - $ref: "#/components/parameters/XGeminiModel"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeminiTextRequest"
+      responses:
+        "200":
           description: Successful response from Gemini
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeminiResponse'
-        '400':
+                $ref: "#/components/schemas/GeminiResponse"
+        "400":
           description: Missing required headers or invalid request
-        '500':
+        "500":
           description: Error processing the request
 
-  /google/model-ai/file:
+  /service/google/model-ai/file:
     post:
       tags: [Gemini]
       summary: Process file with Gemini
       description: Send a file to Gemini for processing
       parameters:
-        - $ref: '#/components/parameters/XGeminiApiKey'
-        - $ref: '#/components/parameters/XGeminiModel'
+        - $ref: "#/components/parameters/XGeminiApiKey"
+        - $ref: "#/components/parameters/XGeminiModel"
       requestBody:
         required: true
         content:
@@ -79,25 +255,25 @@ paths:
                   description: System instruction to configure Gemini's behavior
                   example: "You are an academic assistant specialized in summarizing documents"
       responses:
-        '200':
+        "200":
           description: Successful response from Gemini
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeminiResponse'
-        '400':
+                $ref: "#/components/schemas/GeminiResponse"
+        "400":
           description: Missing required headers, no file provided, or invalid request
-        '500':
+        "500":
           description: Error processing the request
 
-  /google/model-ai/combined:
+  /service/google/model-ai/combined:
     post:
       tags: [Gemini]
       summary: Process combined text and file with Gemini
       description: Send both text and a file to Gemini for combined processing
       parameters:
-        - $ref: '#/components/parameters/XGeminiApiKey'
-        - $ref: '#/components/parameters/XGeminiModel'
+        - $ref: "#/components/parameters/XGeminiApiKey"
+        - $ref: "#/components/parameters/XGeminiModel"
       requestBody:
         required: true
         content:
@@ -118,20 +294,20 @@ paths:
                   description: System instruction to configure Gemini's behavior
                   example: "You are a document analysis expert"
       responses:
-        '200':
+        "200":
           description: Successful response from Gemini
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeminiResponse'
-        '400':
+                $ref: "#/components/schemas/GeminiResponse"
+        "400":
           description: Missing required headers, no file provided, or invalid request
-        '500':
+        "500":
           description: Error processing the request
 
   ###### BLOCK IP ROUTES ######
 
-  /block-ip:
+  /admin/block-ip:
     post:
       tags:
         - IP Management
@@ -189,7 +365,7 @@ paths:
         "500":
           description: Internal server error
 
-  /unblock-ip/{ipAddress}:
+  /admin/unblock-ip/{ipAddress}:
     delete:
       tags:
         - IP Management
@@ -231,7 +407,7 @@ paths:
         "500":
           description: Server error processing request
 
-  /blocked-ips:
+  /admin/blocked-ips:
     get:
       tags:
         - IP Management
@@ -291,7 +467,7 @@ paths:
 
   ###### LICENSE ROUTES #######
 
-  /licenses:
+  /license:
     post:
       operationId: createLicense
       tags:
@@ -358,7 +534,7 @@ paths:
         401:
           $ref: "#/components/responses/Unauthorized"
 
-  /licenses/{id}:
+  /license/{id}:
     get:
       operationId: getLicense
       tags:
@@ -446,7 +622,7 @@ paths:
         404:
           $ref: "#/components/responses/NotFound"
 
-  /licenses/validate/{key}:
+  /license/validate/{key}:
     post:
       operationId: validateLicense
       tags:
@@ -808,7 +984,7 @@ paths:
 
   ###### SECURITY ROUTES #######
 
-  /license-info/{licenseKey}:
+  /security/license-info/{licenseKey}:
     get:
       tags:
         - Security
@@ -825,7 +1001,7 @@ paths:
           description: Unique license key identifier
           example: "5f8d04b3ab35de3a342f3a5b"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -833,25 +1009,25 @@ paths:
                 type: object
                 properties:
                   license:
-                    $ref: '#/components/schemas/License'
+                    $ref: "#/components/schemas/License"
                   blockedIPs:
                     type: array
                     items:
-                      $ref: '#/components/schemas/BlockedIP'
+                      $ref: "#/components/schemas/BlockedIP"
                   usageStats:
-                    $ref: '#/components/schemas/UsageStats'
-        '400':
+                    $ref: "#/components/schemas/UsageStats"
+        "400":
           description: Invalid license key format
-        '401':
+        "401":
           description: Unauthorized - Missing or invalid authentication token
-        '403':
+        "403":
           description: Forbidden - User doesn't have required permissions
-        '404':
+        "404":
           description: License not found
-        '500':
+        "500":
           description: Internal server error
 
-  /ip-info/{ipAddress}:
+  /security/ip-info/{ipAddress}:
     get:
       tags:
         - Security
@@ -869,7 +1045,7 @@ paths:
           description: IP address to query
           example: "192.168.1.100"
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -883,25 +1059,188 @@ paths:
                     type: boolean
                     example: true
                   blockedInfo:
-                    $ref: '#/components/schemas/BlockedIP'
+                    $ref: "#/components/schemas/BlockedIP"
                   failedAttempts:
                     type: integer
                     example: 3
                   licenseUsage:
                     type: array
                     items:
-                      $ref: '#/components/schemas/LicenseUsage'
-        '400':
+                      $ref: "#/components/schemas/LicenseUsage"
+        "400":
           description: Invalid IP address format
-        '401':
+        "401":
           description: Unauthorized - Missing or invalid authentication token
-        '403':
+        "403":
           description: Forbidden - User doesn't have required permissions
-        '500':
+        "500":
           description: Internal server error
 
 components:
   schemas:
+    TaskResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        title:
+          type: string
+          example: "Reunión mensual"
+        description:
+          type: string
+          example: "Discutir presupuesto"
+        createdBy:
+          type: string
+          example: "usuario123"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-20T10:00:00Z"
+        dueDate:
+          type: string
+          format: date-time
+          example: "2024-01-25T15:30:00Z"
+        status:
+          type: string
+          enum: [pending, completed, canceled]
+          example: "pending"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          example: "high"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["trabajo", "finanzas"]
+        reminder:
+          $ref: "#/components/schemas/Reminder"
+        recurrence:
+          $ref: "#/components/schemas/Recurrence"
+        autoDelete:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-20T10:00:00Z"
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    CreateTask:
+      type: object
+      required:
+        - title
+        - createdBy
+      properties:
+        title:
+          type: string
+          example: "Reunión mensual"
+        description:
+          type: string
+          example: "Discutir presupuesto"
+        createdBy:
+          type: string
+          example: "usuario123"
+        dueDate:
+          type: string
+          format: date-time
+          example: "2024-01-25T15:30:00Z"
+        status:
+          type: string
+          enum: [pending, completed, canceled]
+          default: "pending"
+          example: "pending"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: "medium"
+          example: "high"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["trabajo", "finanzas"]
+        reminder:
+          $ref: "#/components/schemas/Reminder"
+        recurrence:
+          $ref: "#/components/schemas/Recurrence"
+        autoDelete:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+
+    UpdateTask:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Reunión mensual actualizada"
+        description:
+          type: string
+          example: "Discutir presupuesto y proyecciones"
+        dueDate:
+          type: string
+          format: date-time
+          example: "2024-01-26T15:30:00Z"
+        status:
+          type: string
+          enum: [pending, completed, canceled]
+          example: "completed"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          example: "medium"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["trabajo", "finanzas", "importante"]
+        reminder:
+          $ref: "#/components/schemas/Reminder"
+        recurrence:
+          $ref: "#/components/schemas/Recurrence"
+        autoDelete:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+
+    Reminder:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          default: false
+          example: true
+        timeBefore:
+          type: string
+          example: "30 minutes"
+        notified:
+          type: boolean
+          example: false
+
+    Recurrence:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [daily, weekly, monthly, yearly]
+          example: "monthly"
+        interval:
+          type: integer
+          example: 1
+        endDate:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+        times:
+          type: integer
+          example: 3
+
     GeminiTextRequest:
       type: object
       properties:
@@ -1133,7 +1472,7 @@ components:
           nullable: true
           example: "2023-02-15T10:30:00Z"
         blockedBy:
-          $ref: '#/components/schemas/UserReference'
+          $ref: "#/components/schemas/UserReference"
     UserReference:
       type: object
       properties:
@@ -1201,7 +1540,7 @@ components:
       required: true
       schema:
         type: string
-        enum: [ "gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro" ]
+        enum: ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"]
         example: "gemini-1.5-pro"
 
   responses:

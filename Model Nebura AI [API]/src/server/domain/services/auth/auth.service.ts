@@ -42,10 +42,10 @@ export class AuthService {
    */
   async createAuth(body: Partial<User>) {
     try {
-      const { email, password, name, discord } = body;
+      const { email, password, name } = body;
 
       // Validar campos requeridos
-      if (!email || !password || !name || !discord) {
+      if (!email || !password || !name) {
         return { error: "MISSING_DATA", message: "Required fields are missing" };
       }
 

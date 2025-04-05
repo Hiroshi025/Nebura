@@ -75,6 +75,25 @@ model RateLimitViolation {
   @@index([violationTime])
 }
 
+model Task {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  description  String?
+  createdBy    String     @map("created_by")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  dueDate      DateTime?  @map("due_date")
+  status       String     @default("pending")
+  priority     String     @default("medium")
+  tags         String[]
+  reminder     Json?
+  recurrence   Json?
+  autoDelete   DateTime?  @map("auto_delete")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  completedAt  DateTime?  @map("completed_at")
+
+  @@map("tasks")
+}
+
 enum LicenseType {
   FREE
   BASIC
