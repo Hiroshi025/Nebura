@@ -12,7 +12,7 @@ import { DiscordHandler } from "./utils/handlers";
  * Represents the main Discord client for the application.
  * Extends the `Client` class from `discord.js` to provide additional functionality.
  */
-export class MainDiscord extends Client {
+export class MyClient extends Client {
   /**
    * Configuration for the Discord module.
    * Loaded from the application's configuration file.
@@ -74,7 +74,7 @@ export class MainDiscord extends Client {
   public addons: Collection<unknown, unknown>;
 
   /**
-   * Initializes a new instance of the `MainDiscord` class.
+   * Initializes a new instance of the `MyClient` class.
    * Configures the client with specific intents and partials, and initializes handlers and settings.
    */
   constructor() {
@@ -154,9 +154,9 @@ export class MainDiscord extends Client {
     }
 
     /**
-      * Log in to Discord using the provided token.
-      * The token is expected to be a string that authenticates the client with the Discord API.
-      * This method is asynchronous and returns a promise that resolves when the login is successful.
+     * Log in to Discord using the provided token.
+     * The token is expected to be a string that authenticates the client with the Discord API.
+     * This method is asynchronous and returns a promise that resolves when the login is successful.
      */
     await this.login(this.settings.token);
     logWithLabel(

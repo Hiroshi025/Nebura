@@ -1,9 +1,13 @@
 import {
-	AutocompleteInteraction, ChannelSelectMenuInteraction, ModalSubmitInteraction,
-	PermissionResolvable, RoleSelectMenuInteraction, StringSelectMenuInteraction
+  AutocompleteInteraction,
+  ChannelSelectMenuInteraction,
+  ModalSubmitInteraction,
+  PermissionResolvable,
+  RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
-import { MainDiscord } from "@/modules/discord/infrastructure/client";
+import { MyClient } from "@/modules/discord/infrastructure/client";
 
 /**
  * Options for configuring a command.
@@ -27,7 +31,7 @@ export interface CommandOptions {
    * @param configuration - The bot's configuration object.
    */
   autocomplete?: (
-    client: MainDiscord,
+    client: MyClient,
     interaction: AutocompleteInteraction,
     configuration: typeof config,
   ) => void;
@@ -130,7 +134,7 @@ export interface Modals extends componentData {
    */
   execute: (
     interaction: ModalSubmitInteraction,
-    client: MainDiscord,
+    client: MyClient,
     language: string,
     configuration: typeof config,
   ) => void;

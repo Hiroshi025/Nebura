@@ -11,7 +11,7 @@ import { getFiles } from "@/shared/utils/functions/files";
 import { FileType } from "@/typings/discord";
 
 import { Addons } from "../addons";
-import { MainDiscord } from "../client";
+import { MyClient } from "../client";
 import { Command, Event } from "./builders";
 
 /**
@@ -33,14 +33,14 @@ export class DiscordHandler {
    * The main Discord client instance.
    * @private
    */
-  private client: MainDiscord;
+  private client: MyClient;
 
   /**
    * Initializes the `DiscordHandler` with the provided client instance.
    *
-   * @param client - The `MainDiscord` client instance used to interact with Discord.
+   * @param client - The `MyClient` client instance used to interact with Discord.
    */
-  constructor(client: MainDiscord) {
+  constructor(client: MyClient) {
     this.settings = config.modules.discord;
     this.client = client;
   }
@@ -209,12 +209,12 @@ export class DiscordHandler {
    * - `modals`: Modal dialogs for user input.
    * - `menus`: Dropdown menus for user selection.
    *
-   * @param client - The `MainDiscord` client instance.
+   * @param client - The `MyClient` client instance.
    * @param fileType - The type of file to load (`buttons`, `modals`, `menus`).
    * @async
    * @throws {DiscordError} If there is an issue loading the components.
    */
-  async loadAndSet(client: MainDiscord, fileType: FileType) {
+  async loadAndSet(client: MyClient, fileType: FileType) {
     const folderPath = `${config.modules.discord.configs.componentspath}/${fileType}`;
     const files = await Discord.loadFiles(folderPath);
     try {

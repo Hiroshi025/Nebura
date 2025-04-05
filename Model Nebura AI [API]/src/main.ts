@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 import { ProyectError } from "./infrastructure/extenders/errors.extender";
-import { MainDiscord } from "./modules/discord/infrastructure/client";
+import { MyClient } from "./modules/discord/infrastructure/client";
 import { API } from "./server";
 
 process.loadEnvFile();
@@ -18,7 +18,7 @@ export class MainGlobal {
   /**
    * Instance of the Discord module.
    */
-  public discord: MainDiscord;
+  public discord: MyClient;
 
   /**
    * Instance of the API server module.
@@ -29,7 +29,7 @@ export class MainGlobal {
    * Constructor that initializes the core module instances.
    */
   constructor() {
-    this.discord = new MainDiscord();
+    this.discord = new MyClient();
     this.api = new API();
     this.prisma = new PrismaClient({
       log: ["query", "info", "warn", "error"],
@@ -45,7 +45,7 @@ export class MainGlobal {
    * @returns {Promise<void>} A promise that resolves when all modules have been successfully started.
    * @throws {Error} Throws an error if any module fails to start.
    */
-  public async start() {
+  public async start(): Promise<void> {
     await this.discord.start();
     await this.api.start();
   }

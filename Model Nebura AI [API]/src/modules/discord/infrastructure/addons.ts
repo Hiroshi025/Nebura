@@ -1,7 +1,7 @@
 import { config } from "@/shared/utils/config";
 import { AddonConfig } from "@/typings/discord";
 
-import { MainDiscord } from "./client";
+import { MyClient } from "./client";
 
 /**
  * @name Addons
@@ -19,7 +19,7 @@ export class Addons {
    * @type {(client: BotCore, configuration: typeof config) => void}
    * @readonly
    */
-  readonly initialize: (client: MainDiscord, configuration: typeof config) => void;
+  readonly initialize: (client: MyClient, configuration: typeof config) => void;
 
   /**
    * The structure defining the configuration of the addon.
@@ -37,7 +37,7 @@ export class Addons {
    */
   constructor(
     structure: AddonConfig,
-    initialize: (client: MainDiscord, configuration: typeof config) => void,
+    initialize: (client: MyClient, configuration: typeof config) => void,
   ) {
     this.structure = structure;
     this.initialize = initialize;
