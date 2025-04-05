@@ -1,7 +1,8 @@
 # Changelog
 
-Todos los cambios notables en este proyecto se documentarán en este archivo.  
-Este proyecto sigue [Semantic Versioning](https://semver.org/).
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### 0.0.3 (2025-04-05)
 
 ## [0.2.0-beta] - 2023-10-XX
 
