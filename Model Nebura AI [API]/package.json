@@ -1,12 +1,12 @@
 {
   "name": "nebura-works",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "index.js",
   "scripts": {
     "test": "jest && npm run docs",
     "build": "tsc",
     "start:dev": "nodemon --exec ts-node-dev -r tsconfig-paths/register src/main.ts",
-    "docs": "typedoc --out docs src",
+    "docs": "typedoc",
     "lint": "eslint --ext .ts .",
     "prepare": "husky",
     "release": "standard-version"
