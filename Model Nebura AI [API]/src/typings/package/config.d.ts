@@ -22,11 +22,21 @@ export interface ProyectConfig {
      * API version used by the project.
      */
     "api-version": string;
+    /**
+     * Log the proyect application
+     */
+    logs: string;
   };
   /**
    * Configuration for various modules.
    */
   modules: {
+    /**
+     * Configuration for the WhatsApp module.
+     */
+    whatsapp: {
+      enabled: boolean;
+    };
     /**
      * Configuration for the Discord module.
      */

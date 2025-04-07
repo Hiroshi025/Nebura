@@ -1,25 +1,44 @@
 openapi: "3.0.0"
 info:
-  title: "NEBURA AI"
+  title: "NEBURA AI API Documentation"
   description: |
-    Comprehensive API for managing blocked IP addresses within the system.
-    Provides endpoints for blocking, unblocking, and listing IP addresses with detailed filtering capabilities.
-    All endpoints require authentication and appropriate user privileges.
+    Welcome to the NEBURA AI API documentation. This API provides a comprehensive suite of endpoints for managing tasks, reminders, IP blocking, licenses, and integrations with external services like Discord and Google Gemini.
+
+    ### Key Features:
+    - **Task Management**: Create, update, delete, and retrieve tasks with advanced filtering options.
+    - **Reminders**: Manage reminders for tasks and events.
+    - **IP Management**: Block, unblock, and list IP addresses with detailed audit logs.
+    - **License Management**: Create, update, validate, and delete software licenses.
+    - **Discord Integration**: Retrieve Discord service status, updates, and incidents.
+    - **Google Gemini Integration**: Process text and files using Google Gemini's AI models.
+
+    ### Authentication:
+    Most endpoints require authentication via a Bearer token. Ensure you include the token in the `Authorization` header for secured routes.
+
+    ### Documentation:
+    For detailed guides and examples, visit our [official documentation](https://docs.hiroshi-dev.me).
+
+    ### Terms of Service:
+    By using this API, you agree to our [Terms of Service](https://docs.hiroshi-dev.me/mas/terminos-y-usos).
+
+    ### Support:
+    If you encounter any issues or have questions, please contact us using the details below.
+
   version: "0.1.1-alpha"
   contact:
-    name: "Hiroshi"
-    email: "contact@hiroshi-dev.me"
+    name: "Hiroshi Development Team"
+    email: "support@hiroshi-dev.me"
     url: "https://docs.hiroshi-dev.me"
   termsOfService: "https://docs.hiroshi-dev.me/mas/terminos-y-usos"
   license:
-    name: "MIT"
+    name: "MIT License"
     url: "https://opensource.org/licenses/MIT"
 
 servers:
   - url: "https://admin.hiroshi-dev.me/api/v1"
-    description: "Production server"
+    description: "Production Server"
   - url: "https://staging.hiroshi-dev.me/api/v1"
-    description: "Staging server"
+    description: "Staging Server"
 
 paths:
   ###### TASK ROUTES ####
@@ -27,34 +46,34 @@ paths:
   /service/tasks:
     get:
       tags: [Tasks]
-      summary: Obtener todas las tareas
-      description: Retorna una lista de tareas con opción de filtrado
+      summary: Get all tasks
+      description: Returns a list of tasks with filtering options
       parameters:
         - in: query
           name: status
           schema:
             type: string
             enum: [pending, completed, canceled]
-          description: Filtrar por estado de la tarea
+          description: Filter by task status
         - in: query
           name: priority
           schema:
             type: string
             enum: [low, medium, high]
-          description: Filtrar por prioridad
+          description: Filter by priority
         - in: query
           name: createdBy
           schema:
             type: string
-          description: Filtrar por ID del creador
+          description: Filter by creator ID
         - in: query
           name: tag
           schema:
             type: string
-          description: Filtrar por etiqueta
+          description: Filter by tag
       responses:
         "200":
-          description: Lista de tareas
+          description: List of tasks
           content:
             application/json:
               schema:
@@ -62,7 +81,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/TaskResponse"
         "500":
-          description: Error del servidor
+          description: Server error
           content:
             application/json:
               schema:
@@ -70,8 +89,8 @@ paths:
 
     post:
       tags: [Tasks]
-      summary: Crear una nueva tarea
-      description: Crea una tarea con los datos proporcionados
+      summary: Create a new task
+      description: Creates a task with the provided data
       requestBody:
         required: true
         content:
@@ -80,15 +99,15 @@ paths:
               $ref: "#/components/schemas/CreateTask"
       responses:
         "201":
-          description: Tarea creada exitosamente
+          description: Task created successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskResponse"
         "400":
-          description: Datos de entrada inválidos
+          description: Invalid input data
         "500":
-          description: Error del servidor
+          description: Server error
           content:
             application/json:
               schema:
@@ -97,26 +116,26 @@ paths:
   /service/tasks/{id}:
     get:
       tags: [Tasks]
-      summary: Obtener una tarea por ID
-      description: Retorna los detalles de una tarea específica
+      summary: Get a task by ID
+      description: Returns the details of a specific task
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: string
-          description: ID de la tarea
+          description: Task ID
       responses:
         "200":
-          description: Detalles de la tarea
+          description: Task details
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskResponse"
         "404":
-          description: Tarea no encontrada
+          description: Task not found
         "500":
-          description: Error del servidor
+          description: Server error
           content:
             application/json:
               schema:
@@ -124,15 +143,15 @@ paths:
 
     patch:
       tags: [Tasks]
-      summary: Actualizar una tarea
-      description: Actualiza los campos especificados de una tarea
+      summary: Update a task
+      description: Updates the specified fields of a task
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: string
-          description: ID de la tarea
+          description: Task ID
       requestBody:
         required: true
         content:
@@ -141,15 +160,15 @@ paths:
               $ref: "#/components/schemas/UpdateTask"
       responses:
         "200":
-          description: Tarea actualizada exitosamente
+          description: Task updated successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskResponse"
         "404":
-          description: Tarea no encontrada
+          description: Task not found
         "500":
-          description: Error del servidor
+          description: Server error
           content:
             application/json:
               schema:
@@ -157,22 +176,22 @@ paths:
 
     delete:
       tags: [Tasks]
-      summary: Eliminar una tarea
-      description: Elimina permanentemente una tarea
+      summary: Delete a task
+      description: Permanently deletes a task
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: string
-          description: ID de la tarea
+          description: Task ID
       responses:
         "204":
-          description: Tarea eliminada exitosamente
+          description: Task deleted successfully
         "404":
-          description: Tarea no encontrada
+          description: Task not found
         "500":
-          description: Error del servidor
+          description: Server error
           content:
             application/json:
               schema:
@@ -181,11 +200,11 @@ paths:
   /service/reminders:
     get:
       tags: [Reminders]
-      summary: Obtener recordatorios próximos
-      description: Retorna una lista de recordatorios que están por activarse
+      summary: Get upcoming reminders
+      description: Returns a list of reminders that are about to be triggered
       responses:
         "200":
-          description: Lista de recordatorios
+          description: List of reminders
           content:
             application/json:
               schema:
@@ -193,7 +212,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/TaskResponse"
         "500":
-          description: Error del servidor
+          description: Server error
           content:
             application/json:
               schema:
@@ -1075,6 +1094,196 @@ paths:
           description: Forbidden - User doesn't have required permissions
         "500":
           description: Internal server error
+
+  /public/api/v1/discord/status:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Discord Service Status
+      description: |
+        Fetch the current operational status of Discord's services. This endpoint provides real-time information about whether Discord is operational, degraded, or experiencing an outage.
+      responses:
+        "200":
+          description: Discord service status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [operational, degraded, outage]
+                    example: "operational"
+                  message:
+                    type: string
+                    example: "All systems operational"
+                  lastUpdated:
+                    type: string
+                    format: date-time
+                    example: "2024-08-30T14:53:44.077Z"
+        "500":
+          description: Failed to retrieve Discord service status.
+
+  /public/api/v1/discord/updates:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Recent Discord Updates
+      description: |
+        Fetch a list of recent updates published by Discord. These updates may include announcements, feature releases, or general updates.
+      responses:
+        "200":
+          description: Recent Discord updates retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "New feature announcement"
+                    summary:
+                      type: string
+                      example: "Discord has introduced a new feature..."
+                    link:
+                      type: string
+                      format: uri
+                      example: "https://discord.com/blog/new-feature"
+                    date:
+                      type: string
+                      format: date-time
+                      example: "2024-08-30T14:53:44.077Z"
+                    type:
+                      type: string
+                      enum: [update, announcement, incident]
+                      example: "announcement"
+        "500":
+          description: Failed to retrieve Discord updates.
+
+  /public/api/v1/discord/incidents:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Active Discord Incidents
+      description: |
+        Fetch a list of active incidents reported by Discord. Incidents include service disruptions or outages that are currently unresolved.
+      responses:
+        "200":
+          description: Active Discord incidents retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "Server outage"
+                    summary:
+                      type: string
+                      example: "A server outage is affecting some users..."
+                    link:
+                      type: string
+                      format: uri
+                      example: "https://status.discord.com/incidents/12345"
+                    date:
+                      type: string
+                      format: date-time
+                      example: "2024-08-30T14:53:44.077Z"
+                    type:
+                      type: string
+                      enum: [incident]
+                      example: "incident"
+        "500":
+          description: Failed to retrieve Discord incidents.
+
+  /public/api/v1/discord/recent:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Recent Discord Data
+      description: |
+        Fetch recent data from Discord, including the current status, updates, and incidents from the last 24 hours.
+      responses:
+        "200":
+          description: Recent Discord data retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      incidents:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              example: "Server outage"
+                            summary:
+                              type: string
+                              example: "A server outage is affecting some users..."
+                            link:
+                              type: string
+                              format: uri
+                              example: "https://status.discord.com/incidents/12345"
+                            date:
+                              type: string
+                              format: date-time
+                              example: "2024-08-30T14:53:44.077Z"
+                            type:
+                              type: string
+                              enum: [incident]
+                              example: "incident"
+                      status:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum: [operational, degraded, outage]
+                            example: "operational"
+                          message:
+                            type: string
+                            example: "All systems operational"
+                          lastUpdated:
+                            type: string
+                            format: date-time
+                            example: "2024-08-30T14:53:44.077Z"
+                      updates:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              example: "New feature announcement"
+                            summary:
+                              type: string
+                              example: "Discord has introduced a new feature..."
+                            link:
+                              type: string
+                              format: uri
+                              example: "https://discord.com/blog/new-feature"
+                            date:
+                              type: string
+                              format: date-time
+                              example: "2024-08-30T14:53:44.077Z"
+                            type:
+                              type: string
+                              enum: [update, announcement, incident]
+                              example: "announcement"
+                  errors:
+                    type: string
+                    nullable: true
+                    example: null
+        "500":
+          description: Failed to retrieve recent Discord data.
 
 components:
   schemas:

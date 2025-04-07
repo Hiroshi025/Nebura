@@ -1,17 +1,23 @@
+import emojis from "@config/json/emojis.json";
 import { PrismaClient } from "@prisma/client";
 
 import { ProyectError } from "./infrastructure/extenders/errors.extender";
 import { MyClient } from "./modules/discord/infrastructure/client";
+import { MyApp } from "./modules/whatsapp";
 import { API } from "./server";
+import { config } from "./shared/utils/config";
+import { logWithLabel } from "./shared/utils/functions/console";
+import { ProyectConfig } from "./typings/package/config";
 
 //import { globalCleanup } from "./shared/utils/runCleanTask";
 
 process.loadEnvFile();
+const defaultConfig = config as ProyectConfig;
 
 /**
  * Main class responsible for initializing and managing the core modules of the application.
  */
-export class MainGlobal {
+export class Engine {
   /**
    * Prisma client instance used for database interactions.
    */
@@ -28,15 +34,31 @@ export class MainGlobal {
   public api: API;
 
   /**
+   * Instance of the WhatsApp module.
+   * This module is responsible for handling WhatsApp interactions and functionalities.
+   */
+  public whatsapp: MyApp;
+
+  /**
+   * Configuration object for the project.
+   */
+  public config: ProyectConfig;
+
+  /**
    * Constructor that initializes the core module instances.
    */
-  constructor() {
-    this.prisma = new PrismaClient({
-      log: ["query", "info", "warn", "error"],
-    });
-
-    this.discord = new MyClient();
-    this.api = new API();
+  constructor(
+    prisma: PrismaClient = new PrismaClient({ log: ["query", "info", "warn", "error"] }),
+    discord: MyClient = new MyClient(),
+    api: API = new API(),
+    whatsapp: MyApp = new MyApp(),
+    config: ProyectConfig = defaultConfig,
+  ) {
+    this.prisma = prisma;
+    this.discord = discord;
+    this.api = api;
+    this.whatsapp = whatsapp;
+    this.config = config;
   }
 
   /**
@@ -49,28 +71,41 @@ export class MainGlobal {
    * @throws {Error} Throws an error if any module fails to start.
    */
   public async start(): Promise<void> {
-    await this.discord.start();
-    await this.api.start();
-
-    //TODO Evitar que las tareas se eliminen en caso de que el bot se reinicie, solo se eliminaran segun la la fecha de vencimiento
-    //this.setup();
+    try {
+      await this.initializeModules();
+    } catch (err) {
+      this.handleError(err);
+    }
   }
 
-/*   private setup() {
-    const taskService = new TaskService();
-    globalCleanup("Global Tasks", () => taskService.cleanUpTasks());
+  private async initializeModules(): Promise<void> {
+    await Promise.all([this.discord.start(), this.api.start()]);
 
-    return;
-  } */
+    if (this.config.modules.whatsapp.enabled) {
+      await this.whatsapp.start();
+    } else {
+      logWithLabel(
+        "custom",
+        [
+          "Client is not ready!",
+          `  ${emojis.loading}  The WhatsApp API module has not started.`,
+          `  ${emojis.loading}  The WhatsApp API module is running on version v1.0.0.`,
+        ].join("\n"),
+        "Whatsapp",
+      );
+    }
+  }
+
+  private handleError(err: unknown): void {
+    throw new ProyectError(`Error starting the application: ${err}`);
+  }
 }
 
 /**
- * Global instance of the `MainGlobal` class.
+ * Global instance of the `Engine` class.
  */
-export const main = new MainGlobal();
+export const main = new Engine();
 export const client = main.discord;
 
 // Starts the application and handles any errors during the startup process.
-main.start().catch((err) => {
-  throw new ProyectError(`Error starting the application: ${err}`);
-});
+main.start();

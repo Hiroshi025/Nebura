@@ -4,6 +4,7 @@ project:
   version: "1.0.0"
   type: "monorepo"  # Opcional: Si usas workspaces
   api-version: "v1"  # Versión de la API
+  logs: "./config/logs-apps/"  # Ruta para los logs de la aplicación
 
 environments:
   default: &default
@@ -63,6 +64,8 @@ modules:
       bot-extensions:
         - ".js"
         - ".ts"
+  whatsapp: 
+    enabled: false
 
 moderation:
   notifications:
