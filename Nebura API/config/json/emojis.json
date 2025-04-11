@@ -51,5 +51,11 @@
     "server_world": "🌍",
     "server_seed": "🌱",
     "server_rules": "📜"
+  },
+  "help": {
+    "back": "🔙",
+    "forward": "🔜",
+    "home": "🏠",
+    "error": "❌"
   }
 }

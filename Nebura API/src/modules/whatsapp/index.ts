@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import { format } from "date-fns";
 import * as ExcelJS from "exceljs";
 import fs from "fs";
@@ -53,7 +54,7 @@ export class MyApp {
    */
   private InitClient = async () => {
     this.client = new Client({
-/*       authStrategy: new RemoteAuth({
+      /*       authStrategy: new RemoteAuth({
         store: store,
         backupSyncIntervalMs: 60000,
         dataPath: path.join(config.project.logs, "whatsapp"),
@@ -204,8 +205,7 @@ export class MyApp {
         "custom",
         [
           "Client is ready!",
-          `  ${emojis.info}  The WhatsApp API module has started.`,
-          `  ${emojis.info}  The WhatsApp API module is running on version v1.0.0.`,
+          `  ${emojis.info}  ${chalk.gray("The WhatsApp API module has started.")}`,
         ].join("\n"),
         "WhatsApp",
       );

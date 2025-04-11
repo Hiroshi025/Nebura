@@ -74,6 +74,22 @@ export class MyClient extends Client {
   public addons: Collection<unknown, unknown>;
 
   /**
+   * Collection of preloaded commands.
+   *
+   * @type {Collection<string, unknown>}
+   * @public
+   */
+  public precommands: Collection<string, unknown>;
+
+  /**
+   * Collection of command aliases.
+   *
+   * @type {Collection<string, string>}
+   * @public
+   */
+  public aliases: Collection<string, string>;
+
+  /**
    * Initializes a new instance of the `MyClient` class.
    * Configures the client with specific intents and partials, and initializes handlers and settings.
    */
@@ -91,6 +107,7 @@ export class MyClient extends Client {
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.MessageContent,
       ],
       partials: [
         Partials.GuildScheduledEvent,
@@ -114,6 +131,10 @@ export class MyClient extends Client {
           lifetime: 86_400, // Remove threads older than 24 hours.
         },
       },
+      allowedMentions: {
+        parse: ["users", "roles"],
+        repliedUser: false,
+      },
     });
 
     this.handlers = new DiscordHandler(this);
@@ -122,9 +143,12 @@ export class MyClient extends Client {
     this.categories = new Collection();
     this.commands = new Collection();
     this.buttons = new Collection();
+    this.precommands = new Collection();
+    this.aliases = new Collection();
+
     this.modals = new Collection();
-    this.menus = new Collection();
     this.addons = new Collection();
+    this.menus = new Collection();
   }
 
   /**
@@ -175,6 +199,7 @@ export class MyClient extends Client {
         this.handlers.loadAndSet(this, "buttons"),
         this.handlers.loadAndSet(this, "modals"),
         this.handlers.loadAndSet(this, "menus"),
+        this.handlers.components(this),
         this.handlers.deploy(),
       ]);
     } catch (err) {

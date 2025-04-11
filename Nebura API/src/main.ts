@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 import emojis from "@config/json/emojis.json";
 import { PrismaClient } from "@prisma/client";
 
@@ -45,6 +47,11 @@ export class Engine {
   public config: ProyectConfig;
 
   /**
+   * Chalk library instance for colored console output.
+   */
+  public chalk: typeof chalk;
+
+  /**
    * Constructor that initializes the core module instances.
    */
   constructor(
@@ -59,6 +66,7 @@ export class Engine {
     this.api = api;
     this.whatsapp = whatsapp;
     this.config = config;
+    this.chalk = chalk
   }
 
   /**
@@ -88,8 +96,7 @@ export class Engine {
         "custom",
         [
           "Client is not ready!",
-          `  ${emojis.loading}  The WhatsApp API module has not started.`,
-          `  ${emojis.loading}  The WhatsApp API module is running on version v1.0.0.`,
+          `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
         ].join("\n"),
         "Whatsapp",
       );

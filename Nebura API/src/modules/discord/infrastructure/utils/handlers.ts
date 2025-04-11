@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { ClientEvents, REST, Routes } from "discord.js";
 import { Discord } from "eternal-support";
 import fs from "fs";
+import path from "path";
 
 import { filesLoaded } from "@/infrastructure/constants/tools.constants";
 import { DiscordError } from "@/infrastructure/extenders/errors.extender";
@@ -239,4 +240,65 @@ export class DiscordHandler {
       throw new DiscordError(`Error loading ${fileType}: ${e}`);
     }
   }
+
+  
+    /**
+     * Recursively loads and sets command components (prefix-based) into the client.
+     *
+     * - Reads the components from the specified directory and its subdirectories.
+     * - Ensures each component has a valid `name` and `execute` function before loading.
+     *
+     * Logs the process of loading and the number of components successfully loaded.
+     *
+     * @param client - The BotCore instance.
+     * @throws {InternalError} If there is an issue loading the components.
+     */
+    async components(client: MyClient) {
+      const startTime = performance.now();
+  
+      function readComponentsRecursively(directory: string) {
+        const filesAndFolders = fs.readdirSync(directory);
+        for (const item of filesAndFolders) {
+          const fullPath = path.join(directory, item);
+          if (fs.statSync(fullPath).isDirectory()) {
+            readComponentsRecursively(fullPath);
+          } else if (item.endsWith(".ts") || item.endsWith(".js")) {
+            try {
+              const commandModule = require(fullPath);
+              if (commandModule.name && commandModule.execute) {
+                commandModule.path = fullPath;
+                client.precommands.set(commandModule.name, commandModule);
+                if (commandModule.aliases && Array.isArray(commandModule.aliases)) {
+                  commandModule.aliases.forEach((alias: string): void => {
+                    client.aliases.set(alias, commandModule.name);
+                  });
+                }
+              } else {
+                logWithLabel("error", `Error loading component ${item}: missing name or execute function`);
+              }
+            } catch (error) {
+              logWithLabel("error", `Error loading component ${item}: ${error}`);
+            }
+          }
+        }
+      }
+  
+      try {
+        const componentsDir = path.resolve(`${config.modules.discord.configs.precommands}`);
+        await readComponentsRecursively(componentsDir);
+      } catch (error) {
+        throw new Error(`Error loading components: ${error}`);
+      }
+  
+      const endTime = performance.now();
+      logWithLabel(
+        "info",
+        [
+          `Loaded the Prefix-Commands:\n`,
+          `${chalk.grey(`✅ Finished Loading the Prefix-Commands`)}`,
+          `${chalk.grey(`🟢 Prefix-Loaded Successfully: ${client.precommands.size}`)}`,
+          `${chalk.grey(`🕛 Took: ${Math.round((endTime - startTime) / 1000)}s`)}`,
+        ].join("\n")
+      );
+    }
 }

@@ -50,6 +50,10 @@ export interface ProyectConfig {
        */
       clientId: string;
       /**
+       * Discord client secret.
+       */
+      prefix: string;
+      /**
        * Presence configuration for the Discord bot.
        */
       presence: {
@@ -95,6 +99,10 @@ export interface ProyectConfig {
          * Path to the addons
          */
         addonspath: string;
+        /**
+         * Path to the bot's commands.
+         */
+        precommands: string;
         /**
          * List of bot extensions.
          */
