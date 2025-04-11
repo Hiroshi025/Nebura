@@ -1,15 +1,23 @@
 # Table of contents
 
-* [👋 Bievenido](README.md)
+* [👋 Bienvenido](README.md)
 
 ## Proyectos
 
 * [Nebura API](proyectos/nebura-api/README.md)
   * [Routes API](proyectos/nebura-api/routes-api.md)
   * [RateLimit](proyectos/nebura-api/ratelimit.md)
-  * [IP Administrator](proyectos/nebura-api/ip-administrator.md)
+  * [IP Administrador](proyectos/nebura-api/ip-administrador.md)
 
-## Tutoriales
+## TUTORIALES
 
-* [Modifying Discord.js](tutoriales/modifying-discord.js.md)
-* [Customizing Cache for a Discord](tutoriales/customizing-cache-for-a-discord.md)
+* [Discord con TypeScript y Node.js](tutoriales/discord-con-typescript-y-node.js.md)
+
+## LEGAL
+
+* [Términos y Condiciones](legal/terminos-y-condiciones.md)
+* [Actualizaciones](legal/actualizaciones.md)
+
+## EXTRAS
+
+* [Github](https://github.com/Hiroshi025)

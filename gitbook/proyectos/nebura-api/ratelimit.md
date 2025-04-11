@@ -4,36 +4,17 @@ description: Configuración, respuesta y tipo de limite de peticiones especifica
 
 # RateLimit
 
-{% hint style="danger" %}
-Los idiomas de la documentacion son principalmente ingles para evitar errores de sintaxis dentro de los proyectos como la documentacion
-{% endhint %}
+### Visión General
 
-### Overview
+La clase `RateLimitManager` es un singleton que maneja la limitación de tasa y el bloqueo de IPs para una aplicación Express.js. Proporciona:
 
-The `RateLimitManager` class is a singleton that handles rate limiting and IP blocking functionality for an Express.js application. It provides:
+* Configuración predeterminada de limitación de tasa
+* Creación de limitadores personalizados
+* Bloqueo de IPs por violaciones repetidas
+* Sistema de notificaciones para violaciones
+* Niveles de limitación basados en licencias
 
-* Default rate limiting configuration
-* Custom rate limiter creation
-* IP blocking for repeated violations
-* Notification system for violations
-* License-based rate limiting tiers
-
-### Table of Contents
-
-1. Class Diagram
-2. Constructor
-3. Methods
-   * getInstance
-   * getDefaultLimiter
-   * createCustomLimiter
-   * recordRateLimitViolation
-   * getViolationCount
-   * getRateLimitMiddleware
-4. Configuration
-5. Error Handling
-6. API Examples
-
-### Class Diagram
+### Diagrama de Clase
 
 ```mermaid
 classDiagram
@@ -56,92 +37,72 @@ classDiagram
 
 ### Constructor
 
-#### `private constructor()`
+`private constructor()`\
+Inicializa el RateLimitManager con configuración predeterminada.
 
-Initializes the RateLimitManager with default configuration.
-
-| Parameter | Type | Description |
-| --------- | ---- | ----------- |
-| None      | -    | -           |
-
-**Default Limiter Configuration:**
+**Configuración del Limitador Predeterminado:**
 
 ```javascript
 {
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // 100 peticiones por ventana
   standardHeaders: true,
   legacyHeaders: false,
   handler: async function(req, res) {
-    // Handles rate limit violations
+    // Maneja violaciones del límite de tasa
   }
 }
 ```
 
-### Methods
+### Métodos
 
-#### `getInstance()`
+#### getInstance()
 
-Retrieves the singleton instance of RateLimitManager.
+Obtiene la instancia singleton de RateLimitManager.
 
-**Returns:** `RateLimitManager` - The singleton instance
+**Retorna:** `RateLimitManager` - La instancia singleton
 
-**Example:**
+**Ejemplo:**
 
 ```javascript
 const rateLimitManager = RateLimitManager.getInstance();
 ```
 
-***
+#### getDefaultLimiter()
 
-#### `getDefaultLimiter()`
+Obtiene el middleware de limitación de tasa predeterminado.
 
-Gets the default rate limiter middleware.
+**Retorna:** `any` - El middleware de limitación predeterminado
 
-**Returns:** `any` - The default rate limiter middleware
-
-**Example:**
+**Ejemplo:**
 
 ```javascript
 app.use(rateLimitManager.getDefaultLimiter());
 ```
 
-***
+#### createCustomLimiter(options)
 
-#### `createCustomLimiter(options)`
+Crea un limitador de tasa personalizado con opciones específicas.
 
-Creates a custom rate limiter with specific options.
+**Retorna:** `any` - El middleware de limitación personalizado
 
-| Parameter | Type  | Description                                |
-| --------- | ----- | ------------------------------------------ |
-| options   | `any` | Configuration options for the rate limiter |
-
-**Returns:** `any` - The custom rate limiter middleware
-
-**Example Options:**
+**Ejemplo de Opciones:**
 
 ```javascript
 {
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000, // 1 hora
   max: 50,
-  message: "Custom limit exceeded"
+  message: "Límite personalizado excedido"
 }
 ```
 
-***
+#### recordRateLimitViolation(ip, endpoint)
 
-#### `recordRateLimitViolation(ip, endpoint)`
+Registra una violación de límite de tasa en la base de datos y envía notificaciones.
 
-Records a rate limit violation in the database and sends notifications.
+**Retorna:** `Promise<void>`
 
-| Parameter | Type     | Description                           |
-| --------- | -------- | ------------------------------------- |
-| ip        | `string` | The IP address of the violator        |
-| endpoint  | `string` | The endpoint where violation occurred |
-
-**Returns:** `Promise<void>`
-
-**Database Schema:**
+**Esquema de Base de Datos:**
 
 ```javascript
 {
@@ -151,126 +112,106 @@ Records a rate limit violation in the database and sends notifications.
 }
 ```
 
-**Notification Payload:**
+**Carga de Notificación:**
 
 ```javascript
 {
-  title: "Rate Limit Violation",
-  description: `IP: ${ip} has exceeded the request limit on endpoint: ${endpoint}`,
+  title: "Violación de Límite de Tasa",
+  description: `IP: ${ip} ha excedido el límite de peticiones en el endpoint: ${endpoint}`,
   color: "#FF0000",
   fields: [
-    { name: "IP Address", value: ip, inline: true },
+    { name: "Dirección IP", value: ip, inline: true },
     { name: "Endpoint", value: endpoint, inline: true },
-    { name: "Time", value: ISOString, inline: true }
+    { name: "Hora", value: ISOString, inline: true }
   ],
   options: {
-    content: "🚨 Rate Limit Violation Alert",
-    username: "Rate Limit Manager"
+    content: "🚨 Alerta de Violación de Límite de Tasa",
+    username: "Gestor de Límites"
   }
 }
 ```
 
-***
+#### getViolationCount(ip)
 
-#### `getViolationCount(ip)`
+Obtiene el conteo de violaciones de límite de tasa para una IP en las últimas 24 horas.
 
-Retrieves the count of rate limit violations for an IP in last 24 hours.
+**Retorna:** `Promise<number>` - Conteo de violaciones
 
-| Parameter | Type     | Description             |
-| --------- | -------- | ----------------------- |
-| ip        | `string` | The IP address to check |
-
-**Returns:** `Promise<number>` - Count of violations
-
-**Critical Notification (≥3 violations):**
+**Notificación Crítica (≥3 violaciones):**
 
 ```javascript
 {
-  title: "Critical Rate Limit Violations",
-  description: `IP: ${ip} has reached ${count} violations in the last 24 hours.`,
+  title: "Violaciones Críticas de Límite de Tasa",
+  description: `IP: ${ip} ha alcanzado ${count} violaciones en las últimas 24 horas.`,
   color: "#FFA500",
-  // ...similar fields as above
+  // ...campos similares a los anteriores
 }
 ```
 
-***
+#### getRateLimitMiddleware(req, res, next)
 
-#### `getRateLimitMiddleware(req, res, next)`
+Middleware que aplica limitación de tasa basada en tipo de licencia o configuración predeterminada.
 
-Middleware that applies rate limiting based on license type or default settings.
+**Niveles de Licencia:**\
+(Detalles de implementación específicos)
 
-| Parameter | Type           | Description              |
-| --------- | -------------- | ------------------------ |
-| req       | `Request`      | Express request object   |
-| res       | `Response`     | Express response object  |
-| next      | `NextFunction` | Next middleware function |
+### Configuración
 
-**License Tiers:**
-
-| Tier    | Window | Max Requests | Message                                                      |
-| ------- | ------ | ------------ | ------------------------------------------------------------ |
-| FREE    | 15 min | 50           | "Free tier limit exceeded (50 requests per 15 minutes)"      |
-| BASIC   | 15 min | 200          | "Basic tier limit exceeded (200 requests per 15 minutes)"    |
-| PREMIUM | 15 min | 1000         | "Premium tier limit exceeded (1000 requests per 15 minutes)" |
-| Default | 15 min | 100          | "You have exceeded the allowed request limit"                |
-
-### Configuration
-
-The class uses configuration from `config.moderation.notifications`:
+La clase usa configuración de `config.moderation.notifications`:
 
 ```javascript
 {
   notifications: {
     webhooks: {
-      token: "YOUR_WEBHOOK_TOKEN", // Required for notifications
-      url: "WEBHOOK_URL"
+      token: "TOKEN_DE_TU_WEBHOOK", // Requerido para notificaciones
+      url: "URL_WEBHOOK"
     }
   }
 }
 ```
 
-### Error Handling
+### Manejo de Errores
 
-All methods include try-catch blocks and log errors using:
+Todos los métodos incluyen bloques try-catch y registran errores usando:
 
 ```javascript
-logWithLabel("error", "Error message");
+logWithLabel("error", "Mensaje de error");
 ```
 
-### API Examples
+### Ejemplos de API
 
-#### Default Rate Limiter Response (429)
+#### Respuesta Predeterminada por Límite de Tasa (429)
 
 ```json
 {
   "success": false,
-  "error": "Too many requests",
-  "message": "You have exceeded the allowed request limit"
+  "error": "Demasiadas peticiones",
+  "message": "Has excedido el límite de peticiones permitido"
 }
 ```
 
-#### IP Blocked Response (403)
+#### Respuesta de IP Bloqueada (403)
 
 ```json
 {
   "success": false,
-  "error": "Access denied",
-  "message": "Your IP address has been blocked"
+  "error": "Acceso denegado",
+  "message": "Tu dirección IP ha sido bloqueada"
 }
 ```
 
-#### Rate Limit Violation Webhook Notification Example
+#### Ejemplo de Notificación por Webhook
 
 ```json
 {
   "embeds": [
     {
-      "title": "Rate Limit Violation",
-      "description": "IP: 192.168.1.1 has exceeded the request limit on endpoint: /api/users",
+      "title": "Violación de Límite de Tasa",
+      "description": "IP: 192.168.1.1 ha excedido el límite de peticiones en el endpoint: /api/users",
       "color": 16711680,
       "fields": [
         {
-          "name": "IP Address",
+          "name": "Dirección IP",
           "value": "192.168.1.1",
           "inline": true
         },
@@ -280,17 +221,17 @@ logWithLabel("error", "Error message");
           "inline": true
         },
         {
-          "name": "Time",
+          "name": "Hora",
           "value": "2023-05-15T12:34:56.789Z",
           "inline": true
         }
       ],
       "footer": {
-        "text": "Rate Limit Manager"
+        "text": "Gestor de Límites"
       }
     }
   ],
-  "content": "🚨 Rate Limit Violation Alert",
-  "username": "Rate Limit Manager"
+  "content": "🚨 Alerta de Violación de Límite de Tasa",
+  "username": "Gestor de Límites"
 }
 ```
