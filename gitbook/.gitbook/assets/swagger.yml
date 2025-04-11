@@ -1,0 +1,1808 @@
+openapi: "3.0.0"
+info:
+  title: "NEBURA AI API Documentation"
+  description: |
+    Welcome to the NEBURA AI API documentation. This API provides a comprehensive suite of endpoints for managing tasks, reminders, IP blocking, licenses, and integrations with external services like Discord and Google Gemini.
+
+    ### Key Features:
+    - **Task Management**: Create, update, delete, and retrieve tasks with advanced filtering options.
+    - **Reminders**: Manage reminders for tasks and events.
+    - **IP Management**: Block, unblock, and list IP addresses with detailed audit logs.
+    - **License Management**: Create, update, validate, and delete software licenses.
+    - **Discord Integration**: Retrieve Discord service status, updates, and incidents.
+    - **Google Gemini Integration**: Process text and files using Google Gemini's AI models.
+
+    ### Authentication:
+    Most endpoints require authentication via a Bearer token. Ensure you include the token in the `Authorization` header for secured routes.
+
+    ### Documentation:
+    For detailed guides and examples, visit our [official documentation](https://docs.hiroshi-dev.me).
+
+    ### Terms of Service:
+    By using this API, you agree to our [Terms of Service](https://docs.hiroshi-dev.me/mas/terminos-y-usos).
+
+    ### Support:
+    If you encounter any issues or have questions, please contact us using the details below.
+
+  version: "0.1.1-alpha"
+  contact:
+    name: "Hiroshi Development Team"
+    email: "support@hiroshi-dev.me"
+    url: "https://docs.hiroshi-dev.me"
+  termsOfService: "https://docs.hiroshi-dev.me/mas/terminos-y-usos"
+  license:
+    name: "MIT License"
+    url: "https://opensource.org/licenses/MIT"
+
+servers:
+  - url: "https://admin.hiroshi-dev.me/api/v1"
+    description: "Production Server"
+  - url: "https://staging.hiroshi-dev.me/api/v1"
+    description: "Staging Server"
+
+paths:
+  ###### TASK ROUTES ####
+
+  /service/tasks:
+    get:
+      tags: [Tasks]
+      summary: Get all tasks
+      description: Returns a list of tasks with filtering options
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, completed, canceled]
+          description: Filter by task status
+        - in: query
+          name: priority
+          schema:
+            type: string
+            enum: [low, medium, high]
+          description: Filter by priority
+        - in: query
+          name: createdBy
+          schema:
+            type: string
+          description: Filter by creator ID
+        - in: query
+          name: tag
+          schema:
+            type: string
+          description: Filter by tag
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    post:
+      tags: [Tasks]
+      summary: Create a new task
+      description: Creates a task with the provided data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTask"
+      responses:
+        "201":
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "400":
+          description: Invalid input data
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /service/tasks/{id}:
+    get:
+      tags: [Tasks]
+      summary: Get a task by ID
+      description: Returns the details of a specific task
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Task ID
+      responses:
+        "200":
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          description: Task not found
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    patch:
+      tags: [Tasks]
+      summary: Update a task
+      description: Updates the specified fields of a task
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTask"
+      responses:
+        "200":
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          description: Task not found
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    delete:
+      tags: [Tasks]
+      summary: Delete a task
+      description: Permanently deletes a task
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Task ID
+      responses:
+        "204":
+          description: Task deleted successfully
+        "404":
+          description: Task not found
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /service/reminders:
+    get:
+      tags: [Reminders]
+      summary: Get upcoming reminders
+      description: Returns a list of reminders that are about to be triggered
+      responses:
+        "200":
+          description: List of reminders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  ###### AI ROUTES ######
+
+  /service/google/model-ai/text:
+    post:
+      tags: [Gemini]
+      summary: Process text with Gemini
+      description: Send text to Gemini for processing
+      parameters:
+        - $ref: "#/components/parameters/XGeminiApiKey"
+        - $ref: "#/components/parameters/XGeminiModel"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeminiTextRequest"
+      responses:
+        "200":
+          description: Successful response from Gemini
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiResponse"
+        "400":
+          description: Missing required headers or invalid request
+        "500":
+          description: Error processing the request
+
+  /service/google/model-ai/file:
+    post:
+      tags: [Gemini]
+      summary: Process file with Gemini
+      description: Send a file to Gemini for processing
+      parameters:
+        - $ref: "#/components/parameters/XGeminiApiKey"
+        - $ref: "#/components/parameters/XGeminiModel"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to process (PDF, DOCX, etc.)
+                text:
+                  type: string
+                  description: Instructions/prompt to process the file
+                  example: "Summarize this document"
+                systemInstruction:
+                  type: string
+                  description: System instruction to configure Gemini's behavior
+                  example: "You are an academic assistant specialized in summarizing documents"
+      responses:
+        "200":
+          description: Successful response from Gemini
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiResponse"
+        "400":
+          description: Missing required headers, no file provided, or invalid request
+        "500":
+          description: Error processing the request
+
+  /service/google/model-ai/combined:
+    post:
+      tags: [Gemini]
+      summary: Process combined text and file with Gemini
+      description: Send both text and a file to Gemini for combined processing
+      parameters:
+        - $ref: "#/components/parameters/XGeminiApiKey"
+        - $ref: "#/components/parameters/XGeminiModel"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to process (PDF, DOCX, etc.)
+                text:
+                  type: string
+                  description: Text related to the file
+                  example: "Based on this document, what are the key points?"
+                systemInstruction:
+                  type: string
+                  description: System instruction to configure Gemini's behavior
+                  example: "You are a document analysis expert"
+      responses:
+        "200":
+          description: Successful response from Gemini
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeminiResponse"
+        "400":
+          description: Missing required headers, no file provided, or invalid request
+        "500":
+          description: Error processing the request
+
+  ###### BLOCK IP ROUTES ######
+
+  /admin/block-ip:
+    post:
+      tags:
+        - IP Management
+      summary: Block an IP address
+      description: Adds an IP address to the system's block list
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ipAddress:
+                  type: string
+                  format: ipv4
+                  example: "192.168.1.100"
+                  description: IP address to be blocked
+                reason:
+                  type: string
+                  example: "Multiple failed login attempts"
+                  description: Reason for blocking (for audit logs)
+                userId:
+                  type: string
+                  example: "507f1f77bcf86cd799439011"
+                  description: ID of the user performing the block (optional)
+                expiresAt:
+                  type: string
+                  format: date-time
+                  example: "2023-12-31T23:59:59Z"
+                  description: Expiration date/time for automatic unblock (optional)
+              required:
+                - ipAddress
+      responses:
+        "200":
+          description: IP successfully blocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "IP blocked successfully"
+        "400":
+          description: Invalid request or malformed parameters
+        "401":
+          description: Authentication required or invalid token
+        "403":
+          description: User lacks required permissions
+        "500":
+          description: Internal server error
+
+  /admin/unblock-ip/{ipAddress}:
+    delete:
+      tags:
+        - IP Management
+      summary: Unblock an IP address
+      description: Removes an IP address from the active block list
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ipAddress
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ipv4
+          example: "192.168.1.100"
+          description: IP address to be unblocked
+      responses:
+        "200":
+          description: IP successfully unblocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "IP unblocked successfully"
+        "400":
+          description: Invalid IP format or parameters
+        "401":
+          description: Authentication required
+        "403":
+          description: Insufficient user privileges
+        "404":
+          description: Specified IP address is not currently blocked
+        "500":
+          description: Server error processing request
+
+  /admin/blocked-ips:
+    get:
+      tags:
+        - IP Management
+      summary: List blocked IP addresses
+      description: Returns a paginated list of currently blocked IP addresses in the system
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number to retrieve (pagination)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of results per page
+      responses:
+        "200":
+          description: Successfully retrieved blocked IP list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    ipAddress:
+                      type: string
+                      example: "192.168.1.100"
+                      description: Blocked IP address
+                    blockedAt:
+                      type: string
+                      format: date-time
+                      example: "2023-01-15T10:30:00Z"
+                      description: Date/time when block was initiated
+                    reason:
+                      type: string
+                      example: "Brute force attack attempt"
+                      description: Documented reason for blocking
+                    expiresAt:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: "2023-02-15T10:30:00Z"
+                      description: Block expiration date/time (if applicable)
+                    blockedBy:
+                      type: string
+                      example: "admin@domain.com"
+                      description: User who performed the block
+
+  ###### LICENSE ROUTES #######
+
+  /license:
+    post:
+      operationId: createLicense
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: Create a new license
+      description: |
+        Creates a new software license with specified parameters.
+        Requires admin privileges.
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLicenseRequest"
+      responses:
+        201:
+          description: License created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+
+    get:
+      operationId: listLicenses
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: List all licenses
+      description: Retrieve a list of all licenses in the system
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/License"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+
+  /license/{id}:
+    get:
+      operationId: getLicense
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: Get license details
+      description: Retrieve detailed information about a specific license
+      parameters:
+        - $ref: "#/components/parameters/licenseId"
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseResponse"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      operationId: updateLicense
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: Update a license
+      description: Update license properties
+      parameters:
+        - $ref: "#/components/parameters/licenseId"
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLicenseRequest"
+      responses:
+        200:
+          description: License updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicenseResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+
+    delete:
+      operationId: deleteLicense
+      tags:
+        - Licenses
+      security:
+        - bearerAuth: []
+      summary: Delete a license
+      description: Permanently remove a license from the system
+      parameters:
+        - $ref: "#/components/parameters/licenseId"
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer your.jwt.token.here"
+      responses:
+        204:
+          description: License deleted successfully
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /license/validate/{key}:
+    post:
+      operationId: validateLicense
+      tags:
+        - Licenses
+      summary: Validate a license key
+      description: Check if a license key is valid and meets all requirements
+      parameters:
+        - name: key
+          in: path
+          description: License key to validate
+          required: true
+          schema:
+            type: string
+            example: "LIC-123-456-789"
+        - name: hwid
+          in: query
+          description: Hardware ID to validate against
+          required: true
+          schema:
+            type: string
+            example: "HWID12345"
+      responses:
+        200:
+          description: License validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationResponse"
+        403:
+          description: License validation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  ###### AUTH ROUTES #######
+
+  /auth/{id}:
+    get:
+      operationId: getUserData
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      description: Retrieve user data from the API using the provided JWT token.
+      summary: Get user data from the API.
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to retrieve.
+          required: true
+          schema:
+            type: string
+            example: "userId123"
+        - name: Authorization
+          in: header
+          description: JWT token for authentication.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User data retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "userId123"
+                  discord:
+                    type: string
+                    example: "123456789"
+                  name:
+                    type: string
+                    example: "John Doe"
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: "2024-08-30T14:53:44.077Z"
+                  rol:
+                    type: string
+                    example: "user"
+                  email:
+                    type: string
+                    example: "user@example.com"
+                  password:
+                    type: string
+                    example: "hashed-password"
+                required:
+                  - id
+                  - discord
+                  - name
+                  - createdAt
+                  - rol
+                  - email
+                  - password
+        400:
+          description: Bad request due to invalid parameters or token.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags:
+        - Auth
+      security: []
+      description: Register a new user in the API and generate a JWT token.
+      summary: Register a user in the API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "secure-password"
+                name:
+                  type: string
+                  example: "John Doe"
+                discord:
+                  type: string
+                  example: "123456789"
+      responses:
+        200:
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/register"
+              example:
+                id: "userId123"
+                email: "user@example.com"
+                name: "John Doe"
+                discord: "123456789"
+        400:
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              example:
+                status: false
+                message: "Invalid request parameters"
+                data: "Email already exists"
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags:
+        - Auth
+      security: []
+      description: Authenticate a user and return a JWT token for subsequent requests.
+      summary: Login a user in the API.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "secure-password"
+      responses:
+        200:
+          description: User logged in successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/login"
+              example:
+                id: "userId123"
+                email: "user@example.com"
+                name: "John Doe"
+                discord: "123456789"
+                token: "jwt-token-123"
+        400:
+          description: Bad request due to invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              example:
+                status: false
+                message: "Invalid email or password"
+                data: null
+
+  ###### STATUS ROUTES #######
+
+  /public/status:
+    get:
+      operationId: getStatus
+      tags:
+        - Status
+      summary: Get system status
+      description: Retrieve the current status of the system, including uptime and health checks.
+      responses:
+        200:
+          description: System status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "operational"
+                  uptime:
+                    type: number
+                    format: float
+                    example: 15.3353802
+                  database:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: "healthy"
+                      responseTime:
+                        type: string
+                        example: "283ms"
+                  system:
+                    type: object
+                    properties:
+                      platform:
+                        type: string
+                        example: "win32"
+                      arch:
+                        type: string
+                        example: "x64"
+                      nodeVersion:
+                        type: string
+                        example: "v20.18.0"
+                      memoryUsage:
+                        type: object
+                        properties:
+                          rss:
+                            type: integer
+                            example: 113950720
+                          heapTotal:
+                            type: integer
+                            example: 61710336
+                          heapUsed:
+                            type: integer
+                            example: 40272096
+                          external:
+                            type: integer
+                            example: 2482539
+                          arrayBuffers:
+                            type: integer
+                            example: 53510
+                      uptime:
+                        type: number
+                        format: float
+                        example: 15.0516304
+                      cpuUsage:
+                        type: object
+                        properties:
+                          user:
+                            type: integer
+                            example: 3375000
+                          system:
+                            type: integer
+                            example: 7078000
+                      systemLoad:
+                        type: array
+                        items:
+                          type: number
+                          format: float
+                        example: [0, 0, 0]
+                      freeMemory:
+                        type: integer
+                        example: 3459817472
+                      totalMemory:
+                        type: integer
+                        example: 14861852672
+                  meta:
+                    type: object
+                    properties:
+                      apiVersion:
+                        type: string
+                        example: "1.0.0"
+                      environment:
+                        type: string
+                        example: "development"
+                      startTime:
+                        type: string
+                        format: date-time
+                        example: "2025-03-30T11:21:25.486Z"
+        500:
+          description: Internal server error or system is down.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "System is currently down"
+                  error:
+                    type: string
+                    example: "Database connection failed"
+                  code:
+                    type: string
+                    example: "DB_CONN_ERR"
+        404:
+          description: Resource not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Resource not found"
+                  error:
+                    type: string
+                    example: "The requested resource does not exist"
+                  code:
+                    type: string
+                    example: "RESOURCE_NOT_FOUND"
+        401:
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "Unauthorized access"
+                  error:
+                    type: string
+                    example: "Invalid or missing authentication token"
+                  code:
+                    type: string
+                    example: "UNAUTHORIZED"
+
+  ###### SECURITY ROUTES #######
+
+  /security/license-info/{licenseKey}:
+    get:
+      tags:
+        - Security
+      summary: Get license information
+      description: Retrieve detailed information about a specific license including associated IPs and usage statistics
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: licenseKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique license key identifier
+          example: "5f8d04b3ab35de3a342f3a5b"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  license:
+                    $ref: "#/components/schemas/License"
+                  blockedIPs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BlockedIP"
+                  usageStats:
+                    $ref: "#/components/schemas/UsageStats"
+        "400":
+          description: Invalid license key format
+        "401":
+          description: Unauthorized - Missing or invalid authentication token
+        "403":
+          description: Forbidden - User doesn't have required permissions
+        "404":
+          description: License not found
+        "500":
+          description: Internal server error
+
+  /security/ip-info/{ipAddress}:
+    get:
+      tags:
+        - Security
+      summary: Get IP address information
+      description: Retrieve security information about a specific IP address including block status and related activity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ipAddress
+          in: path
+          required: true
+          schema:
+            type: string
+            format: ipv4
+          description: IP address to query
+          example: "192.168.1.100"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ipAddress:
+                    type: string
+                    example: "192.168.1.100"
+                  isBlocked:
+                    type: boolean
+                    example: true
+                  blockedInfo:
+                    $ref: "#/components/schemas/BlockedIP"
+                  failedAttempts:
+                    type: integer
+                    example: 3
+                  licenseUsage:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LicenseUsage"
+        "400":
+          description: Invalid IP address format
+        "401":
+          description: Unauthorized - Missing or invalid authentication token
+        "403":
+          description: Forbidden - User doesn't have required permissions
+        "500":
+          description: Internal server error
+
+  /public/api/v1/discord/status:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Discord Service Status
+      description: |
+        Fetch the current operational status of Discord's services. This endpoint provides real-time information about whether Discord is operational, degraded, or experiencing an outage.
+      responses:
+        "200":
+          description: Discord service status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [operational, degraded, outage]
+                    example: "operational"
+                  message:
+                    type: string
+                    example: "All systems operational"
+                  lastUpdated:
+                    type: string
+                    format: date-time
+                    example: "2024-08-30T14:53:44.077Z"
+        "500":
+          description: Failed to retrieve Discord service status.
+
+  /public/api/v1/discord/updates:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Recent Discord Updates
+      description: |
+        Fetch a list of recent updates published by Discord. These updates may include announcements, feature releases, or general updates.
+      responses:
+        "200":
+          description: Recent Discord updates retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "New feature announcement"
+                    summary:
+                      type: string
+                      example: "Discord has introduced a new feature..."
+                    link:
+                      type: string
+                      format: uri
+                      example: "https://discord.com/blog/new-feature"
+                    date:
+                      type: string
+                      format: date-time
+                      example: "2024-08-30T14:53:44.077Z"
+                    type:
+                      type: string
+                      enum: [update, announcement, incident]
+                      example: "announcement"
+        "500":
+          description: Failed to retrieve Discord updates.
+
+  /public/api/v1/discord/incidents:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Active Discord Incidents
+      description: |
+        Fetch a list of active incidents reported by Discord. Incidents include service disruptions or outages that are currently unresolved.
+      responses:
+        "200":
+          description: Active Discord incidents retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "Server outage"
+                    summary:
+                      type: string
+                      example: "A server outage is affecting some users..."
+                    link:
+                      type: string
+                      format: uri
+                      example: "https://status.discord.com/incidents/12345"
+                    date:
+                      type: string
+                      format: date-time
+                      example: "2024-08-30T14:53:44.077Z"
+                    type:
+                      type: string
+                      enum: [incident]
+                      example: "incident"
+        "500":
+          description: Failed to retrieve Discord incidents.
+
+  /public/api/v1/discord/recent:
+    get:
+      tags:
+        - Discord
+      summary: Retrieve Recent Discord Data
+      description: |
+        Fetch recent data from Discord, including the current status, updates, and incidents from the last 24 hours.
+      responses:
+        "200":
+          description: Recent Discord data retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      incidents:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              example: "Server outage"
+                            summary:
+                              type: string
+                              example: "A server outage is affecting some users..."
+                            link:
+                              type: string
+                              format: uri
+                              example: "https://status.discord.com/incidents/12345"
+                            date:
+                              type: string
+                              format: date-time
+                              example: "2024-08-30T14:53:44.077Z"
+                            type:
+                              type: string
+                              enum: [incident]
+                              example: "incident"
+                      status:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                            enum: [operational, degraded, outage]
+                            example: "operational"
+                          message:
+                            type: string
+                            example: "All systems operational"
+                          lastUpdated:
+                            type: string
+                            format: date-time
+                            example: "2024-08-30T14:53:44.077Z"
+                      updates:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              example: "New feature announcement"
+                            summary:
+                              type: string
+                              example: "Discord has introduced a new feature..."
+                            link:
+                              type: string
+                              format: uri
+                              example: "https://discord.com/blog/new-feature"
+                            date:
+                              type: string
+                              format: date-time
+                              example: "2024-08-30T14:53:44.077Z"
+                            type:
+                              type: string
+                              enum: [update, announcement, incident]
+                              example: "announcement"
+                  errors:
+                    type: string
+                    nullable: true
+                    example: null
+        "500":
+          description: Failed to retrieve recent Discord data.
+
+components:
+  schemas:
+    TaskResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        title:
+          type: string
+          example: "Reunión mensual"
+        description:
+          type: string
+          example: "Discutir presupuesto"
+        createdBy:
+          type: string
+          example: "usuario123"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-20T10:00:00Z"
+        dueDate:
+          type: string
+          format: date-time
+          example: "2024-01-25T15:30:00Z"
+        status:
+          type: string
+          enum: [pending, completed, canceled]
+          example: "pending"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          example: "high"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["trabajo", "finanzas"]
+        reminder:
+          $ref: "#/components/schemas/Reminder"
+        recurrence:
+          $ref: "#/components/schemas/Recurrence"
+        autoDelete:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-20T10:00:00Z"
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    CreateTask:
+      type: object
+      required:
+        - title
+        - createdBy
+      properties:
+        title:
+          type: string
+          example: "Reunión mensual"
+        description:
+          type: string
+          example: "Discutir presupuesto"
+        createdBy:
+          type: string
+          example: "usuario123"
+        dueDate:
+          type: string
+          format: date-time
+          example: "2024-01-25T15:30:00Z"
+        status:
+          type: string
+          enum: [pending, completed, canceled]
+          default: "pending"
+          example: "pending"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: "medium"
+          example: "high"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["trabajo", "finanzas"]
+        reminder:
+          $ref: "#/components/schemas/Reminder"
+        recurrence:
+          $ref: "#/components/schemas/Recurrence"
+        autoDelete:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+
+    UpdateTask:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Reunión mensual actualizada"
+        description:
+          type: string
+          example: "Discutir presupuesto y proyecciones"
+        dueDate:
+          type: string
+          format: date-time
+          example: "2024-01-26T15:30:00Z"
+        status:
+          type: string
+          enum: [pending, completed, canceled]
+          example: "completed"
+        priority:
+          type: string
+          enum: [low, medium, high]
+          example: "medium"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["trabajo", "finanzas", "importante"]
+        reminder:
+          $ref: "#/components/schemas/Reminder"
+        recurrence:
+          $ref: "#/components/schemas/Recurrence"
+        autoDelete:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+
+    Reminder:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          default: false
+          example: true
+        timeBefore:
+          type: string
+          example: "30 minutes"
+        notified:
+          type: boolean
+          example: false
+
+    Recurrence:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [daily, weekly, monthly, yearly]
+          example: "monthly"
+        interval:
+          type: integer
+          example: 1
+        endDate:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+        times:
+          type: integer
+          example: 3
+
+    GeminiTextRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Text to be processed
+          example: "Explain the concept of artificial intelligence"
+        systemInstruction:
+          type: string
+          description: System instruction to configure Gemini's behavior
+          example: "You are a university professor explaining technical concepts"
+      required:
+        - text
+
+    GeminiResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: Response generated by Gemini
+          example: "Artificial intelligence is..."
+        model:
+          type: string
+          description: Gemini model used
+          example: "gemini-1.5-pro"
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+      required:
+        - response
+        - model
+        - timestamp
+    error:
+      description: "Error response"
+      type: object
+      properties:
+        message:
+          type: string
+        details:
+          type: string
+    register:
+      type: object
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+        id:
+          type: string
+    login:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        token:
+          type: string
+    CreateLicenseRequest:
+      type: object
+      required:
+        - type
+        - userId
+        - adminId
+        - hwid
+        - validUntil
+      properties:
+        type:
+          $ref: "#/components/schemas/LicenseType"
+        userId:
+          type: string
+          description: ID of user this license is assigned to
+          example: "507f1f77bcf86cd799439011"
+        adminId:
+          type: string
+          description: ID of admin creating the license
+          example: "507f1f77bcf86cd799439012"
+        hwid:
+          type: array
+          items:
+            type: string
+          description: List of allowed hardware IDs
+          example: ["HWID12345"]
+        requestLimit:
+          type: integer
+          description: Maximum allowed API requests
+          default: 1000
+          example: 5000
+        validUntil:
+          type: string
+          format: date-time
+          description: Expiration date
+          example: "2024-12-31T23:59:59Z"
+        metadata:
+          type: object
+          description: Additional custom data
+          example: { "features": ["premium", "api-access"] }
+
+    UpdateLicenseRequest:
+      type: object
+      properties:
+        hwid:
+          type: array
+          items:
+            type: string
+          description: Updated list of hardware IDs
+          example: ["HWID12345", "HWID67890"]
+        requestLimit:
+          type: integer
+          description: New request limit
+          example: 10000
+        validUntil:
+          type: string
+          format: date-time
+          description: New expiration date
+          example: "2025-12-31T23:59:59Z"
+        status:
+          $ref: "#/components/schemas/LicenseStatus"
+
+    LicenseResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "License created successfully"
+        data:
+          $ref: "#/components/schemas/License"
+
+    License:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "507f1f77bcf86cd799439013"
+        type:
+          $ref: "#/components/schemas/LicenseType"
+        userId:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        adminId:
+          type: string
+          example: "507f1f77bcf86cd799439012"
+        hwid:
+          type: array
+          items:
+            type: string
+          example: ["HWID12345"]
+        requestLimit:
+          type: integer
+          example: 5000
+        requestCount:
+          type: integer
+          example: 42
+        validFrom:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        validUntil:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+        status:
+          $ref: "#/components/schemas/LicenseStatus"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-02T00:00:00Z"
+
+    ValidationResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+        remainingRequests:
+          type: integer
+          example: 4958
+        expiresAt:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+
+    ValidationError:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: false
+        reason:
+          type: string
+          example: "HWID_MISMATCH"
+        message:
+          type: string
+          example: "License not valid for this hardware"
+
+    LicenseType:
+      type: string
+      enum: [FREE, BASIC, PREMIUM, ENTERPRISE, CUSTOM]
+      example: "PREMIUM"
+
+    LicenseStatus:
+      type: string
+      enum: [ACTIVE, EXPIRED, BANNED, REVOKED]
+      example: "ACTIVE"
+
+    BlockedIP:
+      type: object
+      properties:
+        ipAddress:
+          type: string
+          example: "192.168.1.100"
+        reason:
+          type: string
+          example: "Multiple failed login attempts"
+        blockedAt:
+          type: string
+          format: date-time
+          example: "2023-01-15T10:30:00Z"
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2023-02-15T10:30:00Z"
+        blockedBy:
+          $ref: "#/components/schemas/UserReference"
+    UserReference:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5d"
+        name:
+          type: string
+          example: "Admin User"
+        email:
+          type: string
+          format: email
+          example: "admin@example.com"
+    UsageStats:
+      type: object
+      properties:
+        requestCount:
+          type: integer
+          example: 342
+        requestLimit:
+          type: integer
+          example: 1000
+        lastUsedAt:
+          type: string
+          format: date-time
+          example: "2023-01-20T14:30:00Z"
+        lastUsedIp:
+          type: string
+          example: "192.168.1.150"
+    LicenseUsage:
+      type: object
+      properties:
+        licenseId:
+          type: string
+          example: "5f8d04b3ab35de3a342f3a5b"
+        type:
+          type: string
+          example: "PREMIUM"
+        lastUsedAt:
+          type: string
+          format: date-time
+          example: "2023-01-20T14:30:00Z"
+
+  parameters:
+    licenseId:
+      name: id
+      in: path
+      description: License ID
+      required: true
+      schema:
+        type: string
+        example: "507f1f77bcf86cd799439013"
+    XGeminiApiKey:
+      name: x-gemini-api-key
+      in: header
+      description: Google Gemini API Key
+      required: true
+      schema:
+        type: string
+        example: "AIzaSyD...xyz"
+    XGeminiModel:
+      name: x-gemini-model
+      in: header
+      description: Gemini model to use
+      required: true
+      schema:
+        type: string
+        enum: ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"]
+        example: "gemini-1.5-pro"
+
+  responses:
+    BadRequest:
+      description: "Invalid request data"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Invalid HWID format"
+
+    Unauthorized:
+      description: "Missing or invalid authentication"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Authentication required"
+
+    Forbidden:
+      description: "Insufficient permissions"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Admin privileges required"
+              message:
+                type: string
+                example: "You don't have permission to access this resource"
+
+    NotFound:
+      description: "Resource not found"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "License not found"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained during authentication
