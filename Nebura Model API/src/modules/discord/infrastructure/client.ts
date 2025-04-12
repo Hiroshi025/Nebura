@@ -1,5 +1,6 @@
 import { Client, Collection, GatewayIntentBits, Options, Partials } from "discord.js";
 
+import { Utils } from "@/infrastructure/extenders/discord/properties.extender";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { Buttons, Menus, Modals } from "@/typings/discord";
@@ -69,7 +70,7 @@ export class MyClient extends Client {
    * A collection of addons, where the key is a string identifier for the addon
    * and the value is the addon object.
    *
-   * @type {Collection<string, unknown>}
+   * @type {Collection<unknown, unknown>}
    */
   public addons: Collection<unknown, unknown>;
 
@@ -88,6 +89,13 @@ export class MyClient extends Client {
    * @public
    */
   public aliases: Collection<string, string>;
+
+  /**
+   * Instance of the `Utils` class, providing utility functions for the Discord client.
+   *
+   * @type {Utils}
+   */
+  public utils: Utils;
 
   /**
    * Initializes a new instance of the `MyClient` class.
@@ -139,10 +147,12 @@ export class MyClient extends Client {
 
     this.handlers = new DiscordHandler(this);
     this.settings = config.modules.discord;
+    this.utils = new Utils();
 
     this.categories = new Collection();
     this.commands = new Collection();
     this.buttons = new Collection();
+    
     this.precommands = new Collection();
     this.aliases = new Collection();
 
@@ -212,5 +222,22 @@ export class MyClient extends Client {
         ].join("\n"),
       );
     }
+  }
+
+  /**
+   * Obtiene un emoji por su nombre, priorizando los emojis del servidor.
+   *
+   * @param guildId - El ID del servidor donde buscar el emoji.
+   * @param emojiName - El nombre del emoji a buscar.
+   * @returns {string} El emoji encontrado o el emoji del archivo JSON si no está en el servidor.
+   */
+  public getEmoji(guildId: string, emojiName: keyof typeof emojis): string {
+    const guild = this.guilds.cache.get(guildId);
+    if (guild) {
+      const emoji = guild.emojis.cache.find((e) => e.name === emojiName);
+      if (emoji) return `<:${emoji.name}:${emoji.id}>`;
+    }
+    // Si no se encuentra en el servidor, usar el emoji del archivo JSON
+    return typeof emojis[emojiName] === "string" ? emojis[emojiName] : `:${emojiName}:`;
   }
 }

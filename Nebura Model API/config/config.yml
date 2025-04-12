@@ -5,6 +5,7 @@ project:
   type: "monorepo" # Indica si el proyecto utiliza un enfoque de monorepo (opcional)
   api-version: "v1" # Versión de la API utilizada
   logs: "./config/logs-apps/" # Ruta donde se almacenan los logs de la aplicación
+  guildId: ""
 
 # Configuración de entornos
 environments:

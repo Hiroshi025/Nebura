@@ -23,6 +23,11 @@ declare global {
        * The IP address of the client making the request.
        */
       clientIp?: string;
+
+      /**
+       * The ID of the request, if available.
+       */
+      id?: string;
     }
   }
 }

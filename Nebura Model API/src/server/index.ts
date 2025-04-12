@@ -6,6 +6,7 @@ import { createServer } from "http";
 import path from "path";
 import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
+import { v4 as uuidv4 } from "uuid";
 
 import { IPBlocker } from "@/shared/ipBlocker";
 import { config } from "@/shared/utils/config";
@@ -15,6 +16,15 @@ import emojis from "@config/json/emojis.json";
 import { SwaggerMonitor } from "./shared/monitor";
 import swaggerSetup from "./shared/swagger-doc";
 import { router } from "./shared/utils/routes";
+
+// Extender la interfaz Request para incluir la propiedad 'id'
+declare global {
+  namespace Express {
+    interface Request {
+      id?: string;
+    }
+  }
+}
 
 /**
  * Main class responsible for initializing and configuring the API server.
@@ -78,7 +88,28 @@ export class API {
     this.app.use(router);
 
     // Add security headers using Helmet
-    this.app.use(helmet({ contentSecurityPolicy: false }));
+    this.app.use(helmet({ contentSecurityPolicy: false, referrerPolicy: false }));
+
+    // Assign a unique ID to each request
+    this.app.use((req: Request, _res: Response, next: NextFunction) => {
+      req.id = uuidv4();
+      next();
+    });
+
+    // Add the request ID and response time to the response headers
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      const start = process.hrtime(); // Start measuring time
+      req.id = req.id || uuidv4(); // Ensure the request ID is set
+      res.setHeader("X-Request-ID", req.id); // Add the request ID to the response headers
+
+      res.on("finish", () => {
+        const [seconds, nanoseconds] = process.hrtime(start);
+        const responseTime = (seconds * 1e3 + nanoseconds / 1e6).toFixed(2); // Convert to milliseconds
+        res.setHeader("X-Response-Time", `${responseTime}ms`); // Add response time to the headers
+      });
+
+      next();
+    });
 
     // Initialize Swagger monitoring and documentation
     await SwaggerMonitor(this);

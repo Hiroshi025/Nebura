@@ -6,7 +6,6 @@ import {
 
 import { EmbedExtender } from "@/infrastructure/extenders/discord/embeds.extender";
 import { Buttons, Menus, Modals } from "@/typings/discord";
-import emojis from "@config/json/emojis.json";
 
 import { main } from "../../../../../main";
 import { config } from "../../../../../shared/utils/config";
@@ -104,19 +103,6 @@ export default new Event("interactionCreate", async (interaction) => {
     const { guild, member } = interaction;
     if (!guild || !member) return;
 
-    /*   if (type.owner && !client.config.bot.owners.includes(interaction.user.id))
-    return interaction.reply({
-      embeds: [
-        new ErrorEmbed(guild.id as string).setDescription(
-          [
-            `${client.getEmoji(guild.id).error} You do not have permission to use this command as it is reserved for the bot owner.`,
-            `If you believe this is a mistake, please contact the bot owner.`,
-          ].join("\n")
-        ),
-      ],
-      flags: MessageFlags.Ephemeral,
-    }); */
-
     if (type.permissions && !(member.permissions as PermissionsBitField).has(type.permissions))
       return interaction.reply({
         embeds: [
@@ -124,7 +110,7 @@ export default new Event("interactionCreate", async (interaction) => {
             .setError(true)
             .setDescription(
               [
-                `${emojis.circle_x} You do not have permission to use this command.`,
+                `${client.getEmoji(config.project.guildId, "circle_x")} You do not have permission to use this command.`,
                 `If you believe this is a mistake, please contact the bot owner.`,
               ].join("\n"),
             ),
@@ -139,43 +125,13 @@ export default new Event("interactionCreate", async (interaction) => {
             .setError(true)
             .setDescription(
               [
-                `${emojis.circle_x} I do not have permission to use this command.`,
+                `${client.getEmoji(config.project.guildId, "circle_x")} I do not have permission to use this command.`,
                 `If you believe this is a mistake, please contact the bot owner.`,
               ].join("\n"),
             ),
         ],
         flags: MessageFlags.Ephemeral,
       });
-
-    /*   const data = await main.prisma.tickets.findUnique({ where: { guildId: guild.id } });
-  if (type.tickets) {
-    if (!data) {
-      return interaction.reply({
-        embeds: [
-          new ErrorEmbed(guild.id as string).setDescription(
-            [
-              `${client.getEmoji(guild.id).error} This command is only available in ticket channels.`,
-              `If you believe this is a mistake, please contact the bot owner.`,
-            ].join("\n")
-          ),
-        ],
-        flags: MessageFlags.Ephemeral,
-      });
-    }
-
-    if (!(member.roles as GuildMemberRoleManager).cache.has(data?.roleId as string))
-      return interaction.reply({
-        embeds: [
-          new ErrorEmbed(guild.id as string).setDescription(
-            [
-              `${client.getEmoji(guild.id).error} You do not have permission to use this command.`,
-              `If you believe this is a mistake, please contact the bot owner.`,
-            ].join("\n")
-          ),
-        ],
-        flags: MessageFlags.Ephemeral,
-      });
-  } */
 
     if (type.maintenance) {
       return interaction.reply({
@@ -184,7 +140,7 @@ export default new Event("interactionCreate", async (interaction) => {
             .setError(true)
             .setDescription(
               [
-                `${emojis.circle_x} The bot is currently in maintenance mode.`,
+                `${client.getEmoji(config.project.guildId, "circle_x")} The bot is currently in maintenance mode.`,
                 `If you believe this is a mistake, please contact the bot owner.`,
               ].join("\n"),
             ),

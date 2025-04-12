@@ -5,6 +5,7 @@ import {
 
 // import puppeteer from "puppeteer"; // Comentado temporalmente
 import { client, main } from "@/main";
+import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
@@ -109,7 +110,7 @@ export default new Addons(
 
           // Create an embed with server information
           const embed = new EmbedBuilder()
-            .setTitle(` ${emojis.online} Status Handler [Minecraft Configuration]`)
+            .setTitle(` ${client.getEmoji(config.project.guildId, "online")} Status Handler [Minecraft Configuration]`)
             .setFooter({
               text: `Response: ${apiResponseTime}ms | Node.js: ${process.versions.node}`,
               iconURL: client.user?.displayAvatarURL() || "",
@@ -159,7 +160,7 @@ export default new Addons(
           } else {
             embed
               .setFields({
-                name: `${emojis.offline} Server Status [Offline]`,
+                name: `${client.getEmoji(config.project.guildId, "offline")} Server Status [Offline]`,
                 value: [
                   `> **Datetime:** ${new Date().toLocaleString()}`,
                   `> **Server IP:** ${res.data.ip || "Unknown"}`,

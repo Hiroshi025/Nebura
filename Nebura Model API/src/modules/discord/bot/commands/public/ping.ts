@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 
-import { EmbedExtender } from "@/infrastructure/extenders/discord/embeds.extender";
+import { EmbedInfo } from "@/infrastructure/extenders/discord/embeds.extender";
 import { Command } from "@/modules/discord/infrastructure/utils/builders";
 
 export default new Command(
@@ -24,8 +24,7 @@ export default new Command(
     const ephemeral = interaction.options.getBoolean("ephemeral") ?? false;
 
     const latency = client.ws.ping;
-    const embed = new EmbedExtender()
-      .setError(false)
+    const embed = new EmbedInfo()
       .setTitle("🏓 Pong!")
       .setDescription("Here is the bot's latency and additional details:")
       .addFields(

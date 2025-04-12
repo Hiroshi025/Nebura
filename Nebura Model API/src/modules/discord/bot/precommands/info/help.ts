@@ -339,115 +339,103 @@ const helpCommand: Precommand = {
         time: 180e3,
       });
 
-      collector.on(
-        "collect",
-        async (interaction: {
-          isButton: () => any;
-          user: { id: any };
-          reply: (arg0: { content?: string; ephemeral: boolean; embeds?: never[] }) => Promise<any>;
-          customId: any;
-          deferUpdate: () => any;
-          values: any;
-        }) => {
-          if (interaction.isButton()) {
-            if (interaction.user.id !== message.author.id) {
-              return interaction.reply({
-                content: `${emojis.error} **You can not do that! Only ${message.author}** you can interact with the help menu`,
-                ephemeral: true,
-              });
-            }
+      collector.on("collect", async (interaction) => {
+        if (interaction.isButton()) {
+          if (interaction.user.id !== message.author.id) {
+            return interaction.reply({
+              content: `${emojis.error} **You can not do that! Only ${message.author}** you can interact with the help menu`,
+              flags: "Ephemeral",
+            });
+          }
 
-            switch (interaction.customId) {
-              case "Atrás":
-                {
-                  collector.resetTimer();
-                  if (paginaActual !== 0) {
-                    paginaActual -= 1;
-                    await mensaje_ayuda
-                      .edit({ embeds: [embeds_pages[paginaActual]] })
-                      .catch(() => {});
-                    await interaction?.deferUpdate();
-                  } else {
-                    paginaActual = embeds_pages.length - 1;
-                    await mensaje_ayuda
-                      .edit({ embeds: [embeds_pages[paginaActual]] })
-                      .catch(() => {});
-                    await interaction?.deferUpdate();
-                  }
+          switch (interaction.customId) {
+            case "Atrás":
+              {
+                collector.resetTimer();
+                if (paginaActual !== 0) {
+                  paginaActual -= 1;
+                  await mensaje_ayuda
+                    .edit({ embeds: [embeds_pages[paginaActual]] })
+                    .catch(() => {});
+                  await interaction?.deferUpdate();
+                } else {
+                  paginaActual = embeds_pages.length - 1;
+                  await mensaje_ayuda
+                    .edit({ embeds: [embeds_pages[paginaActual]] })
+                    .catch(() => {});
+                  await interaction?.deferUpdate();
                 }
-                break;
-              case "Inicio":
-                {
-                  collector.resetTimer();
+              }
+              break;
+            case "Inicio":
+              {
+                collector.resetTimer();
+                paginaActual = 0;
+                await mensaje_ayuda.edit({ embeds: [embeds_pages[paginaActual]] }).catch(() => {});
+                await interaction?.deferUpdate();
+              }
+              break;
+
+            case "Avanzar":
+              {
+                collector.resetTimer();
+                if (paginaActual < embeds_pages.length - 1) {
+                  paginaActual++;
+                  await mensaje_ayuda
+                    .edit({ embeds: [embeds_pages[paginaActual]] })
+                    .catch(() => {});
+                  await interaction?.deferUpdate();
+                } else {
                   paginaActual = 0;
                   await mensaje_ayuda
                     .edit({ embeds: [embeds_pages[paginaActual]] })
                     .catch(() => {});
                   await interaction?.deferUpdate();
                 }
-                break;
+              }
+              break;
 
-              case "Avanzar":
-                {
-                  collector.resetTimer();
-                  if (paginaActual < embeds_pages.length - 1) {
-                    paginaActual++;
-                    await mensaje_ayuda
-                      .edit({ embeds: [embeds_pages[paginaActual]] })
-                      .catch(() => {});
-                    await interaction?.deferUpdate();
-                  } else {
-                    paginaActual = 0;
-                    await mensaje_ayuda
-                      .edit({ embeds: [embeds_pages[paginaActual]] })
-                      .catch(() => {});
-                    await interaction?.deferUpdate();
-                  }
-                }
-                break;
-
-              default:
-                break;
-            }
-
-            return;
-          } else {
-            const embeds: never[] = [];
-            for (const seleccionado of interaction.values) {
-              const comandos_de_categoria = getCommandsFromFolder(
-                `${config.modules.discord.configs.precommands}/${seleccionado}`,
-              );
-              const embed = new EmbedBuilder()
-                .setTitle(`${seleccionado}`)
-                .setColor("Random")
-                .setThumbnail(message.guild?.iconURL({ forceStatic: true }) as string)
-                .setDescription(
-                  Array.isArray(comandos_de_categoria) && comandos_de_categoria.length >= 1
-                    ? `>>> ${comandos_de_categoria
-                        .map((comando, index) => `No.${index + 1} \`${comando}\``)
-                        .join("\n")}`
-                    : `>>> ${emojis.error} *There are no commands in this category yet, come back later*`,
-                )
-                .setFooter({
-                  text: `Version: ${packages.version} | Author: ${packages.author}`,
-                  iconURL: message.guild?.iconURL({
-                    forceStatic: true,
-                  }) as string,
-                });
-
-              embeds.push(embed as never);
-            }
-            return interaction.reply({ embeds, ephemeral: true }).catch(() => {
-              return message.reply({
-                content: [
-                  `${emojis.error} An error occurred while sending the help menu to your DMs!`,
-                  `**Solution:** Make sure you have DMs enabled and try again!`,
-                ].join("\n"),
-              });
-            });
+            default:
+              break;
           }
-        },
-      );
+
+          return;
+        } else {
+          const embeds: EmbedBuilder[] = [];
+          for (const seleccionado of interaction.values) {
+            const comandos_de_categoria = getCommandsFromFolder(
+              `${config.modules.discord.configs.precommands}/${seleccionado}`,
+            );
+            const embed = new EmbedBuilder()
+              .setTitle(`${seleccionado}`)
+              .setColor("Random")
+              .setThumbnail(message.guild?.iconURL({ forceStatic: true }) as string)
+              .setDescription(
+                Array.isArray(comandos_de_categoria) && comandos_de_categoria.length >= 1
+                  ? `>>> ${comandos_de_categoria
+                      .map((comando, index) => `No.${index + 1} \`${comando}\``)
+                      .join("\n")}`
+                  : `>>> ${emojis.error} *There are no commands in this category yet, come back later*`,
+              )
+              .setFooter({
+                text: `Version: ${packages.version} | Author: ${packages.author}`,
+                iconURL: message.guild?.iconURL({
+                  forceStatic: true,
+                }) as string,
+              });
+
+            embeds.push(embed);
+          }
+          return interaction.reply({ embeds: embeds, flags: "Ephemeral" }).catch(() => {
+            return message.reply({
+              content: [
+                `${emojis.error} An error occurred while sending the help menu to your DMs!`,
+                `**Solution:** Make sure you have DMs enabled and try again!`,
+              ].join("\n"),
+            });
+          });
+        }
+      });
 
       collector.on("end", () => {
         return mensaje_ayuda

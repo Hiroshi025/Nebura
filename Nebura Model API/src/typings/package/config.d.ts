@@ -26,6 +26,10 @@ export interface ProyectConfig {
      * Log the proyect application
      */
     logs: string;
+    /**
+     * Path to the project's configuration file.
+     */
+    guildId: string;
   };
   /**
    * Configuration for various modules.
