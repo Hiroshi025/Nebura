@@ -1,10 +1,10 @@
 ---
-description: Bienvenido a Nebura Model AI
+description: Bienvenido a Seishin Dev Group
 cover: .gitbook/assets/hatsune-miku-anime-girl-4k-wallpaper-uhdpaper.com-208@5@b.jpg
 coverY: 0
 ---
 
-# 👋 Bievenido
+# 👋 Bienvenido
 
 ¡Hola! Es un placer presentarte la documentación de algunos de mis proyectos y tutoriales, desarrollados para diversas plataformas y propósitos. Aquí encontrarás desde APIs y modelos de inteligencia artificial hasta sitios web y herramientas personalizadas. Todo esto forma parte de un pasatiempo que con el tiempo se ha convertido en una verdadera pasión.
 
