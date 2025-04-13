@@ -21,7 +21,7 @@ export class LicenseController {
       const license = await this.service.create(dto);
       res.status(201).json(license);
     } catch (error) {
-      res.status(500).json({ error: "Failed to create license" });
+      res.status(500).json({ error: req.t("errors:failed_to_create_license") });
     }
   }
 
@@ -34,12 +34,12 @@ export class LicenseController {
    * @throws {Error} - Throws an error if the retrieval fails.
    * 
    */
-  async getAll(_req: Request, res: Response) {
+  async getAll(req: Request, res: Response) {
     try {
       const licenses = await this.service.findAll();
       res.json(licenses);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch licenses" });
+      res.status(500).json({ error: req.t("errors:failed_to_fetch_licenses") });
     }
   }
 
@@ -55,9 +55,9 @@ export class LicenseController {
   async getById(req: Request, res: Response) {
     try {
       const license = await this.service.findById(req.params.id);
-      license ? res.json(license) : res.status(404).json({ error: "License not found" });
+      license ? res.json(license) : res.status(404).json({ error: req.t("errors:license_not_found") });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch license" });
+      res.status(500).json({ error: req.t("errors:failed_to_fetch_license") });
     }
   }
 
@@ -75,7 +75,7 @@ export class LicenseController {
       const licenses = await this.service.findByUserId(req.params.userId);
       res.json(licenses);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch user licenses" });
+      res.status(500).json({ error: req.t("errors:failed_to_fetch_user_licenses") });
     }
   }
 
@@ -94,7 +94,7 @@ export class LicenseController {
       const license = await this.service.update(req.params.id, dto);
       res.json(license);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update license" });
+      res.status(500).json({ error: req.t("errors:failed_to_update_license") });
     }
   }
 
@@ -112,7 +112,7 @@ export class LicenseController {
       await this.service.delete(req.params.id);
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: "Failed to delete license" });
+      res.status(500).json({ error: req.t("errors:failed_to_delete_license") });
     }
   }
 
@@ -128,7 +128,7 @@ export class LicenseController {
   async validate(req: Request, res: Response) {
     try {
       const isValid = await this.service.validateLicense(req.params.key, req.body.hwid);
-      isValid ? res.json({ valid: true }) : res.status(403).json({ valid: false });
+      isValid ? res.json({ valid: true }) : res.status(403).json({ valid: false, error: req.t("errors:license_validation_failed") });
     } catch (error) {
       res.status(500).json({ error: "License validation failed" });
     }

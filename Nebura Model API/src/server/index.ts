@@ -3,6 +3,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import session from "express-session";
 import helmet from "helmet";
 import { createServer } from "http";
+import middleware from "i18next-http-middleware";
 import path from "path";
 import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
@@ -11,6 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { IPBlocker } from "@/shared/ipBlocker";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
+import i18next from "@backend/shared/i18n";
 import emojis from "@config/json/emojis.json";
 
 import { SwaggerMonitor } from "./shared/monitor";
@@ -61,6 +63,12 @@ export class API {
     this.io = new Server(this.server);
 
     this.routes();
+
+    /**
+     * @description Middleware for the API server.
+     * This method sets up various middleware functions for the server, including:
+     * - Parsing URL-encoded data
+     */
     this.middleware();
   }
 
@@ -84,6 +92,9 @@ export class API {
     // Parse JSON request bodies
     this.app.use(express.json());
 
+    // Parse URL-encoded request bodies
+    this.app.use(middleware.handle(i18next));
+
     // Use the router for handling application routes
     this.app.use(router);
 
@@ -103,9 +114,12 @@ export class API {
       res.setHeader("X-Request-ID", req.id); // Add the request ID to the response headers
 
       res.on("finish", () => {
-        const [seconds, nanoseconds] = process.hrtime(start);
-        const responseTime = (seconds * 1e3 + nanoseconds / 1e6).toFixed(2); // Convert to milliseconds
-        res.setHeader("X-Response-Time", `${responseTime}ms`); // Add response time to the headers
+        if (!res.headersSent) {
+          // Ensure headers are not modified after being sent
+          const [seconds, nanoseconds] = process.hrtime(start);
+          const responseTime = (seconds * 1e3 + nanoseconds / 1e6).toFixed(2); // Convert to milliseconds
+          res.setHeader("X-Response-Time", `${responseTime}ms`); // Add response time to the headers
+        }
       });
 
       next();

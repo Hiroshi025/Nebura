@@ -17,7 +17,7 @@ export class AuthController {
       const result = await this.service.login({ email, password });
 
       if ("error" in result) {
-        return this.handleErrorResponse(res, result as ErrorResponse);
+        return this.handleErrorResponse(req, res, result as ErrorResponse);
       }
 
       return res.status(200).json({
@@ -26,13 +26,13 @@ export class AuthController {
           token: result.token,
           user: result.user,
         },
+        message: req.t("auth.login.success"), // Mensaje de éxito desde common.json
       });
     } catch (error) {
-      console.error("AuthController.login error:", error);
       return res.status(500).json({
         success: false,
         error: "SERVER_ERROR",
-        message: "Internal server error",
+        message: req.t("errors.server_error"), // Mensaje de error desde errors.json
       });
     }
   }
@@ -49,19 +49,19 @@ export class AuthController {
       const result = await this.service.createAuth(userData);
 
       if ("error" in result) {
-        return this.handleErrorResponse(res, result as ErrorResponse);
+        return this.handleErrorResponse(req, res, result as ErrorResponse);
       }
 
       return res.status(201).json({
         success: true,
         data: result.user,
+        message: req.t("auth.register.success"),
       });
     } catch (error) {
-      console.error("AuthController.register error:", error);
       return res.status(500).json({
         success: false,
         error: "SERVER_ERROR",
-        message: "Internal server error",
+        message: req.t("errors.server_error"),
       });
     }
   }
@@ -78,19 +78,19 @@ export class AuthController {
       const result = await this.service.getAuth(id);
 
       if ("error" in result) {
-        return this.handleErrorResponse(res, result as ErrorResponse);
+        return this.handleErrorResponse(req, res, result as ErrorResponse);
       }
 
       return res.status(200).json({
         success: true,
         data: result,
+        message: req.t("auth.profile.success"),
       });
     } catch (error) {
-      console.error("AuthController.getUserProfile error:", error);
       return res.status(500).json({
         success: false,
         error: "SERVER_ERROR",
-        message: "Internal server error",
+        message: req.t("errors.server_error"),
       });
     }
   }
@@ -98,7 +98,7 @@ export class AuthController {
   /**
    * Maneja las respuestas de error de manera consistente
    */
-  private handleErrorResponse(res: Response, error: ErrorResponse): Response {
+  private handleErrorResponse(req: Request, res: Response, error: ErrorResponse): Response {
     const statusMap: Record<string, number> = {
       VALIDATION_ERROR: 400,
       USER_NOT_FOUND: 404,
@@ -115,7 +115,7 @@ export class AuthController {
     return res.status(statusCode).json({
       success: false,
       error: error.error,
-      message: error.message,
+      message: req.t(`errors.${error.error.toLowerCase()}`), // Mensaje de error dinámico desde errors.json
       details: error.details,
     });
   }

@@ -41,6 +41,206 @@ servers:
     description: "Staging Server"
 
 paths:
+  ###### GITHUB ROUTES #######
+
+  /users/{username}:
+    get:
+      tags:
+        - Users
+      summary: Get basic user information
+      description: Returns basic GitHub user information including name, avatar, bio, etc.
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: GitHub username
+          schema:
+            type: string
+            example: octocat
+      responses:
+        "200":
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitHubUser"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/{username}/all:
+    get:
+      tags:
+        - Users
+      summary: Get complete user information
+      description: Returns all available user data including repos, events, organizations, etc.
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: GitHub username
+          schema:
+            type: string
+            example: octocat
+      responses:
+        "200":
+          description: Complete user data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/GitHubUser"
+                  repos:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GitHubRepo"
+                  events:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GitHubEvent"
+                  organizations:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GitHubOrganization"
+                  followers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GitHubFollower"
+                  following:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GitHubFollower"
+                  gists:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GitHubGist"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/{username}/repos:
+    get:
+      tags:
+        - Users
+      summary: Get user repositories
+      description: Returns public repositories for a user with pagination and sorting options
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: GitHub username
+          schema:
+            type: string
+            example: octocat
+        - name: per_page
+          in: query
+          description: Items per page (max 100)
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: sort
+          in: query
+          description: Sort criteria
+          schema:
+            type: string
+            enum: [created, updated, pushed, full_name]
+            default: full_name
+        - name: direction
+          in: query
+          description: Sort direction
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        "200":
+          description: List of repositories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GitHubRepo"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /repos/{owner}/{repo}:
+    get:
+      tags:
+        - Repositories
+      summary: Get repository information
+      description: Returns detailed information about a specific repository
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          description: Repository owner username
+          schema:
+            type: string
+            example: octocat
+        - name: repo
+          in: path
+          required: true
+          description: Repository name
+          schema:
+            type: string
+            example: Hello-World
+      responses:
+        "200":
+          description: Repository information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitHubRepo"
+        "404":
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
   ###### TASK ROUTES ####
 
   /service/tasks:
@@ -1287,6 +1487,329 @@ paths:
 
 components:
   schemas:
+    GitHubUser:
+      type: object
+      properties:
+        login:
+          type: string
+          example: octocat
+          description: GitHub username
+        id:
+          type: integer
+          example: 583231
+          description: GitHub user ID
+        avatar_url:
+          type: string
+          format: uri
+          example: https://avatars.githubusercontent.com/u/583231?v=4
+        html_url:
+          type: string
+          format: uri
+          example: https://github.com/octocat
+        name:
+          type: string
+          nullable: true
+          example: The Octocat
+        company:
+          type: string
+          nullable: true
+          example: GitHub
+        blog:
+          type: string
+          nullable: true
+          format: uri
+          example: https://github.blog
+        location:
+          type: string
+          nullable: true
+          example: San Francisco
+        email:
+          type: string
+          nullable: true
+          format: email
+          example: octocat@github.com
+        bio:
+          type: string
+          nullable: true
+          example: A mysterious octocat
+        twitter_username:
+          type: string
+          nullable: true
+          example: octocat
+        public_repos:
+          type: integer
+          example: 8
+        public_gists:
+          type: integer
+          example: 8
+        followers:
+          type: integer
+          example: 1000
+        following:
+          type: integer
+          example: 9
+        created_at:
+          type: string
+          format: date-time
+          example: "2011-01-25T18:44:36Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2022-03-22T14:07:15Z"
+      required:
+        - login
+        - id
+        - avatar_url
+        - html_url
+        - public_repos
+        - public_gists
+        - followers
+        - following
+        - created_at
+        - updated_at
+
+    GitHubRepo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1296269
+        name:
+          type: string
+          example: Hello-World
+        full_name:
+          type: string
+          example: octocat/Hello-World
+        private:
+          type: boolean
+          example: false
+        owner:
+          $ref: "#/components/schemas/GitHubUser"
+        html_url:
+          type: string
+          format: uri
+          example: https://github.com/octocat/Hello-World
+        description:
+          type: string
+          nullable: true
+          example: "My first repository on GitHub!"
+        fork:
+          type: boolean
+          example: false
+        url:
+          type: string
+          format: uri
+          example: https://api.github.com/repos/octocat/Hello-World
+        created_at:
+          type: string
+          format: date-time
+          example: "2011-01-26T19:01:12Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2022-03-22T14:07:15Z"
+        pushed_at:
+          type: string
+          format: date-time
+          example: "2011-01-26T19:06:43Z"
+        git_url:
+          type: string
+          example: git://github.com/octocat/Hello-World.git
+        ssh_url:
+          type: string
+          example: git@github.com:octocat/Hello-World.git
+        clone_url:
+          type: string
+          format: uri
+          example: https://github.com/octocat/Hello-World.git
+        svn_url:
+          type: string
+          format: uri
+          example: https://svn.github.com/octocat/Hello-World
+        homepage:
+          type: string
+          nullable: true
+          format: uri
+          example: https://github.com
+        size:
+          type: integer
+          example: 108
+        stargazers_count:
+          type: integer
+          example: 2000
+        watchers_count:
+          type: integer
+          example: 2000
+        language:
+          type: string
+          nullable: true
+          example: Ruby
+        forks_count:
+          type: integer
+          example: 1000
+        open_issues_count:
+          type: integer
+          example: 5
+        license:
+          type: object
+          nullable: true
+          properties:
+            key:
+              type: string
+              example: mit
+            name:
+              type: string
+              example: MIT License
+            spdx_id:
+              type: string
+              example: MIT
+            url:
+              type: string
+              format: uri
+              example: https://api.github.com/licenses/mit
+        topics:
+          type: array
+          items:
+            type: string
+          example: ["example", "github"]
+        visibility:
+          type: string
+          example: public
+        default_branch:
+          type: string
+          example: main
+
+    GitHubEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1234567890"
+        type:
+          type: string
+          example: "PushEvent"
+        actor:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 583231
+            login:
+              type: string
+              example: octocat
+            avatar_url:
+              type: string
+              format: uri
+              example: https://avatars.githubusercontent.com/u/583231?v=4
+        repo:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1296269
+            name:
+              type: string
+              example: octocat/Hello-World
+            url:
+              type: string
+              format: uri
+              example: https://api.github.com/repos/octocat/Hello-World
+        payload:
+          type: object
+          description: Event payload (structure varies by event type)
+        public:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2011-01-26T19:06:43Z"
+
+    GitHubOrganization:
+      type: object
+      properties:
+        login:
+          type: string
+          example: github
+        id:
+          type: integer
+          example: 9919
+        url:
+          type: string
+          format: uri
+          example: https://api.github.com/orgs/github
+        avatar_url:
+          type: string
+          format: uri
+          example: https://avatars.githubusercontent.com/u/9919?v=4
+        description:
+          type: string
+          nullable: true
+          example: "GitHub, the company"
+
+    GitHubFollower:
+      type: object
+      properties:
+        login:
+          type: string
+          example: octocat
+        id:
+          type: integer
+          example: 583231
+        avatar_url:
+          type: string
+          format: uri
+          example: https://avatars.githubusercontent.com/u/583231?v=4
+        html_url:
+          type: string
+          format: uri
+          example: https://github.com/octocat
+
+    GitHubGist:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "aa5a315d61ae9438b18d"
+        html_url:
+          type: string
+          format: uri
+          example: https://gist.github.com/aa5a315d61ae9438b18d
+        files:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              filename:
+                type: string
+                example: "hello_world.rb"
+              type:
+                type: string
+                example: "application/x-ruby"
+              language:
+                type: string
+                example: "Ruby"
+              size:
+                type: integer
+                example: 167
+              content:
+                type: string
+                example: "puts 'Hello World'"
+        public:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2011-06-15T19:06:43Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2011-06-15T19:06:43Z"
+        description:
+          type: string
+          nullable: true
+          example: "Hello World in Ruby"
     TaskResponse:
       type: object
       properties:

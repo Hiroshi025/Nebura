@@ -24,7 +24,6 @@ export class GeminiController {
 
             res.json(result);
         } catch (error) {
-            console.error('Error processing text:', error);
             res.status(500).json({ error: 'Failed to process text' });
         }
     }
@@ -60,7 +59,6 @@ export class GeminiController {
                 return res.status(200).json(result);
             });
         } catch (error) {
-            console.error('Error processing file:', error);
             res.status(500).json({ error: 'Failed to process file' });
         }
     }
@@ -96,7 +94,6 @@ export class GeminiController {
                 return res.status(200).json(result);
             });
         } catch (error) {
-            console.error('Error processing combined request:', error);
             res.status(500).json({ error: 'Failed to process combined request' });
         }
     }

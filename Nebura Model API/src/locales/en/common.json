@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "login": {
+      "success": "Login successful."
+    },
+    "register": {
+      "success": "Registration successful."
+    },
+    "profile": {
+      "success": "User profile retrieved successfully."
+    }
+  },
+  "status": {
+    "operational": "Operational",
+    "error": "Error",
+    "failed_to_retrieve": "Failed to retrieve system status"
+  },
+  "ip_blocked_successfully": "IP blocked successfully.",
+  "ip_unblocked_successfully": "IP unblocked successfully.",
+  "task_created_successfully": "Task created successfully.",
+  "license_created_successfully": "License created successfully.",
+  "discord_status_fetched_successfully": "Discord status fetched successfully.",
+  "discord_updates_fetched_successfully": "Discord updates fetched successfully.",
+  "discord_incidents_fetched_successfully": "Discord incidents fetched successfully.",
+  "reminders_fetched_successfully": "Reminders fetched successfully."
+}

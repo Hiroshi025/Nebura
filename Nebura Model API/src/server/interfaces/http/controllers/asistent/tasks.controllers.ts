@@ -14,7 +14,7 @@ export class TaskController {
       const task = await taskService.createTask(createTaskDto);
       res.status(201).json(new TaskResponseDto(task));
     } catch (error) {
-      res.status(500).json({ message: "Error creating task" });
+      res.status(500).json({ message: req.t("errors:failed_to_create_task") });
     }
   }
 
@@ -23,11 +23,11 @@ export class TaskController {
       const { id } = req.params;
       const task = await taskService.getTaskById(id);
       if (!task) {
-        return res.status(404).json({ message: "Task not found" });
+        return res.status(404).json({ message: req.t("errors:task_not_found") });
       }
       return res.json(new TaskResponseDto(task));
     } catch (error) {
-      return res.status(500).json({ message: "Error fetching task" });
+      return res.status(500).json({ message: req.t("errors:failed_to_fetch_task") });
     }
   }
 
@@ -42,7 +42,7 @@ export class TaskController {
       });
       res.json(tasks.map((task) => new TaskResponseDto(task)));
     } catch (error) {
-      res.status(500).json({ message: "Error fetching tasks" });
+      res.status(500).json({ message: req.t("errors:failed_to_fetch_tasks") });
     }
   }
 
@@ -53,7 +53,7 @@ export class TaskController {
       const task = await taskService.updateTask(id, updateTaskDto);
       res.json(new TaskResponseDto(task));
     } catch (error) {
-      res.status(500).json({ message: "Error updating task" });
+      res.status(500).json({ message: req.t("errors:failed_to_update_task") });
     }
   }
 
@@ -63,7 +63,7 @@ export class TaskController {
       await taskService.deleteTask(id);
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ message: "Error deleting task" });
+      res.status(500).json({ message: req.t("errors:failed_to_delete_task") });
     }
   }
 }

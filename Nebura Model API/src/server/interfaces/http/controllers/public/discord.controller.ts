@@ -8,7 +8,7 @@ import { DiscordStatusOutputDTO, DiscordUpdateOutputDTO } from "../../dto/discor
 export class DiscordController {
   private discordService = new DiscordService();
 
-  public getStatus = async (_req: Request, res: Response) => {
+  public getStatus = async (req: Request, res: Response) => {
     try {
       const status = await this.discordService.getCurrentStatus();
 
@@ -20,11 +20,11 @@ export class DiscordController {
 
       res.status(200).json(output);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch Discord status" });
+      res.status(500).json({ error: req.t("errors:failed_to_fetch_discord_status") });
     }
   };
 
-  public getUpdates = async (_req: Request, res: Response) => {
+  public getUpdates = async (req: Request, res: Response) => {
     try {
       const updates = await this.discordService.getLatestUpdates();
 
@@ -38,11 +38,11 @@ export class DiscordController {
 
       res.status(200).json(output);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch Discord updates" });
+      res.status(500).json({ error: req.t("errors:failed_to_fetch_discord_updates") });
     }
   };
 
-  public getIncidents = async (_req: Request, res: Response) => {
+  public getIncidents = async (req: Request, res: Response) => {
     try {
       const incidents = await this.discordService.getActiveIncidents();
 
@@ -56,7 +56,7 @@ export class DiscordController {
 
       res.status(200).json(output);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch Discord incidents" });
+      res.status(500).json({ error: req.t("errors:failed_to_fetch_discord_incidents") });
     }
   };
 

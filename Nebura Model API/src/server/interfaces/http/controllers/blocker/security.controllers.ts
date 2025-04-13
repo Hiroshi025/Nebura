@@ -16,7 +16,7 @@ export class SecurityController {
       });
 
       if (!license) {
-        return res.status(404).json({ error: "License not found" });
+        return res.status(404).json({ error: req.t("errors:license_not_found") });
       }
 
       const blockedIPs = await main.prisma.blockedIP.findMany({
@@ -35,7 +35,7 @@ export class SecurityController {
         },
       });
     } catch (error) {
-      return res.status(500).json({ error: "Failed to retrieve license info" });
+      return res.status(500).json({ error: req.t("errors:failed_to_retrieve_license_info") });
     }
   }
 
@@ -48,11 +48,11 @@ export class SecurityController {
         include: { blockedUser: { select: { id: true, name: true } } },
       });
 
-      if (!blockedInfo) return res.status(404).json({ 
-        data: null,
-        error: "IP address not found" 
-      });
-      
+      if (!blockedInfo)
+        return res.status(404).json({
+          data: null,
+          error: req.t("errors:ip_not_found"),
+        });
 
       const failedAttempts = await main.prisma.failedAttempt.count({
         where: { ipAddress },
@@ -71,7 +71,7 @@ export class SecurityController {
         licenseUsage,
       });
     } catch (error) {
-      return res.status(500).json({ error: "Failed to retrieve IP info" });
+      return res.status(500).json({ error: req.t("errors:failed_to_retrieve_ip_info") });
     }
   }
 }
