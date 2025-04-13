@@ -21,32 +21,84 @@ export default ({ app }: TRoutesInput) => {
   const taskController = new TaskController();
   const reminderController = new ReminderController();
 
+  /**
+   * Crea una nueva tarea.
+   * Método: POST
+   * Ruta: /api/v1/service/tasks
+   * Middleware: authenticateToken
+   * Controlador: taskController.createTask
+   * Descripción: Permite crear una nueva tarea.
+   */
   app.post(
     formatRoute("/tasks"),
     authenticateToken,
     taskController.createTask.bind(taskController),
   );
+
+  /**
+   * Obtiene una tarea específica por su ID.
+   * Método: GET
+   * Ruta: /api/v1/service/tasks/:id
+   * Middleware: authenticateToken
+   * Controlador: taskController.getTask
+   * Descripción: Devuelve los detalles de una tarea específica.
+   */
   app.get(
     formatRoute("/tasks/:id"),
     authenticateToken,
     taskController.getTask.bind(taskController),
   );
+
+  /**
+   * Obtiene todas las tareas.
+   * Método: GET
+   * Ruta: /api/v1/service/tasks
+   * Middleware: authenticateToken
+   * Controlador: taskController.getAllTasks
+   * Descripción: Devuelve una lista de todas las tareas.
+   */
   app.get(
     formatRoute("/tasks"),
     authenticateToken,
     taskController.getAllTasks.bind(taskController),
   );
+
+  /**
+   * Actualiza una tarea específica por su ID.
+   * Método: PATCH
+   * Ruta: /api/v1/service/tasks/:id
+   * Middleware: authenticateToken
+   * Controlador: taskController.updateTask
+   * Descripción: Permite actualizar los detalles de una tarea específica.
+   */
   app.patch(
     formatRoute("/tasks/:id"),
     authenticateToken,
     taskController.updateTask.bind(taskController),
   );
+
+  /**
+   * Elimina una tarea específica por su ID.
+   * Método: DELETE
+   * Ruta: /api/v1/service/tasks/:id
+   * Middleware: authenticateToken
+   * Controlador: taskController.deleteTask
+   * Descripción: Permite eliminar una tarea específica.
+   */
   app.delete(
     formatRoute("/tasks/:id"),
     authenticateToken,
     taskController.deleteTask.bind(taskController),
   );
 
+  /**
+   * Obtiene recordatorios próximos.
+   * Método: GET
+   * Ruta: /reminders
+   * Middleware: authenticateToken
+   * Controlador: reminderController.getUpcomingReminders
+   * Descripción: Devuelve una lista de recordatorios próximos.
+   */
   app.get(
     "/reminders",
     authenticateToken,

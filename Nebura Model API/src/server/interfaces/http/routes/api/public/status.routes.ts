@@ -24,6 +24,14 @@ export default ({ app }: TRoutesInput) => {
   const discordController = new DiscordController();
   const status = new StatusController();
 
+  /**
+   * Obtiene el estado general del sistema.
+   * Método: GET
+   * Ruta: /api/v1/public/status
+   * Middleware: RateLimitManager, IPBlocker
+   * Controlador: status.getStatus
+   * Descripción: Devuelve el estado general del sistema.
+   */
   app.get(
     formatRoute("/status"),
     RateLimitManager.getInstance().getDefaultLimiter(),
@@ -31,18 +39,44 @@ export default ({ app }: TRoutesInput) => {
     status.getStatus,
   );
 
+  /**
+   * Obtiene el estado del servicio de Discord.
+   * Método: GET
+   * Ruta: /api/v1/public/discord/status
+   * Middleware: RateLimitManager, IPBlocker
+   * Controlador: discordController.getStatus
+   * Descripción: Devuelve el estado actual del servicio de Discord.
+   */
   app.get(
     formatRoute("/discord/status"),
     RateLimitManager.getInstance().getDefaultLimiter(),
     IPBlocker.getInstance().getMiddleware(),
     discordController.getStatus,
   );
+
+  /**
+   * Obtiene las actualizaciones recientes de Discord.
+   * Método: GET
+   * Ruta: /api/v1/public/discord/updates
+   * Middleware: RateLimitManager, IPBlocker
+   * Controlador: discordController.getUpdates
+   * Descripción: Devuelve las actualizaciones recientes del servicio de Discord.
+   */
   app.get(
     formatRoute("/discord/updates"),
     RateLimitManager.getInstance().getDefaultLimiter(),
     IPBlocker.getInstance().getMiddleware(),
     discordController.getUpdates,
   );
+
+  /**
+   * Obtiene los incidentes recientes de Discord.
+   * Método: GET
+   * Ruta: /api/v1/public/discord/incidents
+   * Middleware: RateLimitManager, IPBlocker
+   * Controlador: discordController.getIncidents
+   * Descripción: Devuelve los incidentes recientes del servicio de Discord.
+   */
   app.get(
     formatRoute("/discord/incidents"),
     RateLimitManager.getInstance().getDefaultLimiter(),
@@ -50,6 +84,14 @@ export default ({ app }: TRoutesInput) => {
     discordController.getIncidents,
   );
 
+  /**
+   * Obtiene datos recientes de Discord (incidentes, estado y actualizaciones).
+   * Método: GET
+   * Ruta: /api/v1/public/discord/recent
+   * Middleware: RateLimitManager, IPBlocker
+   * Controlador: discordController (métodos combinados)
+   * Descripción: Devuelve datos recientes del servicio de Discord, incluyendo incidentes, estado y actualizaciones.
+   */
   app.get(
     formatRoute("/discord/recent"),
     RateLimitManager.getInstance().getDefaultLimiter(),

@@ -20,6 +20,13 @@ const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}
 export default ({ app }: TRoutesInput) => {
   const controller = new AuthController();
   // Agrupar rutas relacionadas
+
+  /**
+   * Obtiene el perfil de usuario por ID.
+   * Endpoint: GET /api/v1/auth/:id
+   * Requiere autenticación mediante token JWT.
+   * Aplica un límite de 10 solicitudes por minuto.
+   */
   app.get(
     formatRoute("/:id"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -31,6 +38,12 @@ export default ({ app }: TRoutesInput) => {
     controller.getUserProfile.bind(controller),
   );
 
+  /**
+   * Registra un nuevo usuario.
+   * Endpoint: POST /api/v1/auth/register
+   * No requiere autenticación.
+   * Aplica un límite de 10 solicitudes por minuto.
+   */
   app.post(
     formatRoute("/register"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -40,6 +53,13 @@ export default ({ app }: TRoutesInput) => {
     }),
     controller.register.bind(controller),
   );
+
+  /**
+   * Inicia sesión de usuario.
+   * Endpoint: POST /api/v1/auth/login
+   * No requiere autenticación.
+   * Aplica un límite de 10 solicitudes por minuto.
+   */
   app.post(
     formatRoute("/login"),
     RateLimitManager.getInstance().createCustomLimiter({

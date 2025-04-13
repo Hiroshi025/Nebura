@@ -18,7 +18,16 @@ const API_VERSION = "/api/v1";
  * @returns Ruta completa formateada
  */
 const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}`;
+
 export default ({ app }: TRoutesInput) => {
+  /**
+   * Procesa texto utilizando el modelo de IA.
+   * Método: POST
+   * Ruta: /api/v1/service/google/model-ai/text
+   * Middleware: RateLimitManager, isCustomerToken, validateTokenAI
+   * Controlador: GeminiController.processText
+   * Descripción: Permite procesar texto con el modelo de IA de Google.
+   */
   app.post(
     formatRoute("/model-ai/text"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -30,6 +39,15 @@ export default ({ app }: TRoutesInput) => {
     validateTokenAI,
     GeminiController.processText,
   );
+
+  /**
+   * Procesa un archivo utilizando el modelo de IA.
+   * Método: POST
+   * Ruta: /api/v1/service/google/model-ai/file
+   * Middleware: RateLimitManager, isCustomerToken, validateTokenAI
+   * Controlador: GeminiController.processFile
+   * Descripción: Permite procesar un archivo con el modelo de IA de Google.
+   */
   app.post(
     formatRoute("/model-ai/file"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -41,6 +59,15 @@ export default ({ app }: TRoutesInput) => {
     validateTokenAI,
     GeminiController.processFile,
   );
+
+  /**
+   * Procesa texto y archivos combinados utilizando el modelo de IA.
+   * Método: POST
+   * Ruta: /api/v1/service/google/model-ai/advanced
+   * Middleware: RateLimitManager, isCustomerToken, validateTokenAI
+   * Controlador: GeminiController.processCombined
+   * Descripción: Permite procesar texto y archivos combinados con el modelo de IA de Google.
+   */
   app.post(
     formatRoute("/model-ai/advanced"),
     RateLimitManager.getInstance().createCustomLimiter({

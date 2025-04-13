@@ -18,17 +18,43 @@ const API_VERSION = "/api/v1";
  */
 const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}`;
 export default ({ app }: TRoutesInput) => {
+  /**
+   * Desbloquea una dirección IP específica.
+   * Método: DELETE
+   * Ruta: /api/v1/admin/unblock-ip/:ipAddress
+   * Middleware: authenticateToken, isAdmin
+   * Controlador: ipBlockerControllers.unblockIP
+   * Descripción: Permite a un administrador eliminar el bloqueo de una dirección IP específica.
+   */
   app.delete(
     formatRoute("/unblock-ip/:ipAddress"),
     authenticateToken,
     isAdmin,
     ipBlockerControllers.unblockIP,
   );
+
+  /**
+   * Lista todas las direcciones IP bloqueadas.
+   * Método: GET
+   * Ruta: /api/v1/admin/blocked-ips
+   * Middleware: authenticateToken, isAdmin
+   * Controlador: ipBlockerControllers.listBlockedIPs
+   * Descripción: Devuelve una lista de todas las direcciones IP que están actualmente bloqueadas.
+   */
   app.get(
     formatRoute("/blocked-ips"),
     authenticateToken,
     isAdmin,
     ipBlockerControllers.listBlockedIPs,
   );
+
+  /**
+   * Bloquea una dirección IP específica.
+   * Método: POST
+   * Ruta: /api/v1/admin/block-ip
+   * Middleware: authenticateToken, isAdmin
+   * Controlador: ipBlockerControllers.blockIP
+   * Descripción: Permite a un administrador bloquear una dirección IP específica.
+   */
   app.post(formatRoute("/block-ip"), authenticateToken, isAdmin, ipBlockerControllers.blockIP);
 };

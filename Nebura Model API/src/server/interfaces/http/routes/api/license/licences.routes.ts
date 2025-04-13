@@ -14,6 +14,11 @@ export default ({ app }: TRoutesInput) => {
   const controller = new LicenseController();
 
   // Rutas de Administración (requieren autenticación y rol admin)
+
+  /**
+   * Endpoint para crear una nueva licencia.
+   * Requiere autenticación y rol de administrador.
+   */
   app.post(
     formatRoute("/"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -26,6 +31,10 @@ export default ({ app }: TRoutesInput) => {
     controller.create.bind(controller),
   );
 
+  /**
+   * Endpoint para actualizar una licencia existente por su ID.
+   * Requiere autenticación y rol de administrador.
+   */
   app.put(
     formatRoute("/:id"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -38,6 +47,10 @@ export default ({ app }: TRoutesInput) => {
     controller.update.bind(controller),
   );
 
+  /**
+   * Endpoint para eliminar una licencia existente por su ID.
+   * Requiere autenticación y rol de administrador.
+   */
   app.delete(
     formatRoute("/:id"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -51,6 +64,11 @@ export default ({ app }: TRoutesInput) => {
   );
 
   // Rutas protegidas (solo autenticación)
+
+  /**
+   * Endpoint para obtener todas las licencias.
+   * Requiere autenticación y rol de administrador.
+   */
   app.get(
     formatRoute("/"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -63,6 +81,10 @@ export default ({ app }: TRoutesInput) => {
     controller.getAll.bind(controller),
   );
 
+  /**
+   * Endpoint para obtener una licencia específica por su ID.
+   * Requiere autenticación.
+   */
   app.get(
     formatRoute("/:id"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -74,6 +96,10 @@ export default ({ app }: TRoutesInput) => {
     controller.getById.bind(controller),
   );
 
+  /**
+   * Endpoint para obtener todas las licencias asociadas a un usuario específico.
+   * Requiere autenticación.
+   */
   app.get(
     formatRoute("/user/:userId"),
     RateLimitManager.getInstance().createCustomLimiter({
@@ -86,6 +112,11 @@ export default ({ app }: TRoutesInput) => {
   );
 
   // Ruta pública para validación de licencias
+
+  /**
+   * Endpoint público para validar una licencia mediante su clave.
+   * No requiere autenticación.
+   */
   app.post(
     formatRoute("/validate/:key"),
     RateLimitManager.getInstance().createCustomLimiter({
