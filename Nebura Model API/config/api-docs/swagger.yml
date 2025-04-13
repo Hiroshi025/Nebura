@@ -1295,7 +1295,7 @@ paths:
         "500":
           description: Internal server error
 
-  /public/api/v1/discord/status:
+  /public/discord/status:
     get:
       tags:
         - Discord
@@ -1324,7 +1324,7 @@ paths:
         "500":
           description: Failed to retrieve Discord service status.
 
-  /public/api/v1/discord/updates:
+  /public/discord/updates:
     get:
       tags:
         - Discord
@@ -1362,7 +1362,7 @@ paths:
         "500":
           description: Failed to retrieve Discord updates.
 
-  /public/api/v1/discord/incidents:
+  /public/discord/incidents:
     get:
       tags:
         - Discord
@@ -1400,7 +1400,7 @@ paths:
         "500":
           description: Failed to retrieve Discord incidents.
 
-  /public/api/v1/discord/recent:
+  /public/discord/recent:
     get:
       tags:
         - Discord

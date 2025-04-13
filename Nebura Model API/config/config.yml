@@ -27,7 +27,7 @@ environments:
           password: "luis" # Contraseña para autenticar en Swagger
     database:
       sessions:
-        url: "src/infrastructure/database/" # Ruta a la base de datos de sesiones
+        url: "src/structure/database/" # Ruta a la base de datos de sesiones
         name: "sessions" # Nombre de la base de datos de sesiones
     artificial:
       services:
