@@ -1,15 +1,20 @@
 import {
-	ButtonInteraction, ChannelSelectMenuInteraction, InteractionType, MessageFlags,
-	ModalSubmitInteraction, PermissionsBitField, RoleSelectMenuInteraction,
-	StringSelectMenuInteraction
+  ButtonInteraction,
+  ChannelSelectMenuInteraction,
+  InteractionType,
+  MessageFlags,
+  ModalSubmitInteraction,
+  PermissionsBitField,
+  RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
-import { EmbedExtender } from "@/infrastructure/extenders/discord/embeds.extender";
+import { EmbedExtender } from "@/structure/extenders/discord/embeds.extender";
 import { Buttons, Menus, Modals } from "@/typings/discord";
 
 import { main } from "../../../../../main";
 import { config } from "../../../../../shared/utils/config";
-import { Event } from "../../../infrastructure/utils/builders";
+import { Event } from "../../../structure/utils/builders";
 
 export default new Event("interactionCreate", async (interaction) => {
   if (!interaction.guild || !interaction.channel || interaction.user.bot || !interaction.user)
@@ -17,7 +22,6 @@ export default new Event("interactionCreate", async (interaction) => {
 
   const lenguage = interaction.guild.preferredLocale;
   const client = main.discord;
-
 
   const { guild } = interaction;
 

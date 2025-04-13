@@ -1,6 +1,10 @@
 import axios from "axios";
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, TextChannel
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+  TextChannel,
 } from "discord.js";
 
 // import puppeteer from "puppeteer"; // Comentado temporalmente
@@ -10,7 +14,7 @@ import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
 import _package from "../../../../package.json";
-import { Addons } from "../infrastructure/addons";
+import { Addons } from "../structure/addons";
 
 /**
  * ############################################################################
@@ -110,7 +114,9 @@ export default new Addons(
 
           // Create an embed with server information
           const embed = new EmbedBuilder()
-            .setTitle(` ${client.getEmoji(config.project.guildId, "online")} Status Handler [Minecraft Configuration]`)
+            .setTitle(
+              ` ${client.getEmoji(config.project.guildId, "online")} Status Handler [Minecraft Configuration]`,
+            )
             .setFooter({
               text: `Response: ${apiResponseTime}ms | Node.js: ${process.versions.node}`,
               iconURL: client.user?.displayAvatarURL() || "",

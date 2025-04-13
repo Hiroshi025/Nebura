@@ -1,7 +1,7 @@
-import { AuthLogin, AuthRegister } from "@/infrastructure/constants/user.constants";
 import { main } from "@/main";
 import { encrypt, signToken, verified } from "@/server/shared/utils/token";
 import { logWithLabel } from "@/shared/utils/functions/console";
+import { AuthLogin, AuthRegister } from "@/structure/constants/user.constants";
 import { User } from "@/typings/utils";
 import { Prisma } from "@prisma/client";
 

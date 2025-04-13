@@ -2,7 +2,7 @@
 import { EmbedBuilder } from "discord.js";
 import { STATUS_CODES } from "http";
 
-import { EmbedExtender } from "@/infrastructure/extenders/discord/embeds.extender";
+import { EmbedExtender } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
 

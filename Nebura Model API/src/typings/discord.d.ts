@@ -8,7 +8,7 @@ import {
   StringSelectMenuInteraction,
 } from "discord.js";
 
-import { MyClient } from "@/modules/discord/infrastructure/client";
+import { MyClient } from "@/modules/discord/structure/client";
 
 /**
  * Options for configuring a command.

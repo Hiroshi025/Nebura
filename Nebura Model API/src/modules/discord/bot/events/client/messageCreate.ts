@@ -1,10 +1,10 @@
-import { EmbedExtender } from "@/infrastructure/extenders/discord/embeds.extender";
 import { client } from "@/main";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
+import { EmbedExtender } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
 
-import { Event } from "../../../infrastructure/utils/builders";
+import { Event } from "../../../structure/utils/builders";
 
 export default new Event("messageCreate", async (message) => {
   // Initial validations

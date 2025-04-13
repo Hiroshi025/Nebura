@@ -4,11 +4,11 @@ import { Discord } from "eternal-support";
 import fs from "fs";
 import path from "path";
 
-import { filesLoaded } from "@/infrastructure/constants/tools.constants";
-import { DiscordError } from "@/infrastructure/extenders/errors.extender";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { getFiles } from "@/shared/utils/functions/files";
+import { filesLoaded } from "@/structure/constants/tools.constants";
+import { DiscordError } from "@/structure/extenders/errors.extender";
 import { FileType } from "@/typings/discord";
 
 import { Addons } from "../addons";

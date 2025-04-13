@@ -3,12 +3,12 @@ import chalk from "chalk";
 import emojis from "@config/json/emojis.json";
 import { PrismaClient } from "@prisma/client";
 
-import { ProyectError } from "./infrastructure/extenders/errors.extender";
-import { MyClient } from "./modules/discord/infrastructure/client";
+import { MyClient } from "./modules/discord/structure/client";
 import { MyApp } from "./modules/whatsapp";
 import { API } from "./server";
 import { config } from "./shared/utils/config";
 import { logWithLabel } from "./shared/utils/functions/console";
+import { ProyectError } from "./structure/extenders/errors.extender";
 import { ProyectConfig } from "./typings/package/config";
 
 //import { globalCleanup } from "./shared/utils/runCleanTask";
@@ -66,7 +66,7 @@ export class Engine {
     this.api = api;
     this.whatsapp = whatsapp;
     this.config = config;
-    this.chalk = chalk
+    this.chalk = chalk;
   }
 
   /**

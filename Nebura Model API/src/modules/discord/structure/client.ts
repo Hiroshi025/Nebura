@@ -1,8 +1,8 @@
 import { Client, Collection, GatewayIntentBits, Options, Partials } from "discord.js";
 
-import { Utils } from "@/infrastructure/extenders/discord/properties.extender";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
+import { Utils } from "@/structure/extenders/discord/properties.extender";
 import { Buttons, Menus, Modals } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
 

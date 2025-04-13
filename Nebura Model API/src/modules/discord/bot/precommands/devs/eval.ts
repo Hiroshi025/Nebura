@@ -1,8 +1,8 @@
 import { AttachmentBuilder, ChannelType, codeBlock } from "discord.js";
 import { inspect } from "util";
 
-import { EmbedExtender, EmbedInfo } from "@/infrastructure/extenders/discord/embeds.extender";
 import { logWithLabel } from "@/shared/utils/functions/console";
+import { EmbedExtender, EmbedInfo } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
 

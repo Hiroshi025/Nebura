@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 
-import { EmbedInfo } from "@/infrastructure/extenders/discord/embeds.extender";
-import { Command } from "@/modules/discord/infrastructure/utils/builders";
+import { Command } from "@/modules/discord/structure/utils/builders";
+import { EmbedInfo } from "@/structure/extenders/discord/embeds.extender";
 
 export default new Command(
   new SlashCommandBuilder()

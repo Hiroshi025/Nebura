@@ -5,8 +5,8 @@ import {
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
-import { EmbedExtender } from "@/infrastructure/extenders/discord/embeds.extender";
 import { config } from "@/shared/utils/config";
+import { EmbedExtender } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import emojis from "@config/json/emojis.json";
