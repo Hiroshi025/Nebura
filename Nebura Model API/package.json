@@ -1,6 +1,6 @@
 {
   "name": "nebura-works",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "main": "index.js",
   "scripts": {
     "test": "jest && npm run docs",
@@ -24,7 +24,7 @@
     ]
   },
   "prisma": {
-    "schema": "src/infrastructure/database/prisma/schema.prisma"
+    "schema": "src/structure/database/prisma/schema.prisma"
   },
   "description": "",
   "dependencies": {
@@ -51,6 +51,7 @@
     "i18next-fs-backend": "^2.6.0",
     "i18next-http-middleware": "^3.7.2",
     "jsonwebtoken": "^9.0.2",
+    "luxon": "^3.6.1",
     "multer": "^1.4.5-lts.2",
     "node-notifier": "^10.0.1",
     "nodemon": "^3.1.9",
@@ -67,6 +68,8 @@
     "typedoc-plugin-zod": "^1.4.0",
     "uuid": "^11.1.0",
     "whatsapp-web.js": "^1.27.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "yaml": "^2.7.0",
     "zod": "^3.24.2"
   },
@@ -76,6 +79,7 @@
     "@types/express-session": "^1.18.1",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/luxon": "^3.6.2",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.13.14",
     "@types/qrcode-terminal": "^0.12.2",
