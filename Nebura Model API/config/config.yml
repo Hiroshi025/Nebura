@@ -4,8 +4,9 @@ project:
   version: "1.0.0" # Versión actual del proyecto
   type: "monorepo" # Indica si el proyecto utiliza un enfoque de monorepo (opcional)
   api-version: "v1" # Versión de la API utilizada
-  logs: "./config/logs-apps/" # Ruta donde se almacenan los logs de la aplicación
+  logs: "config/logs-apps/" # Ruta donde se almacenan los logs de la aplicación
   guildId: ""
+  winstonlog: "config/logs-apps/proyect"
 
 # Configuración de entornos
 environments:
@@ -52,6 +53,7 @@ modules:
   discord: # Configuración del módulo de Discord
     token: "MTM1NjY0ODI0MDM2MzIxMzAxMQ.GpaulA.Hz4-1XALlpmVnK_lhMYkD-LMGa83eIPuDE73Y8" # Token del bot de Discord
     clientId: "1356648240363213011" # ID del cliente de Discord
+    clientSecret: ""
     prefix: "!" # Prefijo para los comandos del bot
     presence: # Configuración de presencia del bot
       status: "online" # Estado del bot (opciones: online, idle, dnd, invisible)
@@ -61,10 +63,10 @@ modules:
         url: "" # URL asociada a la actividad (opcional)
     configs: # Configuración de rutas para el módulo de Discord
       eventpath: "src/modules/discord/bot/events/" # Ruta a los eventos del bot
-      commandpath: "src/modules/discord/bot/commands/" # Ruta a los comandos del bot
-      componentspath: "src/modules/discord/bot/components" # Ruta a los componentes del bot
+      commandpath: "src/modules/discord/bot/commands/slash/" # Ruta a los comandos del bot
+      componentspath: "src/modules/discord/bot/interactions" # Ruta a los componentes del bot
       addonspath: "src/modules/discord/addons/" # Ruta a los complementos del bot
-      precommands: "src/modules/discord/bot/precommands/" # Ruta a los precomandos del bot
+      precommands: "src/modules/discord/bot/commands/message/" # Ruta a los precomandos del bot
       bot-extensions:
         - ".js" # Extensiones de archivo soportadas para el bot
         - ".ts" # Extensiones de archivo soportadas para el bot

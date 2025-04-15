@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\Enigma Evolution\\Desktop\\Proyectos Personales\\Privados\\Nebura AI\\Nebura Model API\\config\\logs-apps\\proyect\\.02027263706c0a6727e9d6a02f37a8e4193b336f-audit.json",
+    "files": [
+        {
+            "date": 1744530615741,
+            "name": "D:\\Enigma Evolution\\Desktop\\Proyectos Personales\\Privados\\Nebura AI\\Nebura Model API\\config\\logs-apps\\proyect\\app-2025-04-13.log",
+            "hash": "4037a1298f555fbfbaebf09f1d08fcdd02f9efd3be9843037a18a6da2ad17822"
+        },
+        {
+            "date": 1744612034085,
+            "name": "D:\\Enigma Evolution\\Desktop\\Proyectos Personales\\Privados\\Nebura AI\\Nebura Model API\\config\\logs-apps\\proyect\\app-2025-04-14.log",
+            "hash": "ad9ff503eb1025b0fc8dd24ab5191135830340fc15676711ec98e1c3701eb6be"
+        }
+    ],
+    "hashType": "sha256"
+}

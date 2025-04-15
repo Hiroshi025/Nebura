@@ -4,10 +4,12 @@ import emojis from "@config/json/emojis.json";
 import { PrismaClient } from "@prisma/client";
 
 import { MyClient } from "./modules/discord/structure/client";
+import { ErrorConsole } from "./modules/discord/structure/handlers/error-console";
 import { MyApp } from "./modules/whatsapp";
 import { API } from "./server";
 import { config } from "./shared/utils/config";
 import { logWithLabel } from "./shared/utils/functions/console";
+import { Utils } from "./structure/extenders/discord/utils.extender";
 import { ProyectError } from "./structure/extenders/errors.extender";
 import { ProyectConfig } from "./typings/package/config";
 
@@ -52,10 +54,23 @@ export class Engine {
   public chalk: typeof chalk;
 
   /**
+   * Logger instance for logging messages and errors.
+   */
+  //public logger: WinstonLogger;
+
+  /**
+   * Instance of the Utils class, providing utility functions and helpers.
+   */
+  public utils: Utils;
+
+  /**
    * Constructor that initializes the core module instances.
    */
   constructor(
-    prisma: PrismaClient = new PrismaClient({ log: ["query", "info", "warn", "error"] }),
+    prisma: PrismaClient = new PrismaClient({
+      log: ["query", "info", "warn", "error"],
+      errorFormat: "pretty",
+    }),
     discord: MyClient = new MyClient(),
     api: API = new API(),
     whatsapp: MyApp = new MyApp(),
@@ -67,6 +82,8 @@ export class Engine {
     this.whatsapp = whatsapp;
     this.config = config;
     this.chalk = chalk;
+    //this.logger = new WinstonLogger(14);
+    this.utils = new Utils();
   }
 
   /**
@@ -80,7 +97,10 @@ export class Engine {
    */
   public async start(): Promise<void> {
     try {
+      //await this.logger.scheduleCleanup(24);
+      await ErrorConsole(this.discord);
       await this.initializeModules();
+      await this.clientCreate();
     } catch (err) {
       this.handleError(err);
     }
@@ -105,6 +125,23 @@ export class Engine {
 
   private handleError(err: unknown): void {
     throw new ProyectError(`Error starting the application: ${err}`);
+  }
+
+  private async clientCreate() {
+    const data = config.modules.discord;
+    await main.prisma.appDiscord.upsert({
+      where: { token: data.token },
+      update: {
+        token: data.token,
+        clientId: data.clientId,
+        clientSecret: data.clientSecret,
+      },
+      create: {
+        token: data.token,
+        clientId: data.clientId,
+        clientSecret: data.clientSecret,
+      },
+    });
   }
 }
 

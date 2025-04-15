@@ -1,182 +1,278 @@
-<!DOCTYPE html><html class="default" lang="en" data-base="."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Nebura AI</title><meta name="description" content="Documentation for Nebura AI"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script><script async src="assets/hierarchy.js" id="tsd-hierarchy-script"></script><link rel="stylesheet" href="assets/typedoc-github-style.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">Nebura AI</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>Nebura AI</h1></div><div class="tsd-panel tsd-typography"><a id="nebura-ai---api-documentation" class="tsd-anchor"></a><h1 class="tsd-anchor-link">NEBURA AI - API Documentation<a href="#nebura-ai---api-documentation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
-<img src="https://img.shields.io/badge/Version-0.2.0--beta-orange" alt="Version"></p>
-<a id="overview" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Overview<a href="#overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>NEBURA AI es un sistema API integral que proporciona capacidades avanzadas de procesamiento de IA, gestión de IP, gestión de licencias, autenticación y monitoreo del sistema, ahora con protocolos de seguridad mejorados.</p>
-<a id="features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="✨-core-functionalities" class="tsd-anchor"></a><h3 class="tsd-anchor-link">✨ Core Functionalities<a href="#✨-core-functionalities" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
-<li><strong>AI Processing</strong> con modelos Google Gemini y soporte para modelos personalizados.</li>
-<li><strong>IP Address Management</strong> (bloquear/desbloquear/listar).</li>
-<li><strong>License Management System</strong> (crear/validar/actualizar).</li>
-<li><strong>JWT Authentication</strong> (registro/inicio de sesión/datos de usuario).</li>
-<li><strong>System Monitoring</strong> endpoints.</li>
-<li><strong>Protocolos de Seguridad Mejorados</strong>:</li>
-<li>Encriptación de datos sensibles.</li>
-<li>Validación de IP en tiempo real.</li>
-<li>Protección contra ataques de fuerza bruta.P</li>
-</ul>
-<a id="🔧-technical-specifications" class="tsd-anchor"></a><h3 class="tsd-anchor-link">🔧 Technical Specifications<a href="#🔧-technical-specifications" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
-<li>Diseño RESTful API.</li>
-<li>Autenticación JWT.</li>
-<li>Respuestas paginadas.</li>
-<li>Manejo detallado de errores.</li>
-<li>Documentación Swagger completa.</li>
-<li><strong>Cifrado AES-256</strong> para datos sensibles.</li>
-<li><strong>Rate Limiting</strong> para prevenir abuso de endpoints.</li>
-</ul>
-<a id="api-documentation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">API Documentation<a href="#api-documentation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p><a href="https://docs.hiroshi-dev.me"><img src="https://img.shields.io/badge/Swagger-Documentation-green" alt="Swagger"></a></p>
-<p>Documentación interactiva completa disponible en:<br>
-<a href="https://docs.hiroshi-dev.me">https://docs.hiroshi-dev.me</a></p>
-<a id="key-endpoints" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Key Endpoints<a href="#key-endpoints" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><table>
-<thead>
-<tr>
-<th>Categoría</th>
-<th>Endpoints</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>AI Processing</td>
-<td><code>/google/model-ai/text</code>, <code>/google/model-ai/file</code>, <code>/google/model-ai/combined</code>, <code>/custom/model-ai/{modelId}</code></td>
-</tr>
-<tr>
-<td>IP Management</td>
-<td><code>/block-ip</code>, <code>/unblock-ip/{ipAddress}</code>, <code>/blocked-ips</code>, <code>/validate-ip/{ipAddress}</code></td>
-</tr>
-<tr>
-<td>Licenses</td>
-<td><code>/licenses</code>, <code>/licenses/{id}</code>, <code>/licenses/validate/{key}</code></td>
-</tr>
-<tr>
-<td>Authentication</td>
-<td><code>/auth/register</code>, <code>/auth/login</code>, <code>/auth/{id}</code>, <code>/auth/reset-password</code></td>
-</tr>
-<tr>
-<td>System Status</td>
-<td><code>/public/status</code>, <code>/public/uptime</code></td>
-</tr>
-</tbody>
-</table>
-<a id="installation" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Installation<a href="#installation" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="prerequisites" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Prerequisites<a href="#prerequisites" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
-<li>Node.js v20.18.0+</li>
-<li>TypeScript</li>
-<li>MongoDB (o cualquier base de datos compatible)</li>
-</ul>
-<a id="setup" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Setup<a href="#setup" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ol>
-<li>
-<p>Clona el repositorio</p>
-<pre><code class="bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">clone</span><span class="hl-1"> </span><span class="hl-2">https://github.com/your-repo/nebura-ai.git</span><br/><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-2">nebura-ai</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>
-<p>Instala las dependencias</p>
-<pre><code class="bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>
-<p>Configura las variables de entorno:</p>
+<!DOCTYPE html><html class="default" lang="en" data-base="."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Nebura AI</title><meta name="description" content="Documentation for Nebura AI"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script><script async src="assets/hierarchy.js" id="tsd-hierarchy-script"></script><link rel="stylesheet" href="assets/typedoc-github-style.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">Nebura AI</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>Nebura AI</h1></div><div class="tsd-panel tsd-typography"><a id="nebura-model-api" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Nebura Model API<a href="#nebura-model-api" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>Este proyecto es una API modular que integra múltiples servicios como Discord, WhatsApp, GitHub, Google AI, y más. A continuación, se detallan las funcionalidades, rutas, comandos y eventos disponibles en el proyecto.</p>
+<hr>
+<a id="funcionalidades-principales" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Funcionalidades Principales<a href="#funcionalidades-principales" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="discord" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Discord<a href="#discord" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Cliente personalizado (<code>MyClient</code>)</strong>:
 <ul>
-<li><code>JWT_SECRET</code>: Clave secreta para autenticación JWT.</li>
-<li><code>DB_URI</code>: URI de la base de datos.</li>
-<li><code>RATE_LIMIT</code>: Límite de solicitudes por minuto.</li>
+<li>Gestión de comandos, botones, menús, modales y addons.</li>
+<li>Métodos personalizados como <code>getEmoji</code> para obtener emojis del servidor o predeterminados.</li>
+<li>Configuración avanzada de caché, intents y barridos automáticos.</li>
+<li>Handlers para cargar y desplegar módulos.</li>
 </ul>
 </li>
-</ol>
-<a id="running-with-docker" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Running with Docker<a href="#running-with-docker" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Puedes ejecutar el proyecto utilizando Docker para simplificar la configuración del entorno. Sigue estos pasos:</p>
-<ol>
-<li>
-<p><strong>Asegúrate de tener Docker instalado</strong><br>
-Descarga e instala Docker desde <a href="https://www.docker.com/">https://www.docker.com/</a>.</p>
-</li>
-<li>
-<p><strong>Construye la imagen de Docker</strong><br>
-Ejecuta el siguiente comando en la raíz del proyecto:</p>
-<pre><code class="bash"><span class="hl-0">docker</span><span class="hl-1"> </span><span class="hl-2">build</span><span class="hl-1"> </span><span class="hl-3">-t</span><span class="hl-1"> </span><span class="hl-2">nebura-ai</span><span class="hl-1"> </span><span class="hl-2">.</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>
-<p><strong>Configura las variables de entorno</strong><br>
-Crea un archivo <code>.env</code> en la raíz del proyecto con las siguientes variables:</p>
-<pre><code class="env">JWT_SECRET=tu_clave_secreta
-DB_URI=mongodb://tu_base_de_datos
-RATE_LIMIT=100
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>
-<p><strong>Ejecuta el contenedor</strong><br>
-Usa el siguiente comando para iniciar el contenedor:</p>
-<pre><code class="bash"><span class="hl-0">docker</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-3">-d</span><span class="hl-1"> </span><span class="hl-3">-p</span><span class="hl-1"> </span><span class="hl-2">3000:3000</span><span class="hl-1"> </span><span class="hl-3">--env-file</span><span class="hl-1"> </span><span class="hl-2">.env</span><span class="hl-1"> </span><span class="hl-3">--name</span><span class="hl-1"> </span><span class="hl-2">nebura-ai</span><span class="hl-1"> </span><span class="hl-2">nebura-ai</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>
-<p><strong>Accede a la aplicación</strong><br>
-La API estará disponible en <a href="http://localhost:3000">http://localhost:3000</a>.</p>
-</li>
-<li>
-<p><strong>Detener el contenedor</strong><br>
-Para detener el contenedor, ejecuta:</p>
-<pre><code class="bash"><span class="hl-0">docker</span><span class="hl-1"> </span><span class="hl-2">stop</span><span class="hl-1"> </span><span class="hl-2">nebura-ai</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>
-<p><strong>Eliminar el contenedor</strong><br>
-Si deseas eliminar el contenedor, usa:</p>
-<pre><code class="bash"><span class="hl-0">docker</span><span class="hl-1"> </span><span class="hl-2">rm</span><span class="hl-1"> </span><span class="hl-2">nebura-ai</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-</ol>
-<a id="github-actions" class="tsd-anchor"></a><h2 class="tsd-anchor-link">GitHub Actions<a href="#github-actions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Para automatizar pruebas, construcción y despliegue, puedes usar GitHub Actions. A continuación, se describe cómo configurarlo:</p>
-<ol>
-<li>
-<p><strong>Crea un archivo de flujo de trabajo</strong><br>
-En el directorio <code>.github/workflows/</code>, crea un archivo llamado <code>ci.yml</code> con el siguiente contenido:</p>
-<pre><code class="yaml"><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">CI/CD Pipeline</span><br/><br/><span class="hl-3">on</span><span class="hl-1">:</span><br/><span class="hl-1">  </span><span class="hl-4">push</span><span class="hl-1">:</span><br/><span class="hl-1">    </span><span class="hl-4">branches</span><span class="hl-1">:</span><br/><span class="hl-1">      - </span><span class="hl-5">main</span><br/><span class="hl-1">  </span><span class="hl-4">pull_request</span><span class="hl-1">:</span><br/><span class="hl-1">    </span><span class="hl-4">branches</span><span class="hl-1">:</span><br/><span class="hl-1">      - </span><span class="hl-5">main</span><br/><br/><span class="hl-4">jobs</span><span class="hl-1">:</span><br/><span class="hl-1">  </span><span class="hl-4">build</span><span class="hl-1">:</span><br/><span class="hl-1">    </span><span class="hl-4">runs-on</span><span class="hl-1">: </span><span class="hl-5">ubuntu-latest</span><br/><br/><span class="hl-1">    </span><span class="hl-4">steps</span><span class="hl-1">:</span><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Checkout code</span><br/><span class="hl-1">        </span><span class="hl-4">uses</span><span class="hl-1">: </span><span class="hl-5">actions/checkout@v3</span><br/><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Set up Node.js</span><br/><span class="hl-1">        </span><span class="hl-4">uses</span><span class="hl-1">: </span><span class="hl-5">actions/setup-node@v3</span><br/><span class="hl-1">        </span><span class="hl-4">with</span><span class="hl-1">:</span><br/><span class="hl-1">          </span><span class="hl-4">node-version</span><span class="hl-1">: </span><span class="hl-6">20</span><br/><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Install dependencies</span><br/><span class="hl-1">        </span><span class="hl-4">run</span><span class="hl-1">: </span><span class="hl-5">npm install</span><br/><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Run lint</span><br/><span class="hl-1">        </span><span class="hl-4">run</span><span class="hl-1">: </span><span class="hl-5">npm run lint</span><br/><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Run tests</span><br/><span class="hl-1">        </span><span class="hl-4">run</span><span class="hl-1">: </span><span class="hl-5">npm test</span><br/><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Build project</span><br/><span class="hl-1">        </span><span class="hl-4">run</span><span class="hl-1">: </span><span class="hl-5">npm run build</span><br/><br/><span class="hl-1">  </span><span class="hl-4">docker</span><span class="hl-1">:</span><br/><span class="hl-1">    </span><span class="hl-4">runs-on</span><span class="hl-1">: </span><span class="hl-5">ubuntu-latest</span><br/><span class="hl-1">    </span><span class="hl-4">needs</span><span class="hl-1">: </span><span class="hl-5">build</span><br/><br/><span class="hl-1">    </span><span class="hl-4">steps</span><span class="hl-1">:</span><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Checkout code</span><br/><span class="hl-1">        </span><span class="hl-4">uses</span><span class="hl-1">: </span><span class="hl-5">actions/checkout@v3</span><br/><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Log in to DockerHub</span><br/><span class="hl-1">        </span><span class="hl-4">uses</span><span class="hl-1">: </span><span class="hl-5">docker/login-action@v2</span><br/><span class="hl-1">        </span><span class="hl-4">with</span><span class="hl-1">:</span><br/><span class="hl-1">          </span><span class="hl-4">username</span><span class="hl-1">: </span><span class="hl-5">${{ secrets.DOCKER_USERNAME }}</span><br/><span class="hl-1">          </span><span class="hl-4">password</span><span class="hl-1">: </span><span class="hl-5">${{ secrets.DOCKER_PASSWORD }}</span><br/><br/><span class="hl-1">      - </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-5">Build and push Docker image</span><br/><span class="hl-1">        </span><span class="hl-4">uses</span><span class="hl-1">: </span><span class="hl-5">docker/build-push-action@v4</span><br/><span class="hl-1">        </span><span class="hl-4">with</span><span class="hl-1">:</span><br/><span class="hl-1">          </span><span class="hl-4">context</span><span class="hl-1">: </span><span class="hl-6">.</span><br/><span class="hl-1">          </span><span class="hl-4">push</span><span class="hl-1">: </span><span class="hl-3">true</span><br/><span class="hl-1">          </span><span class="hl-4">tags</span><span class="hl-1">: </span><span class="hl-5">${{ secrets.DOCKER_USERNAME }}/nebura-ai:latest</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>
-<p><strong>Configura los secretos en GitHub</strong><br>
-Ve a la configuración del repositorio en GitHub y agrega los siguientes secretos:</p>
+</ul>
+<a id="whatsapp" class="tsd-anchor"></a><h3 class="tsd-anchor-link">WhatsApp<a href="#whatsapp" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Cliente de WhatsApp (<code>MyApp</code>)</strong>:
 <ul>
-<li><code>DOCKER_USERNAME</code>: Tu nombre de usuario de DockerHub.</li>
-<li><code>DOCKER_PASSWORD</code>: Tu contraseña de DockerHub.</li>
+<li>Gestión de mensajes con almacenamiento en archivos Excel.</li>
+<li>Escaneo de códigos QR para autenticación.</li>
+<li>Registro de mensajes con detalles como remitente, adjuntos y contenido.</li>
 </ul>
 </li>
-<li>
-<p><strong>Automatización</strong><br>
-Cada vez que hagas un push a la rama <code>main</code> o abras un pull request, se ejecutará la pipeline para verificar el código, construirlo y publicar la imagen de Docker.</p>
-</li>
-</ol>
-<a id="contributing" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Contributing<a href="#contributing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>¡Damos la bienvenida a contribuciones para NEBURA AI! Para contribuir, sigue estos pasos:</p>
-<ol>
-<li>Haz un fork del repositorio.</li>
-<li>Crea una nueva rama para tu funcionalidad o corrección de errores:<pre><code class="bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">checkout</span><span class="hl-1"> </span><span class="hl-3">-b</span><span class="hl-1"> </span><span class="hl-2">feature/your-feature-name</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>Realiza commits con mensajes claros y concisos:<pre><code class="bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">commit</span><span class="hl-1"> </span><span class="hl-3">-m</span><span class="hl-1"> </span><span class="hl-2">&quot;Add detailed description of your changes&quot;</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>Sube tu rama a tu repositorio fork:<pre><code class="bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">push</span><span class="hl-1"> </span><span class="hl-2">origin</span><span class="hl-1"> </span><span class="hl-2">feature/your-feature-name</span>
-</code><button type="button">Copy</button></pre>
-
-</li>
-<li>Abre un pull request al repositorio principal.</li>
-</ol>
-<p>Por favor, asegúrate de que tu código cumpla con los estándares del proyecto e incluya pruebas adecuadas.</p>
-<a id="license" class="tsd-anchor"></a><h2 class="tsd-anchor-link">License<a href="#license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo <a href="LICENSE">LICENSE</a> para más detalles.</p>
-<a id="version-control" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Version Control<a href="#version-control" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Este proyecto sigue <a href="https://semver.org/">Semantic Versioning</a>. La versión actual es <strong>0.2.0-beta</strong>.<br>
-Para un registro detallado de cambios, consulta el archivo <a href="CHANGELOG.md">CHANGELOG.md</a>.</p>
-<a id="language-and-frameworks" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Language and Frameworks<a href="#language-and-frameworks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>NEBURA AI está construido utilizando las siguientes tecnologías:</p>
+</ul>
+<a id="api-http" class="tsd-anchor"></a><h3 class="tsd-anchor-link">API HTTP<a href="#api-http" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Rutas públicas y protegidas</strong>:
 <ul>
-<li><strong>Lenguaje de Programación</strong>: TypeScript</li>
-<li><strong>Framework</strong>: Node.js con Express.js</li>
-<li><strong>Base de Datos</strong>: MongoDB (o cualquier base de datos compatible)</li>
-<li><strong>Documentación</strong>: Swagger (Especificación OpenAPI)</li>
+<li>Gestión de licencias.</li>
+<li>Autenticación y registro de usuarios.</li>
+<li>Bloqueo y desbloqueo de direcciones IP.</li>
+<li>Estado del sistema y servicios como Discord.</li>
+<li>Integración con GitHub para obtener datos de usuarios y repositorios.</li>
+<li>Procesamiento de texto y archivos con Google AI.</li>
 </ul>
-</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#nebura-ai---api-documentation"><span>NEBURA AI -<wbr/> API <wbr/>Documentation</span></a><ul><li><a href="#overview"><span>Overview</span></a></li><li><a href="#features"><span>Features</span></a></li><li><ul><li><a href="#✨-core-functionalities"><span>✨ <wbr/>Core <wbr/>Functionalities</span></a></li><li><a href="#🔧-technical-specifications"><span>🔧 <wbr/>Technical <wbr/>Specifications</span></a></li></ul></li><li><a href="#api-documentation"><span>API <wbr/>Documentation</span></a></li><li><ul><li><a href="#key-endpoints"><span>Key <wbr/>Endpoints</span></a></li></ul></li><li><a href="#installation"><span>Installation</span></a></li><li><ul><li><a href="#prerequisites"><span>Prerequisites</span></a></li><li><a href="#setup"><span>Setup</span></a></li></ul></li><li><a href="#running-with-docker"><span>Running with <wbr/>Docker</span></a></li><li><a href="#github-actions"><span>Git<wbr/>Hub <wbr/>Actions</span></a></li><li><a href="#contributing"><span>Contributing</span></a></li><li><a href="#license"><span>License</span></a></li><li><a href="#version-control"><span>Version <wbr/>Control</span></a></li><li><a href="#language-and-frameworks"><span>Language and <wbr/>Frameworks</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">Nebura AI</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>
+</li>
+</ul>
+<hr>
+<a id="rutas-disponibles" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Rutas Disponibles<a href="#rutas-disponibles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="discord-1" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Discord<a href="#discord-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Estado del servicio</strong>:
+<ul>
+<li><code>GET /api/v1/public/discord/status</code></li>
+</ul>
+</li>
+<li><strong>Actualizaciones recientes</strong>:
+<ul>
+<li><code>GET /api/v1/public/discord/updates</code></li>
+</ul>
+</li>
+<li><strong>Incidentes recientes</strong>:
+<ul>
+<li><code>GET /api/v1/public/discord/incidents</code></li>
+</ul>
+</li>
+<li><strong>Datos combinados (estado, actualizaciones, incidentes)</strong>:
+<ul>
+<li><code>GET /api/v1/public/discord/recent</code></li>
+</ul>
+</li>
+</ul>
+<a id="whatsapp-1" class="tsd-anchor"></a><h3 class="tsd-anchor-link">WhatsApp<a href="#whatsapp-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>No se exponen rutas HTTP directamente, pero el cliente maneja eventos de mensajes y autenticación.</strong></li>
+</ul>
+<a id="licencias" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Licencias<a href="#licencias" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Crear licencia</strong>:
+<ul>
+<li><code>POST /api/v1/license/</code></li>
+</ul>
+</li>
+<li><strong>Actualizar licencia</strong>:
+<ul>
+<li><code>PUT /api/v1/license/:id</code></li>
+</ul>
+</li>
+<li><strong>Eliminar licencia</strong>:
+<ul>
+<li><code>DELETE /api/v1/license/:id</code></li>
+</ul>
+</li>
+<li><strong>Obtener todas las licencias</strong>:
+<ul>
+<li><code>GET /api/v1/license/</code></li>
+</ul>
+</li>
+<li><strong>Obtener licencia por ID</strong>:
+<ul>
+<li><code>GET /api/v1/license/:id</code></li>
+</ul>
+</li>
+<li><strong>Validar licencia</strong>:
+<ul>
+<li><code>POST /api/v1/license/validate/:key</code></li>
+</ul>
+</li>
+</ul>
+<a id="autenticación" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Autenticación<a href="#autenticación" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Obtener perfil de usuario</strong>:
+<ul>
+<li><code>GET /api/v1/auth/:id</code></li>
+</ul>
+</li>
+<li><strong>Registrar usuario</strong>:
+<ul>
+<li><code>POST /api/v1/auth/register</code></li>
+</ul>
+</li>
+<li><strong>Iniciar sesión</strong>:
+<ul>
+<li><code>POST /api/v1/auth/login</code></li>
+</ul>
+</li>
+</ul>
+<a id="bloqueo-de-ip" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Bloqueo de IP<a href="#bloqueo-de-ip" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Bloquear IP</strong>:
+<ul>
+<li><code>POST /api/v1/admin/block-ip</code></li>
+</ul>
+</li>
+<li><strong>Desbloquear IP</strong>:
+<ul>
+<li><code>DELETE /api/v1/admin/unblock-ip/:ipAddress</code></li>
+</ul>
+</li>
+<li><strong>Listar IPs bloqueadas</strong>:
+<ul>
+<li><code>GET /api/v1/admin/blocked-ips</code></li>
+</ul>
+</li>
+</ul>
+<a id="seguridad" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Seguridad<a href="#seguridad" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Información de IP</strong>:
+<ul>
+<li><code>GET /api/v1/security/ip-info/:ipAddress</code></li>
+</ul>
+</li>
+<li><strong>Información de licencia</strong>:
+<ul>
+<li><code>GET /api/v1/security/license-info/:licenseKey</code></li>
+</ul>
+</li>
+</ul>
+<a id="github" class="tsd-anchor"></a><h3 class="tsd-anchor-link">GitHub<a href="#github" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Información de usuario</strong>:
+<ul>
+<li><code>GET /api/v1/public/github/users/:username</code></li>
+</ul>
+</li>
+<li><strong>Información completa de usuario</strong>:
+<ul>
+<li><code>GET /api/v1/public/github/users/:username/all</code></li>
+</ul>
+</li>
+<li><strong>Repositorios de usuario</strong>:
+<ul>
+<li><code>GET /api/v1/public/github/users/:username/repos</code></li>
+</ul>
+</li>
+<li><strong>Información de repositorio</strong>:
+<ul>
+<li><code>GET /api/v1/public/github/repos/:owner/:repo</code></li>
+</ul>
+</li>
+</ul>
+<a id="google-ai" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Google AI<a href="#google-ai" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Procesar texto</strong>:
+<ul>
+<li><code>POST /api/v1/service/google/model-ai/text</code></li>
+</ul>
+</li>
+<li><strong>Procesar archivo</strong>:
+<ul>
+<li><code>POST /api/v1/service/google/model-ai/file</code></li>
+</ul>
+</li>
+<li><strong>Procesar texto y archivo combinado</strong>:
+<ul>
+<li><code>POST /api/v1/service/google/model-ai/advanced</code></li>
+</ul>
+</li>
+</ul>
+<a id="tareas-y-recordatorios" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Tareas y Recordatorios<a href="#tareas-y-recordatorios" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Crear tarea</strong>:
+<ul>
+<li><code>POST /api/v1/service/tasks</code></li>
+</ul>
+</li>
+<li><strong>Obtener tarea por ID</strong>:
+<ul>
+<li><code>GET /api/v1/service/tasks/:id</code></li>
+</ul>
+</li>
+<li><strong>Obtener todas las tareas</strong>:
+<ul>
+<li><code>GET /api/v1/service/tasks</code></li>
+</ul>
+</li>
+<li><strong>Actualizar tarea</strong>:
+<ul>
+<li><code>PATCH /api/v1/service/tasks/:id</code></li>
+</ul>
+</li>
+<li><strong>Eliminar tarea</strong>:
+<ul>
+<li><code>DELETE /api/v1/service/tasks/:id</code></li>
+</ul>
+</li>
+<li><strong>Obtener recordatorios próximos</strong>:
+<ul>
+<li><code>GET /reminders</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<a id="comandos-y-eventos" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Comandos y Eventos<a href="#comandos-y-eventos" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="discord-2" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Discord<a href="#discord-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Comandos</strong>:
+<ul>
+<li>Gestión de comandos personalizados con categorías y alias.</li>
+</ul>
+</li>
+<li><strong>Eventos</strong>:
+<ul>
+<li><code>ready</code>: Indica que el cliente está listo.</li>
+<li><code>messageCreate</code>: Manejo de mensajes entrantes.</li>
+<li><code>interactionCreate</code>: Manejo de interacciones como botones y menús.</li>
+</ul>
+</li>
+</ul>
+<a id="whatsapp-2" class="tsd-anchor"></a><h3 class="tsd-anchor-link">WhatsApp<a href="#whatsapp-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Eventos</strong>:
+<ul>
+<li><code>qr</code>: Generación de código QR para autenticación.</li>
+<li><code>authenticated</code>: Confirmación de autenticación exitosa.</li>
+<li><code>message</code>: Manejo de mensajes entrantes.</li>
+</ul>
+</li>
+</ul>
+<a id="websocket" class="tsd-anchor"></a><h3 class="tsd-anchor-link">WebSocket<a href="#websocket" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Eventos</strong>:
+<ul>
+<li><code>connection</code>: Establecimiento de conexión con clientes WebSocket.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<a id="posibles-mejoras" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Posibles Mejoras<a href="#posibles-mejoras" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ol>
+<li><strong>Documentación</strong>:
+<ul>
+<li>Generar documentación automática de las rutas usando herramientas como Swagger o Postman.</li>
+</ul>
+</li>
+<li><strong>Pruebas</strong>:
+<ul>
+<li>Implementar pruebas unitarias y de integración para garantizar la estabilidad del sistema.</li>
+</ul>
+</li>
+<li><strong>Optimización de rendimiento</strong>:
+<ul>
+<li>Mejorar la gestión de caché y barridos automáticos en el cliente de Discord.</li>
+</ul>
+</li>
+<li><strong>Seguridad</strong>:
+<ul>
+<li>Implementar validaciones más robustas en las rutas públicas.</li>
+</ul>
+</li>
+<li><strong>Escalabilidad</strong>:
+<ul>
+<li>Modularizar aún más los controladores y servicios para facilitar la adición de nuevas funcionalidades.</li>
+</ul>
+</li>
+<li><strong>Logs centralizados</strong>:
+<ul>
+<li>Integrar un sistema de logging centralizado como Winston o Logstash para un mejor monitoreo.</li>
+</ul>
+</li>
+<li><strong>Soporte multilenguaje</strong>:
+<ul>
+<li>Ampliar el soporte de i18n para incluir más idiomas en las respuestas de la API.</li>
+</ul>
+</li>
+</ol>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#nebura-model-api"><span>Nebura <wbr/>Model API</span></a><ul><li><a href="#funcionalidades-principales"><span>Funcionalidades <wbr/>Principales</span></a></li><li><ul><li><a href="#discord"><span>Discord</span></a></li><li><a href="#whatsapp"><span>Whats<wbr/>App</span></a></li><li><a href="#api-http"><span>API HTTP</span></a></li></ul></li><li><a href="#rutas-disponibles"><span>Rutas <wbr/>Disponibles</span></a></li><li><ul><li><a href="#discord-1"><span>Discord</span></a></li><li><a href="#whatsapp-1"><span>Whats<wbr/>App</span></a></li><li><a href="#licencias"><span>Licencias</span></a></li><li><a href="#autenticación"><span>Autenticación</span></a></li><li><a href="#bloqueo-de-ip"><span>Bloqueo de IP</span></a></li><li><a href="#seguridad"><span>Seguridad</span></a></li><li><a href="#github"><span>Git<wbr/>Hub</span></a></li><li><a href="#google-ai"><span>Google AI</span></a></li><li><a href="#tareas-y-recordatorios"><span>Tareas y <wbr/>Recordatorios</span></a></li></ul></li><li><a href="#comandos-y-eventos"><span>Comandos y <wbr/>Eventos</span></a></li><li><ul><li><a href="#discord-2"><span>Discord</span></a></li><li><a href="#whatsapp-2"><span>Whats<wbr/>App</span></a></li><li><a href="#websocket"><span>Web<wbr/>Socket</span></a></li></ul></li><li><a href="#posibles-mejoras"><span>Posibles <wbr/>Mejoras</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">Nebura AI</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>

@@ -1,17 +1,16 @@
 import { client } from "@/main";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
-import { EmbedExtender } from "@/structure/extenders/discord/embeds.extender";
+import { ErrorEmbed } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
 
 import { Event } from "../../../structure/utils/builders";
 
 export default new Event("messageCreate", async (message) => {
-  // Initial validations
-  if (!message.guild || !message.channel || message.author.bot) return;
+  if (!message.guild || !message.channel || message.author.bot || !client.user) return;
   if (!message.content.startsWith(config.modules.discord.prefix)) return;
-
   const language: string = message.guild.preferredLocale;
+
   const args: string[] = message.content
     .slice(config.modules.discord.prefix.length)
     .trim()
@@ -31,18 +30,13 @@ export default new Event("messageCreate", async (message) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : "No stack trace available";
-
-    logWithLabel("error", `Error executing command "${cmd}": ${errorMessage}`);
     if (errorStack) logWithLabel("error", `Stack trace: ${errorStack}`);
 
-    const errorEmbed = new EmbedExtender()
+    const errorEmbed = new ErrorEmbed()
       .setError(true)
       .setTitle("Command Execution Error")
-      .setDescription(
-        "An unexpected error occurred while trying to execute the command. Please try again later.",
-      )
       .setErrorFormat(errorMessage, errorStack);
 
-    await message.reply({ embeds: [errorEmbed] });
+    await message.channel.send({ embeds: [errorEmbed] });
   }
 });

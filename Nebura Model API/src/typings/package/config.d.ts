@@ -30,6 +30,10 @@ export interface ProyectConfig {
      * Path to the project's configuration file.
      */
     guildId: string;
+    /**
+     * Path to the project's configuration file.
+     */
+    winstonlog: string;
   };
   /**
    * Configuration for various modules.
@@ -57,6 +61,10 @@ export interface ProyectConfig {
        * Discord client secret.
        */
       prefix: string;
+      /**
+       * Discord client secret.
+       */
+      clientSecret: string;
       /**
        * Presence configuration for the Discord bot.
        */

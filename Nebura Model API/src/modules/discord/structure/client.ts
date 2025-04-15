@@ -2,12 +2,11 @@ import { Client, Collection, GatewayIntentBits, Options, Partials } from "discor
 
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
-import { Utils } from "@/structure/extenders/discord/properties.extender";
 import { Buttons, Menus, Modals } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
 
+import { DiscordHandler } from "./handlers/collection";
 import { Command } from "./utils/builders";
-import { DiscordHandler } from "./utils/handlers";
 
 /**
  * Represents the main Discord client for the application.
@@ -91,13 +90,6 @@ export class MyClient extends Client {
   public aliases: Collection<string, string>;
 
   /**
-   * Instance of the `Utils` class, providing utility functions for the Discord client.
-   *
-   * @type {Utils}
-   */
-  public utils: Utils;
-
-  /**
    * Initializes a new instance of the `MyClient` class.
    * Configures the client with specific intents and partials, and initializes handlers and settings.
    */
@@ -106,30 +98,37 @@ export class MyClient extends Client {
       makeCache: Options.cacheWithLimits({
         ...Options.DefaultMakeCacheSettings,
         ReactionManager: 0,
-        GuildScheduledEventManager: 0,
         GuildBanManager: 0,
         GuildEmojiManager: 0,
       }),
       intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildIntegrations,
+        GatewayIntentBits.GuildWebhooks,
+        GatewayIntentBits.GuildInvites,
         GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.AutoModerationConfiguration,
+        GatewayIntentBits.DirectMessagePolls,
+        GatewayIntentBits.GuildIntegrations,
+        GatewayIntentBits.GuildScheduledEvents,
+        GatewayIntentBits.DirectMessageTyping,
+        GatewayIntentBits.GuildExpressions
       ],
       partials: [
-        Partials.GuildScheduledEvent,
         Partials.GuildMember,
-        Partials.User,
         Partials.Message,
+        Partials.User,
         Partials.Channel,
+        Partials.ThreadMember,
+        Partials.GuildScheduledEvent,
+        Partials.Reaction,
       ],
       sweepers: {
         ...Options.DefaultSweeperSettings,
-        messages: {
-          interval: 3_600, // Every hour.
-          lifetime: 1_800, // Remove messages older than 30 minutes.
-        },
         users: {
           interval: 3_600, // Every hour.
           filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
@@ -139,20 +138,15 @@ export class MyClient extends Client {
           lifetime: 86_400, // Remove threads older than 24 hours.
         },
       },
-      allowedMentions: {
-        parse: ["users", "roles"],
-        repliedUser: false,
-      },
     });
 
     this.handlers = new DiscordHandler(this);
     this.settings = config.modules.discord;
-    this.utils = new Utils();
 
     this.categories = new Collection();
     this.commands = new Collection();
     this.buttons = new Collection();
-    
+
     this.precommands = new Collection();
     this.aliases = new Collection();
 

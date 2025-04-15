@@ -1,11 +1,7 @@
 import {
-  AutocompleteInteraction,
-  ChannelSelectMenuInteraction,
-  Message,
-  ModalSubmitInteraction,
-  PermissionResolvable,
-  RoleSelectMenuInteraction,
-  StringSelectMenuInteraction,
+	AutocompleteInteraction, ButtonInteraction, ChannelSelectMenuInteraction, Message,
+	ModalSubmitInteraction, PermissionResolvable, RoleSelectMenuInteraction,
+	StringSelectMenuInteraction
 } from "discord.js";
 
 import { MyClient } from "@/modules/discord/structure/client";
@@ -103,7 +99,7 @@ export interface Buttons extends componentData {
    */
   execute: (
     interaction: ButtonInteraction,
-    client: BotClient,
+    client: MyClient,
     language: string,
     configuration: typeof config,
   ) => void;
@@ -128,7 +124,7 @@ export interface Menus extends componentData {
       | StringSelectMenuInteraction
       | ChannelSelectMenuInteraction
       | RoleSelectMenuInteraction,
-    client: BotClient,
+    client: MyClient,
     language: string,
     configuration: typeof config,
   ) => void;

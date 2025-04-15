@@ -18,7 +18,6 @@ i18next
       caches: ["cookie"], // Cachear en cookies
       cookieOptions: { path: "/", httpOnly: false }, // Configuración de cookies
     },
-    debug: process.env.NODE_ENV === "development", // Activar debug en desarrollo
   });
 
 export default i18next;

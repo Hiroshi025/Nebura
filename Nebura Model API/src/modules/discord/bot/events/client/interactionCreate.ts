@@ -1,158 +1,183 @@
 import {
-  ButtonInteraction,
-  ChannelSelectMenuInteraction,
-  InteractionType,
-  MessageFlags,
-  ModalSubmitInteraction,
-  PermissionsBitField,
-  RoleSelectMenuInteraction,
-  StringSelectMenuInteraction,
+	ChatInputCommandInteraction, Interaction, InteractionType, MessageFlags, PermissionsBitField
 } from "discord.js";
 
-import { EmbedExtender } from "@/structure/extenders/discord/embeds.extender";
+import { MyClient } from "@/modules/discord/structure/client";
+import { CustomInteraction } from "@/structure/constants/discord.constants";
+import { ErrorEmbed } from "@/structure/extenders/discord/embeds.extender";
 import { Buttons, Menus, Modals } from "@/typings/discord";
 
 import { main } from "../../../../../main";
 import { config } from "../../../../../shared/utils/config";
 import { Event } from "../../../structure/utils/builders";
 
-export default new Event("interactionCreate", async (interaction) => {
-  if (!interaction.guild || !interaction.channel || interaction.user.bot || !interaction.user)
-    return;
+// Clase para manejar errores de interacción
+class InteractionErrorHandler {
+  static async handle(interaction: Interaction, error: Error, client: MyClient) {
+    if (!interaction.isRepliable()) return;
 
-  const lenguage = interaction.guild.preferredLocale;
-  const client = main.discord;
+    console.error(`Error handling interaction ${interaction.type}:`, error);
 
-  const { guild } = interaction;
+    try {
+      await interaction.reply({
+        embeds: [
+          new ErrorEmbed()
+            .setError(true)
+            .setDescription(
+              [
+                `${client.getEmoji(config.project.guildId, "circle_x")} An unexpected error occurred.`,
+                `Please try again later or contact support.`,
+              ].join("\n"),
+            ),
+        ],
+        flags: MessageFlags.Ephemeral,
+      });
+    } catch (replyError) {
+      console.error("Failed to send error reply:", replyError);
+    }
+  }
+}
 
-  if (!guild) return;
+// Clase para manejar permisos y validaciones
+class InteractionValidator {
+  static async validate(
+    interaction: CustomInteraction,
+    component: Buttons | Menus | Modals,
+    client: MyClient,
+  ): Promise<boolean> {
+    const { guild, member } = interaction;
+    if (!guild || !member) return false;
 
-  switch (true) {
-    case interaction.isChatInputCommand():
-      {
-        const command = client.commands.get(interaction.commandName);
-        if (!command) return;
+    // Verificar permisos del usuario
+    if (
+      component.permissions &&
+      !(member.permissions as PermissionsBitField).has(component.permissions)
+    ) {
+      await this.sendPermissionError(interaction, client, "user");
+      return false;
+    }
 
-        command.run(client, interaction, config);
-      }
-      break;
+    // Verificar permisos del bot
+    if (component.botpermissions && !guild.members.me?.permissions.has(component.botpermissions)) {
+      await this.sendPermissionError(interaction, client, "bot");
+      return false;
+    }
 
-    case interaction.isButton():
-      {
-        const button = client.buttons.get(interaction.customId);
-        if (!button || button === undefined) return;
+    // Verificar modo mantenimiento
+    if (component.maintenance) {
+      await interaction.reply({
+        embeds: [
+          new ErrorEmbed()
+            .setError(true)
+            .setDescription(
+              [
+                `${client.getEmoji(config.project.guildId, "circle_x")} This feature is currently under maintenance.`,
+                `Please try again later.`,
+              ].join("\n"),
+            ),
+        ],
+        flags: MessageFlags.Ephemeral,
+      });
+      return false;
+    }
 
-        await InteractionOptions(button, interaction);
-        button.execute(interaction, client, lenguage, config);
-      }
-      break;
+    return true;
+  }
 
-    case interaction.isStringSelectMenu():
-      {
-        const menus = client.menus.get(interaction.customId);
-        if (!menus || menus === undefined) return;
+  private static async sendPermissionError(
+    interaction: CustomInteraction,
+    client: MyClient,
+    type: "user" | "bot",
+  ) {
+    const message =
+      type === "user"
+        ? "You don't have permission to use this."
+        : "I don't have the required permissions to execute this.";
 
-        await InteractionOptions(menus, interaction);
-        menus.execute(interaction, client, lenguage, config);
-      }
-      break;
+    await interaction.reply({
+      embeds: [
+        new ErrorEmbed()
+          .setError(true)
+          .setDescription(`${client.getEmoji(config.project.guildId, "circle_x")} ${message}`),
+      ],
+      flags: MessageFlags.Ephemeral,
+    });
+  }
+}
 
-    case interaction.type === InteractionType.ModalSubmit:
-      {
-        const modals = client.modals.get(interaction.customId);
-        if (!modals || modals === undefined) return;
+// Manejador de componentes (botones, menús, modales)
+class ComponentHandler {
+  static async handle(interaction: CustomInteraction, client: MyClient) {
+    const component = this.getComponent(interaction, client);
+    if (!component) return;
 
-        await InteractionOptions(modals, interaction);
-        modals.execute(interaction, client, lenguage, config);
-      }
-      break;
+    const isValid = await InteractionValidator.validate(interaction, component, client);
+    if (!isValid) return;
 
-    case interaction.isChannelSelectMenu():
-      {
-        const menus = client.menus.get(interaction.customId);
-        if (!menus || menus === undefined) return;
-
-        await InteractionOptions(menus, interaction);
-        menus.execute(interaction, client, lenguage, config);
-      }
-      break;
-
-    case interaction.isRoleSelectMenu(): {
-      const menus = client.menus.get(interaction.customId);
-      if (!menus || menus === undefined) return;
-
-      await InteractionOptions(menus, interaction);
-      menus.execute(interaction, client, lenguage, config);
+    try {
+      const language = interaction.guild?.preferredLocale || "en-US";
+      await component.execute(interaction as any, client, language, config);
+    } catch (error) {
+      await InteractionErrorHandler.handle(interaction, error as Error, client);
     }
   }
 
-  /**
-   *
-   * The interaction options for the buttons, menus, and modals.
-   * is used to check if the user has the required permissions to use the command.
-   *
-   * @param type
-   * @param interaction
-   * @returns
-   */
-  async function InteractionOptions(
-    type: Buttons | Menus | Modals,
-    interaction:
-      | ModalSubmitInteraction
-      | ButtonInteraction
-      | StringSelectMenuInteraction
-      | ChannelSelectMenuInteraction
-      | RoleSelectMenuInteraction,
-  ) {
-    const { guild, member } = interaction;
-    if (!guild || !member) return;
+  private static getComponent(
+    interaction: CustomInteraction,
+    client: MyClient,
+  ): Buttons | Menus | Modals | undefined {
+    if (!interaction.customId) return undefined;
 
-    if (type.permissions && !(member.permissions as PermissionsBitField).has(type.permissions))
-      return interaction.reply({
-        embeds: [
-          new EmbedExtender()
-            .setError(true)
-            .setDescription(
-              [
-                `${client.getEmoji(config.project.guildId, "circle_x")} You do not have permission to use this command.`,
-                `If you believe this is a mistake, please contact the bot owner.`,
-              ].join("\n"),
-            ),
-        ],
-        flags: MessageFlags.Ephemeral,
-      });
-
-    if (type.botpermissions && !guild.members.me?.permissions.has(type.botpermissions))
-      return interaction.reply({
-        embeds: [
-          new EmbedExtender()
-            .setError(true)
-            .setDescription(
-              [
-                `${client.getEmoji(config.project.guildId, "circle_x")} I do not have permission to use this command.`,
-                `If you believe this is a mistake, please contact the bot owner.`,
-              ].join("\n"),
-            ),
-        ],
-        flags: MessageFlags.Ephemeral,
-      });
-
-    if (type.maintenance) {
-      return interaction.reply({
-        embeds: [
-          new EmbedExtender()
-            .setError(true)
-            .setDescription(
-              [
-                `${client.getEmoji(config.project.guildId, "circle_x")} The bot is currently in maintenance mode.`,
-                `If you believe this is a mistake, please contact the bot owner.`,
-              ].join("\n"),
-            ),
-        ],
-        flags: MessageFlags.Ephemeral,
-      });
+    if (interaction.isButton()) {
+      return client.buttons.get(interaction.customId);
+    } else if (
+      interaction.isStringSelectMenu() ||
+      interaction.isChannelSelectMenu() ||
+      interaction.isRoleSelectMenu()
+    ) {
+      return client.menus.get(interaction.customId);
+    } else if (interaction.type === InteractionType.ModalSubmit) {
+      return client.modals.get(interaction.customId);
     }
 
-    return;
+    return undefined;
+  }
+}
+
+// Manejador de comandos de chat
+class CommandHandler {
+  static async handle(interaction: ChatInputCommandInteraction, client: MyClient) {
+    const command = client.commands.get(interaction.commandName);
+    if (!command) return;
+
+    try {
+      //const language = interaction.guild?.preferredLocale || "en-US";
+      await command.run(client, interaction, config);
+    } catch (error) {
+      await InteractionErrorHandler.handle(interaction, error as Error, client);
+    }
+  }
+}
+
+// Evento principal
+export default new Event("interactionCreate", async (interaction: Interaction) => {
+  try {
+    if (!interaction.inGuild() || !interaction.channel || !interaction.user) return;
+
+    const client = main.discord;
+
+    if (interaction.isChatInputCommand()) {
+      await CommandHandler.handle(interaction, client);
+    } else if (
+      interaction.isButton() ||
+      interaction.isStringSelectMenu() ||
+      interaction.isChannelSelectMenu() ||
+      interaction.isRoleSelectMenu() ||
+      interaction.type === InteractionType.ModalSubmit
+    ) {
+      await ComponentHandler.handle(interaction as CustomInteraction, client);
+    }
+  } catch (error) {
+    await InteractionErrorHandler.handle(interaction, error as Error, main.discord);
   }
 });

@@ -40,17 +40,17 @@ model License {
 }
 
 model BlockedIP {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  ipAddress   String   @unique
-  blockedUser UserAPI  @relation("BlockedUserRelation", fields: [blockedBy], references: [id])
-  blockedBy   String   @db.ObjectId
-  createdAt   DateTime @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  ipAddress   String    @unique
+  blockedUser UserAPI   @relation("BlockedUserRelation", fields: [blockedBy], references: [id])
+  blockedBy   String    @db.ObjectId
+  createdAt   DateTime  @default(now())
   expiresAt   DateTime? // Opcional: para bloqueos temporales
-  reason      String?   // Motivo del bloqueo
-  isActive    Boolean  @default(true)
+  reason      String? // Motivo del bloqueo
+  isActive    Boolean   @default(true)
 
-  blockedLicense License @relation("BlockedLicenseIPs", fields: [blockedLicenseId], references: [id])
-  blockedLicenseId String @db.ObjectId
+  blockedLicense   License @relation("BlockedLicenseIPs", fields: [blockedLicenseId], references: [id])
+  blockedLicenseId String  @db.ObjectId
 }
 
 model FailedAttempt {
@@ -69,27 +69,27 @@ model RateLimitViolation {
   ipAddress     String
   endpoint      String
   violationTime DateTime @default(now())
-  licenseKey    String?  // Optional: associate with license if available
+  licenseKey    String? // Optional: associate with license if available
 
   @@index([ipAddress])
   @@index([violationTime])
 }
 
 model Task {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  title        String
-  description  String?
-  createdBy    String     @map("created_by")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  dueDate      DateTime?  @map("due_date")
-  status       String     @default("pending")
-  priority     String     @default("medium")
-  tags         String[]
-  reminder     Json?
-  recurrence   Json?
-  autoDelete   DateTime?  @map("auto_delete")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
-  completedAt  DateTime?  @map("completed_at")
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  dueDate     DateTime? @map("due_date")
+  status      String    @default("pending")
+  priority    String    @default("medium")
+  tags        String[]
+  reminder    Json?
+  recurrence  Json?
+  autoDelete  DateTime? @map("auto_delete")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
 
   @@map("tasks")
 }
@@ -99,6 +99,17 @@ model WhatsAppSession {
   session   String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AppDiscord {
+  id           String   @id @default(cuid()) @map("_id")
+  clientId     String   @unique
+  clientSecret String
+  token        String   @unique
+  logconsole   Boolean  @default(false)
+  errorlog     Boolean  @default(false)
+  webhookURL   String?
+  createdAt    DateTime @default(now())
 }
 
 enum LicenseType {

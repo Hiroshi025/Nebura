@@ -22,9 +22,9 @@ export class GeminiController {
                 apiKeyHash: req.geminiConfig!.apiKeyHash
             });
 
-            res.json(result);
+            return res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ error: 'Failed to process text' });
+            return res.status(500).json({ error: 'Failed to process text' });
         }
     }
 

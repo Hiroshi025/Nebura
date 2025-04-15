@@ -17,9 +17,12 @@
 
 import chalk from "chalk";
 
+import { WinstonLogger } from "@/shared/classUtils/winstonClient";
 import { labelColors, labelNames, Labels } from "@/structure/constants/tools.constants";
 
 import { config } from "../config";
+
+const logger = new WinstonLogger();
 
 /**
  * The function `logWithLabel` logs messages to the console with specific formatting and colors based
@@ -94,4 +97,8 @@ colors based on the label provided. Here's a breakdown of what it does: */
       `${chalk.hex("#386ce9")(`[${time}]`)}` +
       `\n  ➜  ${message}`,
   );
+
+  /* Log message to WinstonLogger */
+  const logCategory = label === "custom" ? customName : labelName;
+  logger.info(message, logCategory);
 }

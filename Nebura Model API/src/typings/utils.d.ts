@@ -354,3 +354,44 @@ interface GitHubGist {
   updated_at: string;
   description: string | null;
 }
+
+export interface RecentLogFile {
+  filename: string;
+  path: string;
+  lastModified: string;
+  size: string;
+}
+
+export interface LogFile {
+  filename: string;
+  path: string;
+  lastModified: string;
+  size: string;
+}
+
+export interface LogEntry {
+  timestamp: string;
+  level: string;
+  message: string;
+  category?: string;
+}
+
+export interface ButtonOptions {
+  label: string;
+  style: ButtonStyle;
+  disabled?: boolean;
+}
+
+export interface PaginationButtons {
+  first: ButtonOptions;
+  previous: ButtonOptions;
+  index: ButtonOptions;
+  next: ButtonOptions;
+  last: ButtonOptions;
+}
+
+export interface PaginationOptions {
+  method: "addEmbeds" | "createPages" | null;
+  keepIndex: boolean;
+  buttons: PaginationButtons;
+}
