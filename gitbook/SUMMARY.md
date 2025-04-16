@@ -1,10 +1,11 @@
 # Table of contents
 
-* [👋 Bienvenido](README.md)
+* [Bienvenido](README.md)
 
 ## Proyectos
 
 * [Nebura API](proyectos/nebura-api/README.md)
+  * [Seguridad](proyectos/nebura-api/seguridad.md)
   * [Routes API](proyectos/nebura-api/routes-api.md)
   * [RateLimit](proyectos/nebura-api/ratelimit.md)
   * [IP Administrador](proyectos/nebura-api/ip-administrador.md)
