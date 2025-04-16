@@ -1,8 +1,8 @@
 import { client } from "@/main";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
-import { ErrorEmbed } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
+import { ErrorEmbed } from "@extenders/discord/embeds.extender";
 
 import { Event } from "../../../structure/utils/builders";
 

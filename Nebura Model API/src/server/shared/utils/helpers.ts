@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-import { ErrorResponse } from "@/structure/constants/user.constants";
+import { ErrorResponse } from "@constants/user.const";
 
 // Métodos helper
 export function isErrorResponse(response: any): response is ErrorResponse {

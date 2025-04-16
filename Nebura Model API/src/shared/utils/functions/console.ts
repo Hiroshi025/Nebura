@@ -18,7 +18,7 @@
 import chalk from "chalk";
 
 import { WinstonLogger } from "@/shared/classUtils/winstonClient";
-import { labelColors, labelNames, Labels } from "@/structure/constants/tools.constants";
+import { labelColors, labelNames, Labels } from "@constants/tools.const";
 
 import { config } from "../config";
 

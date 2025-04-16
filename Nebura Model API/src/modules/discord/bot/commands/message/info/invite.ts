@@ -1,14 +1,9 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  OAuth2Scopes,
-  PermissionFlagsBits,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, OAuth2Scopes, PermissionFlagsBits
 } from "discord.js";
 
-import { EmbedCorrect } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
+import { EmbedCorrect } from "@extenders/discord/embeds.extender";
 
 const invCommand: Precommand = {
   name: "invite",

@@ -41,6 +41,65 @@ servers:
     description: "Staging Server"
 
 paths:
+  ###### API CACHE ########
+
+  /admin/cache-performance:
+    get:
+      tags:
+        - Cache
+      summary: Get cache performance metrics
+      description: Returns performance metrics related to the cache. Only available in development environment.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hits:
+                    type: integer
+                    description: Number of cache hits
+                  misses:
+                    type: integer
+                    description: Number of cache misses
+                  hitRate:
+                    type: number
+                    format: float
+                    description: Cache hit rate percentage
+                  size:
+                    type: integer
+                    description: Current cache size
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/cache-index:
+    get:
+      tags:
+        - Cache
+      summary: Get current cache index
+      description: Returns the current cache index. Only available in development environment.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                  description: Cache entry information
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   ###### GITHUB ROUTES #######
 
   /users/{username}:
@@ -529,7 +588,7 @@ paths:
   /admin/block-ip:
     post:
       tags:
-        - IP Management
+        - Admin
       summary: Block an IP address
       description: Adds an IP address to the system's block list
       security:
@@ -587,7 +646,7 @@ paths:
   /admin/unblock-ip/{ipAddress}:
     delete:
       tags:
-        - IP Management
+        - Admin
       summary: Unblock an IP address
       description: Removes an IP address from the active block list
       security:
@@ -629,7 +688,7 @@ paths:
   /admin/blocked-ips:
     get:
       tags:
-        - IP Management
+        - Admin
       summary: List blocked IP addresses
       description: Returns a paginated list of currently blocked IP addresses in the system
       security:
@@ -1203,10 +1262,10 @@ paths:
 
   ###### SECURITY ROUTES #######
 
-  /security/license-info/{licenseKey}:
+  /license/info/{licenseKey}:
     get:
       tags:
-        - Security
+        - Licenses
       summary: Get license information
       description: Retrieve detailed information about a specific license including associated IPs and usage statistics
       security:
@@ -1246,10 +1305,10 @@ paths:
         "500":
           description: Internal server error
 
-  /security/ip-info/{ipAddress}:
+  /admin/ip-info/{ipAddress}:
     get:
       tags:
-        - Security
+        - Admin
       summary: Get IP address information
       description: Retrieve security information about a specific IP address including block status and related activity
       security:

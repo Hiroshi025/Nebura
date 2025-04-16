@@ -1,6 +1,6 @@
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@/structure/extenders/discord/embeds.extender";
 import { Modals } from "@/typings/discord";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
 const modalWebhook: Modals = {
   id: "modal:webhook-config",
@@ -12,7 +12,7 @@ const modalWebhook: Modals = {
     const input = interaction.fields.getTextInputValue("input:webhook-url");
     if (!interaction.guild || !interaction.channel || !client.user) return;
 
-    const data = await main.prisma.appDiscord.findUnique({
+    const data = await main.prisma.myDiscord.findUnique({
       where: {
         clientId: client.user.id,
       },
@@ -33,7 +33,7 @@ const modalWebhook: Modals = {
         flags: "Ephemeral",
       });
 
-    await main.prisma.appDiscord.update({
+    await main.prisma.myDiscord.update({
       where: {
         clientId: client.user.id,
       },

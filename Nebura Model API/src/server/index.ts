@@ -1,3 +1,4 @@
+import apicache from "apicache";
 import chalk from "chalk";
 import express, { Application, NextFunction, Request, Response } from "express";
 import session from "express-session";
@@ -97,6 +98,40 @@ export class API {
 
     // Use the router for handling application routes
     this.app.use(router);
+
+    // Serve static files from the public directory
+    // Configuración del cliente de Redis
+/*     const redisConfig = {
+      url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+      database: Number(process.env.REDIS_DB),
+      password: process.env.REDIS_PASSWORD,
+    }; */
+
+    //const redisClient = new Redis(redisConfig);
+
+    // Manejar errores de conexión de Redis
+/*     redisClient.on("error", (err) => {
+      console.error(chalk.red(`[Redis Error] ${err.message}`));
+      logWithLabel("custom", `Error connecting to Redis: ${err.message}`, "Redis");
+    }); */
+
+    // Manejar eventos de conexión exitosa
+/*     redisClient.on("connect", () => {
+      console.log(chalk.green("[Redis] Connected successfully"));
+      logWithLabel("custom", "Redis connection established successfully", "Redis");
+    }); */
+
+    const cache = apicache.options({
+      debug: true,
+      //redisClient, Usar el cliente de Redis conectado
+      defaultDuration: "5 minutes",
+      headers: {
+        "X-Cache-Channel": "API",
+        "X-Cache-Status": "HIT",
+      },
+    }).middleware;
+
+    this.app.use(cache("5 minutes"));
 
     // Add security headers using Helmet
     this.app.use(helmet({ contentSecurityPolicy: false, referrerPolicy: false }));

@@ -2,10 +2,11 @@
 // import { Request, Response } from 'express';
 
 import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
+import { RateLimitManager } from "@/shared/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { isAdmin } from "../../../../../shared/middlewares/jwt/auth.middleware";
-import ipBlockerControllers from "../../../controllers/blocker/ipBlocker.controllers";
+import ipBlockerControllers from "../../../controllers/admin/ip.controllers";
 
 // Constantes para paths base y versionado
 const BASE_PATH = "/admin";
@@ -28,6 +29,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.delete(
     formatRoute("/unblock-ip/:ipAddress"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     isAdmin,
     ipBlockerControllers.unblockIP,
@@ -43,6 +49,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.get(
     formatRoute("/blocked-ips"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     isAdmin,
     ipBlockerControllers.listBlockedIPs,
@@ -56,5 +67,15 @@ export default ({ app }: TRoutesInput) => {
    * Controlador: ipBlockerControllers.blockIP
    * Descripción: Permite a un administrador bloquear una dirección IP específica.
    */
-  app.post(formatRoute("/block-ip"), authenticateToken, isAdmin, ipBlockerControllers.blockIP);
+  app.post(
+    formatRoute("/block-ip"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
+    authenticateToken,
+    isAdmin,
+    ipBlockerControllers.blockIP,
+  );
 };

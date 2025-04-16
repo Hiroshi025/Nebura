@@ -17,6 +17,7 @@ model UserAPI {
   updatedAt DateTime @updatedAt
 
   blockedIPs BlockedIP[] @relation("BlockedUserRelation")
+  bans BanUser[] @relation("UserBans")
 
   licenses      License[] @relation("UserAPILicenses")
   adminLicenses License[] @relation("AdminLicenses")
@@ -94,15 +95,15 @@ model Task {
   @@map("tasks")
 }
 
-model WhatsAppSession {
-  id        String   @id @default(cuid()) @map("_id")
+model WhatsApp {
+  id        String   @id @default(cuid()) @map("_id") @db.ObjectId
   session   String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model AppDiscord {
-  id           String   @id @default(cuid()) @map("_id")
+model MyDiscord {
+  id           String   @id @default(cuid()) @map("_id") @db.ObjectId
   clientId     String   @unique
   clientSecret String
   token        String   @unique
@@ -110,6 +111,60 @@ model AppDiscord {
   errorlog     Boolean  @default(false)
   webhookURL   String?
   createdAt    DateTime @default(now())
+  guilds       MyGuild[]
+}
+
+model MyGuild {
+  id        String   @id @default(cuid()) @map("_id") @db.ObjectId
+  guildId   String   @unique
+  modlogId  String?  @db.ObjectId
+  modlog    ServerModlog? @relation
+  bans      BanUser[]
+  warns     UserWarn[]
+  discordId String   @db.ObjectId
+  discord   MyDiscord @relation(fields: [discordId], references: [id])
+}
+
+model BanUser {
+  id        String   @id @default(cuid()) @map("_id")
+  guildId   String   @db.ObjectId
+  guild     MyGuild  @relation(fields: [guildId], references: [id])
+  userId    String   @db.ObjectId
+  user      UserAPI  @relation("UserBans", fields: [userId], references: [id])
+  banReason String?
+  banTime   DateTime?
+  createdAt DateTime @default(now())
+}
+
+model UserWarn {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String   @db.ObjectId
+  guild      MyGuild  @relation(fields: [guildId], references: [id])
+  userId     String
+  warnReason String
+  warnDate   String
+  moderator  String
+}
+
+model ServerModlog {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId   String  @unique @db.ObjectId
+  guild     MyGuild @relation(fields: [guildId], references: [id])
+  channelId String
+
+  @@map("serverModlogs")
+}
+
+model Reminder {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  guildId   String
+  message   String
+  remindAt  DateTime
+  createdAt DateTime @default(now())
+  isSent    Boolean  @default(false)
+
+  @@index([remindAt])
 }
 
 enum LicenseType {

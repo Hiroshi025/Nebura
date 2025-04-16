@@ -26,12 +26,14 @@
     "sourceMap": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"],
+      "@constants/*": ["src/structure/constants/*"],
+      "@extenders/*": ["src/structure/extenders/*"],
+      "@utils/*": ["src/shared/utils/*"],
+      "@backend/*": ["src/server/*"],
       "@tests/*": ["./__tests__/*"],
       "@types/*": ["src/typings/*"],
-      "@utils/*": ["src/shared/utils/*"],
       "@config/*": ["./config/*"],
-      "@backend/*": ["src/server/*"]
+      "@/*": ["./src/*"]
     },
     "outDir": "./dist",
     "rootDir": "./",

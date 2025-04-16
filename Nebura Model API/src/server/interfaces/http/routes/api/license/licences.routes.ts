@@ -3,6 +3,7 @@ import { RateLimitManager } from "@/shared/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { isAdmin } from "../../../../../shared/middlewares/jwt/auth.middleware";
+import { SecurityController } from "../../../controllers/admin/devs.controllers";
 import { LicenseController } from "../../../controllers/license/license.controllers";
 
 const BASE_PATH = "/license";
@@ -12,6 +13,7 @@ const formatRoute = (path: string): string => `${API_VERSION}${BASE_PATH}${path}
 
 export default ({ app }: TRoutesInput) => {
   const controller = new LicenseController();
+  const security = new SecurityController();
 
   // Rutas de Administración (requieren autenticación y rol admin)
 
@@ -111,8 +113,6 @@ export default ({ app }: TRoutesInput) => {
     controller.getByUser.bind(controller),
   );
 
-  // Ruta pública para validación de licencias
-
   /**
    * Endpoint público para validar una licencia mediante su clave.
    * No requiere autenticación.
@@ -125,5 +125,24 @@ export default ({ app }: TRoutesInput) => {
       message: "Too many requests, please try again later.",
     }),
     controller.validate.bind(controller),
+  );
+
+  /**
+   * Obtiene información sobre una licencia específica.
+   * Método: GET
+   * Ruta: /api/v1/security/license-info/:licenseKey
+   * Middleware: authenticateToken
+   * Controlador: security.getLicenseInfo
+   * Descripción: Devuelve información sobre una licencia utilizando su clave.
+   */
+  app.get(
+    formatRoute("/info/:licenseKey"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
+    authenticateToken,
+    security.getLicenseInfo,
   );
 };

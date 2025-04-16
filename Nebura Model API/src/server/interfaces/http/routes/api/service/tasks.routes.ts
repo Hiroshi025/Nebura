@@ -2,6 +2,7 @@
 // import { Request, Response } from 'express';
 
 import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
+import { RateLimitManager } from "@/shared/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { ReminderController } from "../../../controllers/asistent/reminder.controllers";
@@ -31,6 +32,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.post(
     formatRoute("/tasks"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     taskController.createTask.bind(taskController),
   );
@@ -45,6 +51,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.get(
     formatRoute("/tasks/:id"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     taskController.getTask.bind(taskController),
   );
@@ -59,6 +70,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.get(
     formatRoute("/tasks"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     taskController.getAllTasks.bind(taskController),
   );
@@ -73,6 +89,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.patch(
     formatRoute("/tasks/:id"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     taskController.updateTask.bind(taskController),
   );
@@ -87,6 +108,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.delete(
     formatRoute("/tasks/:id"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     taskController.deleteTask.bind(taskController),
   );
@@ -101,6 +127,11 @@ export default ({ app }: TRoutesInput) => {
    */
   app.get(
     "/reminders",
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
     authenticateToken,
     reminderController.getUpcomingReminders.bind(reminderController),
   );

@@ -1,3 +1,4 @@
+import apicache from "apicache";
 import { Request, Response } from "express";
 
 import { main } from "@/main";
@@ -72,6 +73,23 @@ export class SecurityController {
       });
     } catch (error) {
       return res.status(500).json({ error: req.t("errors:failed_to_retrieve_ip_info") });
+    }
+  }
+
+  async cacheInfo(req: Request, res: Response) {
+    try {
+      return res.status(200).json(await apicache.getPerformance());
+    } catch (error) {
+      return res.status(500).json({ error: req.t("errors:failed_to_retrieve_cache_info") });
+    }
+  }
+
+  async cacheIndex(req: Request, res: Response) {
+    try {
+      const cache = apicache.getIndex();
+      return res.status(200).json(cache);
+    } catch (error) {
+      return res.status(500).json({ error: req.t("errors:failed_to_retrieve_cache_index") });
     }
   }
 }

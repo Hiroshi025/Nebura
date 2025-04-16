@@ -3,9 +3,9 @@ import {
 } from "discord.js";
 
 import { MyClient } from "@/modules/discord/structure/client";
-import { CustomInteraction } from "@/structure/constants/discord.constants";
-import { ErrorEmbed } from "@/structure/extenders/discord/embeds.extender";
 import { Buttons, Menus, Modals } from "@/typings/discord";
+import { CustomInteraction } from "@constants/discord.const";
+import { ErrorEmbed } from "@extenders/discord/embeds.extender";
 
 import { main } from "../../../../../main";
 import { config } from "../../../../../shared/utils/config";

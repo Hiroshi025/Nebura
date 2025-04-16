@@ -2,9 +2,9 @@ import { AttachmentBuilder, ChannelType, codeBlock } from "discord.js";
 import { inspect } from "util";
 
 import { logWithLabel } from "@/shared/utils/functions/console";
-import { EmbedCorrect, ErrorEmbed } from "@/structure/extenders/discord/embeds.extender";
 import { Precommand } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
 const EvalCommand: Precommand = {
   name: "eval",

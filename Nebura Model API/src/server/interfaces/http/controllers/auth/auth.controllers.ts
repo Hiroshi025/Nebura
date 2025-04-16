@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { AuthService } from "@/server/domain/services/auth/auth.service";
-import { ErrorResponse } from "@/structure/constants/user.constants";
+import { ErrorResponse } from "@constants/user.const";
 
 export class AuthController {
   public service = new AuthService();

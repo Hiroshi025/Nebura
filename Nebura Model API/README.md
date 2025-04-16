@@ -77,9 +77,9 @@ Este proyecto es una API modular que integra múltiples servicios como Discord, 
 
 ### Seguridad
 - **Información de IP**:  
-  - `GET /api/v1/security/ip-info/:ipAddress`
+  - `GET /api/v1/admin/ip-info/:ipAddress`
 - **Información de licencia**:  
-  - `GET /api/v1/security/license-info/:licenseKey`
+  - `GET /api/v1/admin/license-info/:licenseKey`
 
 ### GitHub
 - **Información de usuario**:  

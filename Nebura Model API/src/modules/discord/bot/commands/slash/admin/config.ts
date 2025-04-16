@@ -6,7 +6,7 @@ import {
 
 import { main } from "@/main";
 import { Command } from "@/modules/discord/structure/utils/builders";
-import { EmbedCorrect, ErrorEmbed } from "@/structure/extenders/discord/embeds.extender";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -14,7 +14,7 @@ export default new Command(
     .setDescription("configuration the functions of the discord bot"),
   async (client, interaction) => {
     if (!interaction.guild || !interaction.channel || !client.user) return;
-    const data = await main.prisma.appDiscord.findUnique({ where: { clientId: client.user.id } });
+    const data = await main.prisma.myDiscord.findUnique({ where: { clientId: client.user.id } });
     if (!data)
       return interaction.reply({
         embeds: [
@@ -110,12 +110,12 @@ export default new Command(
             if (i.isStringSelectMenu() && i.values.includes("log-errors")) {
               if (!interaction.guild || !interaction.channel || !interaction.member) return;
 
-              const data = await main.prisma.appDiscord.findUnique({
+              const data = await main.prisma.myDiscord.findUnique({
                 where: { clientId: interaction.guild.id },
               });
               if (!data) return;
               const newValue = !data.errorlog;
-              await main.prisma.appDiscord.update({
+              await main.prisma.myDiscord.update({
                 where: { clientId: interaction.guild.id },
                 data: { errorlog: newValue },
               });
@@ -132,12 +132,12 @@ export default new Command(
             } else if (i.isStringSelectMenu() && i.values.includes("log-debug")) {
               if (!interaction.guild || !interaction.channel || !interaction.member) return;
 
-              const data = await main.prisma.appDiscord.findUnique({
+              const data = await main.prisma.myDiscord.findUnique({
                 where: { clientId: interaction.guild.id },
               });
               if (!data) return;
               const newValue = !data.logconsole;
-              await main.prisma.appDiscord.update({
+              await main.prisma.myDiscord.update({
                 where: { clientId: interaction.guild.id },
                 data: { logconsole: newValue },
               });

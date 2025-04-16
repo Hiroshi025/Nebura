@@ -81,24 +81,24 @@ export default new Command(
           if (embeds.data.description === "Preview Embeds. Start editing to see changes~") {
             return i.reply({
               content: "Cannot send empty embed or without description!",
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
           if (!channel) {
             return i.reply({
               content: "Channel not found. Cannot send the embed.",
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
 
           if (channel.type !== ChannelType.GuildText) {
             return i.reply({
               content: "Please select a text channel to send the embed.",
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
           await (channel as TextChannel).send({ embeds: [embeds] });
-          await i.reply({ content: "Embed Sent!", ephemeral: true });
+          await i.reply({ content: "Embed Sent!", flags: "Ephemeral" });
           forceStop = true;
           return collector.stop();
         case "@fieldReturn":
@@ -112,7 +112,7 @@ export default new Command(
           if (!embeds.data.fields || embeds.data.fields.length === 0) {
             return i.reply({
               content: "No Fields Detected",
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
           embeds.data.fields.pop();
@@ -210,7 +210,7 @@ export default new Command(
       if (!forceStop && replies) {
         interaction.followUp({
           content: "Embed Editor closed due to inactivity.",
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
       replies.delete();
