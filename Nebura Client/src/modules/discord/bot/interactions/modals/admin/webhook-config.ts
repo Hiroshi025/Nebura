@@ -3,13 +3,13 @@ import { Modals } from "@/typings/discord";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
 const modalWebhook: Modals = {
-  id: "modal:webhook-config",
+  id: "modal-webhook-config",
   tickets: true,
   owner: false,
   permissions: ["SendMessages"],
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
-    const input = interaction.fields.getTextInputValue("input:webhook-url");
+    const input = interaction.fields.getTextInputValue("input-webhook-url");
     if (!interaction.guild || !interaction.channel || !client.user) return;
 
     const data = await main.prisma.myDiscord.findUnique({

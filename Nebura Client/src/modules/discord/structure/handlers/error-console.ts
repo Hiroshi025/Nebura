@@ -7,7 +7,7 @@ import { config } from "@/shared/utils/config";
 import { MyClient } from "../client";
 
 export async function ErrorConsole(client: MyClient) {
-  const data = await main.prisma.appDiscord.findUnique({
+  const data = await main.prisma.myDiscord.findUnique({
     where: { clientId: config.modules.discord.clientId },
   });
   if (!data || data.errorlog === false || data.webhookURL === null) return;

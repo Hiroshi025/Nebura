@@ -54,6 +54,9 @@ modules:
     token: "MTM1NjY0ODI0MDM2MzIxMzAxMQ.GpaulA.Hz4-1XALlpmVnK_lhMYkD-LMGa83eIPuDE73Y8" # Token del bot de Discord
     clientId: "1356648240363213011" # ID del cliente de Discord
     clientSecret: ""
+    owners: # Lista de IDs de usuarios que son propietarios del bot
+      - "" # ID del propietario del bot
+      - ""
     prefix: "!" # Prefijo para los comandos del bot
     presence: # Configuración de presencia del bot
       status: "online" # Estado del bot (opciones: online, idle, dnd, invisible)

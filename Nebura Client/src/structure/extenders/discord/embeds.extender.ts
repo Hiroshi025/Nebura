@@ -1,20 +1,12 @@
-import { EmbedBuilder, version as discordVersion } from "discord.js";
+import { codeBlock, EmbedBuilder, version as discordVersion } from "discord.js";
 
 import { client } from "@/main";
-
-import { ProyectError } from "../errors.extender";
 
 /**
  * A custom embed class for handling error messages in the application.
  * Extends the `EmbedBuilder` class from Discord.js.
  */
 export class ErrorEmbed extends EmbedBuilder {
-  /**
-   * Tracks the error state of the embed.
-   * `true` for success, `false` for error, and `null` for uninitialized.
-   */
-  private _isError: boolean | null = null; // Propiedad para rastrear el estado de setError
-
   /**
    * Constructs a new `ErrorEmbed` instance.
    * Automatically sets the footer with response time, Discord.js version, and Node.js version.
@@ -63,7 +55,6 @@ export class ErrorEmbed extends EmbedBuilder {
    * @returns The current `ErrorEmbed` instance for chaining.
    */
   public setError(status: boolean) {
-    this._isError = status; // Actualiza el estado de error
     const formattedDate = this.formatDate(new Date());
     this.setAuthor({
       name: this.truncateText(
@@ -84,47 +75,45 @@ export class ErrorEmbed extends EmbedBuilder {
    * @throws `ProyectError` if `setError` was called with `false`.
    */
   public setErrorFormat(message: string, details?: string) {
-    if (this._isError === false)
-      throw new ProyectError("The error format cannot be set if setError is false.");
-
-    const maxFieldLength = 1024; // Discord.js field value limit
-    const splitMessage = (text: string) =>
-      text.match(new RegExp(`.{1,${maxFieldLength}}`, "g")) || [];
-
+    const maxFieldLength = 1024;
     const fields = [
       {
-        name: "Error Project Message",
-        value: splitMessage(message).shift() || "No message provided.",
-        inline: false,
+        name: this.truncateText("Error", 256),
+        value: this.truncateText(
+          [
+            `> **Message:** ${message}`,
+            `> **Date:** ${this.formatDate(new Date())}`,
+            `> **Time:** <t:${Math.floor(Date.now() / 1000)}:R>`,
+            `> **User:** <@${client.user?.id}>`,
+            `> **ID:** ${client.user?.id}`,
+          ].join("\n"),
+          1024,
+        ), 
       },
-      ...splitMessage(message)
-        .slice(1)
-        .map((chunk, index) => ({
-          name: `Error Message (Part ${index + 2})`,
-          value: chunk,
-          inline: false,
-        })),
-      details
-        ? {
-            name: "Additional Details",
-            value: `\`\`\`\n${splitMessage(details).shift() || "No details provided."}\n\`\`\``,
-            inline: false,
-          }
-        : undefined,
-      ...(details
-        ? splitMessage(details)
-            .slice(1)
-            .map((chunk, index) => ({
-              name: `Details (Part ${index + 2})`,
-              value: `\`\`\n${chunk}\n\`\`\``,
-              inline: false,
-            }))
-        : []),
-    ].filter(
-      (field): field is { name: string; value: string; inline: false } => field !== undefined,
-    );
+    ];
 
-    this.setFields(...fields);
+    if (details) {
+      fields.push({
+        name: this.truncateText("Details", 256),
+        value: codeBlock(
+          "js",
+          this.truncateText(details, maxFieldLength - 11), 
+        ),
+      });
+    } else {
+      fields.push({
+        name: this.truncateText("Details", 256),
+        value: codeBlock("js", "No details provided."),
+      });
+    }
+
+    this.addFields(
+      fields.map((field) => ({
+        name: field.name,
+        value: field.value,
+        inline: false,
+      })),
+    )
     return this;
   }
 }

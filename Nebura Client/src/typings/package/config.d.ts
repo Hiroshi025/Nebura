@@ -58,6 +58,10 @@ export interface ProyectConfig {
        */
       clientId: string;
       /**
+       * Discord client ID owner for the bot.
+       */
+      owners: string[];
+      /**
        * Discord client secret.
        */
       prefix: string;

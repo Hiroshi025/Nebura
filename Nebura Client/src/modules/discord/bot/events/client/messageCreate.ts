@@ -1,6 +1,7 @@
+import { TextChannel } from "discord.js";
+
 import { client } from "@/main";
 import { config } from "@/shared/utils/config";
-import { logWithLabel } from "@/shared/utils/functions/console";
 import { Precommand } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
 
@@ -26,17 +27,79 @@ export default new Event("messageCreate", async (message) => {
   if (!command) return;
 
   try {
-    await command.execute(client, message, args, config.modules.discord.prefix, language, config);
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    const errorStack = error instanceof Error ? error.stack : "No stack trace available";
-    if (errorStack) logWithLabel("error", `Stack trace: ${errorStack}`);
+    if (command.owner && !config.modules.discord.owners.includes(message.author.id)) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed().setDescription(
+            [
+              `${client.getEmoji(message.guild.id, "error")} You do not have permission to use this command as it is reserved for the bot owner.`,
+              `If you believe this is a mistake, please contact the bot owner.`,
+            ].join("\n"),
+          ),
+        ],
+      });
+    }
 
+    if (command.nsfw && !(message.channel as TextChannel).nsfw) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed()
+            .setTitle("Pixel Web - Bot Core")
+            .setDescription(
+              [
+                `${client.getEmoji(message.guild.id, "error")} You can only use this command in a NSFW channel.`,
+                `If you believe this is a mistake, please contact the server staff.`,
+              ].join("\n"),
+            ),
+        ],
+      });
+    }
+
+    if (command.permissions && !message.member?.permissions.has(command.permissions)) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed()
+            .setTitle("Pixel Web - Bot Core")
+            .setDescription(
+              [
+                `${client.getEmoji(message.guild.id, "error")} You do not have permission to use this command.`,
+                `If you believe this is a mistake, please contact the server staff.`,
+              ].join("\n"),
+            ),
+        ],
+      });
+    }
+
+    if (
+      command.botpermissions &&
+      !message.guild.members.me?.permissions.has(command.botpermissions)
+    ) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed()
+            .setTitle("Pixel Web - Bot Core")
+            .setDescription(
+              [
+                `${client.getEmoji(message.guild.id, "error")} I do not have permission to execute this command.`,
+                `If you believe this is a mistake, please contact the server staff.`,
+              ].join("\n"),
+            ),
+        ],
+      });
+    }
+
+    await command.execute(client, message, args, config.modules.discord.prefix, language, config);
+  } catch (error: any) {
     const errorEmbed = new ErrorEmbed()
       .setError(true)
       .setTitle("Command Execution Error")
-      .setErrorFormat(errorMessage, errorStack);
+      .setErrorFormat(
+        `An error occurred while executing the command: ${command.name}`,
+        error
+      );
 
     await message.channel.send({ embeds: [errorEmbed] });
   }
+
+  return;
 });

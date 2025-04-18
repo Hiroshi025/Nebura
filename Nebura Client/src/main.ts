@@ -1,3 +1,4 @@
+import { ObjectId } from "bson"; // Importar para generar ObjectIDs
 import chalk from "chalk";
 import schedule from "node-schedule";
 
@@ -62,7 +63,7 @@ export class Engine {
 
   /**
    * Constructor that initializes the core module instances.
-   * 
+   *
    * @param prisma - Instance of PrismaClient for database operations.
    * @param discord - Instance of the Discord client.
    * @param api - Instance of the API server.
@@ -148,6 +149,10 @@ export class Engine {
    */
   private async clientCreate() {
     const data = config.modules.discord;
+
+    // Generar un ObjectID válido si no existe
+    const validId = new ObjectId().toHexString();
+
     await main.prisma.myDiscord.upsert({
       where: { token: data.token },
       update: {
@@ -156,6 +161,7 @@ export class Engine {
         clientSecret: data.clientSecret,
       },
       create: {
+        id: validId, // Asegurar que se use un ObjectID válido
         token: data.token,
         clientId: data.clientId,
         clientSecret: data.clientSecret,

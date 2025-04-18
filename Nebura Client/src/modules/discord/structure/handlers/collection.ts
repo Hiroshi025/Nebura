@@ -142,7 +142,7 @@ export class DiscordHandler {
    */
   public async deploy() {
     const startTime = performance.now();
-    const data = await main.prisma.appDiscord.findUnique({
+    const data = await main.prisma.myDiscord.findUnique({
       where: { clientId: config.modules.discord.clientId },
     });
     const rest = new REST({ version: "10" }).setToken(config.modules.discord.token);

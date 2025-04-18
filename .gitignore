@@ -31,6 +31,7 @@ node_modules
 
 # Book build output
 _book
+logs-apps
 
 # eBook build output
 *.epub
