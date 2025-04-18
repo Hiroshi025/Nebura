@@ -1,5 +1,5 @@
 import {
-	ChatInputCommandInteraction, Interaction, InteractionType, MessageFlags, PermissionsBitField
+	ChatInputCommandInteraction, Interaction, MessageFlags, PermissionsBitField
 } from "discord.js";
 
 import { MyClient } from "@/modules/discord/structure/client";
@@ -38,7 +38,6 @@ class InteractionErrorHandler {
   }
 }
 
-// Clase para manejar permisos y validaciones
 class InteractionValidator {
   static async validate(
     interaction: CustomInteraction,
@@ -48,7 +47,6 @@ class InteractionValidator {
     const { guild, member } = interaction;
     if (!guild || !member) return false;
 
-    // Verificar permisos del usuario
     if (
       component.permissions &&
       !(member.permissions as PermissionsBitField).has(component.permissions)
@@ -57,13 +55,11 @@ class InteractionValidator {
       return false;
     }
 
-    // Verificar permisos del bot
     if (component.botpermissions && !guild.members.me?.permissions.has(component.botpermissions)) {
       await this.sendPermissionError(interaction, client, "bot");
       return false;
     }
 
-    // Verificar modo mantenimiento
     if (component.maintenance) {
       await interaction.reply({
         embeds: [
@@ -105,7 +101,6 @@ class InteractionValidator {
   }
 }
 
-// Manejador de componentes (botones, menús, modales)
 class ComponentHandler {
   static async handle(interaction: CustomInteraction, client: MyClient) {
     const component = this.getComponent(interaction, client);
@@ -136,7 +131,7 @@ class ComponentHandler {
       interaction.isRoleSelectMenu()
     ) {
       return client.menus.get(interaction.customId);
-    } else if (interaction.type === InteractionType.ModalSubmit) {
+    } else if (interaction.isModalSubmit()) {
       return client.modals.get(interaction.customId);
     }
 
@@ -151,7 +146,6 @@ class CommandHandler {
     if (!command) return;
 
     try {
-      //const language = interaction.guild?.preferredLocale || "en-US";
       await command.run(client, interaction, config);
     } catch (error) {
       await InteractionErrorHandler.handle(interaction, error as Error, client);
@@ -162,7 +156,7 @@ class CommandHandler {
 // Evento principal
 export default new Event("interactionCreate", async (interaction: Interaction) => {
   try {
-    if (!interaction.inGuild() || !interaction.channel || !interaction.user) return;
+    if (!interaction.guild || !interaction.channel || !interaction.user) return;
 
     const client = main.discord;
 
@@ -173,7 +167,7 @@ export default new Event("interactionCreate", async (interaction: Interaction) =
       interaction.isStringSelectMenu() ||
       interaction.isChannelSelectMenu() ||
       interaction.isRoleSelectMenu() ||
-      interaction.type === InteractionType.ModalSubmit
+      interaction.isModalSubmit()
     ) {
       await ComponentHandler.handle(interaction as CustomInteraction, client);
     }
