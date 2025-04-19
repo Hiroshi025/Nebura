@@ -18,10 +18,10 @@ export const BalanceCommand = {
             [
               `${client.getEmoji(interaction.guild.id, "error")} **${user.username}** does not have an account yet!`,
               `Use \`/register\` to create an account!`,
-            ].join("\n")
+            ].join("\n"),
           ),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
     }
 
@@ -34,7 +34,8 @@ export const BalanceCommand = {
     });
   },
   Message: async (message: Message, client: MyClient) => {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
+      return;
     const user = message.mentions.users.first() || message.author;
     const dbBalance = await getBalance(user.id, message.guild.id);
 
@@ -45,7 +46,7 @@ export const BalanceCommand = {
             [
               `${client.getEmoji(message.guild.id, "error")} **${user.username}** does not have an account yet!`,
               `Use \`/register\` to create an account!`,
-            ].join("\n")
+            ].join("\n"),
           ),
         ],
       });

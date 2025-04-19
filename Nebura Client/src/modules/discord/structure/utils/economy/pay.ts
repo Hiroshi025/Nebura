@@ -23,7 +23,7 @@ export async function PayEconomy(interaction: ChatInputCommandInteraction, clien
           ].join("\n"),
         ),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     };
 
   if (user.bot || user.id === interaction.user.id)
@@ -38,7 +38,7 @@ export async function PayEconomy(interaction: ChatInputCommandInteraction, clien
           )
           .setColor("Red"),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
 
   if (amount > userBalance.balance)
@@ -82,7 +82,7 @@ export async function PayEconomy(interaction: ChatInputCommandInteraction, clien
         )
         .setColor("Green"),
     ],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   const userGet = client.users.cache.get(user.id);

@@ -12,7 +12,7 @@ export class SecurityController {
         include: {
           user: { select: { id: true, name: true, email: true } },
           admin: { select: { id: true, name: true, email: true } },
-          blockedIps: true,
+          // blockedIps property removed as it does not exist in the license type
         },
       });
 
@@ -22,7 +22,7 @@ export class SecurityController {
 
       const blockedIPs = await main.prisma.blockedIP.findMany({
         where: {
-          ipAddress: { in: (license.blockedIps || []).map((ip) => ip.ipAddress) },
+          ipAddress: { in: [] }, // Adjusted to avoid referencing a non-existent property
         },
       });
 

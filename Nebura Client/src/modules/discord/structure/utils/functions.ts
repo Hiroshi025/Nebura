@@ -217,7 +217,29 @@ export async function toFixedNumber(number: number, places = 2) {
   return Math.floor(number * offset) / offset;
 }
 
+/**
+ * Validates if a string is a valid ObjectID or a Discord snowflake ID.
+ *
+ * @param id - The string to validate.
+ * @returns True if the string is a valid ObjectID or Discord ID, otherwise false.
+ */
+function isValidObjectId(id: string): boolean {
+  const objectIdPattern = /^[a-fA-F0-9]{24}$/; // MongoDB ObjectID pattern
+  const discordIdPattern = /^\d{17,20}$/; // Discord snowflake ID pattern
+  return objectIdPattern.test(id) || discordIdPattern.test(id);
+}
+
 export async function fetchBalance(userId: string, guildId: string) {
+  if (!isValidObjectId(userId)) {
+    console.error(`Invalid userId format: ${userId}`);
+    throw new Error("Invalid userId format. Must be a valid ObjectID.");
+  }
+
+  if (!isValidObjectId(guildId)) {
+    console.error(`Invalid guildId format: ${guildId}`);
+    throw new Error("Invalid guildId format. Must be a valid ObjectID.");
+  }
+
   let dbBalance = await main.prisma.userEconomy.findFirst({
     where: {
       userId: userId,
@@ -241,6 +263,16 @@ export async function fetchBalance(userId: string, guildId: string) {
 }
 
 export async function getBalance(userId: string, guildId: string) {
+  if (!isValidObjectId(userId)) {
+    console.error(`Invalid userId format: ${userId}`);
+    throw new Error("Invalid userId format. Must be a valid ObjectID.");
+  }
+
+  if (!isValidObjectId(guildId)) {
+    console.error(`Invalid guildId format: ${guildId}`);
+    throw new Error("Invalid guildId format. Must be a valid ObjectID.");
+  }
+
   let dbBalance = await main.prisma.userEconomy.findFirst({
     where: {
       userId: userId,
@@ -266,4 +298,27 @@ export async function Economy(message: Message) {
       balance: await toFixedNumber(dbBalance.balance + randomAmount),
     },
   });
+}
+
+export async function createUser(userId: string) {
+  if (!isValidObjectId(userId)) {
+    console.error(`Invalid userId format: ${userId}`);
+    throw new Error("Invalid userId format. Must be a valid ObjectID.");
+  }
+
+  const dbUser = await main.prisma.userDiscord.findFirst({
+    where: {
+      userId: userId,
+    },
+  });
+
+  if (!dbUser) {
+    await main.prisma.userDiscord.create({
+      data: {
+        userId: userId,
+      },
+    });
+  }
+
+  return dbUser;
 }

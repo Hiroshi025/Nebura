@@ -334,7 +334,7 @@ export async function ShopEconomy(interaction: ChatInputCommandInteraction, clie
                 )
                 .setColor("Red"),
             ],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
 
@@ -357,7 +357,7 @@ export async function ShopEconomy(interaction: ChatInputCommandInteraction, clie
                 )
                 .setColor("Red"),
             ],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
 
@@ -379,7 +379,7 @@ export async function ShopEconomy(interaction: ChatInputCommandInteraction, clie
               )
               .setColor("Red"),
           ],
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
       break;

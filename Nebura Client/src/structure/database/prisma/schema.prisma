@@ -135,7 +135,6 @@ model MyGuild {
   warns     UserWarn[]
   economy   Economy?
   reminders Reminder[]
-  shop      ShopEconomy[]
   discordId String        @db.ObjectId
   discord   MyDiscord     @relation(fields: [discordId], references: [id])
 }
@@ -196,22 +195,20 @@ model Economy {
 }
 
 model UserInventory {
-  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
   guildId         String
-  userId          String       @db.ObjectId
+  userId          String
   itemIdentifier  String
   itemName        String
   itemDescription String
   itemPrice       String
   role            String
   money           Float
-  userDiscord     UserDiscord? @relation(fields: [userId], references: [id])
 }
 
 model ShopEconomy {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  guildId String  @db.ObjectId
-  guild   MyGuild @relation(fields: [guildId], references: [id])
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId String
 
   itemName        String
   itemDescription String
@@ -224,22 +221,21 @@ model ShopEconomy {
 
 model UserEconomy {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
-  guildId      String @db.ObjectId
-  userId       String @db.ObjectId
+  guildId      String
+  userId       String
   messageCount Int?   @default(0)
 
-  balance Float        @default(0)
-  user    UserDiscord? @relation(fields: [userId], references: [id])
+  balance   Float @default(0)
+  lostduels Int?  @default(0)
+  wonduels  Int?  @default(0)
 }
 
 model UserDiscord {
-  id        String          @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String          @unique
-  guilds    Int?            @default(0)
-  economy   UserEconomy[]
-  inventory UserInventory[]
-  warns     UserWarn[]
-  bans      BanUser[]
+  id     String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId String     @unique
+  guilds Int?       @default(0)
+  warns  UserWarn[]
+  bans   BanUser[]
 }
 
 //******************* END DISCORD MODELS **************//

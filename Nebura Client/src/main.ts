@@ -77,7 +77,7 @@ export class Engine {
         { emit: "event", level: "warn" },
         { emit: "event", level: "error" },
       ],
-      errorFormat: "pretty",
+      errorFormat: "minimal",
       datasources: {
         db: {
           url: process.env.DATABASE_URL,

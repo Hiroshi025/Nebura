@@ -316,7 +316,7 @@ const helpCommand: Precommand = {
             if (interaction.user.id !== message.author.id) {
               await interaction.reply({
                 content: `${emojis.error} **You can not do that! Only ${message.author}** you can interact with the help menu`,
-                ephemeral: true,
+                flags: "Ephemeral",
               });
             }
 
@@ -396,7 +396,7 @@ const helpCommand: Precommand = {
 
               embeds.push(embed as never);
             }
-            interaction.reply({ embeds, ephemeral: true }).catch(() => {
+            interaction.reply({ embeds, flags: "Ephemeral" }).catch(() => {
               return message.reply({
                 content: [
                   `${emojis.error} An error occurred while sending the help menu to your DMs!`,

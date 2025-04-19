@@ -328,7 +328,7 @@ export default new Command(
             .setTitle("Unexpected Error")
             .setDescription("An unexpected error occurred. Please try again later."),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
     }
 

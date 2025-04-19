@@ -1,7 +1,7 @@
 import { TextChannel } from "discord.js";
 
 import { client, main } from "@/main";
-import { countMessage, Economy } from "@/modules/discord/structure/utils/functions";
+import { countMessage, createUser, Economy } from "@/modules/discord/structure/utils/functions";
 import { config } from "@/shared/utils/config";
 import { Precommand } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
@@ -20,6 +20,7 @@ export default new Event("messageCreate", async (message) => {
   });
 
   await countMessage(message.author.id, message.guild.id);
+  await createUser(message.author.id);
   await Economy(message);
 
   const args: string[] = message.content

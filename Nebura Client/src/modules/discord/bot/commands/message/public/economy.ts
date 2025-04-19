@@ -1,4 +1,5 @@
 import { BalanceCommand } from "@/modules/discord/structure/utils/economy/balance";
+import { DailyCommand } from "@/modules/discord/structure/utils/economy/daily";
 import { InventoryCommand } from "@/modules/discord/structure/utils/economy/inventory";
 import { RobCommand } from "@/modules/discord/structure/utils/economy/rob";
 import { Precommand } from "@/typings/discord";
@@ -35,6 +36,11 @@ const economyCommand: Precommand = {
       case "rob":
         {
           await RobCommand.Message(message, client, args);
+        }
+        break;
+      case "daily":
+        {
+          await DailyCommand.Message(message, client, args);
         }
         break;
     }
