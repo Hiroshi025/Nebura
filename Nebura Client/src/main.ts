@@ -1,12 +1,11 @@
 import { ObjectId } from "bson"; // Importar para generar ObjectIDs
 import chalk from "chalk";
-import schedule from "node-schedule";
 
 import emojis from "@config/json/emojis.json";
-import { EmbedCorrect } from "@extenders/discord/embeds.extender";
 import { Utils } from "@extenders/discord/utils.extender";
 import { ProyectError } from "@extenders/errors.extender";
 import { PrismaClient } from "@prisma/client";
+import { loadPendingReminders } from "@utils/functions/reminders";
 
 import { MyClient } from "./modules/discord/structure/client";
 import { ErrorConsole } from "./modules/discord/structure/handlers/error-console";
@@ -72,21 +71,34 @@ export class Engine {
    */
   constructor(
     prisma: PrismaClient = new PrismaClient({
-      log: ["query", "info", "warn", "error"],
+      log: [
+        { emit: "event", level: "query" },
+        { emit: "event", level: "info" },
+        { emit: "event", level: "warn" },
+        { emit: "event", level: "error" },
+      ],
       errorFormat: "pretty",
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
     }),
-    discord: MyClient = new MyClient(),
-    api: API = new API(),
-    whatsapp: MyApp = new MyApp(),
+
     config: ProyectConfig = defaultConfig,
+    discord: MyClient = new MyClient(),
+    whatsapp: MyApp = new MyApp(),
+    api: API = new API(),
   ) {
-    this.prisma = prisma;
+    this.utils = new Utils();
+
+    this.whatsapp = whatsapp;
     this.discord = discord;
     this.api = api;
-    this.whatsapp = whatsapp;
+
+    this.prisma = prisma;
     this.config = config;
     this.chalk = chalk;
-    this.utils = new Utils();
   }
 
   /**
@@ -103,7 +115,10 @@ export class Engine {
       await ErrorConsole(this.discord);
       await this.initializeModules();
       await this.clientCreate();
-      await loadPendingReminders(); // Load pending reminders
+
+      // Set the client user to the Discord client
+      await loadPendingReminders();
+      //await this.prismaLog();
     } catch (err) {
       this.handleError(err);
     }
@@ -153,7 +168,7 @@ export class Engine {
     // Generar un ObjectID válido si no existe
     const validId = new ObjectId().toHexString();
 
-    await main.prisma.myDiscord.upsert({
+    await this.prisma.myDiscord.upsert({
       where: { token: data.token },
       update: {
         token: data.token,
@@ -166,42 +181,6 @@ export class Engine {
         clientId: data.clientId,
         clientSecret: data.clientSecret,
       },
-    });
-  }
-}
-
-/**
- * Loads pending reminders from the database and schedules them.
- *
- * This function retrieves reminders that have not been sent and are scheduled for a future time.
- * It uses the `node-schedule` library to schedule the reminders and sends them to the respective users.
- */
-async function loadPendingReminders(): Promise<void> {
-  const pendingReminders = await main.prisma.reminder.findMany({
-    where: {
-      isSent: false,
-      remindAt: { gte: new Date() },
-    },
-  });
-
-  for (const reminder of pendingReminders) {
-    schedule.scheduleJob(new Date(reminder.remindAt), async () => {
-      const member = await client.guilds.cache
-        .get(reminder.guildId)
-        ?.members.fetch(reminder.userId);
-
-      if (member) {
-        await member
-          .send({
-            embeds: [new EmbedCorrect().setTitle(`Reminder!`).setDescription(reminder.message)],
-          })
-          .catch(() => {});
-
-        await main.prisma.reminder.update({
-          where: { id: reminder.id },
-          data: { isSent: true },
-        });
-      }
     });
   }
 }

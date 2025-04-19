@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//******************* API MODELS ********************//
+
 model UserAPI {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
@@ -17,7 +19,8 @@ model UserAPI {
   updatedAt DateTime @updatedAt
 
   blockedIPs BlockedIP[] @relation("BlockedUserRelation")
-  bans BanUser[] @relation("UserBans")
+  bans       BanUser[]   @relation("UserBans")
+  tasks      Task[]      @relation("UserTasks")
 
   licenses      License[] @relation("UserAPILicenses")
   adminLicenses License[] @relation("AdminLicenses")
@@ -35,7 +38,6 @@ model License {
   requestCount Int         @default(0)
   validUntil   DateTime
   lastUsedIp   String?
-  blockedIps   BlockedIP[] @relation("BlockedLicenseIPs")
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
@@ -46,12 +48,9 @@ model BlockedIP {
   blockedUser UserAPI   @relation("BlockedUserRelation", fields: [blockedBy], references: [id])
   blockedBy   String    @db.ObjectId
   createdAt   DateTime  @default(now())
-  expiresAt   DateTime? // Opcional: para bloqueos temporales
-  reason      String? // Motivo del bloqueo
+  expiresAt   DateTime?
+  reason      String?
   isActive    Boolean   @default(true)
-
-  blockedLicense   License @relation("BlockedLicenseIPs", fields: [blockedLicenseId], references: [id])
-  blockedLicenseId String  @db.ObjectId
 }
 
 model FailedAttempt {
@@ -70,11 +69,14 @@ model RateLimitViolation {
   ipAddress     String
   endpoint      String
   violationTime DateTime @default(now())
-  licenseKey    String? // Optional: associate with license if available
 
   @@index([ipAddress])
   @@index([violationTime])
 }
+
+//******************* END API MODELS ******************//
+
+//******************* TASK MODELS ********************//
 
 model Task {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
@@ -91,9 +93,15 @@ model Task {
   autoDelete  DateTime? @map("auto_delete")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   completedAt DateTime? @map("completed_at")
+  UserAPI     UserAPI?  @relation("UserTasks", fields: [userAPIId], references: [id])
+  userAPIId   String?   @db.ObjectId
 
   @@map("tasks")
 }
+
+//******************* END TASK MODELS ******************//
+
+//******************* WHATSAPP MODELS *****************//
 
 model WhatsApp {
   id        String   @id @default(cuid()) @map("_id") @db.ObjectId
@@ -102,45 +110,55 @@ model WhatsApp {
   updatedAt DateTime @updatedAt
 }
 
+//******************* END WHATSAPP MODELS ************//
+
+//******************* DISCORD MODELS ****************//
+
 model MyDiscord {
-  id           String   @id @default(cuid()) @map("_id") @db.ObjectId
-  clientId     String   @unique
+  id           String    @id @default(cuid()) @map("_id") @db.ObjectId
+  clientId     String    @unique
   clientSecret String
-  token        String   @unique
-  logconsole   Boolean  @default(false)
-  errorlog     Boolean  @default(false)
+  token        String    @unique
+  logconsole   Boolean   @default(false)
+  errorlog     Boolean   @default(false)
   webhookURL   String?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
   guilds       MyGuild[]
 }
 
 model MyGuild {
-  id        String   @id @default(cuid()) @map("_id") @db.ObjectId
-  guildId   String   @unique
-  modlogId  String?  @db.ObjectId
+  id        String        @id @default(cuid()) @map("_id") @db.ObjectId
+  guildId   String        @unique
+  modlogId  String?       @db.ObjectId
   modlog    ServerModlog? @relation
   bans      BanUser[]
   warns     UserWarn[]
-  discordId String   @db.ObjectId
-  discord   MyDiscord @relation(fields: [discordId], references: [id])
+  economy   Economy?
+  reminders Reminder[]
+  shop      ShopEconomy[]
+  discordId String        @db.ObjectId
+  discord   MyDiscord     @relation(fields: [discordId], references: [id])
 }
 
 model BanUser {
-  id        String   @id @default(cuid()) @map("_id")
-  guildId   String   @db.ObjectId
-  guild     MyGuild  @relation(fields: [guildId], references: [id])
-  userId    String   @db.ObjectId
-  user      UserAPI  @relation("UserBans", fields: [userId], references: [id])
-  banReason String?
-  banTime   DateTime?
-  createdAt DateTime @default(now())
+  id            String       @id @default(cuid()) @map("_id")
+  guildId       String       @db.ObjectId
+  guild         MyGuild      @relation(fields: [guildId], references: [id])
+  userId        String       @db.ObjectId
+  user          UserAPI      @relation("UserBans", fields: [userId], references: [id])
+  userDiscordId String?      @db.ObjectId
+  userDiscord   UserDiscord? @relation(fields: [userDiscordId], references: [id])
+  banReason     String?
+  banTime       DateTime?
+  createdAt     DateTime     @default(now())
 }
 
 model UserWarn {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  guildId    String   @db.ObjectId
-  guild      MyGuild  @relation(fields: [guildId], references: [id])
-  userId     String
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String       @db.ObjectId
+  guild      MyGuild      @relation(fields: [guildId], references: [id])
+  userId     String       @db.ObjectId
+  user       UserDiscord? @relation(fields: [userId], references: [id])
   warnReason String
   warnDate   String
   moderator  String
@@ -158,7 +176,8 @@ model ServerModlog {
 model Reminder {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
-  guildId   String
+  guildId   String   @db.ObjectId
+  guild     MyGuild  @relation(fields: [guildId], references: [id])
   message   String
   remindAt  DateTime
   createdAt DateTime @default(now())
@@ -166,6 +185,66 @@ model Reminder {
 
   @@index([remindAt])
 }
+
+model Economy {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId        String  @unique @db.ObjectId
+  guild          MyGuild @relation(fields: [guildId], references: [id])
+  currencyName   String
+  currencyEmoji  String
+  currencyPerMsg String
+}
+
+model UserInventory {
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  guildId         String
+  userId          String       @db.ObjectId
+  itemIdentifier  String
+  itemName        String
+  itemDescription String
+  itemPrice       String
+  role            String
+  money           Float
+  userDiscord     UserDiscord? @relation(fields: [userId], references: [id])
+}
+
+model ShopEconomy {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId String  @db.ObjectId
+  guild   MyGuild @relation(fields: [guildId], references: [id])
+
+  itemName        String
+  itemDescription String
+  itemPrice       String
+  itemIdentifier  String @unique
+
+  role  String
+  money Float
+}
+
+model UserEconomy {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId      String @db.ObjectId
+  userId       String @db.ObjectId
+  messageCount Int?   @default(0)
+
+  balance Float        @default(0)
+  user    UserDiscord? @relation(fields: [userId], references: [id])
+}
+
+model UserDiscord {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String          @unique
+  guilds    Int?            @default(0)
+  economy   UserEconomy[]
+  inventory UserInventory[]
+  warns     UserWarn[]
+  bans      BanUser[]
+}
+
+//******************* END DISCORD MODELS **************//
+
+//******************* LICENSE ENUMS *******************//
 
 enum LicenseType {
   FREE
@@ -181,3 +260,5 @@ enum LicenseStatus {
   BANNED
   REVOKED
 }
+
+//******************* END LICENSE ENUMS *****************//

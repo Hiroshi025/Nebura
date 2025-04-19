@@ -1,6 +1,7 @@
 import { TextChannel } from "discord.js";
 
-import { client } from "@/main";
+import { client, main } from "@/main";
+import { countMessage, Economy } from "@/modules/discord/structure/utils/functions";
 import { config } from "@/shared/utils/config";
 import { Precommand } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
@@ -12,13 +13,22 @@ export default new Event("messageCreate", async (message) => {
   if (!message.content.startsWith(config.modules.discord.prefix)) return;
   const language: string = message.guild.preferredLocale;
 
+  const data = await main.prisma.userDiscord.findFirst({
+    where: {
+      userId: message.author.id,
+    },
+  });
+
+  await countMessage(message.author.id, message.guild.id);
+  await Economy(message);
+
   const args: string[] = message.content
     .slice(config.modules.discord.prefix.length)
     .trim()
     .split(/\s+/);
 
   const cmd: string = args.shift()?.toLowerCase() ?? "";
-  if (!cmd) return;
+  if (!cmd || !data) return;
 
   const command: Precommand | undefined =
     (client.precommands.get(cmd) as Precommand) ||
@@ -93,10 +103,7 @@ export default new Event("messageCreate", async (message) => {
     const errorEmbed = new ErrorEmbed()
       .setError(true)
       .setTitle("Command Execution Error")
-      .setErrorFormat(
-        `An error occurred while executing the command: ${command.name}`,
-        error
-      );
+      .setErrorFormat(`An error occurred while executing the command: ${command.name}`, error);
 
     await message.channel.send({ embeds: [errorEmbed] });
   }

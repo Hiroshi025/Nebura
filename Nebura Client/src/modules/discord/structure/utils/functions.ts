@@ -3,9 +3,11 @@ import {
 	TextChannel
 } from "discord.js";
 
+import { main } from "@/main";
+
 /**
  * Creates a new Discord button.
- * 
+ *
  * @param customId - The custom ID for the button.
  * @param label - The label displayed on the button.
  * @param style - The style of the button (e.g., Primary, Secondary, etc.).
@@ -17,7 +19,7 @@ export function createButton(customId: string, label: string, style: ButtonStyle
 
 /**
  * Generates a list of predefined menu options for a Discord select menu.
- * 
+ *
  * @returns An array of `StringSelectMenuOptionBuilder` instances representing the menu options.
  */
 export function getMenuOptions(): StringSelectMenuOptionBuilder[] {
@@ -39,7 +41,7 @@ export function getMenuOptions(): StringSelectMenuOptionBuilder[] {
 
 /**
  * Creates a single menu option for a Discord select menu.
- * 
+ *
  * @param label - The label displayed for the menu option.
  * @param description - A brief description of the menu option.
  * @param value - The value associated with the menu option.
@@ -58,7 +60,7 @@ export function createMenuOption(
 
 /**
  * Updates a specific field in a Discord embed based on the provided option and content.
- * 
+ *
  * @param embeds - The embed object to update.
  * @param option - The field to update (e.g., "author", "title", etc.).
  * @param content - The new content for the specified field.
@@ -117,7 +119,7 @@ export function updateEmbedField(
 
 /**
  * Validates and returns a valid image URL for Discord embeds.
- * 
+ *
  * @param attachment - Optional attachment data to validate.
  * @param content - The URL or content to validate.
  * @returns A valid image URL.
@@ -131,7 +133,7 @@ export function validateImage(attachment: any | undefined, content: string): str
 
 /**
  * Disables all components in the provided list of Discord components.
- * 
+ *
  * @param components - The components to disable.
  */
 export function disableComponents(...components: any[]): void {
@@ -140,7 +142,7 @@ export function disableComponents(...components: any[]): void {
 
 /**
  * Enables all components in the provided list of Discord components.
- * 
+ *
  * @param components - The components to enable.
  */
 export function enableComponents(...components: any[]): void {
@@ -149,7 +151,7 @@ export function enableComponents(...components: any[]): void {
 
 /**
  * Converts a hexadecimal color code to an integer.
- * 
+ *
  * @param input - The hexadecimal color code (e.g., "#FFFFFF").
  * @returns The integer representation of the color.
  */
@@ -162,7 +164,7 @@ export function hexToInt(input: string): number {
 
 /**
  * Sends a temporary message to a Discord text channel and deletes it after 5 seconds.
- * 
+ *
  * @param channel - The text channel to send the message to.
  * @param message - The content of the message.
  * @returns A promise that resolves when the message is deleted.
@@ -178,4 +180,90 @@ export function chunk<T>(array: T[], size: number): T[][] {
     chunks.push(array.slice(i, i + size));
   }
   return chunks;
+}
+
+export async function countMessage(userId: string, guildId: string) {
+  const data = await main.prisma.userEconomy.findFirst({
+    where: {
+      userId,
+    },
+  });
+
+  if (!data || !data.messageCount) return false;
+  await main.prisma.userEconomy.updateMany({
+    where: {
+      userId,
+      guildId,
+    },
+    data: {
+      messageCount: data.messageCount + 1,
+    },
+  });
+
+  return true;
+}
+
+export function generateToken(length = 16) {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < length; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+export async function toFixedNumber(number: number, places = 2) {
+  const offset = Number(`1e${places}`);
+  return Math.floor(number * offset) / offset;
+}
+
+export async function fetchBalance(userId: string, guildId: string) {
+  let dbBalance = await main.prisma.userEconomy.findFirst({
+    where: {
+      userId: userId,
+      guildId: guildId,
+    },
+  });
+
+  if (!dbBalance) {
+    dbBalance = await main.prisma.userEconomy.create({
+      data: {
+        userId: userId,
+        guildId: guildId,
+        balance: 0,
+      },
+    });
+
+    return dbBalance;
+  }
+
+  return dbBalance;
+}
+
+export async function getBalance(userId: string, guildId: string) {
+  let dbBalance = await main.prisma.userEconomy.findFirst({
+    where: {
+      userId: userId,
+      guildId: guildId,
+    },
+  });
+
+  if (!dbBalance) return false;
+  return dbBalance;
+}
+
+export async function Economy(message: Message) {
+  if (message.author.bot || !message.guild) return;
+
+  const randomAmount = Math.random() * (0.7 - 0.3) + 0.3;
+  const dbBalance = await fetchBalance(message.author.id, message.guild.id);
+
+  console.log(await toFixedNumber(dbBalance.balance + randomAmount));
+
+  await main.prisma.userEconomy.updateMany({
+    where: { userId: message.author.id },
+    data: {
+      balance: await toFixedNumber(dbBalance.balance + randomAmount),
+    },
+  });
 }
