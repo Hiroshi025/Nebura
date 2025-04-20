@@ -79,9 +79,16 @@ modules:
 # Configuración de moderación
 moderation:
   notifications:
-    urlapi: "https://discord.com/api" # URL base de la API de Discord
+    urlapi: "" # URL base de la API de Discord
     version: "v10" # Versión de la API de Discord
     webhooks: # Configuración de webhooks para notificaciones
       token: "" # Token del webhook
       id: "" # ID del webhook
       avatarURL: "" # URL del avatar para el webhook (opcional)
+
+tasks: 
+  reloadproyect:
+    enabled: false
+    cron: "0 0 * * *" # Cronograma para recargar el proyecto (ejemplo: todos los días a medianoche)
+    cmd: ""
+    cmdreload: ""

@@ -7,8 +7,11 @@ import { DailyCommand } from "@/modules/discord/structure/utils/economy/daily";
 import { DueloCommand } from "@/modules/discord/structure/utils/economy/duelo";
 import { InventoryCommand } from "@/modules/discord/structure/utils/economy/inventory";
 import { PayEconomy } from "@/modules/discord/structure/utils/economy/pay";
+import { RouletteCommand } from "@/modules/discord/structure/utils/economy/roulette";
+import { RPSCommand } from "@/modules/discord/structure/utils/economy/rps";
 import { ShopEconomy } from "@/modules/discord/structure/utils/economy/shop";
 import { SlotsCommand } from "@/modules/discord/structure/utils/economy/slots";
+import { StateCommand } from "@/modules/discord/structure/utils/economy/state";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -314,7 +317,7 @@ export default new Command(
           "es-ES":
             "¡Juega a la máquina tragaperras! Gira los carretes y mira si puedes ganar a lo grande.",
         })
-        .addStringOption((option) =>
+        .addNumberOption((option) =>
           option
             .setName("bet")
             .setNameLocalizations({
@@ -393,6 +396,119 @@ export default new Command(
     )
     .addSubcommand((subcommand) =>
       subcommand
+        .setName("rps")
+        .setNameLocalizations({
+          "es-ES": "piedra_papel_tijera",
+        })
+        .setDescription("🪨✂️ Challenge another user to a game of Rock, Paper, Scissors!")
+        .setDescriptionLocalizations({
+          "es-ES": "🪨✂️ ¡Reta a otro usuario a un juego de Piedra, Papel o Tijera!",
+        })
+        .addUserOption((option) =>
+          option
+            .setName("user")
+            .setNameLocalizations({
+              "es-ES": "usuario",
+            })
+            .setDescription(
+              "🪨✂️ The user you want to challenge to a game of Rock, Paper, Scissors",
+            )
+            .setDescriptionLocalizations({
+              "es-ES":
+                "🪨✂️ El usuario al que deseas desafiar a un juego de Piedra, Papel o Tijera",
+            })
+            .setRequired(true),
+        )
+        .addNumberOption((option) =>
+          option
+            .setName("bet")
+            .setNameLocalizations({
+              "es-ES": "apuesta",
+            })
+            .setDescription("🪨✂️ The amount of money you want to bet on this game")
+            .setDescriptionLocalizations({
+              "es-ES": "🪨✂️ La cantidad de dinero que deseas apostar en este juego",
+            })
+            .setRequired(true)
+            .setMinValue(1)
+            .setMaxValue(1000000),
+        ),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("state")
+        .setNameLocalizations({
+          "es-ES": "estado",
+        })
+        .setDescription("💰 Check your economy state")
+        .setDescriptionLocalizations({
+          "es-ES": "💰 Verifica tu estado económico",
+        })
+        .addUserOption((option) =>
+          option
+            .setName("user")
+            .setNameLocalizations({
+              "es-ES": "usuario",
+            })
+            .setDescription("💰 The user you want to check the economy state of")
+            .setDescriptionLocalizations({
+              "es-ES": "💰 El usuario del que deseas verificar el estado económico",
+            }),
+        ),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("roulette")
+        .setNameLocalizations({
+          "es-ES": "ruleta",
+        })
+        .setDescription("🎰 Play a game of roulette! Bet on a number and see if you win!")
+        .setDescriptionLocalizations({
+          "es-ES": "🎰 ¡Juega a un juego de ruleta! Apuesta a un número y ve si ganas!",
+        })
+        .addNumberOption((option) =>
+          option
+            .setName("bet")
+            .setNameLocalizations({
+              "es-ES": "apuesta",
+            })
+            .setDescription("🎰 The amount of money you want to bet on this roulette game")
+            .setDescriptionLocalizations({
+              "es-ES": "🎰 La cantidad de dinero que deseas apostar en este juego de ruleta",
+            })
+            .setRequired(true)
+            .setMinValue(1)
+            .setMaxValue(1000000),
+        )
+        .addNumberOption((option) =>
+          option
+            .setName("number")
+            .setNameLocalizations({
+              "es-ES": "número",
+            })
+            .setDescription("🎰 The number you want to bet on (0-36)")
+            .setDescriptionLocalizations({
+              "es-ES": "🎰 El número en el que deseas apostar (0-36)",
+            })
+            .setRequired(true)
+            .setMinValue(0)
+            .setMaxValue(36),
+        )
+        .addStringOption((option) =>
+          option
+            .setName("color")
+            .setNameLocalizations({
+              "es-ES": "color",
+            })
+            .setDescription("🎰 The color you want to bet on (red, black, or green)")
+            .setDescriptionLocalizations({
+              "es-ES": "🎰 El color en el que deseas apostar (rojo, negro o verde)",
+            })
+            .setRequired(true),
+        ),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
         .setName("balance")
         .setNameLocalizations({
           "es-ES": "balance",
@@ -465,6 +581,21 @@ export default new Command(
         case "coinflip":
           {
             await CoinflipCommand(interaction, client);
+          }
+          break;
+        case "rps":
+          {
+            await RPSCommand(interaction, client);
+          }
+          break;
+        case "roulette":
+          {
+            await RouletteCommand(interaction, client);
+          }
+          break;
+        case "state":
+          {
+            await StateCommand(interaction, client);
           }
           break;
       }

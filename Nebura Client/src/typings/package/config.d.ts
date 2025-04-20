@@ -174,6 +174,15 @@ export interface ProyectConfig {
       };
     };
   };
+
+  tasks: {
+    reloadproyect: {
+      enabled: boolean;
+      cron: string;
+      cmd: string;
+      cmdreload: string;
+    }
+  }
 }
 
 /**

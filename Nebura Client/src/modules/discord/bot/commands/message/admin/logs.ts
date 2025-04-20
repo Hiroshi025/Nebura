@@ -1,79 +1,71 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType
 } from "discord.js";
 
 import { main } from "@/main";
-import { Command } from "@/modules/discord/structure/utils/builders";
+import { Precommand } from "@/typings/discord";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
-export default new Command(
-  new SlashCommandBuilder()
-    .setName("logs")
-    .setDescription("Get the logs of a user")
-    .addSubcommand((subCmd) => subCmd.setName("bans").setDescription("Get the bans of a user in the guild all"))
-    .addSubcommand((subCmd) =>
-      subCmd
-        .setName("warns")
-        .setDescription("Get the warns of a user")
-        .addUserOption((option) => {
-          return option
-            .setName("user")
-            .setDescription("User to get the warn logs for")
-            .setRequired(true);
-        })
-        .addIntegerOption((option) => {
-          return option
-            .setName("page")
-            .setDescription("The page to display if there are more than 1")
-            .setMinValue(2)
-            .setMaxValue(20);
-        }),
-    ),
-  async (client, interaction) => {
-    try {
-      if (!interaction.guild || !interaction.channel || !interaction.user) return;
+const logAdminCommand: Precommand = {
+  name: "logs",
+  description: "Get the logs of a user (warns, bans, kicks)",
+  examples: ["logs warns @user 3"],
+  nsfw: false,
+  owner: false,
+  aliases: ["modlogs"],
+  subcommands: ["logs warns @user page", "logs bans"],
+  botpermissions: ["SendMessages"],
+  permissions: ["SendMessages"],
+  async execute(client, message) {
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
+      return;
 
-      switch (interaction.options.getSubcommand()) {
+    const args = message.content.split(/\s+/).slice(1); // Extrae los argumentos del mensaje
+    const subCommand = args[0]?.toLowerCase();
+    const userMention = message.mentions.users.first();
+    const page = parseInt(args[2]) || 1; // Página por defecto es 1 si no se proporciona
+
+    try {
+      switch (subCommand) {
         case "warns":
           {
-            const user = interaction.options.getUser("user");
-            const page = interaction.options.getInteger("page") || 1; // Default to page 1 if not provided
-
-            if (!user)
-              return interaction.reply({
+            if (!userMention) {
+              return message.channel.send({
                 embeds: [
                   new ErrorEmbed().setDescription(
                     [
-                      `${client.getEmoji(interaction.guildId as string, "error")} User Not Found`,
-                      `Please provide a valid user.`,
+                      `${client.getEmoji(message.guild.id, "error")} User Not Found`,
+                      `Please mention a valid user.`,
                     ].join("\n"),
                   ),
                 ],
-                flags: "Ephemeral",
               });
+            }
 
             const userWarnings = await main.prisma.userWarn.findMany({
               where: {
-                userId: user.id,
-                guildId: interaction.guild.id,
+                userId: userMention.id,
+                guildId: message.guild.id,
               },
             });
 
-            if (!userWarnings?.length)
-              return interaction.reply({
+            if (!userWarnings?.length) {
+              return message.channel.send({
                 embeds: [
                   new ErrorEmbed()
                     .setTitle("No Warnings Found")
-                    .setDescription([
-                      `${client.getEmoji(interaction.guildId as string, "error")} No warnings found for this user.`,
-                      `Please check the server settings or try again later.`,
-                    ].join("\n"))
+                    .setDescription(
+                      [
+                        `${client.getEmoji(message.guild.id, "error")} No warnings found for this user.`,
+                        `Please check the server settings or try again later.`,
+                      ].join("\n"),
+                    ),
                 ],
-                flags: "Ephemeral",
               });
+            }
 
             if (page < 1 || page > Math.ceil(userWarnings.length / 5)) {
-              return interaction.reply({
+              return message.channel.send({
                 embeds: [
                   new ErrorEmbed()
                     .setTitle("Invalid Page Number")
@@ -81,12 +73,10 @@ export default new Command(
                       `The page number must be between 1 and ${Math.ceil(userWarnings.length / 5)}.`,
                     ),
                 ],
-                flags: "Ephemeral",
               });
             }
 
-            const embed = new EmbedCorrect().setTitle(`${user.tag}'s Warning Logs`);
-
+            const embed = new EmbedCorrect().setTitle(`${userMention.tag}'s Warning Logs`);
             const pageNum = 5 * (page - 1);
 
             if (userWarnings.length >= 6) {
@@ -96,7 +86,7 @@ export default new Command(
             }
 
             for (const warnings of userWarnings.splice(pageNum, 5)) {
-              const moderator = interaction.guild.members.cache.get(warnings.moderator);
+              const moderator = message.guild.members.cache.get(warnings.moderator);
 
               embed.addFields({
                 name: `ID: ${warnings.id}`,
@@ -109,30 +99,32 @@ export default new Command(
               });
             }
 
-            await interaction.reply({ embeds: [embed] });
+            await message.channel.send({ embeds: [embed] });
           }
           break;
+
         case "bans":
           {
-            const bans = await interaction.guild.bans.fetch();
+            const bans = await message.guild.bans.fetch();
             if (!bans.size) {
-              return interaction.reply({
+              return message.channel.send({
                 embeds: [
                   new ErrorEmbed()
                     .setTitle("No Bans Found")
-                    .setDescription([
-                      `${client.getEmoji(interaction.guildId as string, "error")} No bans found in this guild.`,
-                      `Please check the server settings or try again later.`,
-                    ].join("\n"))
+                    .setDescription(
+                      [
+                        `${client.getEmoji(message.guild.id, "error")} No bans found in this guild.`,
+                        `Please check the server settings or try again later.`,
+                      ].join("\n"),
+                    ),
                 ],
-                flags: "Ephemeral",
               });
             }
 
             const bansArray = Array.from(bans.values());
             const maxFieldsPerPage = 10; // Limite de fields por página
             const totalPages = Math.ceil(bansArray.length / maxFieldsPerPage);
-            let currentPage = 1;
+            let currentPage = Math.min(Math.max(page, 1), totalPages);
 
             const generateEmbed = (page: number) => {
               const embed = new EmbedCorrect().setTitle("Bans List");
@@ -163,33 +155,32 @@ export default new Command(
                 .setDisabled(currentPage === totalPages),
             );
 
-            const message = await interaction.reply({
+            const embedMessage = await message.channel.send({
               embeds: [generateEmbed(currentPage)],
               components: totalPages > 1 ? [row] : [],
-              fetchReply: true,
             });
 
             if (totalPages > 1) {
-              const collector = message.createMessageComponentCollector({
+              const collector = embedMessage.createMessageComponentCollector({
                 componentType: ComponentType.Button,
                 time: 60000, // 1 minuto
               });
 
-              collector.on("collect", async (i) => {
-                if (i.user.id !== interaction.user.id) {
-                  return i.reply({
+              collector.on("collect", async (interaction) => {
+                if (interaction.user.id !== message.author.id) {
+                  return interaction.reply({
                     content: "You cannot interact with this pagination.",
                     ephemeral: true,
                   });
                 }
 
-                if (i.customId === "prev_page" && currentPage > 1) {
+                if (interaction.customId === "prev_page" && currentPage > 1) {
                   currentPage--;
-                } else if (i.customId === "next_page" && currentPage < totalPages) {
+                } else if (interaction.customId === "next_page" && currentPage < totalPages) {
                   currentPage++;
                 }
 
-                await i.update({
+                await interaction.update({
                   embeds: [generateEmbed(currentPage)],
                   components: [
                     new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -211,27 +202,40 @@ export default new Command(
               });
 
               collector.on("end", () => {
-                message.edit({ components: [] }).catch(() => {});
+                embedMessage.edit({ components: [] }).catch(() => {});
               });
             }
           }
           break;
+
+        default:
+          message.channel.send({
+            embeds: [
+              new ErrorEmbed()
+                .setTitle("Invalid Subcommand")
+                .setDescription("Please use a valid subcommand: `warns` or `bans`."),
+            ],
+          });
+          break;
       }
     } catch (error: any) {
       console.error("Error handling logs command:", error);
-      await interaction.reply({
+      await message.channel.send({
         embeds: [
           new ErrorEmbed()
             .setTitle("Unexpected Error")
-            .setDescription([
-              `${client.getEmoji(interaction.guildId as string, "error")} An unexpected error occurred.`,
-              `Please try again later or contact support.`,
-            ].join("\n"))
+            .setDescription(
+              [
+                `${client.getEmoji(message.guild.id, "error")} An unexpected error occurred.`,
+                `Please try again later or contact support.`,
+              ].join("\n"),
+            ),
         ],
-        flags: "Ephemeral",
       });
     }
 
     return;
   },
-);
+};
+
+export = logAdminCommand;

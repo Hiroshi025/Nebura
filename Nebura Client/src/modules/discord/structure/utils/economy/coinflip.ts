@@ -1,5 +1,5 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ColorResolvable
 } from "discord.js";
 
 import { main } from "@/main";
@@ -216,6 +216,7 @@ export async function CoinflipCommand(interaction: ChatInputCommandInteraction, 
       const resultEmbed = new EmbedCorrect()
         .setTitle(`${resultEmoji} Coinflip Result`)
         .setDescription(`${resultMessage}\n\n**New Balance:** $${newBalance}`)
+        .setColor(resultColor as ColorResolvable);
 
       await interaction.editReply({
         embeds: [resultEmbed],

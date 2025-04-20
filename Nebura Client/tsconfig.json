@@ -1,45 +1,73 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "CommonJS",
-    "moduleResolution": "node10",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "target": "ESNext",
-    "lib": ["ES2022", "DOM"],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "composite": true,
-    "incremental": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "baseUrl": "./",
+    // === Compilación ===
+    "strict": true, // Habilita todas las verificaciones estrictas de TypeScript.
+    "noImplicitAny": true, // Prohíbe el uso de variables con tipo 'any' implícito.
+    "strictNullChecks": true, // Requiere que las variables que puedan ser null o undefined sean manejadas explícitamente.
+    "strictFunctionTypes": true, // Refuerza la compatibilidad de tipos en funciones.
+    "strictBindCallApply": true, // Verifica los argumentos en métodos como bind, call y apply.
+    "strictPropertyInitialization": true, // Asegura que las propiedades de las clases sean inicializadas correctamente.
+    "noUnusedLocals": true, // Marca como error las variables locales no utilizadas.
+    "noUnusedParameters": true, // Marca como error los parámetros no utilizados en funciones.
+    "noImplicitReturns": true, // Asegura que todas las rutas de una función devuelvan un valor.
+    "noFallthroughCasesInSwitch": true, // Prohíbe que los casos en un switch caigan al siguiente sin un break.
+
+    // === Módulos ===
+    "module": "CommonJS", // Especifica el sistema de módulos a usar (CommonJS para Node.js).
+    "moduleResolution": "node10", // Define cómo resolver los módulos (compatibilidad con Node.js v10).
+    "esModuleInterop": true, // Habilita la interoperabilidad con módulos ES6.
+    "resolveJsonModule": true, // Permite importar archivos JSON como módulos.
+
+    // === Compatibilidad y Librerías ===
+    "target": "ESNext", // Define la versión de ECMAScript para el código de salida.
+    "lib": ["ES2022", "DOM"], // Especifica las bibliotecas que se incluirán en la compilación.
+
+    // === Decoradores ===
+    "experimentalDecorators": true, // Habilita el soporte para decoradores experimentales.
+    "emitDecoratorMetadata": true, // Genera metadatos para decoradores.
+
+    // === Salida ===
+    "composite": true, // Habilita la compilación incremental para proyectos grandes.
+    "incremental": true, // Guarda información de compilación para acelerar compilaciones futuras.
+    "declaration": true, // Genera archivos de declaración (.d.ts).
+    "declarationMap": true, // Genera mapas de archivos de declaración para depuración.
+    "sourceMap": true, // Genera mapas de origen para depuración.
+    "outDir": "./dist", // Directorio de salida para los archivos compilados.
+
+    // === Estructura ===
+    "baseUrl": "./", // Base para resolver rutas relativas.
     "paths": {
+      // Alias para rutas de módulos.
       "@constants/*": ["src/structure/constants/*"],
       "@extenders/*": ["src/structure/extenders/*"],
       "@utils/*": ["src/shared/utils/*"],
+      "@typings/*": ["src/typings/*"],
       "@backend/*": ["src/server/*"],
       "@tests/*": ["./__tests__/*"],
-      "@types/*": ["src/typings/*"],
       "@config/*": ["./config/*"],
       "@/*": ["./src/*"]
     },
-    "outDir": "./dist",
-    "rootDir": "./",
-    "types": ["node", "jest"],
-    "resolveJsonModule": true
+    "rootDir": "./", // Directorio raíz del proyecto.
+
+    // === Tipos ===
+    "types": ["node", "jest"], // Tipos incluidos en el proyecto (Node.js y Jest).
+
+    // === Validación ===
+    "skipLibCheck": true, // Omite la verificación de tipos en archivos de bibliotecas.
+    "forceConsistentCasingInFileNames": true // Fuerza el uso consistente de mayúsculas y minúsculas en nombres de archivo.
   },
-  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/typings/.d.ts", "src/**/*", "./**/*.json"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    // Archivos y directorios incluidos en la compilación.
+    "**/*.ts",
+    "tsconfig.json",
+    "config/json/*.json",
+    "src/typings/.d.ts",
+    "src/**/*",
+    "./**/*.json"
+  ],
+  "exclude": [
+    // Archivos y directorios excluidos de la compilación.
+    "node_modules",
+    "dist"
+  ]
 }
