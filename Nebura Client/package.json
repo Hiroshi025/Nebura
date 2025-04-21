@@ -1,6 +1,6 @@
 {
   "name": "nebura-works",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "main": "index.js",
   "scripts": {
     "test": "jest && npm run docs",
@@ -54,6 +54,7 @@
     "apicache": "^1.6.3",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
+    "captcha-canvas": "^2.3.1",
     "chalk": "^4.0.0",
     "cheerio": "^1.0.0",
     "common-tags": "^1.8.2",
@@ -130,5 +131,15 @@
     "typedoc-github-theme": "^0.3.0",
     "typedoc-plugin-zod": "^1.4.1",
     "typescript": "^5.8.3"
+  },
+  "bugs": {
+    "url": "https://github.com/Hiroshi025/Nebura-AI/issues"
+  },
+  "homepage": "https://help.hiroshi-dev.me/",
+  "markdown": "github",
+  "readme": "# Nebura Works",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hiroshi025/Nebura-AI.git"
   }
 }
