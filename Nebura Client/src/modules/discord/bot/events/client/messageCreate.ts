@@ -1,7 +1,9 @@
 import { TextChannel } from "discord.js";
 
 import { client, main } from "@/main";
-import { countMessage, createUser, Economy } from "@/modules/discord/structure/utils/functions";
+import {
+	countMessage, createGuild, createUser, Economy, Ranking
+} from "@/modules/discord/structure/utils/functions";
 import { config } from "@/shared/utils/config";
 import { Precommand } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
@@ -10,6 +12,12 @@ import { Event } from "../../../structure/utils/builders";
 
 export default new Event("messageCreate", async (message) => {
   if (!message.guild || !message.channel || message.author.bot || !client.user) return;
+  await createGuild(message.guild.id, client);
+  await createUser(message.author.id);
+
+  await Ranking(message, client);
+  await Economy(message);
+
   if (!message.content.startsWith(config.modules.discord.prefix)) return;
   const language: string = message.guild.preferredLocale;
 
@@ -20,9 +28,6 @@ export default new Event("messageCreate", async (message) => {
   });
 
   await countMessage(message.author.id, message.guild.id);
-  await createUser(message.author.id);
-  await Economy(message);
-
   const args: string[] = message.content
     .slice(config.modules.discord.prefix.length)
     .trim()

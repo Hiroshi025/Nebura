@@ -90,6 +90,14 @@ export class MyClient extends Client {
   public aliases: Collection<string, string>;
 
   /**
+   * Collection of modals.
+   *
+   * @type {Collection<string, unknown>}
+   * @public
+   */
+  public voiceGenerator: Collection<unknown, unknown>;
+
+  /**
    * Initializes a new instance of the `MyClient` class.
    * Configures the client with specific intents and partials, and initializes handlers and settings.
    */
@@ -98,8 +106,6 @@ export class MyClient extends Client {
       makeCache: Options.cacheWithLimits({
         ...Options.DefaultMakeCacheSettings,
         ReactionManager: 0,
-        GuildBanManager: 0,
-        GuildEmojiManager: 0,
       }),
       intents: [
         GatewayIntentBits.Guilds,
@@ -147,6 +153,7 @@ export class MyClient extends Client {
     this.commands = new Collection();
     this.buttons = new Collection();
 
+    this.voiceGenerator = new Collection();
     this.precommands = new Collection();
     this.aliases = new Collection();
 

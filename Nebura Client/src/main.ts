@@ -8,7 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import { loadPendingReminders } from "@utils/functions/reminders";
 
 import { MyClient } from "./modules/discord/structure/client";
-import { ErrorConsole } from "./modules/discord/structure/handlers/error-console";
+import { ErrorConsole } from "./modules/discord/structure/handlers/errors";
 import { MyApp } from "./modules/whatsapp";
 import { API } from "./server";
 import { config } from "./shared/utils/config";

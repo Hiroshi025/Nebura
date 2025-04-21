@@ -122,21 +122,25 @@ model MyDiscord {
   logconsole   Boolean   @default(false)
   errorlog     Boolean   @default(false)
   webhookURL   String?
+  logchannel   String?
   createdAt    DateTime  @default(now())
-  guilds       MyGuild[]
 }
 
 model MyGuild {
-  id        String        @id @default(cuid()) @map("_id") @db.ObjectId
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
   guildId   String        @unique
   modlogId  String?       @db.ObjectId
-  modlog    ServerModlog? @relation
-  bans      BanUser[]
-  warns     UserWarn[]
-  economy   Economy?
+  discordId String       
+  rooms     String?
+
   reminders Reminder[]
-  discordId String        @db.ObjectId
-  discord   MyDiscord     @relation(fields: [discordId], references: [id])
+  warns     UserWarn[]
+  bans      BanUser[]
+
+  modlog    ServerModlog? @relation
+  eventlogs EventLogs?
+  economy   Economy?
+  captcha   Captcha?
 }
 
 model BanUser {
@@ -236,6 +240,40 @@ model UserDiscord {
   guilds Int?       @default(0)
   warns  UserWarn[]
   bans   BanUser[]
+}
+
+model UserLevel {
+  id          String  @id @default(cuid()) @map("_id")
+  guildId     String
+  userId      String
+  xp          Int
+  level       Int
+  background  String?
+  barColor    String?
+  borderColor String?
+  blur        Int?
+
+  @@unique([guildId, userId]) // Clave única compuesta
+}
+
+model LevelConfig {
+  id        String  @id @default(cuid()) @map("_id")
+  guildId   String
+  channelId String?
+  status    Boolean
+}
+
+model Captcha {
+  id        String  @id @map("_id") @db.ObjectId
+  isEnabled Boolean @default(false)
+  role      String
+  guild     MyGuild @relation(fields: [id], references: [id])
+}
+
+type EventLogs {
+  enabled   Boolean
+  channelId String?
+  events    String[]
 }
 
 //******************* END DISCORD MODELS **************//

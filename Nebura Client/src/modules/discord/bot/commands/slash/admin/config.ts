@@ -18,8 +18,12 @@ export default new Command(
   async (client, interaction) => {
     try {
       if (!interaction.guild || !interaction.channel || !client.user) return;
+      const guild = await main.prisma.myGuild.findUnique({
+        where: { guildId: interaction.guild.id },
+      });
       const data = await main.prisma.myDiscord.findUnique({ where: { clientId: client.user.id } });
-      if (!data || typeof data.errorlog !== "boolean" || typeof data.logconsole !== "boolean") {
+
+      if (!data || !guild) {
         return interaction.reply({
           embeds: [
             new ErrorEmbed()
@@ -44,6 +48,10 @@ export default new Command(
         );
 
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setLabel(guild.eventlogs?.enabled ? "Disable Log Events" : "Enable Log Events")
+          .setCustomId("button-enabled-logevents")
+          .setStyle(guild.eventlogs?.enabled ? ButtonStyle.Success : ButtonStyle.Primary),
         new ButtonBuilder()
           .setLabel("Cancel")
           .setCustomId("button-set-config-cancel") // Fixed typo
@@ -78,6 +86,11 @@ export default new Command(
               .setValue("webhook-config")
               .setEmoji(client.getEmoji(interaction.guild.id, "settings"))
               .setDescription("Set the webhook URL"),
+            new StringSelectMenuOptionBuilder()
+              .setLabel("Set Log Channel")
+              .setValue("log-channel-config")
+              .setEmoji(client.getEmoji(interaction.guild.id, "folder"))
+              .setDescription("Set the channel for event and control logs"),
           ),
       );
 
@@ -299,6 +312,26 @@ export default new Command(
                         ["Error in webhook collector interaction:", error].join("\n"),
                       );
                     }
+                  });
+                } else if (i.values.includes("log-channel-config")) {
+                  await i.reply({
+                    embeds: [
+                      new EmbedCorrect()
+                        .setTitle("Configuration")
+                        .setDescription(
+                          `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
+                            `Please select the channel where event and control logs will be sent.`,
+                        ),
+                    ],
+                    components: [
+                      new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+                        new ChannelSelectMenuBuilder()
+                          .setCustomId("select-log-channel")
+                          .setPlaceholder("Select a channel")
+                          .setChannelTypes([0]), // 0 = GUILD_TEXT
+                      ),
+                    ],
+                    flags: "Ephemeral"
                   });
                 }
                 break;
