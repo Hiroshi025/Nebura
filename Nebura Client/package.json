@@ -1,6 +1,6 @@
 {
   "name": "nebura-works",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "main": "index.js",
   "scripts": {
     "test": "jest && npm run docs",
@@ -59,6 +59,7 @@
     "common-tags": "^1.8.2",
     "connect-sqlite3": "^0.9.15",
     "date-fns": "^4.1.0",
+    "discord-arts": "^0.6.2",
     "discord-hybrid-sharding": "^2.2.6",
     "discord.js": "^14.18.0",
     "eternal-support": "^1.0.9",
