@@ -4,13 +4,16 @@
 
 ## Proyectos
 
-* [Nebura API](proyectos/nebura-api/README.md)
-  * [Seguridad](proyectos/nebura-api/seguridad.md)
-  * [Routes API](proyectos/nebura-api/routes-api.md)
-  * [RateLimit](proyectos/nebura-api/ratelimit.md)
-  * [IP Administrador](proyectos/nebura-api/ip-administrador.md)
-  * [Modulos](proyectos/nebura-api/modulos/README.md)
-    * [Discord Client](proyectos/nebura-api/modulos/discord-client.md)
+* [Nebura Client](proyectos/nebura-client/README.md)
+  * [Modulos](proyectos/nebura-client/modulos/README.md)
+    * [Discord Client](proyectos/nebura-client/modulos/discord-client/README.md)
+      * [Economia](proyectos/nebura-client/modulos/discord-client/economia.md)
+      * [Sistemas](proyectos/nebura-client/modulos/discord-client/sistemas.md)
+  * [API](proyectos/nebura-client/api/README.md)
+    * [Seguridad](proyectos/nebura-client/api/seguridad/README.md)
+      * [IP Administrador](proyectos/nebura-client/api/seguridad/ip-administrador.md)
+    * [Routes API](proyectos/nebura-client/api/routes-api.md)
+    * [RateLimit](proyectos/nebura-client/api/ratelimit.md)
 
 ## TUTORIALES
 
