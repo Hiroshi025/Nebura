@@ -1,3 +1,8 @@
+---
+cover: ../../.gitbook/assets/marca.png
+coverY: 0
+---
+
 # Nebura Client
 
 Este proyecto es una API modular que integra múltiples servicios como Discord, WhatsApp, GitHub, Google AI, y más. A continuación, se detallan las funcionalidades, rutas, comandos y eventos disponibles en el proyecto.
