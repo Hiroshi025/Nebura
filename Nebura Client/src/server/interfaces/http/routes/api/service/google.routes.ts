@@ -3,7 +3,7 @@
 
 import { isCustomerToken } from "@/server/shared/middlewares/jwt/token.middleware";
 import { validateTokenAI } from "@/server/shared/middlewares/tokens/google.middleware";
-import { RateLimitManager } from "@/shared/rateLimit";
+import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { GeminiController } from "../../../controllers/asistent/google.controllers";

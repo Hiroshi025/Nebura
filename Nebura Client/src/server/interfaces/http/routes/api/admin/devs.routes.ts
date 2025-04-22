@@ -3,7 +3,7 @@
 
 import { isDevelopment } from "@/server/shared/middlewares/jwt/auth.middleware";
 import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
-import { RateLimitManager } from "@/shared/rateLimit";
+import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { SecurityController } from "../../../controllers/admin/devs.controllers";

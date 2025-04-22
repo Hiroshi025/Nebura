@@ -5,8 +5,8 @@ import { main } from "@/main";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
+import { config } from "../utils/config";
 import { Notification } from "./notification";
-import { config } from "./utils/config";
 
 /**
  * Class to manage IP address blocking.
@@ -126,7 +126,7 @@ export class IPBlocker {
           reason,
           blockedBy: userId,
           expiresAt: expiresAt ? expiresAt.toISOString() : null,
-          isActive: true
+          isActive: true,
         },
       });
 

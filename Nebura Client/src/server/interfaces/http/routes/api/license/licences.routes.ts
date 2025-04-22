@@ -1,5 +1,5 @@
 import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
-import { RateLimitManager } from "@/shared/rateLimit";
+import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { isAdmin } from "../../../../../shared/middlewares/jwt/auth.middleware";

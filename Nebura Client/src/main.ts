@@ -51,11 +51,6 @@ export class Engine {
   public config: ProyectConfig;
 
   /**
-   * Chalk library instance for colored console output.
-   */
-  public chalk: typeof chalk;
-
-  /**
    * Instance of the Utils class, providing utility functions and helpers.
    */
   public utils: Utils;
@@ -98,7 +93,6 @@ export class Engine {
 
     this.prisma = prisma;
     this.config = config;
-    this.chalk = chalk;
   }
 
   /**
@@ -110,7 +104,7 @@ export class Engine {
    * @returns A promise that resolves when all modules have been successfully started.
    * @throws {Error} Throws an error if any module fails to start.
    */
-  public async start(): Promise<void> {
+  public async start() {
     try {
       await ErrorConsole(this.discord);
       await this.initializeModules();
@@ -130,7 +124,7 @@ export class Engine {
    * This method starts the Discord and API modules. If the WhatsApp module is enabled in the configuration,
    * it will also start the WhatsApp module. Otherwise, it logs a message indicating that the WhatsApp module is not started.
    */
-  private async initializeModules(): Promise<void> {
+  private async initializeModules() {
     await Promise.all([this.discord.start(), this.api.start()]);
 
     if (this.config.modules.whatsapp.enabled) {

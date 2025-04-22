@@ -1,7 +1,7 @@
 import axios from "axios";
 import { APIEmbed, ColorResolvable, EmbedField } from "discord.js";
 
-import { config } from "./utils/config";
+import { config } from "../utils/config";
 
 export class Notification {
   private data: typeof config.moderation.notifications;

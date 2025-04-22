@@ -3,8 +3,8 @@
 
 import { Request, Response } from "express";
 
-import { IPBlocker } from "@/shared/ipBlocker";
-import { RateLimitManager } from "@/shared/rateLimit";
+import { IPBlocker } from "@/shared/class/ipBlocker";
+import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { DiscordController } from "../../../controllers/public/discord.controller";

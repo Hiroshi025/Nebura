@@ -10,7 +10,7 @@ import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import { v4 as uuidv4 } from "uuid";
 
-import { IPBlocker } from "@/shared/ipBlocker";
+import { IPBlocker } from "@/shared/class/ipBlocker";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import i18next from "@backend/shared/i18n";
@@ -101,7 +101,7 @@ export class API {
 
     // Serve static files from the public directory
     // Configuración del cliente de Redis
-/*     const redisConfig = {
+    /*     const redisConfig = {
       url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
       database: Number(process.env.REDIS_DB),
       password: process.env.REDIS_PASSWORD,
@@ -110,13 +110,13 @@ export class API {
     //const redisClient = new Redis(redisConfig);
 
     // Manejar errores de conexión de Redis
-/*     redisClient.on("error", (err) => {
+    /*     redisClient.on("error", (err) => {
       console.error(chalk.red(`[Redis Error] ${err.message}`));
       logWithLabel("custom", `Error connecting to Redis: ${err.message}`, "Redis");
     }); */
 
     // Manejar eventos de conexión exitosa
-/*     redisClient.on("connect", () => {
+    /*     redisClient.on("connect", () => {
       console.log(chalk.green("[Redis] Connected successfully"));
       logWithLabel("custom", "Redis connection established successfully", "Redis");
     }); */

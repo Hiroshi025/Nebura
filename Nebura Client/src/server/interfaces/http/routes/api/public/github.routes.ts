@@ -3,8 +3,8 @@
 
 import { Request, Response } from "express";
 
-import { GitHubService } from "@/shared/classUtils/githubService";
-import { RateLimitManager } from "@/shared/rateLimit";
+import { GitHubService } from "@/shared/class/githubService";
+import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 // Constantes para paths base y versionado
