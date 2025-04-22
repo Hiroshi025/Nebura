@@ -4,8 +4,6 @@
 Ultima Actualizacion `22/04/2025`
 {% endhint %}
 
-## Sistema de Economía - Nebura Client
-
 El sistema de economía de **Nebura Client** es una funcionalidad avanzada que permite a los usuarios interactuar con un sistema económico virtual dentro de un servidor de Discord. Este sistema incluye comandos para gestionar balances, inventarios, tiendas, y una variedad de juegos y mecánicas para ganar o perder dinero virtual.
 
 ***
