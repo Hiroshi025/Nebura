@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 
 import { config } from "@/shared/utils/config";
-import { CommandOptions } from "@/typings/discord";
+import { CommandOptions } from "@typings/modules";
 
 import { MyClient } from "../client";
 
@@ -123,7 +123,7 @@ export class Command {
    * @param structure - The command structure, which can be a Slash Command, Context Menu Command, or other supported command builders.
    * @param run - The function that runs when the command is executed, receiving the bot client, the interaction, and configuration.
    * @param options - Optional settings for the command, such as cooldown and other command-related options.
-   * @param cooldown - Optional cooldown time in seconds to prevent command spam. Defaults to `0` (no cooldown).
+   * @param cooldown - Optional cooldown time in seconds to prevent command spam. Defaults to `10` seconds.
    */
   constructor(
     structure:
@@ -138,7 +138,7 @@ export class Command {
       configuration: typeof config,
     ) => void,
     options?: CommandOptions,
-    cooldown: number = 0,
+    cooldown: number = 10, // Default cooldown set to 10 seconds
   ) {
     this.structure = structure;
     this.run = run;

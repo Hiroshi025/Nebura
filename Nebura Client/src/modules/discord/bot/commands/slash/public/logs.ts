@@ -9,22 +9,56 @@ import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 export default new Command(
   new SlashCommandBuilder()
     .setName("logs")
+    .setNameLocalizations({
+      "es-ES": "registros",
+    })
     .setDescription("Get the logs of a user")
-    .addSubcommand((subCmd) => subCmd.setName("bans").setDescription("Get the bans of a user in the guild all"))
+    .setDescriptionLocalizations({
+      "es-ES": "Obtener los registros de un usuario",
+    })
+    .addSubcommand((subCmd) => 
+      subCmd
+        .setName("bans")
+        .setNameLocalizations({
+          "es-ES": "baneos",
+        })
+        .setDescription("Get the bans of a user in the guild all")
+        .setDescriptionLocalizations({
+          "es-ES": "Obtener los baneos de un usuario en la guild",
+        }))
     .addSubcommand((subCmd) =>
       subCmd
         .setName("warns")
+        .setNameLocalizations({
+          "es-ES": "advertencias",
+        })
         .setDescription("Get the warns of a user")
+        
+        .setDescriptionLocalizations({
+          "es-ES": "Obtener las advertencias de un usuario",
+        })
         .addUserOption((option) => {
           return option
             .setName("user")
+            .setNameLocalizations({
+              "es-ES": "usuario",
+            })
             .setDescription("User to get the warn logs for")
+            .setDescriptionLocalizations({
+              "es-ES": "Usuario para obtener los registros de advertencia",
+            })
             .setRequired(true);
         })
         .addIntegerOption((option) => {
           return option
             .setName("page")
+            .setNameLocalizations({
+              "es-ES": "página",
+            })
             .setDescription("The page to display if there are more than 1")
+            .setDescriptionLocalizations({
+              "es-ES": "La página a mostrar si hay más de 1",
+            })
             .setMinValue(2)
             .setMaxValue(20);
         }),

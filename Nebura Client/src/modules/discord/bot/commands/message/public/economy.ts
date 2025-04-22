@@ -2,7 +2,7 @@ import { BalanceCommand } from "@/modules/discord/structure/utils/economy/balanc
 import { DailyCommand } from "@/modules/discord/structure/utils/economy/daily";
 import { InventoryCommand } from "@/modules/discord/structure/utils/economy/inventory";
 import { RobCommand } from "@/modules/discord/structure/utils/economy/rob";
-import { Precommand } from "@/typings/discord";
+import { Precommand } from "@typings/modules";
 
 const economyCommand: Precommand = {
   name: "economy",

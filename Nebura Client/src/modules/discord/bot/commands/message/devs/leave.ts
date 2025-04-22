@@ -1,7 +1,7 @@
 import { ChannelType } from "discord.js";
 
-import { Precommand } from "@/typings/discord";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 
 const leaveCommand: Precommand = {
   name: "leave",

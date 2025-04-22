@@ -115,22 +115,22 @@ model WhatsApp {
 //******************* DISCORD MODELS ****************//
 
 model MyDiscord {
-  id           String    @id @default(cuid()) @map("_id") @db.ObjectId
-  clientId     String    @unique
+  id           String   @id @default(cuid()) @map("_id") @db.ObjectId
+  clientId     String   @unique
   clientSecret String
-  token        String    @unique
-  logconsole   Boolean   @default(false)
-  errorlog     Boolean   @default(false)
+  token        String   @unique
+  logconsole   Boolean  @default(false)
+  errorlog     Boolean  @default(false)
   webhookURL   String?
   logchannel   String?
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime @default(now())
 }
 
 model MyGuild {
-  id        String        @id @default(auto()) @map("_id") @db.ObjectId
-  guildId   String        @unique
-  modlogId  String?       @db.ObjectId
-  discordId String       
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId   String  @unique
+  modlogId  String? @db.ObjectId
+  discordId String
   rooms     String?
 
   reminders Reminder[]
@@ -141,6 +141,26 @@ model MyGuild {
   eventlogs EventLogs?
   economy   Economy?
   captcha   Captcha?
+
+  membercount_channel1 String?
+  membercount_message1 String?
+  membercount_channel2 String?
+  membercount_message2 String?
+  membercount_channel3 String?
+  membercount_message3 String?
+  membercount_channel4 String?
+  membercount_message4 String?
+  membercount_channel5 String?
+  membercount_message5 String?
+
+  suggestChannel String?
+  embedColor     String?
+  footerText     String?
+  approveEmoji   String?
+  denyEmoji      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model BanUser {
@@ -268,6 +288,23 @@ model Captcha {
   isEnabled Boolean @default(false)
   role      String
   guild     MyGuild @relation(fields: [id], references: [id])
+}
+
+model Suggestion {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  suggestId  String
+  messageId  String   @unique
+  content    String
+  imageUrl   String?
+  upvotes    Int      @default(0)
+  downvotes  Int      @default(0)
+  voters     String[] @default([]) // Array of user IDs who upvoted
+  downvoters String[] @default([]) // Array of user IDs who downvoted
+  authorId   String
+  guildId    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 type EventLogs {

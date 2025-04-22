@@ -8,9 +8,9 @@ import { main } from "@/main";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { getFiles } from "@/shared/utils/functions/files";
-import { FileType } from "@/typings/discord";
 import { filesLoaded } from "@constants/tools.const";
 import { DiscordError } from "@extenders/errors.extender";
+import { FileType } from "@typings/modules";
 
 import { Addons } from "../addons";
 import { MyClient } from "../client";

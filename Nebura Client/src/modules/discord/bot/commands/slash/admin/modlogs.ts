@@ -7,16 +7,34 @@ import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 export default new Command(
   new SlashCommandBuilder()
     .setName("modlogs")
+    .setNameLocalizations({
+      "es-ES": "modlogs",
+    })
     .setDescription("Setup or edit the modlogs.")
+    .setDescriptionLocalizations({
+      "es-ES": "Configura o edita los modlogs.",
+    })
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .addSubcommand((subcommand) =>
       subcommand
         .setName("setup")
+        .setNameLocalizations({
+          "es-ES": "configurar",
+        })
         .setDescription("Setup the modlogs.")
+        .setDescriptionLocalizations({
+          "es-ES": "Configura los modlogs.",
+        })
         .addChannelOption((option) =>
           option
             .setName("channel")
+            .setNameLocalizations({
+              "es-ES": "canal",
+            })
             .setDescription("Channel to send the message to.")
+            .setDescriptionLocalizations({
+              "es-ES": "Canal para enviar el mensaje.",
+            })
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true),
         ),
@@ -24,11 +42,22 @@ export default new Command(
     .addSubcommand((subcommand) =>
       subcommand
         .setName("replace_channel")
+        .setNameLocalizations({
+          "es-ES": "reemplazar"})
         .setDescription("Replace the channel for the modlogs.")
+        .setDescriptionLocalizations({
+          "es-ES": "Reemplaza el canal para los modlogs.",
+        })
         .addChannelOption((option) =>
           option
             .setName("channel")
+            .setNameLocalizations({
+              "es-ES": "canal",
+            })
             .setDescription("Channel to send the message to.")
+            .setDescriptionLocalizations({
+              "es-ES": "Canal para enviar el mensaje.",
+            })
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true),
         ),

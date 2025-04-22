@@ -14,7 +14,13 @@ import { logWithLabel } from "@utils/functions/console";
 export default new Command(
   new SlashCommandBuilder()
     .setName("config")
-    .setDescription("configuration the functions of the discord bot"),
+    .setNameLocalizations({
+      "es-ES": "configuracion",
+    })
+    .setDescription("configuration the functions of the discord bot")
+    .setDescriptionLocalizations({
+      "es-ES": "configuracion las funciones del bot de discord",
+    }),
   async (client, interaction) => {
     try {
       if (!interaction.guild || !interaction.channel || !client.user) return;

@@ -1,12 +1,13 @@
 import { main } from "@/main";
-import { Modals } from "@/typings/discord";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Modals } from "@typings/modules";
 
 const modalWebhook: Modals = {
   id: "modal-webhook-config",
   tickets: true,
   owner: false,
   permissions: ["SendMessages"],
+  cooldown: 10,
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     const input = interaction.fields.getTextInputValue("input-webhook-url");

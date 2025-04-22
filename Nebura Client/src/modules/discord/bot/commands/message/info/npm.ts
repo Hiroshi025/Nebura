@@ -3,8 +3,8 @@ import { stripIndent } from "common-tags";
 import { ChannelType, EmbedBuilder } from "discord.js";
 import moment from "moment";
 
-import { Precommand } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 import { logWithLabel } from "@utils/functions/console";
 
 const npmCommand: Precommand = {
@@ -19,18 +19,20 @@ const npmCommand: Precommand = {
   botpermissions: ["SendMessages"],
   async execute(client, message, args, prefix) {
     try {
-      if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+      if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
+        return;
       const pkg = args[0];
       if (!pkg)
         return message.reply({
           embeds: [
             new ErrorEmbed().setDescription(
               [
-                `${
-                  client.getEmoji(message.guild.id, "error")
-                } The \`package name\` is a required argument that is missing.`,
+                `${client.getEmoji(
+                  message.guild.id,
+                  "error",
+                )} The \`package name\` is a required argument that is missing.`,
                 `Usage: \`${prefix}npm <package name>\``,
-              ].join("\n")
+              ].join("\n"),
             ),
           ],
         });
@@ -99,13 +101,13 @@ const npmCommand: Precommand = {
               > **Author:** ${body.author ? body.author.name : "None"}
               **__Creation & Modification__**
               > **Created at:** <t:${Math.floor(
-                new Date(body.time.created).getTime() / 1000
+                new Date(body.time.created).getTime() / 1000,
               )}:R> | \`${moment(body.time.created).fromNow()}\`
               > **Modified at:** \`${new Date(
-                body.time.modified
+                body.time.modified,
               ).toDateString()}\` | \`${moment(body.time.modified).fromNow()}\`
               > **NPM-Link:** [Click here](https://npmjs.com/package/${pkg})
-            `
+            `,
             )
             .setFields(
               {
@@ -122,7 +124,7 @@ const npmCommand: Precommand = {
                 name: "__Commands & Scripts__",
                 value: `\`\`\`npm install ${pkg}\`\`\``,
                 inline: false,
-              }
+              },
             ),
         ],
       });

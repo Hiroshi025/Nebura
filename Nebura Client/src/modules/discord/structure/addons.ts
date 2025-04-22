@@ -1,5 +1,5 @@
 import { config } from "@/shared/utils/config";
-import { AddonConfig } from "@/typings/discord";
+import { AddonConfig } from "@typings/modules";
 
 import { MyClient } from "./client";
 

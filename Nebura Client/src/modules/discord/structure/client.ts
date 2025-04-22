@@ -2,8 +2,8 @@ import { Client, Collection, GatewayIntentBits, Options, Partials } from "discor
 
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
-import { Buttons, Menus, Modals } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
+import { Buttons, Menus, Modals } from "@typings/modules";
 
 import { DiscordHandler } from "./handlers/collection";
 import { Command } from "./utils/builders";
@@ -98,6 +98,22 @@ export class MyClient extends Client {
   public voiceGenerator: Collection<unknown, unknown>;
 
   /**
+   * Collection of cooldowns for commands or interactions.
+   *
+   * @type {Collection<unknown, unknown>}
+   * @public
+   */
+  public cooldown: Collection<unknown, unknown>;
+
+  /**
+   * Collection of job members count.
+   *
+   * @type {Collection<unknown, unknown>}
+   * @public
+   */
+  public Jobmembercount: any;
+
+  /**
    * Initializes a new instance of the `MyClient` class.
    * Configures the client with specific intents and partials, and initializes handlers and settings.
    */
@@ -122,7 +138,7 @@ export class MyClient extends Client {
         GatewayIntentBits.GuildIntegrations,
         GatewayIntentBits.GuildScheduledEvents,
         GatewayIntentBits.DirectMessageTyping,
-        GatewayIntentBits.GuildExpressions
+        GatewayIntentBits.GuildExpressions,
       ],
       partials: [
         Partials.GuildMember,
@@ -148,6 +164,7 @@ export class MyClient extends Client {
 
     this.handlers = new DiscordHandler(this);
     this.settings = config.modules.discord;
+    this.cooldown = new Collection();
 
     this.categories = new Collection();
     this.commands = new Collection();

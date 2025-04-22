@@ -1,10 +1,11 @@
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 
-import { Buttons } from "@typings/discord";
+import { Buttons } from "@typings/modules";
 
 const logSetButton: Buttons = {
   id: "button-enabled-logevents",
   tickets: false,
+  cooldown: 10,
   owner: false,
   permissions: ["Administrator"],
   botpermissions: ["Administrator"],

@@ -11,27 +11,69 @@ import { logWithLabel } from "@utils/functions/console";
 export default new Command(
   new SlashCommandBuilder()
     .setName("ban")
+    .setNameLocalizations({
+      "es-ES": "banear",
+    })
     .setDescription("Ban a member!")
+    .setDescriptionLocalizations({
+      "es-ES": "¡Banea a un miembro!",
+    })
     .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
     .addSubcommand((subcommand) =>
       subcommand
         .setName("user")
+        .setNameLocalizations({
+          "es-ES": "usuario",
+        })
         .setDescription("Ban a user!")
+        .setDescriptionLocalizations({
+          "es-ES": "¡Banea a un usuario!",
+        })
         .addUserOption((option) =>
-          option.setName("target").setDescription("User to ban.").setRequired(true),
+          option
+            .setName("target")
+            .setNameLocalizations({
+              "es-ES": "usuario",
+            })
+            .setDescription("User to ban.")
+            .setDescriptionLocalizations({
+              "es-ES": "Usuario a banear.",
+            })
+            .setRequired(true),
         )
         .addStringOption((option) =>
-          option.setName("reason").setDescription("Reason for the ban.").setRequired(true),
+          option
+            .setName("reason")
+            .setNameLocalizations({
+              "es-ES": "razón",
+            })
+            .setDescription("Reason for the ban.")
+            .setDescriptionLocalizations({
+              "es-ES": "Razón del baneo.",
+            })
+            .setRequired(true),
         ),
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("setup")
+        .setNameLocalizations({
+          "es-ES": "configurar",
+        })
         .setDescription("Setup the ban logs.")
+        .setDescriptionLocalizations({
+          "es-ES": "Configura los registros de baneos.",
+        })
         .addChannelOption((option) =>
           option
             .setName("channel")
+            .setNameLocalizations({
+              "es-ES": "canal",
+            })
             .setDescription("Channel to send the message to.")
+            .setDescriptionLocalizations({
+              "es-ES": "Canal donde enviar el mensaje.",
+            })
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true),
         ),

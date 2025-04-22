@@ -1,14 +1,19 @@
 import { stripIndent } from "common-tags";
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, userMention
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
+  userMention,
 } from "discord.js";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
-import { Precommand } from "@/typings/discord";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import emojis from "@config/json/emojis.json";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 import { config } from "@utils/config";
 
 import packages from "../../../../../../../package.json";
@@ -316,7 +321,7 @@ const helpCommand: Precommand = {
             if (interaction.user.id !== message.author.id) {
               await interaction.reply({
                 content: `${emojis.error} **You can not do that! Only ${message.author}** you can interact with the help menu`,
-                ephemeral: true
+                ephemeral: true,
               });
             }
 

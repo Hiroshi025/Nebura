@@ -1,8 +1,8 @@
 import { ChannelType, GuildEmoji, TextChannel } from "discord.js";
 import moment from "moment";
 
-import { Precommand } from "@/typings/discord";
 import { EmbedCorrect } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 
 const emojisCommand: Precommand = {
   name: "emoji",

@@ -66,6 +66,12 @@ export interface componentData {
   owner: boolean;
 
   /**
+   * Cooldown time in seconds for the precommand.
+   * This defines the minimum time a user must wait before reusing the command.
+   */
+  cooldown?: number;
+
+  /**
    * Indicates if the component is under maintenance.
    * If `true`, the component is temporarily disabled for updates or fixes.
    */

@@ -1,10 +1,11 @@
 import { main } from "@/main";
 import { EmbedCorrect } from "@extenders/discord/embeds.extender";
-import { Menus } from "@typings/discord";
+import { Menus } from "@typings/modules";
 
 const logChannelClient: Menus = {
   id: "select-log-channel",
   maintenance: false,
+  cooldown: 10,
   tickets: false,
   owner: false,
   permissions: ["SendMessages"],

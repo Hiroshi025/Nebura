@@ -11,10 +11,24 @@ import {
 export default new Command(
   new SlashCommandBuilder()
     .setName("embed-creator")
+    .setNameLocalizations({
+      "es-ES": "creador-embed",
+    })
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .setDescription("Create custom embeds")
+    .setDescriptionLocalizations({
+      "es-ES": "Crea embeds personalizados",
+    })
     .addChannelOption((opt) =>
-      opt.setName("channel").setDescription("Send the embed to a different channel"),
+      opt
+        .setName("channel")
+        .setNameLocalizations({
+          "es-ES": "canal",
+        })
+        .setDescription("Send the embed to a different channel")
+        .setDescriptionLocalizations({
+          "es-ES": "Enviar el embed a un canal diferente",
+        })
     ),
   async (_client, interaction) => {
     const { options, member } = interaction;

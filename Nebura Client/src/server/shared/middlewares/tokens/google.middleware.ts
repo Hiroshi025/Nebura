@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import { NextFunction, Response } from "express";
 
-import { AuthenticatedRequest } from "@/typings/package/gemini.interface";
+import { AuthenticatedRequest } from "@typings/responses";
 
 export const validateTokenAI = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const apiKey = req.headers["x-gemini-api-key"] as string;

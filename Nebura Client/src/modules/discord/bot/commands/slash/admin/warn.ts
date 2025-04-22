@@ -8,18 +8,45 @@ export default new Command(
   new SlashCommandBuilder()
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .setName("warn")
+    .setNameLocalizations({
+      "es-ES": "advertir",
+    })
     .setDescription("Warn a user or remove a warn")
+    .setDescriptionLocalizations({
+      "es-ES": "Advertir a un usuario o eliminar una advertencia",
+    })
     .addSubcommand((subCmd) =>
       subCmd
         .setName("add")
+        .setNameLocalizations({
+          "es-ES": "agregar",
+        })
         .setDescription("Warn a user")
+        .setDescriptionLocalizations({
+          "es-ES": "Advertir a un usuario",
+        })
         .addUserOption((option) => {
-          return option.setName("user").setDescription("The user to warn").setRequired(true);
+          return option
+          .setName("user")
+          .setNameLocalizations({
+            "es-ES": "usuario",
+          })
+          .setDescription("The user to warn")
+          .setDescriptionLocalizations({
+            "es-ES": "El usuario a advertir",
+          })
+          .setRequired(true);
         })
         .addStringOption((option) => {
           return option
             .setName("reason")
+            .setNameLocalizations({
+              "es-ES": "razón",
+            })
             .setDescription("The reason for the warn")
+            .setDescriptionLocalizations({
+              "es-ES": "La razón de la advertencia",
+            })
             .setRequired(true)
             .setMinLength(5)
             .setMaxLength(500);
@@ -28,11 +55,23 @@ export default new Command(
     .addSubcommand((subCmd) =>
       subCmd
         .setName("remove")
+        .setNameLocalizations({
+          "es-ES": "eliminar",
+        })
         .setDescription("Remove a warn from a user")
+        .setDescriptionLocalizations({
+          "es-ES": "Eliminar una advertencia de un usuario",
+        })
         .addStringOption((option) => {
           return option
             .setName("warn_id")
+            .setNameLocalizations({
+              "es-ES": "id_advertencia",
+            })
             .setDescription("The id of the warn to remove")
+            .setDescriptionLocalizations({
+              "es-ES": "El id de la advertencia a eliminar",
+            })
             .setRequired(true);
         }),
     ),

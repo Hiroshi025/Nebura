@@ -1,7 +1,7 @@
 import { ChannelType, inlineCode } from "discord.js";
 
-import { Precommand } from "@/typings/discord";
 import { EmbedCorrect } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 
 const userInfo: Precommand = {
   name: "userinfo",

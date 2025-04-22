@@ -1,5 +1,5 @@
-import { GeminiOptions, GeminiResponse } from "@/typings/package/gemini.interface";
 import { GoogleGenerativeAI, Part } from "@google/generative-ai";
+import { GeminiOptions, GeminiResponse } from "@typings/responses";
 
 export class GeminiService {
   private genAI!: GoogleGenerativeAI;

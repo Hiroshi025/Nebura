@@ -1,11 +1,12 @@
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
-import { Menus } from "@typings/discord";
+import { Menus } from "@typings/modules";
 import { config } from "@utils/config";
 
 const setMenuRoom: Menus = {
   id: "rooms:menu-config",
   tickets: false,
+  cooldown: 10,
   owner: false,
   permissions: ["ManageChannels"],
   botpermissions: ["SendMessages"],

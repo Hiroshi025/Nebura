@@ -2,11 +2,15 @@ import { TextChannel } from "discord.js";
 
 import { client, main } from "@/main";
 import {
-	countMessage, createGuild, createUser, Economy, Ranking
+  countMessage,
+  createGuild,
+  createUser,
+  Economy,
+  Ranking,
 } from "@/modules/discord/structure/utils/functions";
 import { config } from "@/shared/utils/config";
-import { Precommand } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 
 import { Event } from "../../../structure/utils/builders";
 
@@ -102,6 +106,35 @@ export default new Event("messageCreate", async (message) => {
             ),
         ],
       });
+    }
+
+    if (command.cooldown) {
+      const cooldown =
+        (client.cooldown.get(command.name) as Map<string, number>) || new Map<string, number>();
+      const now = Date.now();
+      const cooldownAmount = command.cooldown * 1000;
+
+      if (cooldown.has(message.author.id)) {
+        const expirationTime = cooldown.get(message.author.id)! + cooldownAmount;
+        if (now < expirationTime) {
+          const timeLeft = Math.round((expirationTime - now) / 1000);
+          return message.channel.send({
+            embeds: [
+              new ErrorEmbed()
+                .setTitle("Pixel Web - Bot Core")
+                .setDescription(
+                  [
+                    `${client.getEmoji(message.guild.id, "error")} You are on cooldown for this command.`,
+                    `Please wait ${timeLeft} seconds before using it again.`,
+                  ].join("\n"),
+                ),
+            ],
+          });
+        }
+      }
+
+      cooldown.set(message.author.id, now);
+      client.cooldown.set(command.name, cooldown);
     }
 
     await command.execute(client, message, args, config.modules.discord.prefix, language, config);

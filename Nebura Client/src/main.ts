@@ -13,7 +13,7 @@ import { MyApp } from "./modules/whatsapp";
 import { API } from "./server";
 import { config } from "./shared/utils/config";
 import { logWithLabel } from "./shared/utils/functions/console";
-import { ProyectConfig } from "./typings/package/config";
+import { ProyectConfig } from "./typings/config";
 
 //import { globalCleanup } from "./shared/utils/runCleanTask";
 

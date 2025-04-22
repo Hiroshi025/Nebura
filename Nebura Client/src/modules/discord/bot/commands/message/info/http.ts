@@ -2,9 +2,9 @@
 import { EmbedBuilder } from "discord.js";
 import { STATUS_CODES } from "http";
 
-import { Precommand } from "@/typings/discord";
 import emojis from "@config/json/emojis.json";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 
 const httpCommand: Precommand = {
   name: "https",

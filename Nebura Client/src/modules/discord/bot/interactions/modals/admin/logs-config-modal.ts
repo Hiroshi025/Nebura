@@ -1,10 +1,11 @@
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
-import { Modals } from "@typings/discord";
+import { Modals } from "@typings/modules";
 
 const modalLogsEvents: Modals = {
   id: "button-enabled-logevents-modal",
   tickets: true,
+  cooldown: 10,
   owner: false,
   permissions: ["SendMessages"],
   botpermissions: ["SendMessages"],
@@ -28,8 +29,8 @@ const modalLogsEvents: Modals = {
         ],
       });
 
-    let newEvents: string[] = []
-    // a los eventos ya existes añade los nuevos pero que no se repitan los eventos 
+    let newEvents: string[] = [];
+    // a los eventos ya existes añade los nuevos pero que no se repitan los eventos
     if (data.eventlogs && data.eventlogs.events) {
       newEvents = data.eventlogs.events.filter((event) => !events.includes(event));
     }

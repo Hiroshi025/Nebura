@@ -1,10 +1,15 @@
 import {
-	ChannelType, EmbedBuilder, GuildMemberRoleManager, PermissionFlagsBits, TextChannel, userMention
+  ChannelType,
+  EmbedBuilder,
+  GuildMemberRoleManager,
+  PermissionFlagsBits,
+  TextChannel,
+  userMention,
 } from "discord.js";
 
 import { main } from "@/main";
-import { Precommand } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Precommand } from "@typings/modules";
 import { logWithLabel } from "@utils/functions/console";
 
 const adminBanCommand: Precommand = {
@@ -25,7 +30,9 @@ const adminBanCommand: Precommand = {
     // Validación de permisos del usuario ejecutor
     if (!message.member?.permissions.has(PermissionFlagsBits.BanMembers)) {
       return message.channel.send({
-        embeds: [embed.setColor("Red").setDescription("You do not have permission to ban members.")],
+        embeds: [
+          embed.setColor("Red").setDescription("You do not have permission to ban members."),
+        ],
       });
     }
 

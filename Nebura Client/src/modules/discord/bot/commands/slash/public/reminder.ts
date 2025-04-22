@@ -8,11 +8,23 @@ import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 export default new Command(
   new SlashCommandBuilder()
     .setName("remind")
+    .setNameLocalizations({
+      "es-ES": "recordar",
+    })
     .setDescription("Set a message reminder")
+    .setDescriptionLocalizations({
+      "es-ES": "Establecer un recordatorio de mensaje",
+    })
     .addStringOption((option) => {
       return option
         .setName("message")
+        .setNameLocalizations({
+          "es-ES": "mensaje",
+        })
         .setDescription("The messaged to be reminded")
+        .setDescriptionLocalizations({
+          "es-ES": "El mensaje a recordar",
+        })
         .setRequired(true)
         .setMaxLength(2000)
         .setMinLength(10);
@@ -20,7 +32,13 @@ export default new Command(
     .addIntegerOption((option) => {
       return option
         .setName("time")
+        .setNameLocalizations({
+          "es-ES": "tiempo",
+        })
         .setDescription("The time to send the message at. (IN MINUTES)")
+        .setDescriptionLocalizations({
+          "es-ES": "El tiempo para enviar el mensaje. (EN MINUTOS)",
+        })
         .setRequired(true)
         .setMinValue(1);
     }),
@@ -121,5 +139,5 @@ export default new Command(
     });
 
     return;
-  },
+  }
 );

@@ -1,26 +1,30 @@
 import {
-	ButtonInteraction, ChannelSelectMenuInteraction, InteractionType, MessageFlags,
-	ModalSubmitInteraction, PermissionsBitField, RoleSelectMenuInteraction,
-	StringSelectMenuInteraction
+  ButtonInteraction,
+  ChannelSelectMenuInteraction,
+  InteractionType,
+  MessageFlags,
+  ModalSubmitInteraction,
+  PermissionsBitField,
+  RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
 import { client } from "@/main";
 import { Event } from "@/modules/discord/structure/utils/builders";
-import { Buttons, Menus, Modals } from "@/typings/discord";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
+import { Buttons, Menus, Modals } from "@typings/modules";
 import { config } from "@utils/config";
+
+// Mapa para rastrear los cooldowns de los usuarios
+const cooldowns = new Map<string, Map<string, number>>();
 
 export default new Event("interactionCreate", async (interaction) => {
   if (!interaction.guild || !interaction.channel || interaction.user.bot || !interaction.user)
     return;
 
-  const lenguage = interaction.guild.preferredLocale; // esto es para obtener el idioma del servidor
+  const lenguage = interaction.guild.preferredLocale;
   const { guild } = interaction;
   if (!guild) return;
-
-  //Function to create a user and guild in the database if they do not exist.
-  //await client.utils.createUser(interaction.user.id, guild.id, client);
-  //await client.utils.createGuild(guild.id, client);
 
   switch (true) {
     case interaction.isChatInputCommand():
@@ -28,13 +32,38 @@ export default new Event("interactionCreate", async (interaction) => {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
 
+        const now = Date.now();
+        const userCooldowns = cooldowns.get(interaction.user.id) || new Map();
+        const cooldownAmount = (command.cooldown || 10) * 1000; // Convertir a milisegundos
+
+        if (userCooldowns.has(interaction.commandName)) {
+          const expirationTime = userCooldowns.get(interaction.commandName)!;
+          if (now < expirationTime) {
+            const timeLeft = ((expirationTime - now) / 1000).toFixed(1);
+            return interaction.reply({
+              embeds: [
+                new ErrorEmbed().setDescription(
+                  [
+                    `${client.getEmoji(interaction.guild.id, "error")} Please wait ${timeLeft} seconds before using this command again.`,
+                    `If you believe this is a mistake, please contact the bot owner.`,
+                  ].join("\n"),
+                ),
+              ],
+              flags: MessageFlags.Ephemeral,
+            });
+          }
+        }
+
+        userCooldowns.set(interaction.commandName, now + cooldownAmount);
+        cooldowns.set(interaction.user.id, userCooldowns);
+
         if (command.options?.owner && !config.modules.discord.owners.includes(interaction.user.id))
           return interaction.reply({
             embeds: [
               new ErrorEmbed().setDescription(
                 [
-                  `${client.getEmoji(guild.id, "error")} You do not have permission to use this command as it is reserved for the bot owner.`,
-                  `If you believe this is a mistake, please contact the bot owner.`,
+                  `${client.getEmoji(guild.id, "error")} You do not have permission to use this command, as it is reserved for the bot owner.`,
+                  `If you think this is a bug, please contact the bot owner.`,
                 ].join("\n"),
               ),
             ],
@@ -164,6 +193,44 @@ async function InteractionOptions(
           [
             `${client.getEmoji(guild.id, "error")} This command is currently disabled due to maintenance.`,
             `Please try again later or contact the bot owner for more information.`,
+          ].join("\n"),
+        ),
+      ],
+      flags: MessageFlags.Ephemeral,
+    });
+  }
+
+  if (type.cooldown) {
+    const now = Date.now();
+    const userCooldowns = cooldowns.get(interaction.user.id) || new Map();
+    const cooldownAmount = type.cooldown * 1000; // Convertir a milisegundos
+
+    if (userCooldowns.has(type.id)) {
+      const expirationTime = userCooldowns.get(type.id)!;
+      if (now < expirationTime) {
+        const timeLeft = ((expirationTime - now) / 1000).toFixed(1);
+        return interaction.reply({
+          embeds: [
+            new ErrorEmbed().setDescription(
+              [
+                `${client.getEmoji(guild.id, "error")} Please wait ${timeLeft} seconds before using this command again.`,
+                `If you believe this is a mistake, please contact the bot owner.`,
+              ].join("\n"),
+            ),
+          ],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+    }
+
+    userCooldowns.set(type.id, now + cooldownAmount);
+    cooldowns.set(interaction.user.id, userCooldowns);
+    await interaction.reply({
+      embeds: [
+        new ErrorEmbed().setDescription(
+          [
+            `${client.getEmoji(guild.id, "error")} You are on cooldown for this command.`,
+            `Please wait ${type.cooldown} seconds before using it again.`,
           ].join("\n"),
         ),
       ],
