@@ -9,6 +9,8 @@
   * [Routes API](proyectos/nebura-api/routes-api.md)
   * [RateLimit](proyectos/nebura-api/ratelimit.md)
   * [IP Administrador](proyectos/nebura-api/ip-administrador.md)
+  * [Modulos](proyectos/nebura-api/modulos/README.md)
+    * [Discord Client](proyectos/nebura-api/modulos/discord-client.md)
 
 ## TUTORIALES
 
