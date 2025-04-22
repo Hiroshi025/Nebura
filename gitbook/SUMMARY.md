@@ -18,6 +18,7 @@
 ## TUTORIALES
 
 * [Discord con TypeScript y Node.js](tutoriales/discord-con-typescript-y-node.js.md)
+* [Librerias NPM con  Typescript](tutoriales/librerias-npm-con-typescript.md)
 
 ## LEGAL
 
