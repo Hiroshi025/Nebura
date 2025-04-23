@@ -1,0 +1,21 @@
+{
+  "rest-client.environmentVariables": {
+    "local": {
+      "api_key": "your-api-key-here",
+      "host": "localhost:3000"
+    },
+    "production": {
+      "api_key": "prod-api-key-here",
+      "host": "api.yourservice.com"
+    }
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/node_modules": true,
+    "**/docs": true,
+  }
+}
