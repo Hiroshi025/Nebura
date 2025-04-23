@@ -1,4 +1,6 @@
-import { AttachmentBuilder, ChannelType, codeBlock } from "discord.js";
+import {
+	ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChannelType, codeBlock
+} from "discord.js";
 import { inspect } from "util";
 
 import { logWithLabel } from "@/shared/utils/functions/console";
@@ -48,17 +50,27 @@ const EvalCommand: Precommand = {
 
       let output = inspect(evaluated, { depth: 0 });
       let attachment;
+      let downloadButton;
+
       if (output.length > 1000) {
+        const fileName = `eval_output_${Date.now()}.txt`;
         attachment = new AttachmentBuilder(Buffer.from(output), {
-          name: "output.txt",
+          name: fileName,
         });
-        output = `The result is too long. Check the attached file.`;
+        output = `The result is too long. Check the attached file or use the button below to download it.`;
+
+        downloadButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setLabel("Download Result")
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId(`download_${message.author.id}_${fileName}`),
+        );
       }
 
       const executionTimeMs = (stop[0] * 1e9 + stop[1]) / 1e6;
       const executionTimeSec = `${stop[0]}.${Math.floor(stop[1] / 1e6)}s`;
 
-      const response = new EmbedCorrect().addFields(
+      const response = new EmbedCorrect().setTitle("✅ Evaluation Successful").addFields(
         {
           name: "📥 **Input Code**",
           value: codeBlock("js", code),
@@ -77,11 +89,22 @@ const EvalCommand: Precommand = {
           value: `\`${typeof evaluated}\``,
           inline: true,
         },
+        {
+          name: "👤 **Executed By**",
+          value: `<@${message.author.id}>`,
+          inline: true,
+        },
+        {
+          name: "📍 **Executed In**",
+          value: `**Channel:** <#${message.channel.id}>\n**Guild:** \`${message.guild.name}\``,
+          inline: true,
+        },
       );
 
       return message.channel.send({
         embeds: [response],
         files: attachment ? [attachment] : [],
+        components: downloadButton ? [downloadButton] : [],
       });
     } catch (e: any) {
       logWithLabel("error", `Error in eval command: ${e}`);
