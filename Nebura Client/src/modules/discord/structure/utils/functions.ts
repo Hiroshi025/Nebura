@@ -228,7 +228,7 @@ export async function toFixedNumber(number: number, places = 2) {
  * @param id - The string to validate.
  * @returns True if the string is a valid ObjectID or Discord ID, otherwise false.
  */
-function isValidObjectId(id: string): boolean {
+export function isValidObjectId(id: string): boolean {
   const objectIdPattern = /^[a-fA-F0-9]{24}$/; // MongoDB ObjectID pattern
   const discordIdPattern = /^\d{17,20}$/; // Discord snowflake ID pattern
   return objectIdPattern.test(id) || discordIdPattern.test(id);

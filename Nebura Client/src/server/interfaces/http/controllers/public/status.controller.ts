@@ -4,6 +4,15 @@ import process from "process";
 
 import { PrismaClient } from "@prisma/client";
 
+import _package from "../../../../../../package.json";
+
+// Extender la interfaz Request para incluir la propiedad 't'
+declare module "express-serve-static-core" {
+  interface Request {
+    t: (key: string) => string;
+  }
+}
+
 const prisma = new PrismaClient();
 
 export class StatusController {
@@ -59,11 +68,16 @@ export class StatusController {
         timestamp: new Date(),
         uptime: process.uptime(),
         database: databaseStatus,
-        system: systemInfo,
+        system: {
+          ...systemInfo,
+          hostname: os.hostname(),
+          networkInterfaces: os.networkInterfaces(),
+        },
         meta: {
-          apiVersion: process.env.API_VERSION || "1.0.0",
+          apiVersion: process.env.API_VERSION || _package.version,
           environment: process.env.NODE_ENV || "development",
           startTime: this.startTime,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         },
       });
     } catch (error: any) {
@@ -73,5 +87,5 @@ export class StatusController {
         error: error.message,
       });
     }
-  };
+  }
 }

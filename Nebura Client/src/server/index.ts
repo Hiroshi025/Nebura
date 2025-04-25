@@ -219,6 +219,25 @@ export class API {
     this.app.get("/documentation", (_req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, "..", "..", "docs", "index.html"));
     });
+
+    /* This part of the code is setting up static file serving for different directories like css, js, img,
+    assets, and json. Here's a breakdown of what it does: */
+    this.app.set("views", path.join(__dirname, "view"));
+    const publicDir = path.join(__dirname, "view", "public");
+    const staticDirs = ["css", "js", "assets", "vendor", "fonts", "images", "scss"];
+    staticDirs.forEach((dir): void => {
+      const staticPath = path.join(publicDir, dir);
+      this.app.use(
+        `/${dir}`,
+        express.static(staticPath, {
+          setHeaders: (res, filePath) => {
+            if (filePath.endsWith(".js")) {
+              res.setHeader("Content-Type", "application/javascript");
+            }
+          },
+        }),
+      );
+    });
   }
 
   /**

@@ -17,5 +17,9 @@
     "**/Thumbs.db": true,
     "**/node_modules": true,
     "**/docs": true,
-  }
+    "**/gitbook": true
+  },
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "typescript.suggest.completeJSDocs": true
 }

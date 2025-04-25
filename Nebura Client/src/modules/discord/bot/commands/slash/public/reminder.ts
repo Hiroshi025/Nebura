@@ -3,6 +3,7 @@ import schedule from "node-schedule";
 
 import { main } from "@/main";
 import { Command } from "@/modules/discord/structure/utils/builders";
+import { isValidObjectId } from "@/modules/discord/structure/utils/functions";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
 export default new Command(
@@ -86,7 +87,21 @@ export default new Command(
 
     const timeMs = time * 60000;
 
+    const guuldIdValidate = await isValidObjectId(guild.id);
     const date = new Date(new Date().getTime() + timeMs);
+
+    if (!guuldIdValidate) {
+      return interaction.reply({
+        embeds: [
+          new ErrorEmbed().setDescription(
+            [
+              `${client.getEmoji(guild.id, "error")} You need to provide a valid guild!`,
+              `Please use the command in a server.`,
+            ].join("\n"),
+          ),
+        ],
+      });
+    }
 
     await main.prisma.reminder.create({
       data: {

@@ -210,105 +210,111 @@ export default new Command(
                       if (i.isButton()) {
                         switch (i.customId) {
                           case "button-set-webhook-config":
-                            const input = new TextInputBuilder()
-                              .setCustomId("input-webhook-url")
-                              .setLabel("Webhook URL")
-                              .setStyle(1)
-                              .setPlaceholder("Enter the webhook URL")
-                              .setRequired(true)
-                              .setMinLength(10)
-                              .setMaxLength(2000);
+                            {
+                              const input = new TextInputBuilder()
+                                .setCustomId("input-webhook-url")
+                                .setLabel("Webhook URL")
+                                .setStyle(1)
+                                .setPlaceholder("Enter the webhook URL")
+                                .setRequired(true)
+                                .setMinLength(10)
+                                .setMaxLength(2000);
 
-                            const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-                              input,
-                            );
-                            const modal = new ModalBuilder()
-                              .setCustomId("modal-webhook-config")
-                              .setTitle("Webhook Configuration")
-                              .addComponents(row);
+                              const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
+                                input,
+                              );
+                              const modal = new ModalBuilder()
+                                .setCustomId("modal-webhook-config")
+                                .setTitle("Webhook Configuration")
+                                .addComponents(row);
 
-                            await i.showModal(modal);
+                              await i.showModal(modal);
+                            }
                             break;
                           case "button-create-webhook-config":
-                            await i
-                              .reply({
-                                embeds: [
-                                  new EmbedCorrect()
-                                    .setTitle("Configuration")
-                                    .setDescription(
-                                      `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-                                        `You have selected the create webhook option.`,
+                            {
+                              await i
+                                .reply({
+                                  embeds: [
+                                    new EmbedCorrect()
+                                      .setTitle("Configuration")
+                                      .setDescription(
+                                        `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
+                                          `You have selected the create webhook option.`,
+                                      ),
+                                  ],
+                                  components: [
+                                    new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+                                      new ChannelSelectMenuBuilder()
+                                        .setCustomId("select-webhook-channel")
+                                        .setPlaceholder("Select a channel to create the webhook")
+                                        .setChannelTypes([0]), // 0 = GUILD_TEXT
                                     ),
-                                ],
-                                components: [
-                                  new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
-                                    new ChannelSelectMenuBuilder()
-                                      .setCustomId("select-webhook-channel")
-                                      .setPlaceholder("Select a channel to create the webhook")
-                                      .setChannelTypes([0]), // 0 = GUILD_TEXT
-                                  ),
-                                ],
-                              })
-                              .then(async (dta) => {
-                                const collector = dta.createMessageComponentCollector({
-                                  filter: (i) => i.user.id === interaction.user.id,
-                                  time: 60000,
-                                });
+                                  ],
+                                })
+                                .then(async (dta) => {
+                                  const collector = dta.createMessageComponentCollector({
+                                    filter: (i) => i.user.id === interaction.user.id,
+                                    time: 60000,
+                                  });
 
-                                collector.on("collect", async (i) => {
-                                  if (i.isChannelSelectMenu()) {
-                                    const channel = i.values[0];
-                                    const guild = await client.guilds.fetch(
-                                      interaction.guildId as string,
-                                    );
-                                    const channelData: TextChannel = (await guild.channels.fetch(
-                                      channel,
-                                    )) as TextChannel;
-                                    if (!channelData) return;
-                                    const webhook = await channelData.createWebhook({
-                                      name: "Error Logs",
-                                      avatar: client.user?.displayAvatarURL(),
-                                    });
-                                    await main.prisma.myDiscord.update({
-                                      where: { clientId: client.user?.id },
-                                      data: { webhookURL: webhook.url },
-                                    });
-                                    await i.update({
-                                      embeds: [
-                                        new EmbedCorrect()
-                                          .setTitle("Configuration")
-                                          .setDescription(
-                                            `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-                                              `The webhook has been created in <#${channel}>`,
-                                          ),
-                                      ],
-                                      components: [],
-                                    });
-                                  }
+                                  collector.on("collect", async (i) => {
+                                    if (i.isChannelSelectMenu()) {
+                                      const channel = i.values[0];
+                                      const guild = await client.guilds.fetch(
+                                        interaction.guildId as string,
+                                      );
+                                      const channelData: TextChannel = (await guild.channels.fetch(
+                                        channel,
+                                      )) as TextChannel;
+                                      if (!channelData) return;
+                                      const webhook = await channelData.createWebhook({
+                                        name: "Error Logs",
+                                        avatar: client.user?.displayAvatarURL(),
+                                      });
+                                      await main.prisma.myDiscord.update({
+                                        where: { clientId: client.user?.id },
+                                        data: { webhookURL: webhook.url },
+                                      });
+                                      await i.update({
+                                        embeds: [
+                                          new EmbedCorrect()
+                                            .setTitle("Configuration")
+                                            .setDescription(
+                                              `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
+                                                `The webhook has been created in <#${channel}>`,
+                                            ),
+                                        ],
+                                        components: [],
+                                      });
+                                    }
+                                  });
                                 });
-                              });
+                            }
                             break;
                           case "button-delete-webhook-config":
-                            await i
-                              .update({
-                                embeds: [
-                                  new EmbedCorrect()
-                                    .setTitle("Configuration")
-                                    .setDescription(
-                                      [
-                                        `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**`,
-                                        `The webhook URL has been successfully removed, please check \`/config\` again.`,
-                                      ].join("\n"),
-                                    ),
-                                ],
-                                components: [],
-                              })
-                              .then(async () => {
-                                await main.prisma.myDiscord.update({
-                                  where: { clientId: client.user?.id },
-                                  data: { webhookURL: null },
+                            {
+                              await i
+                                .update({
+                                  embeds: [
+                                    new EmbedCorrect()
+                                      .setTitle("Configuration")
+                                      .setDescription(
+                                        [
+                                          `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**`,
+                                          `The webhook URL has been successfully removed, please check \`/config\` again.`,
+                                        ].join("\n"),
+                                      ),
+                                  ],
+                                  components: [],
+                                })
+                                .then(async () => {
+                                  await main.prisma.myDiscord.update({
+                                    where: { clientId: client.user?.id },
+                                    data: { webhookURL: null },
+                                  });
                                 });
-                              });
+                            }
                             break;
                         }
                       }
@@ -337,7 +343,7 @@ export default new Command(
                           .setChannelTypes([0]), // 0 = GUILD_TEXT
                       ),
                     ],
-                    flags: "Ephemeral"
+                    flags: "Ephemeral",
                   });
                 }
                 break;

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es" class="h-100">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado del Sistema</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #5865F2;
+      --secondary-color: #2C2F33;
+      --accent-color: #FEE75C;
+    }
+    
+    body {
+      background: url('/images/placeholder.jpg') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.85);
+      color: white;
+    }
+    
+    .card {
+      background-color: rgba(44, 47, 51, 0.9);
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+      color: white; /* Cambia el color de la letra a blanco */
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .card-title {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+    
+    .feature-icon {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+    }
+    
+    .badge-indicator {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    .nav-pills .nav-link.active {
+      background-color: var(--primary-color);
+    }
+    
+    .nav-pills .nav-link {
+      color: white;
+    }
+    
+    .status-header {
+      border-bottom: 3px solid var(--primary-color);
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .section-title {
+      position: relative;
+      padding-left: 1rem;
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+
+<body class="d-flex flex-column h-100">
+  <div class="overlay">
+    <!-- Header -->
+    <header class="pt-4 pb-2">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="m-0">
+              <span class="text-white">Nebura</span>
+            </h1>
+            <p class="text-muted m-0">Estado del Sistema</p>
+          </div>
+          <img src="/images/logo.png" alt="Logo" height="50">
+        </div>
+      </div>
+    </header>
+
+    <main class="container my-4">
+      <!-- Status Overview -->
+      <section class="mb-5">
+        <div class="row g-4">
+          <!-- API Status -->
+          <div class="col-md-6">
+            <div class="card h-100 shadow-lg">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="card-title m-0">
+                    <i class="mdi mdi-api feature-icon me-2"></i>Estado de la API
+                  </h5>
+                  <span class="badge-indicator <%= status.status === 'Operativo' ? 'bg-success' : 'bg-danger' %>">
+                    <%= status.status %>
+                  </span>
+                </div>
+                <ul class="list-group list-group-flush bg-transparent">
+                  <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                    <span>Última actualización:</span>
+                    <span><%= new Date(status.timestamp).toLocaleString() %></span>
+                  </li>
+                  <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                    <span>Tiempo de actividad:</span>
+                    <span><%= (status.uptime / 60 / 60).toFixed(2) %> horas</span>
+                  </li>
+                  <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                    <span>Versión API:</span>
+                    <span><%= status.meta.apiVersion %></span>
+                  </li>
+                  <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                    <span>Entorno:</span>
+                    <span class="text-uppercase"><%= status.meta.environment %></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Database Status -->
+          <div class="col-md-6">
+            <div class="card h-100 shadow-lg">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="card-title m-0">
+                    <i class="mdi mdi-database feature-icon me-2"></i>Estado de la Base de Datos
+                  </h5>
+                  <span class="badge-indicator <%= status.database.status === 'healthy' ? 'bg-success' : 'bg-danger' %>">
+                    <%= status.database.status === 'healthy' ? 'Saludable' : 'Crítico' %>
+                  </span>
+                </div>
+                <ul class="list-group list-group-flush bg-transparent">
+                  <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                    <span>Tiempo de respuesta:</span>
+                    <span><%= status.database.responseTime %> ms</span>
+                  </li>
+                  <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                    <span>Inicio del sistema:</span>
+                    <span><%= new Date(status.meta.startTime).toLocaleString() %></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- System Details -->
+      <section class="mb-5">
+        <h2 class="section-title mb-4">Detalles del Sistema</h2>
+        <div class="card shadow-lg">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <p class="d-flex justify-content-between">
+                  <strong>Carga del Sistema:</strong>
+                  <span><%= status.system.systemLoad.map(l => l.toFixed(2)).join(', ') %></span>
+                </p>
+                <p class="d-flex justify-content-between">
+                  <strong>Memoria Total:</strong>
+                  <span><%= (status.system.totalMemory / 1024 / 1024 / 1024).toFixed(2) %> GB</span>
+                </p>
+              </div>
+              <div class="col-md-4">
+                <p class="d-flex justify-content-between">
+                  <strong>Memoria Libre:</strong>
+                  <span><%= (status.system.freeMemory / 1024 / 1024 / 1024).toFixed(2) %> GB</span>
+                </p>
+                <p class="d-flex justify-content-between">
+                  <strong>Versión Node.js:</strong>
+                  <span><%= status.system.nodeVersion %></span>
+                </p>
+              </div>
+              <div class="col-md-4">
+                <p class="d-flex justify-content-between">
+                  <strong>Arquitectura:</strong>
+                  <span><%= status.system.arch %></span>
+                </p>
+                <p class="d-flex justify-content-between">
+                  <strong>Plataforma:</strong>
+                  <span><%= status.system.platform %></span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Discord Status -->
+      <section class="mb-5">
+        <h2 class="section-title mb-4">Estado de Discord</h2>
+        <div class="card shadow-lg">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title m-0">
+                <i class="mdi mdi-discord feature-icon me-2"></i>Conectividad con Discord
+              </h5>
+              <span class="badge-indicator <%= discordStatus.indicator === 'none' ? 'bg-success' : 'bg-warning' %>">
+                <%= discordStatus.description %>
+              </span>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <p class="d-flex justify-content-between">
+                  <strong>Última actualización:</strong>
+                  <span><%= discordStatus.updatedAt ? new Date(discordStatus.updatedAt).toLocaleString() : 'N/A' %></span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="d-flex justify-content-between">
+                  <strong>Estado oficial:</strong>
+                  <a href="<%= discordStatus.url %>" target="_blank" class="text-info">Ver estado</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Community Section -->
+      <section class="mb-5">
+        <div class="card shadow-lg">
+          <div class="card-body text-center">
+            <h3 class="mb-4">¿Listo para unirte a nuestra comunidad de desarrollo?</h3>
+            <p class="lead mb-4">Comienza con nuestra poderosa API y conéctate con otras plataformas para llevar tu proyecto al siguiente nivel.</p>
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+              <a href="https://help.hiroshi-dev.me/" class="btn btn-primary px-4">
+                <i class="mdi mdi-book-open me-2"></i>Documentación
+              </a>
+              <a href="https://discord.gg/p6gZfY4jWm" class="btn btn-success px-4">
+                <i class="mdi mdi-discord me-2"></i>Comunidad
+              </a>
+              <a href="https://github.com/Hiroshi025" class="btn btn-outline-light px-4">
+                <i class="mdi mdi-github me-2"></i>GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-4 border-top border-secondary">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <h5 class="text-accent">NelsonClient</h5>
+            <p class="text-white">Un proyecto modular que integra múltiples servicios para tu día a día en internet.</p>
+          </div>
+          <div class="col-md-3">
+            <h5 class="text-accent">Recursos</h5>
+            <ul class="list-unstyled">
+              <li><a href="#" class="text-white text-decoration-none">Documentación API</a></li>
+              <li><a href="#" class="text-white text-decoration-none">Guía Socket.io</a></li>
+              <li><a href="#" class="text-white text-decoration-none">Configuración</a></li>
+            </ul>
+          </div>
+          <div class="col-md-3">
+            <h5 class="text-accent">Legal</h5>
+            <ul class="list-unstyled">
+              <li><a href="#" class="text-white text-decoration-none">Términos de Servicio</a></li>
+              <li><a href="#" class="text-white text-decoration-none">Política de Privacidad</a></li>
+              <li><a href="#" class="text-white text-decoration-none">Política de Cookies</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="text-center mt-4 text-muted">
+          <p>© 2023 NelsonClient. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -198,7 +198,7 @@ model ServerModlog {
 
 model Reminder {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
+  userId    String   
   guildId   String   @db.ObjectId
   guild     MyGuild  @relation(fields: [guildId], references: [id])
   message   String
