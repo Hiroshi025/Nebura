@@ -4,7 +4,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import session from "express-session";
 import helmet from "helmet";
 import { createServer } from "http";
-import middleware from "i18next-http-middleware";
+import i18nextMiddleware from "i18next-http-middleware";
 import path from "path";
 import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
@@ -93,8 +93,7 @@ export class API {
     // Parse JSON request bodies
     this.app.use(express.json());
 
-    // Parse URL-encoded request bodies
-    this.app.use(middleware.handle(i18next));
+    this.app.use(i18nextMiddleware.handle(i18next));
 
     // Use the router for handling application routes
     this.app.use(router);

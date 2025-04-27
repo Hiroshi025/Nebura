@@ -16,46 +16,58 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
   const bet = interaction.options.getNumber("bet");
 
   if (!bet || bet < 200) {
-    return interaction.reply({
-      embeds: [
-        new ErrorEmbed().setDescription("The minimum bet for Rock, Paper, Scissors is $200."),
-      ],
-      flags: "Ephemeral",
-    });
+    if (!interaction.replied) {
+      return interaction.reply({
+        embeds: [
+          new ErrorEmbed().setDescription("The minimum bet for Rock, Paper, Scissors is $200."),
+        ],
+        ephemeral: true,
+      });
+    }
+    return;
   }
 
   const challengerBalance = await fetchBalance(challenger.id, interaction.guild.id);
 
   if (bet > challengerBalance.balance) {
-    return interaction.reply({
-      embeds: [
-        new ErrorEmbed().setDescription(
-          `You don't have enough balance to place this bet! Your current balance is $${challengerBalance.balance}.`,
-        ),
-      ],
-      flags: "Ephemeral",
-    });
+    if (!interaction.replied) {
+      return interaction.reply({
+        embeds: [
+          new ErrorEmbed().setDescription(
+            `You don't have enough balance to place this bet! Your current balance is $${challengerBalance.balance}.`,
+          ),
+        ],
+        ephemeral: true,
+      });
+    }
+    return;
   }
 
   if (opponent) {
     if (opponent.bot || opponent.id === challenger.id) {
-      return interaction.reply({
-        embeds: [new ErrorEmbed().setDescription("You must mention a valid user to challenge.")],
-        flags: "Ephemeral",
-      });
+      if (!interaction.replied) {
+        return interaction.reply({
+          embeds: [new ErrorEmbed().setDescription("You must mention a valid user to challenge.")],
+          ephemeral: true,
+        });
+      }
+      return;
     }
 
     const opponentBalance = await fetchBalance(opponent.id, interaction.guild.id);
 
     if (bet > opponentBalance.balance) {
-      return interaction.reply({
-        embeds: [
-          new ErrorEmbed().setDescription(
-            `The opponent doesn't have enough balance to accept this bet! Their current balance is $${opponentBalance.balance}.`,
-          ),
-        ],
-        flags: "Ephemeral",
-      });
+      if (!interaction.replied) {
+        return interaction.reply({
+          embeds: [
+            new ErrorEmbed().setDescription(
+              `The opponent doesn't have enough balance to accept this bet! Their current balance is $${opponentBalance.balance}.`,
+            ),
+          ],
+          ephemeral: true,
+        });
+      }
+      return;
     }
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -81,10 +93,13 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
       collector.stop();
 
       if (i.customId === "reject_rps") {
-        return i.update({
-          content: "The challenge was rejected.",
-          components: [],
-        });
+        if (!interaction.replied) {
+          return i.update({
+            content: "The challenge was rejected.",
+            components: [],
+          });
+        }
+        return;
       }
 
       await startGame(interaction, challenger, opponent, bet);
@@ -92,7 +107,7 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
     });
 
     collector.on("end", async (_, reason) => {
-      if (reason === "time") {
+      if (reason === "time" && !interaction.replied) {
         await interaction.editReply({
           content: "The challenge was not accepted in time.",
           components: [],
@@ -141,10 +156,13 @@ async function startGame(
 
   collector.on("collect", async (i) => {
     if (i.user.id !== players[currentPlayerIndex].id) {
-      return i.reply({
-        content: "It's not your turn.",
-        flags: "Ephemeral",
-      });
+      if (!i.replied) {
+        return i.reply({
+          content: "It's not your turn.",
+          ephemeral: true,
+        });
+      }
+      return;
     }
 
     if (i.customId === "forfeit") {
@@ -176,7 +194,7 @@ async function startGame(
   });
 
   collector.on("end", async (_, reason) => {
-    if (reason === "time") {
+    if (reason === "time" && !interaction.replied) {
       await interaction.editReply({
         content: "The game ended due to inactivity.",
         components: [],

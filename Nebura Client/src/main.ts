@@ -1,4 +1,4 @@
-import { ObjectId } from "bson"; // Importar para generar ObjectIDs
+import { ObjectId } from "bson";
 import chalk from "chalk";
 
 import emojis from "@config/json/emojis.json";
@@ -14,8 +14,6 @@ import { API } from "./server";
 import { config } from "./shared/utils/config";
 import { logWithLabel } from "./shared/utils/functions/console";
 import { ProyectConfig } from "./typings/config";
-
-//import { globalCleanup } from "./shared/utils/runCleanTask";
 
 process.loadEnvFile();
 const defaultConfig = config as ProyectConfig;
@@ -41,7 +39,6 @@ export class Engine {
 
   /**
    * Instance of the WhatsApp module.
-   * This module is responsible for handling WhatsApp interactions and functionalities.
    */
   public whatsapp: MyApp;
 
@@ -56,13 +53,13 @@ export class Engine {
   public utils: Utils;
 
   /**
-   * Constructor that initializes the core module instances.
+   * Initializes the core module instances.
    *
    * @param prisma - Instance of PrismaClient for database operations.
-   * @param discord - Instance of the Discord client.
-   * @param api - Instance of the API server.
-   * @param whatsapp - Instance of the WhatsApp module.
    * @param config - Configuration object for the application.
+   * @param discord - Instance of the Discord client.
+   * @param whatsapp - Instance of the WhatsApp module.
+   * @param api - Instance of the API server.
    */
   constructor(
     prisma: PrismaClient = new PrismaClient({
@@ -79,18 +76,15 @@ export class Engine {
         },
       },
     }),
-
     config: ProyectConfig = defaultConfig,
     discord: MyClient = new MyClient(),
     whatsapp: MyApp = new MyApp(),
     api: API = new API(),
   ) {
     this.utils = new Utils();
-
     this.whatsapp = whatsapp;
     this.discord = discord;
     this.api = api;
-
     this.prisma = prisma;
     this.config = config;
   }
@@ -102,19 +96,17 @@ export class Engine {
    * It ensures that all modules are started asynchronously.
    *
    * @returns A promise that resolves when all modules have been successfully started.
-   * @throws {Error} Throws an error if any module fails to start.
+   * @throws {ProyectError} If any module fails to start.
    */
   public async start() {
     try {
       await ErrorConsole(this.discord);
       await this.initializeModules();
       await this.clientCreate();
-
-      // Set the client user to the Discord client
       await loadPendingReminders();
-      //await this.prismaLog();
     } catch (err) {
       this.handleError(err);
+      process.exit(1);
     }
   }
 
@@ -123,21 +115,27 @@ export class Engine {
    *
    * This method starts the Discord and API modules. If the WhatsApp module is enabled in the configuration,
    * it will also start the WhatsApp module. Otherwise, it logs a message indicating that the WhatsApp module is not started.
+   *
+   * @throws {ProyectError} If any module fails to initialize.
    */
   private async initializeModules() {
-    await Promise.all([this.discord.start(), this.api.start()]);
+    try {
+      await Promise.all([this.discord.start(), this.api.start()]);
 
-    if (this.config.modules.whatsapp.enabled) {
-      await this.whatsapp.start();
-    } else {
-      logWithLabel(
-        "custom",
-        [
-          "Client is not ready!",
-          `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
-        ].join("\n"),
-        "Whatsapp",
-      );
+      if (this.config.modules.whatsapp.enabled) {
+        await this.whatsapp.start();
+      } else {
+        logWithLabel(
+          "custom",
+          [
+            "Client is not ready!",
+            `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
+          ].join("\n"),
+          "Whatsapp",
+        );
+      }
+    } catch (err) {
+      throw new ProyectError(`Failed to initialize modules: ${err}`);
     }
   }
 
@@ -145,7 +143,7 @@ export class Engine {
    * Handles errors that occur during the application startup process.
    *
    * @param err - The error object or message.
-   * @throws {ProyectError} Throws a custom error with a detailed message.
+   * @throws {ProyectError} A custom error with a detailed message.
    */
   private handleError(err: unknown): void {
     throw new ProyectError(`Error starting the application: ${err}`);
@@ -155,27 +153,31 @@ export class Engine {
    * Creates or updates the Discord client configuration in the database.
    *
    * This method uses the Prisma client to upsert the Discord client configuration based on the token.
+   *
+   * @throws {ProyectError} If the upsert operation fails.
    */
   private async clientCreate() {
-    const data = config.modules.discord;
+    try {
+      const data = config.modules.discord;
+      const validId = new ObjectId().toHexString();
 
-    // Generar un ObjectID válido si no existe
-    const validId = new ObjectId().toHexString();
-
-    await this.prisma.myDiscord.upsert({
-      where: { token: data.token },
-      update: {
-        token: data.token,
-        clientId: data.clientId,
-        clientSecret: data.clientSecret,
-      },
-      create: {
-        id: validId, // Asegurar que se use un ObjectID válido
-        token: data.token,
-        clientId: data.clientId,
-        clientSecret: data.clientSecret,
-      },
-    });
+      await this.prisma.myDiscord.upsert({
+        where: { token: data.token },
+        update: {
+          token: data.token,
+          clientId: data.clientId,
+          clientSecret: data.clientSecret,
+        },
+        create: {
+          id: validId,
+          token: data.token,
+          clientId: data.clientId,
+          clientSecret: data.clientSecret,
+        },
+      });
+    } catch (err) {
+      throw new ProyectError(`Failed to create/update Discord client configuration: ${err}`);
+    }
   }
 }
 

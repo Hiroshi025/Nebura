@@ -1,7 +1,12 @@
 import {
-	AutocompleteInteraction, ButtonInteraction, ChannelSelectMenuInteraction, Message,
-	ModalSubmitInteraction, PermissionResolvable, RoleSelectMenuInteraction,
-	StringSelectMenuInteraction
+  AutocompleteInteraction,
+  ButtonInteraction,
+  ChannelSelectMenuInteraction,
+  Message,
+  ModalSubmitInteraction,
+  PermissionResolvable,
+  RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
 import { MyClient } from "@/modules/discord/structure/client";
@@ -288,7 +293,7 @@ export interface Precommand {
  * Configuration for an embed.
  * This interface defines the structure of an embed configuration object.
  */
-interface EmbedConfig {
+export interface EmbedConfig {
   /**
    * The color of the embed, represented as a hexadecimal string.
    */
@@ -315,7 +320,7 @@ interface EmbedConfig {
  * Data structure for reaction roles.
  * This interface defines the configuration for managing reaction roles in Discord.
  */
-interface ReactionRoleData {
+export interface ReactionRoleData {
   /**
    * The ID of the message associated with the reaction roles.
    */
@@ -347,4 +352,99 @@ interface ReactionRoleData {
      */
     Role: string;
   }[];
+}
+
+export interface NPMPackage {
+  name: string;
+  version: string;
+  description: string;
+  author?:
+    | {
+        name: string;
+        email?: string;
+        url?: string;
+      }
+    | string;
+  license?: string;
+  homepage?: string;
+  repository?:
+    | {
+        type: string;
+        url: string;
+      }
+    | string;
+  bugs?:
+    | {
+        url: string;
+      }
+    | string;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  keywords?: string[];
+  maintainers?: Array<{ name: string; email?: string }>;
+  time?: Record<string, string>;
+  versions?: Record<string, any>;
+  readme?: string;
+  "dist-tags"?: {
+    latest: string;
+    [tag: string]: string;
+  };
+}
+
+export interface GitHubUser {
+  type: string;
+  login: string;
+  id: number;
+  avatar_url: string;
+  html_url: string;
+  name: string;
+  company: string;
+  blog: string;
+  location: string;
+  email: string;
+  bio: string;
+  twitter_username: string;
+  public_repos: number;
+  public_gists: number;
+  followers: number;
+  following: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GitHubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  owner: GitHubUser;
+  html_url: string;
+  description: string;
+  fork: boolean;
+  created_at: string;
+  updated_at: string;
+  pushed_at: string;
+  homepage: string;
+  size: number;
+  stargazers_count: number;
+  watchers_count: number;
+  language: string;
+  forks_count: number;
+  open_issues_count: number;
+  license: {
+    key: string;
+    name: string;
+    spdx_id: string;
+    url: string;
+  };
+  topics: string[];
+  default_branch: string;
+  visibility: string;
+  archived: boolean;
+  disabled: boolean;
+}
+
+export interface GitHubSearchResult {
+  total_count: number;
+  incomplete_results: boolean;
+  items: (GitHubUser | GitHubRepo)[];
 }

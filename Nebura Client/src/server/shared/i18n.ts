@@ -1,12 +1,10 @@
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
-import middleware from "i18next-http-middleware";
 
 i18next
   .use(Backend)
-  .use(middleware.LanguageDetector)
   .init({
-    fallbackLng: "en",
+    fallbackLng: "en", // Idioma por defecto
     preload: ["en", "es"], // Pre-cargar idiomas soportados
     ns: ["common", "errors"], // Definir namespaces
     defaultNS: "common", // Namespace por defecto
@@ -18,6 +16,10 @@ i18next
       caches: ["cookie"], // Cachear en cookies
       cookieOptions: { path: "/", httpOnly: false }, // Configuración de cookies
     },
+    interpolation: {
+      escapeValue: false, // No escapar valores (ya que se usa en un entorno seguro)
+    },
+    saveMissing: true, // Guardar traducciones faltantes
   });
 
 export default i18next;

@@ -9,7 +9,7 @@ export default new Event("voiceStateUpdate", async (oldState, newState) => {
   const oldChannel = oldState.channel;
   const newChannel = newState.channel;
 
-  const data = await main.prisma.myGuild.findUnique({ where: { id: guild.id } });
+  const data = await main.prisma.myGuild.findFirst({ where: { guildId: guild.id } });
   if (!data) return;
 
   const joinToCreate = data.rooms;

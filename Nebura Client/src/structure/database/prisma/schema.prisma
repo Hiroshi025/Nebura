@@ -198,7 +198,7 @@ model ServerModlog {
 
 model Reminder {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   
+  userId    String
   guildId   String   @db.ObjectId
   guild     MyGuild  @relation(fields: [guildId], references: [id])
   message   String
@@ -252,6 +252,13 @@ model UserEconomy {
   balance   Float @default(0)
   lostduels Int?  @default(0)
   wonduels  Int?  @default(0)
+
+  userId_guildId String @unique(map: "userId_guildId")
+
+  job          String? // Current job of the user
+  jobStartDate DateTime? // Date when the user started the current job
+  lastWorkDate DateTime? // Date when the user last claimed their daily pay
+  jobCooldown  DateTime? // Cooldown period after being fired
 }
 
 model UserDiscord {

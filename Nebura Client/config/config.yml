@@ -55,8 +55,7 @@ modules:
     clientId: "1356648240363213011" # ID del cliente de Discord
     clientSecret: ""
     owners: # Lista de IDs de usuarios que son propietarios del bot
-      - "" # ID del propietario del bot
-      - ""
+      - "1272411781641404472" # ID del propietario del bot
     prefix: "!" # Prefijo para los comandos del bot
     presence: # Configuración de presencia del bot
       status: "online" # Estado del bot (opciones: online, idle, dnd, invisible)

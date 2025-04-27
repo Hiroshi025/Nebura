@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 import { Command } from "@/modules/discord/structure/utils/builders";
 import { BalanceCommand } from "@/modules/discord/structure/utils/economy/balance";
@@ -11,7 +11,8 @@ import { RouletteCommand } from "@/modules/discord/structure/utils/economy/roule
 import { RPSCommand } from "@/modules/discord/structure/utils/economy/rps";
 import { ShopEconomy } from "@/modules/discord/structure/utils/economy/shop";
 import { SlotsCommand } from "@/modules/discord/structure/utils/economy/slots";
-import { StateCommand } from "@/modules/discord/structure/utils/economy/state";
+import { StateCommand } from "@/modules/discord/structure/utils/economy/status";
+import { WorkCommand } from "@/modules/discord/structure/utils/economy/work";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -23,7 +24,7 @@ export default new Command(
     .setDescriptionLocalizations({
       "es-ES": "Comando de economía para gestionar funciones relacionadas con la economía.",
     })
-    .setDefaultMemberPermissions(0)
+    .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
     .addSubcommandGroup((group) =>
       group
         .setName("inventory")
@@ -105,6 +106,17 @@ export default new Command(
             })
             .setRequired(false),
         ),
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("work")
+        .setNameLocalizations({
+          "es-ES": "trabajo",
+        })
+        .setDescription("💼 Get a job and earn money!")
+        .setDescriptionLocalizations({
+          "es-ES": "💼 Consigue un trabajo y gana dinero!",
+        }),
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -596,6 +608,11 @@ export default new Command(
         case "state":
           {
             await StateCommand(interaction, client);
+          }
+          break;
+        case "work":
+          {
+            await WorkCommand(interaction, client);
           }
           break;
       }

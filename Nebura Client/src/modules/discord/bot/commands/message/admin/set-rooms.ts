@@ -24,7 +24,7 @@ const roomsCommand: Precommand = {
       case "enabled":
         {
           const data = await main.prisma.myGuild.findUnique({
-            where: { id: message.guild.id },
+            where: { guildId: message.guild.id },
           });
           if (!data)
             return message.channel.send({
@@ -58,7 +58,7 @@ const roomsCommand: Precommand = {
             components: [
               new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
                 new ChannelSelectMenuBuilder()
-                  .setCustomId("rooms:menu-config")
+                  .setCustomId("rooms-menu-config")
                   .setPlaceholder("Select a channel voice")
                   .setChannelTypes(ChannelType.GuildVoice)
                   .setMaxValues(1),
@@ -76,8 +76,8 @@ const roomsCommand: Precommand = {
         break;
       default:
         {
-          const data = await main.prisma.myGuild.findUnique({
-            where: { id: message.guild.id },
+          const data = await main.prisma.myGuild.findFirst({
+            where: { guildId: message.guild.id },
           });
           if (!data)
             return message.channel.send({

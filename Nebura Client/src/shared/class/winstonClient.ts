@@ -6,6 +6,7 @@ import path from "path";
 import winston, { LogEntry } from "winston";
 
 import { LogFile } from "@/typings/utils";
+import { config } from "@utils/config";
 
 /**
  * A logger utility class that wraps the Winston logging library.
@@ -21,7 +22,7 @@ export class WinstonLogger {
    * @param maxLogAgeDays - The maximum age of log files in days before they are deleted. Defaults to 14 days.
    */
   constructor(maxLogAgeDays: number = 14) {
-    this.logDir = path.resolve(process.env.WINSTON_LOG_DIR as string);
+    this.logDir = path.resolve(process.env.WINSTON_LOG_DIR ? process.env.WINSTON_LOG_DIR : config.project.winstonlog);
     this.maxLogAgeDays = maxLogAgeDays;
     this.ensureDirExists();
 
