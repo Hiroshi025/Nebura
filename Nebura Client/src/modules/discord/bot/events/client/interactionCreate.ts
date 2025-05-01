@@ -4,7 +4,7 @@ import {
 	StringSelectMenuInteraction
 } from "discord.js";
 
-import { client } from "@/main";
+import { client, main } from "@/main";
 import { Event } from "@/modules/discord/structure/utils/builders";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
@@ -14,12 +14,24 @@ import { config } from "@utils/config";
 const cooldowns = new Map<string, Map<string, number>>();
 
 export default new Event("interactionCreate", async (interaction) => {
-  if (!interaction.guild || !interaction.channel || interaction.user.bot || !interaction.user)
+  if (
+    !interaction.guild ||
+    !interaction.channel ||
+    interaction.user.bot ||
+    !interaction.user ||
+    !client.user
+  )
     return;
 
   const lenguage = interaction.guild.preferredLocale;
   const { guild } = interaction;
   if (!guild) return;
+
+  const clientData = await main.prisma.myDiscord.findFirst({
+    where: {
+      clientId: client.user.id,
+    },
+  });
 
   switch (true) {
     case interaction.isChatInputCommand():
@@ -49,10 +61,25 @@ export default new Event("interactionCreate", async (interaction) => {
           }
         }
 
+        if (!clientData)
+          return interaction.reply({
+            embeds: [
+              new ErrorEmbed()
+                .setTitle("Error Client Data")
+                .setDescription(
+                  [
+                    `${client.getEmoji(interaction.guild.id, "error")} The bot is not set up in this server.`,
+                    `Use the command \`/setup\` to set up the bot.`,
+                  ].join("\n"),
+                ),
+            ],
+            flags: MessageFlags.Ephemeral,
+          });
+
         userCooldowns.set(interaction.commandName, now + cooldownAmount);
         cooldowns.set(interaction.user.id, userCooldowns);
 
-        if (command.options?.owner && !config.modules.discord.owners.includes(interaction.user.id))
+        if (command.options?.owner && !clientData.owners.includes(interaction.user.id))
           return interaction.reply({
             embeds: [
               new ErrorEmbed().setDescription(
@@ -140,9 +167,30 @@ async function InteractionOptions(
     | RoleSelectMenuInteraction,
 ) {
   const { guild, member } = interaction;
-  if (!guild || !member) return;
+  if (!guild || !member || !client.user) return;
 
-  if (type.owner && !config.modules.discord.owners.includes(interaction.user.id))
+  const clientData = await main.prisma.myDiscord.findFirst({
+    where: {
+      clientId: client.user.id,
+    },
+  });
+
+  if (!clientData)
+    return interaction.reply({
+      embeds: [
+        new ErrorEmbed()
+          .setTitle("Error Client Data")
+          .setDescription(
+            [
+              `${client.getEmoji(guild.id, "error")} The bot is not set up in this server.`,
+              `Use the command \`/setup\` to set up the bot.`,
+            ].join("\n"),
+          ),
+      ],
+      flags: MessageFlags.Ephemeral,
+    });
+
+  if (type.owner && !clientData.owners.includes(interaction.user.id))
     return interaction.reply({
       embeds: [
         new ErrorEmbed().setDescription(

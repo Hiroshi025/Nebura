@@ -1,12 +1,6 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  CacheType,
-  ChannelType,
-  EmbedBuilder,
-  TextChannel,
+	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType, ChannelType,
+	EmbedBuilder, TextChannel
 } from "discord.js";
 
 import { client, main } from "@/main";
@@ -26,9 +20,9 @@ export default new Addons(
   },
   async () => {
     const configuration = {
-      enabled: true,
-      channelid: "1357948378377486387", // Channel ID where the message will be sent
-      messageid: "1364149650726326293", // Message ID to edit
+      enabled: false,
+      channelid: "", // Channel ID where the message will be sent
+      messageid: "", // Message ID to edit
     };
 
     async function updatePM2Status() {

@@ -501,6 +501,7 @@ export async function createGuild(guildId: string, client: MyClient) {
   if (!guild) {
     await main.prisma.myGuild.create({
       data: {
+        prefix: config.modules.discord.prefix,
         guildId: guildId,
         discordId: data.clientId,
       },

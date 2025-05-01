@@ -173,6 +173,7 @@ export class Engine {
           token: data.token,
           clientId: data.clientId,
           clientSecret: data.clientSecret,
+          owners: config.modules.discord.owners,
         },
       });
     } catch (err) {

@@ -22,7 +22,12 @@ export class WinstonLogger {
    * @param maxLogAgeDays - The maximum age of log files in days before they are deleted. Defaults to 14 days.
    */
   constructor(maxLogAgeDays: number = 14) {
-    this.logDir = path.resolve(process.env.WINSTON_LOG_DIR ? process.env.WINSTON_LOG_DIR : config.project.winstonlog);
+    this.logDir = path.resolve(
+      process.env.WINSTON_LOG_DIR ? process.env.WINSTON_LOG_DIR : config.project.winstonlog,
+    );
+    if (!fs.existsSync(this.logDir)) {
+      fs.mkdirSync(this.logDir, { recursive: true });
+    }
     this.maxLogAgeDays = maxLogAgeDays;
     this.ensureDirExists();
 

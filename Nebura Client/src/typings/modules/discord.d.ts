@@ -1,12 +1,7 @@
 import {
-  AutocompleteInteraction,
-  ButtonInteraction,
-  ChannelSelectMenuInteraction,
-  Message,
-  ModalSubmitInteraction,
-  PermissionResolvable,
-  RoleSelectMenuInteraction,
-  StringSelectMenuInteraction,
+	AutocompleteInteraction, ButtonInteraction, ChannelSelectMenuInteraction, Message,
+	ModalSubmitInteraction, PermissionResolvable, RoleSelectMenuInteraction,
+	StringSelectMenuInteraction
 } from "discord.js";
 
 import { MyClient } from "@/modules/discord/structure/client";
@@ -269,6 +264,8 @@ export interface Precommand {
    */
   examples?: string[];
 
+  maintenance?: boolean;
+
   /**
    * Function to execute the precommand.
    *
@@ -447,4 +444,44 @@ export interface GitHubSearchResult {
   total_count: number;
   incomplete_results: boolean;
   items: (GitHubUser | GitHubRepo)[];
+}
+
+/**
+ * Configuration for assigning roles to users or bots.
+ * This interface defines the structure of the configuration object used
+ * to manage role assignments in a Discord server.
+ */
+export interface RoleAssignmentConfig {
+  /**
+   * Array of role IDs to be assigned.
+   * These are the roles that will be granted to the target users or bots.
+   */
+  roles: string[];
+
+  /**
+   * Delay in milliseconds between each role assignment.
+   * This is used to prevent rate-limiting issues when assigning roles in bulk.
+   */
+  delay: number;
+
+  /**
+   * Target audience for the role assignment.
+   * This specifies whether the roles should be assigned to users, bots, or both.
+   * - "users": Assign roles only to users.
+   * - "bots": Assign roles only to bots.
+   * - "all": Assign roles to both users and bots.
+   */
+  target: "users" | "bots" | "all";
+
+  /**
+   * Whether to skip assigning roles to users or bots that already have them.
+   * If `true`, the system will not reassign roles that the target already possesses.
+   */
+  skipExisting: boolean;
+
+  /**
+   * The ID of the channel where logs will be sent.
+   * If `null`, no logging will occur.
+   */
+  logChannel: string | null;
 }

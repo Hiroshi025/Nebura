@@ -123,6 +123,7 @@ model MyDiscord {
   errorlog     Boolean  @default(false)
   webhookURL   String?
   logchannel   String?
+  owners       String[] @default([])
   createdAt    DateTime @default(now())
 }
 
@@ -130,6 +131,7 @@ model MyGuild {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   guildId   String  @unique
   modlogId  String? @db.ObjectId
+  prefix    String? @default("!")
   discordId String
   rooms     String?
 

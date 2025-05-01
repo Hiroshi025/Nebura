@@ -18,8 +18,10 @@ export default new Event("messageCreate", async (message) => {
   await Ranking(message, client);
   await Economy(message);
 
-  if (!message.content.startsWith(config.modules.discord.prefix)) return;
+  const guildData = await main.prisma.myGuild.findFirst({ where: { guildId: message.guild.id } });
+  const prefix = guildData?.prefix ? guildData.prefix : config.modules.discord.prefix;
   const language: string = message.guild.preferredLocale;
+  if (!message.content.startsWith(prefix)) return;
 
   const data = await main.prisma.userDiscord.findFirst({
     where: {
@@ -27,11 +29,28 @@ export default new Event("messageCreate", async (message) => {
     },
   });
 
+  const clientData = await main.prisma.myDiscord.findFirst({
+    where: {
+      clientId: client.user.id,
+    },
+  });
+
+  if (!clientData)
+    return message.channel.send({
+      embeds: [
+        new ErrorEmbed()
+          .setTitle("Error Client Data")
+          .setDescription(
+            [
+              `${client.getEmoji(message.guild.id, "error")} The bot is not set up in this server.`,
+              `Use the command \`${prefix}setup\` to set up the bot.`,
+            ].join("\n"),
+          ),
+      ],
+    });
+
   await countMessage(message.author.id, message.guild.id);
-  const args: string[] = message.content
-    .slice(config.modules.discord.prefix.length)
-    .trim()
-    .split(/\s+/);
+  const args: string[] = message.content.slice(prefix.length).trim().split(/\s+/);
 
   const cmd: string = args.shift()?.toLowerCase() ?? "";
   if (!cmd || !data) return;
@@ -43,7 +62,7 @@ export default new Event("messageCreate", async (message) => {
   if (!command) return;
 
   try {
-    if (command.owner && !config.modules.discord.owners.includes(message.author.id)) {
+    if (command.owner && !clientData.owners.includes(message.author.id)) {
       return message.channel.send({
         embeds: [
           new ErrorEmbed().setDescription(
@@ -56,11 +75,27 @@ export default new Event("messageCreate", async (message) => {
       });
     }
 
+    if (command.maintenance) {
+      if (!clientData.owners.includes(message.author.id)) {
+        return message.channel.send({
+          embeds: [
+            new ErrorEmbed()
+              .setDescription(
+                [
+                  `${client.getEmoji(message.guild.id, "error")} This command is currently under maintenance.`,
+                  `Command Name: \`${command.name}\``,
+                  `Description: ${command.description || "No description available."}`,
+                ].join("\n"),
+              ),
+          ],
+        });
+      }
+    }
+
     if (command.nsfw && !(message.channel as TextChannel).nsfw) {
       return message.channel.send({
         embeds: [
           new ErrorEmbed()
-            .setTitle("Pixel Web - Bot Core")
             .setDescription(
               [
                 `${client.getEmoji(message.guild.id, "error")} You can only use this command in a NSFW channel.`,
@@ -75,7 +110,6 @@ export default new Event("messageCreate", async (message) => {
       return message.channel.send({
         embeds: [
           new ErrorEmbed()
-            .setTitle("Pixel Web - Bot Core")
             .setDescription(
               [
                 `${client.getEmoji(message.guild.id, "error")} You do not have permission to use this command.`,
@@ -93,7 +127,6 @@ export default new Event("messageCreate", async (message) => {
       return message.channel.send({
         embeds: [
           new ErrorEmbed()
-            .setTitle("Pixel Web - Bot Core")
             .setDescription(
               [
                 `${client.getEmoji(message.guild.id, "error")} I do not have permission to execute this command.`,
@@ -117,7 +150,6 @@ export default new Event("messageCreate", async (message) => {
           return message.channel.send({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Pixel Web - Bot Core")
                 .setDescription(
                   [
                     `${client.getEmoji(message.guild.id, "error")} You are on cooldown for this command.`,
@@ -133,7 +165,7 @@ export default new Event("messageCreate", async (message) => {
       client.cooldown.set(command.name, cooldown);
     }
 
-    await command.execute(client, message, args, config.modules.discord.prefix, language, config);
+    await command.execute(client, message, args, prefix, language, config);
   } catch (error: any) {
     const errorEmbed = new ErrorEmbed()
       .setError(true)
