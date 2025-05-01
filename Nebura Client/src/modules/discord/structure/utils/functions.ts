@@ -372,7 +372,14 @@ export async function Ranking(message: Message, client: MyClient) {
 
   // Cooldown check
   if (cooldown.has(userId)) {
-    logWithLabel("custom", `User: ${message.author.tag} | Cooldown activated.`, "Ranking");
+    logWithLabel("info", `User: ${message.author.tag} | Cooldown activated.`, {
+      customLabel: "Ranking",
+      context: {
+        userId: message.author.id,
+        userName: message.author.username,
+        userTag: message.author.tag,
+      },
+    });
     return;
   }
 
@@ -419,9 +426,15 @@ export async function Ranking(message: Message, client: MyClient) {
   let { xp, level } = user;
 
   logWithLabel(
-    "custom",
-    `User talking: ${message.author.tag} | XP: ${xp} | Level: ${level} and earned ${xpAmount} XP.`,
-    "Ranking",
+    "info",
+    `User talking: ${message.author.tag} | XP: ${xp} | Level: ${level} and earned ${xpAmount} XP.`, {
+      customLabel: "Ranking",
+      context: {
+        userId: message.author.id,
+        userName: message.author.username,
+        userTag: message.author.tag,
+      },
+    }
   );
 
   // Check for level-up

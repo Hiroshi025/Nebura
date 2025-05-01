@@ -1,10 +1,6 @@
 import axios from "axios";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-  TextChannel,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, TextChannel
 } from "discord.js";
 
 // import puppeteer from "puppeteer"; // Comentado temporalmente
@@ -74,7 +70,14 @@ export default new Addons(
 
           // Validate response data
           if (!res.data) {
-            logWithLabel("error", "API response is empty or invalid.", "Status Handler");
+            logWithLabel("error", "API response is empty or invalid.", {
+              customLabel: "Minecraft",
+              context: {
+                statusCode: res.status,
+                statusText: res.statusText,
+                data: res.data,
+              },
+            });
             return;
           }
 
@@ -99,16 +102,25 @@ export default new Addons(
           if (res.status === 200 && res.data.online !== undefined) {
             status = res.data.online;
           } else {
-            logWithLabel(
-              "error",
-              `Unexpected API response: ${JSON.stringify(res.data, null, 2)}`,
-              "Status Handler",
-            );
+            logWithLabel("error", `Unexpected API response: ${JSON.stringify(res.data, null, 2)}`, {
+              customLabel: "Minecraft",
+              context: {
+                statusCode: res.status,
+                statusText: res.statusText,
+                data: res.data,
+              },
+            });
             status = false;
           }
 
           if (!status) {
-            logWithLabel("custom", "Server is offline.", "Status Handler");
+            logWithLabel("custom", "Server is offline.", {
+              customLabel: "Minecraft",
+              context: {
+                serverIP: configuration.minecraftserver.ip,
+                serverPort: configuration.minecraftserver.port,
+              },
+            });
             return;
           }
 
@@ -200,7 +212,13 @@ export default new Addons(
           if (!client.user) throw new Error("User not found");
 
           if (!message || message == null) {
-            logWithLabel("custom", "Message not found, sending a new one.", "Status");
+            logWithLabel("custom", "Message not found, sending a new one.", {
+              customLabel: "Minecraft",
+              context: {
+                serverIP: configuration.minecraftserver.ip,
+                serverPort: configuration.minecraftserver.port,
+              },
+            });
             // Send a new message if the existing one is not found or invalid
             message = await channel.send({
               content: [
@@ -217,7 +235,13 @@ export default new Addons(
           }
 
           if (message.author !== client.user) {
-            logWithLabel("custom", "Message author mismatch, sending a new one.", "Status");
+            logWithLabel("custom", "Message author mismatch, sending a new one.", {
+              customLabel: "Minecraft",
+              context: {
+                serverIP: configuration.minecraftserver.ip,
+                serverPort: configuration.minecraftserver.port,
+              },
+            });
             // Send a new message if the existing one is not found or invalid
             message = await channel.send({
               content: [
@@ -247,7 +271,14 @@ export default new Addons(
             });
           }
         } catch (error: any) {
-          logWithLabel("error", `Error updating the status: ${error.message}`, "Status Handler");
+          logWithLabel("error", `Error updating the status: ${error.message}`, {
+            customLabel: "Minecraft",
+            context: {
+              serverIP: configuration.minecraftserver.ip,
+              serverPort: configuration.minecraftserver.port,
+              error: error.message,
+            },
+          });
           console.error(error);
         }
       };
@@ -266,7 +297,13 @@ export default new Addons(
         logWithLabel("error", `Error initializing status handler: ${error}`);
       });
     } else {
-      logWithLabel("custom", "Status handler is disabled.", "Status");
+      logWithLabel("custom", "Status handler is disabled.", {
+        customLabel: "Minecraft",
+        context: {
+          serverIP: configuration.minecraftserver.ip,
+          serverPort: configuration.minecraftserver.port,
+        },
+      });
     }
   },
 );

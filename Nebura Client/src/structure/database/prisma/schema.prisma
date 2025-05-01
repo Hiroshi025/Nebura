@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["metrics"]
+  output = "./src/structure/database/prisma/generated/client"
 }
 
 datasource db {
@@ -327,6 +329,22 @@ model ReactionRole {
 
   @@index([guildId])
   @@index([messageId])
+}
+
+model Metrics {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  endpoint_clientId_system String @unique
+  endpoint  String
+  clientId  String?
+  system    String
+  requests  Int      @default(0)
+  errors    Int      @default(0)
+  latency   Float    @default(0.0) // Promedio de latencia en ms
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([endpoint, clientId, system]) 
+
 }
 
 type EventLogs {

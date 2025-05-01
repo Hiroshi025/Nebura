@@ -61,7 +61,9 @@ const router = Router();
       chalk.grey(`  🟡  Loading Routes-Endpoints Express...`),
       chalk.grey(`  📂  Directories Found: ${routesDirs.length}`),
     ].join("\n"),
-    "Express",
+    {
+      customLabel: "Express"
+    }
   );
 
   // Process each directory containing route files.
@@ -81,10 +83,23 @@ const router = Router();
           routesHandler({ app: router }); // Register the routes to the Express router.
           routerLoadeds.push({ file, routes: [] }); // Track the loaded route file.
         } else {
-          logWithLabel("custom", `No default export found in ${modulePath}`, "Express"); // Log missing default export.
+          logWithLabel("custom", `No default export found in ${modulePath}`, {
+            customLabel: "Express",
+            context: {
+              file,
+              modulePath,
+            },
+          }); // Log missing default export.
         }
       } catch (err) {
-        logWithLabel("custom", `Error while importing ${modulePath}: ${err}`, "Express"); // Log errors during import.
+        logWithLabel("custom", `Error while importing ${modulePath}: ${err}`, {
+          customLabel: "Express",
+          context: {
+            file,
+            modulePath,
+            error: err,
+          },
+        }); // Log errors during import.
       }
     });
 
@@ -103,7 +118,9 @@ const router = Router();
       chalk.grey(`  🟢  Routes-Endpoints Loaded Successfully: ${routerLoadeds.length}`),
       chalk.grey(`  🕛  Took: ${((end - start) / 1000).toFixed(2)}s`),
     ].join("\n"),
-    "Express",
+    {
+      customLabel: "Express"
+    }
   );
 })();
 

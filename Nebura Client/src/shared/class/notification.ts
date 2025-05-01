@@ -20,6 +20,7 @@ export class Notification {
       avatarURL?: string;
       timestamp?: boolean;
       footer?: { text: string; iconURL?: string };
+      timeout?: number; // Nuevo: tiempo de espera configurable
     },
   ) {
     try {
@@ -28,12 +29,17 @@ export class Notification {
         throw new Error("Title and description are required");
       }
 
+      if (typeof color !== "string" && !Array.isArray(color) && typeof color !== "number") {
+        throw new Error("Invalid color format");
+      }
+
       // Configuración por defecto
       const defaultOptions = {
         content: "🔔 Notification Alert",
         username: "API Notifications",
         avatarURL: this.data.webhooks.avatarURL,
         timestamp: true,
+        timeout: 5000, // Timeout por defecto
       };
 
       const mergedOptions = { ...defaultOptions, ...options };
@@ -72,7 +78,7 @@ export class Notification {
           tts: false,
           embeds: [embed],
         },
-        timeout: 5000, // Timeout de 5 segundos
+        timeout: mergedOptions.timeout, // Usar timeout configurable
       });
 
       return {
@@ -81,17 +87,10 @@ export class Notification {
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.data?.code === 50035) {
-          return {
-            status: false,
-            message: "Invalid Webhook URL or token",
-            error: error.response.data,
-          };
-        }
-
+        const errorMessage = error.response?.data?.message || error.message;
         return {
           status: false,
-          message: "Failed to send webhook notification",
+          message: `Failed to send webhook notification: ${errorMessage}`,
           error: error.response?.data ?? error.message,
         };
       }

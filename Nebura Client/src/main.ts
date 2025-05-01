@@ -5,6 +5,7 @@ import emojis from "@config/json/emojis.json";
 import { Utils } from "@extenders/discord/utils.extender";
 import { ProyectError } from "@extenders/errors.extender";
 import { PrismaClient } from "@prisma/client";
+import Sentry from "@sentry/node";
 import { loadPendingReminders } from "@utils/functions/reminders";
 
 import { MyClient } from "./modules/discord/structure/client";
@@ -64,12 +65,24 @@ export class Engine {
   constructor(
     prisma: PrismaClient = new PrismaClient({
       log: [
-        { emit: "event", level: "query" },
-        { emit: "event", level: "info" },
-        { emit: "event", level: "warn" },
-        { emit: "event", level: "error" },
+        {
+          emit: "event",
+          level: "query",
+        },
+        {
+          emit: "stdout",
+          level: "error",
+        },
+        {
+          emit: "stdout",
+          level: "info",
+        },
+        {
+          emit: "stdout",
+          level: "warn",
+        },
       ],
-      errorFormat: "minimal",
+      errorFormat: "colorless",
       datasources: {
         db: {
           url: process.env.DATABASE_URL,
@@ -121,6 +134,12 @@ export class Engine {
   private async initializeModules() {
     try {
       await Promise.all([this.discord.start(), this.api.start()]);
+      await Sentry.init({
+        dsn: process.env.SENTRY_NODE_KEY,
+        tracesSampleRate: 1.0,
+        environment: process.env.NODE_ENV,
+        debug: process.env.NODE_ENV !== "production",
+      });
 
       if (this.config.modules.whatsapp.enabled) {
         await this.whatsapp.start();
@@ -131,7 +150,13 @@ export class Engine {
             "Client is not ready!",
             `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
           ].join("\n"),
-          "Whatsapp",
+          {
+            customLabel: "whatsapp",
+            context: {
+              timestamp: new Date().toISOString(),
+              module: "whatsapp",
+            },
+          },
         );
       }
     } catch (err) {

@@ -4,7 +4,7 @@ import { main } from "@/main";
 
 import { config } from "../utils/config";
 import { logWithLabel } from "../utils/functions/console";
-import { IPBlocker } from "./ipBlocker";
+import { IPBlocker } from "./administrator";
 import { Notification } from "./notification";
 
 /**

@@ -1,155 +1,98 @@
-# Nebura Model API
+# Nebura Platform
 
-Este proyecto es una API modular que integra múltiples servicios como Discord, WhatsApp, GitHub, Google AI, y más. A continuación, se detallan las funcionalidades, rutas, comandos y eventos disponibles en el proyecto.
+Nebura Platform es una solución integral diseñada para gestionar y automatizar múltiples servicios en un entorno modular y escalable. Este proyecto combina funcionalidades avanzadas para la administración de servidores Discord, integración con WhatsApp, gestión de APIs y mucho más, todo bajo una arquitectura robusta y personalizable.
 
----
+## 🚀 Características Principales
 
-## Funcionalidades Principales
+### 1. **Módulo de Discord**
+- **Gestión de comandos y eventos**: Incluye un sistema avanzado para cargar, recargar y gestionar comandos de manera dinámica.
+- **Colecciones personalizadas**: Manejo de botones, menús, modales y más, con soporte para categorías y alias.
+- **Integración de emojis**: Obtención de emojis personalizados desde servidores o archivos de configuración.
+- **Automatización de tareas**: Soporte para recordatorios, economía de servidores, roles de reacción y más.
+- **Logs y métricas**: Registro detallado de eventos y métricas de rendimiento.
 
-### Discord
-- **Cliente personalizado (`MyClient`)**:
-  - Gestión de comandos, botones, menús, modales y addons.
-  - Métodos personalizados como `getEmoji` para obtener emojis del servidor o predeterminados.
-  - Configuración avanzada de caché, intents y barridos automáticos.
-  - Handlers para cargar y desplegar módulos.
+### 2. **Módulo de WhatsApp**
+- **Cliente WhatsApp-Web**: Integración con WhatsApp utilizando `whatsapp-web.js` para enviar y recibir mensajes.
+- **Registro de mensajes en Excel**: Almacena mensajes en archivos Excel organizados por fecha, incluyendo detalles como remitente, contenido y archivos adjuntos.
+- **Escaneo de QR**: Proceso de autenticación simplificado mediante códigos QR.
+- **Automatización**: Ideal para gestionar interacciones automatizadas con clientes o usuarios.
 
-### WhatsApp
-- **Cliente de WhatsApp (`MyApp`)**:
-  - Gestión de mensajes con almacenamiento en archivos Excel.
-  - Escaneo de códigos QR para autenticación.
-  - Registro de mensajes con detalles como remitente, adjuntos y contenido.
+### 3. **API REST**
+- **Servidor Express**: Configuración avanzada con soporte para middleware como `helmet`, `apicache` e integración con `i18next` para internacionalización.
+- **Gestión de sesiones**: Uso de SQLite para almacenar sesiones de usuario de manera segura.
+- **WebSockets**: Comunicación en tiempo real mediante `socket.io`.
+- **Swagger**: Documentación interactiva de la API para facilitar su uso y comprensión.
+- **Bloqueo de IPs**: Protección contra accesos no autorizados mediante un sistema de bloqueo dinámico.
 
-### API HTTP
-- **Rutas públicas y protegidas**:
-  - Gestión de licencias.
-  - Autenticación y registro de usuarios.
-  - Bloqueo y desbloqueo de direcciones IP.
-  - Estado del sistema y servicios como Discord.
-  - Integración con GitHub para obtener datos de usuarios y repositorios.
-  - Procesamiento de texto y archivos con Google AI.
+### 4. **Base de Datos con Prisma**
+- **Modelos avanzados**: Estructura de datos optimizada para usuarios, licencias, tareas, economía, métricas y más.
+- **Soporte para MongoDB**: Uso de MongoDB como base de datos principal, con índices y relaciones bien definidas.
+- **Métricas y análisis**: Registro de métricas como latencia, solicitudes y errores para cada endpoint.
 
----
+### 5. **Módulo de Recordatorios**
+- **Gestión de recordatorios**: Sistema para programar y enviar recordatorios personalizados en Discord.
+- **Automatización**: Ideal para comunidades que necesitan mantener a sus miembros informados.
 
-## Rutas Disponibles
+## 💡 Ventajas
 
-### Discord
-- **Estado del servicio**:  
-  - `GET /api/v1/public/discord/status`
-- **Actualizaciones recientes**:  
-  - `GET /api/v1/public/discord/updates`
-- **Incidentes recientes**:  
-  - `GET /api/v1/public/discord/incidents`
-- **Datos combinados (estado, actualizaciones, incidentes)**:  
-  - `GET /api/v1/public/discord/recent`
+- **Modularidad**: Cada funcionalidad está separada en módulos, lo que permite una fácil personalización y escalabilidad.
+- **Automatización**: Reduce la carga manual mediante procesos automatizados en Discord y WhatsApp.
+- **Escalabilidad**: Diseñado para crecer con tu proyecto, soportando múltiples usuarios y servicios.
+- **Seguridad**: Implementa medidas como bloqueo de IPs, gestión de sesiones y protección de datos sensibles.
+- **Documentación**: Incluye documentación interactiva mediante Swagger para facilitar la integración con otros sistemas.
 
-### WhatsApp
-- **No se exponen rutas HTTP directamente, pero el cliente maneja eventos de mensajes y autenticación.**
+## 🛠️ Usos Recomendados
 
-### Licencias
-- **Crear licencia**:  
-  - `POST /api/v1/license/`
-- **Actualizar licencia**:  
-  - `PUT /api/v1/license/:id`
-- **Eliminar licencia**:  
-  - `DELETE /api/v1/license/:id`
-- **Obtener todas las licencias**:  
-  - `GET /api/v1/license/`
-- **Obtener licencia por ID**:  
-  - `GET /api/v1/license/:id`
-- **Validar licencia**:  
-  - `POST /api/v1/license/validate/:key`
+- **Gestión de comunidades**: Ideal para administradores de servidores Discord que buscan automatizar tareas y mejorar la experiencia de los usuarios.
+- **Atención al cliente**: Perfecto para empresas que desean integrar WhatsApp como canal de comunicación con clientes.
+- **Desarrollo de APIs**: Proporciona una base sólida para construir y gestionar APIs seguras y escalables.
+- **Automatización de tareas**: Útil para programar recordatorios, gestionar economías virtuales y más.
 
-### Autenticación
-- **Obtener perfil de usuario**:  
-  - `GET /api/v1/auth/:id`
-- **Registrar usuario**:  
-  - `POST /api/v1/auth/register`
-- **Iniciar sesión**:  
-  - `POST /api/v1/auth/login`
+## 📚 Documentación
 
-### Bloqueo de IP
-- **Bloquear IP**:  
-  - `POST /api/v1/admin/block-ip`
-- **Desbloquear IP**:  
-  - `DELETE /api/v1/admin/unblock-ip/:ipAddress`
-- **Listar IPs bloqueadas**:  
-  - `GET /api/v1/admin/blocked-ips`
+- **Swagger**: Accede a la documentación interactiva de la API en `/swagger`.
+- **Guías de uso**: Consulta las guías detalladas para cada módulo en la carpeta `docs`.
 
-### Seguridad
-- **Información de IP**:  
-  - `GET /api/v1/admin/ip-info/:ipAddress`
-- **Información de licencia**:  
-  - `GET /api/v1/admin/license-info/:licenseKey`
+## 🏗️ Tecnologías Utilizadas
 
-### GitHub
-- **Información de usuario**:  
-  - `GET /api/v1/public/github/users/:username`
-- **Información completa de usuario**:  
-  - `GET /api/v1/public/github/users/:username/all`
-- **Repositorios de usuario**:  
-  - `GET /api/v1/public/github/users/:username/repos`
-- **Información de repositorio**:  
-  - `GET /api/v1/public/github/repos/:owner/:repo`
+- **Node.js**: Plataforma principal para el desarrollo del proyecto.
+- **TypeScript**: Lenguaje utilizado para garantizar un código robusto y mantenible.
+- **Prisma**: ORM para la gestión de la base de datos MongoDB.
+- **Discord.js**: Biblioteca para la integración con Discord.
+- **whatsapp-web.js**: Biblioteca para la integración con WhatsApp.
+- **Express**: Framework para la creación de la API REST.
+- **Socket.IO**: Comunicación en tiempo real mediante WebSockets.
 
-### Google AI
-- **Procesar texto**:  
-  - `POST /api/v1/service/google/model-ai/text`
-- **Procesar archivo**:  
-  - `POST /api/v1/service/google/model-ai/file`
-- **Procesar texto y archivo combinado**:  
-  - `POST /api/v1/service/google/model-ai/advanced`
+## 📦 Instalación
 
-### Tareas y Recordatorios
-- **Crear tarea**:  
-  - `POST /api/v1/service/tasks`
-- **Obtener tarea por ID**:  
-  - `GET /api/v1/service/tasks/:id`
-- **Obtener todas las tareas**:  
-  - `GET /api/v1/service/tasks`
-- **Actualizar tarea**:  
-  - `PATCH /api/v1/service/tasks/:id`
-- **Eliminar tarea**:  
-  - `DELETE /api/v1/service/tasks/:id`
-- **Obtener recordatorios próximos**:  
-  - `GET /reminders`
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/nebura-platform.git
+   cd nebura-platform
+   ```
+
+2. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+3. Configura las variables de entorno:
+   - Crea un archivo `.env` basado en el archivo `.env.example`.
+   - Configura las claves necesarias como `DATABASE_URL`, `DISCORD_TOKEN`, etc.
+
+4. Inicia el proyecto:
+   ```bash
+   npm start
+   ```
+
+## 🤝 Contribuciones
+
+¡Las contribuciones son bienvenidas! Si deseas colaborar, por favor abre un issue o envía un pull request.
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo la [MIT License](LICENSE).
 
 ---
 
-## Comandos y Eventos
-
-### Discord
-- **Comandos**:
-  - Gestión de comandos personalizados con categorías y alias.
-- **Eventos**:
-  - `ready`: Indica que el cliente está listo.
-  - `messageCreate`: Manejo de mensajes entrantes.
-  - `interactionCreate`: Manejo de interacciones como botones y menús.
-
-### WhatsApp
-- **Eventos**:
-  - `qr`: Generación de código QR para autenticación.
-  - `authenticated`: Confirmación de autenticación exitosa.
-  - `message`: Manejo de mensajes entrantes.
-
-### WebSocket
-- **Eventos**:
-  - `connection`: Establecimiento de conexión con clientes WebSocket.
-
----
-
-## Posibles Mejoras
-
-1. **Documentación**:
-   - Generar documentación automática de las rutas usando herramientas como Swagger o Postman.
-2. **Pruebas**:
-   - Implementar pruebas unitarias y de integración para garantizar la estabilidad del sistema.
-3. **Optimización de rendimiento**:
-   - Mejorar la gestión de caché y barridos automáticos en el cliente de Discord.
-4. **Seguridad**:
-   - Implementar validaciones más robustas en las rutas públicas.
-5. **Escalabilidad**:
-   - Modularizar aún más los controladores y servicios para facilitar la adición de nuevas funcionalidades.
-6. **Logs centralizados**:
-   - Integrar un sistema de logging centralizado como Winston o Logstash para un mejor monitoreo.
-7. **Soporte multilenguaje**:
-   - Ampliar el soporte de i18n para incluir más idiomas en las respuestas de la API.
+¡Gracias por visitar Nebura Platform! Si tienes alguna pregunta o sugerencia, no dudes en contactarnos.

@@ -10,7 +10,8 @@ import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import { v4 as uuidv4 } from "uuid";
 
-import { IPBlocker } from "@/shared/class/ipBlocker";
+import { main } from "@/main";
+import { IPBlocker } from "@/shared/class/administrator";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import i18next from "@backend/shared/i18n";
@@ -153,6 +154,44 @@ export class API {
           const [seconds, nanoseconds] = process.hrtime(start);
           const responseTime = (seconds * 1e3 + nanoseconds / 1e6).toFixed(2); // Convert to milliseconds
           res.setHeader("X-Response-Time", `${responseTime}ms`); // Add response time to the headers
+        }
+      });
+
+      next();
+    });
+
+    // Middleware para registrar métricas
+    this.app.use(async (req: Request, res: Response, next: NextFunction) => {
+      const start = process.hrtime(); // Inicia el temporizador
+      const clientId = req.headers["x-client-id"] as string | undefined; // Obtener ID del cliente si está presente
+
+      res.on("finish", async () => {
+        const [seconds, nanoseconds] = process.hrtime(start);
+        const latency = seconds * 1e3 + nanoseconds / 1e6; // Latencia en ms
+        const isError = res.statusCode >= 400;
+
+        try {
+          await main.prisma.metrics.upsert({
+            where: {
+              endpoint_clientId_system: `${req.path}-${clientId || "null"}-${req.headers["user-agent"] || "unknown"}`,
+            },
+            update: {
+              requests: { increment: 1 },
+              errors: isError ? { increment: 1 } : undefined,
+              latency: { set: latency },
+            },
+            create: {
+              endpoint_clientId_system: `${req.path}-${clientId || "null"}-${req.headers["user-agent"] || "unknown"}`,
+              endpoint: req.path,
+              clientId: clientId || null,
+              system: req.headers["user-agent"] || "unknown",
+              requests: 1,
+              errors: isError ? 1 : 0,
+              latency: latency,
+            },
+          });
+        } catch (err: any) {
+          console.error(chalk.red(`[Metrics Error] ${err.message}`));
         }
       });
 

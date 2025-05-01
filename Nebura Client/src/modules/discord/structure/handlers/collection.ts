@@ -120,7 +120,15 @@ export class DiscordHandler {
         chalk.grey(`  ✅  Finished Loading the Addons Module`),
         chalk.grey(`  🟢  Addon-Loaded Successfully: ${addonFiles.length}`),
       ].join("\n"),
-      "Addons",
+      {
+        customLabel: "addons",
+        context: {
+          clientId: this.client.user?.id,
+          clientName: this.client.user?.username,
+          guilds: this.client.guilds.cache.size,
+          owners: config.modules.discord.owners,
+        },
+      },
     );
   }
 
@@ -158,7 +166,15 @@ export class DiscordHandler {
             `Limit: ${info.limit}`,
             `Url: ${info.url}`,
           ].join("\n"),
-          "RateLimit",
+          {
+            customLabel: "RateLimit",
+            context: {
+              clientId: this.client.user?.id,
+              clientName: this.client.user?.username,
+              guilds: this.client.guilds.cache.size,
+              owners: config.modules.discord.owners,
+            },
+          },
         );
       });
 
@@ -166,12 +182,28 @@ export class DiscordHandler {
         logWithLabel(
           "custom",
           [`Invalid Request Warning:`, `Count: ${info.count}`].join("\n"),
-          "InvalidRequest",
+          {
+            customLabel: "InvalidRequest",
+            context: {
+              clientId: this.client.user?.id,
+              clientName: this.client.user?.username,
+              guilds: this.client.guilds.cache.size,
+              owners: config.modules.discord.owners,
+            },
+          },
         );
       });
 
       rest.on("debug", (message) => {
-        logWithLabel("debug", message, "REST Debug");
+        logWithLabel("debug", message, {
+          customLabel: "REST",
+          context: {
+            clientId: this.client.user?.id,
+            clientName: this.client.user?.username,
+            guilds: this.client.guilds.cache.size,
+            owners: config.modules.discord.owners,
+          },
+        });
         console.debug(chalk.blueBright(`🔍 REST Debug: ${message}`));
       });
     }

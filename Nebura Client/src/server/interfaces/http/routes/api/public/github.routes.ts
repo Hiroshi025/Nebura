@@ -3,7 +3,7 @@
 
 import { Request, Response } from "express";
 
-import { GitHubService } from "@/shared/class/githubService";
+import { GitHubService } from "@/shared/class/github-service";
 import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 

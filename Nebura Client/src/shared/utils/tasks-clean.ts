@@ -21,7 +21,14 @@ export async function globalCleanup(
         `${taskName} cleanup completed.`,
         `  ${emojis.database} Deleted items: ${deletedCount}`,
       ].join("\n"),
-      "Tasks",
+      {
+        customLabel: "Tasks",
+        context: {
+          taskName,
+          deletedCount,
+          timestamp: new Date().toISOString(),
+        },
+      },
     );
   } catch (error) {
     logWithLabel("error", `${error}`);

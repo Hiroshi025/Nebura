@@ -1,104 +1,187 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/*
-# Discord Server: http://discord.night-support.xyz/
-# Github: https://github.com/MikaboshiDev
-# Docs: https://docs.night-support.xyz/
-# Dashboard: http://api.night-support.xyz/
-
-# Created by: MikaboshiDev
-# Version: 1.0.3
-# Discord: azazel_hla
-
-# This file is the main configuration file for the bot.
-# Inside this file you will find all the settings you need to configure the bot.
-# If you have any questions, please contact us on our discord server.
-# If you want to know more about the bot, you can visit our website.
-*/
-
 import chalk from "chalk";
+import os from "os";
+import path from "path";
 
-import { WinstonLogger } from "@/shared/class/winstonClient";
+import { WinstonLogger } from "@/shared/class/winston";
 import { labelColors, labelNames, Labels } from "@constants/tools.const";
+import Sentry from "@sentry/node";
+import { LogContext } from "@typings/utils";
 
 import { config } from "../config";
 
 const logger = new WinstonLogger();
+type LogLevel = Labels | "debug" | "verbose" | "warning";
+
+// Constants for consistent formatting
+const LABEL_WIDTH = 12;
+const ORIGIN_WIDTH = 20;
+const TIME_WIDTH = 24;
 
 /**
- * The function `logWithLabel` logs messages to the console with specific formatting and colors based
- * on the provided label.
- * @param {Labels | 'custom'} label - The `label` parameter in the `logWithLabel` function is used to
- * specify the type of label to be used for logging. It can be one of the predefined labels from the
- * `Labels` enum or a custom label specified as a string.
- * @param {string} message - The `message` parameter in the `logWithLabel` function is a string that
- * represents the actual message you want to log to the console. It could be any information, warning,
- * error, or debug message that you want to display along with the specified label.
- * @param {string} [customName] - The `customName` parameter in the `logWithLabel` function is an
- * optional parameter of type `string`. It is used when the `label` parameter is set to `'custom'`,
- * indicating a custom label type. If the `label` is `'custom'`, then the `customName
+ * Logs a message with a specific label and additional context or error information.
+ * 
+ * This function formats the log output with consistent widths for labels, origins, and timestamps.
+ * It also integrates with Winston for structured logging and Sentry for error tracking.
+ * 
+ * @param level - The log level or label. Can be a predefined label, "debug", "verbose", "warning", or "custom".
+ * @param message - The main log message to display.
+ * @param options - Optional parameters for additional context or error information.
+ * @param options.customLabel - A custom label to use when the level is "custom".
+ * @param options.context - Additional context data to include in the log. Only displayed in development mode.
+ * @param options.error - An error object to include in the log. Its stack trace will be displayed if available.
+ * 
+ * @throws {Error} If the level is "custom" and no custom label is provided.
  */
-export async function logWithLabel(label: Labels | "custom", message: string, customName?: string) {
-  if (label === "custom" && customName === undefined) {
-    throw new Error("Custom label name must be provided when using the custom label type.");
+export async function logWithLabel(
+  level: LogLevel | "custom",
+  message: string,
+  options?: {
+    customLabel?: string;
+    context?: LogContext;
+    error?: Error;
+  },
+) {
+  // Validación de parámetros
+  if (level === "custom" && !options?.customLabel) {
+    throw new Error("Custom label name must be provided when using custom level.");
   }
 
-  let labelName: string;
-  let labelColor: chalk.Chalk;
+  // Configuración de etiquetas
+  const labelName = level === "custom" ? options!.customLabel! : labelNames[level as Labels];
+  const labelColor = level === "custom" ? chalk.hex("#5c143b") : labelColors[level as Labels];
 
-  if (label === "custom") {
-    labelName = customName!;
-    labelColor = chalk.hex("#5c143b");
+  // Obtener información del sistema
+  const hostname = os.hostname();
+  const pid = process.pid;
+  const appVersion = config.project.version;
+
+  // Obtener origen del log
+  const origin = getLogOrigin();
+  const time = new Date().toISOString();
+
+  // Format components with consistent widths
+  const formattedLabel = labelColor(labelName.padEnd(LABEL_WIDTH, " "));
+  const formattedAppInfo = chalk.hex("#ffffbf")(`${config.project.name}@${appVersion}`.padEnd(20, " "));
+  const formattedHost = chalk.grey(`[${hostname}:${pid}]`.padEnd(15, " "));
+  
+  // Truncate or pad the origin for consistent width
+  let formattedOrigin = origin;
+  if (origin.length > ORIGIN_WIDTH) {
+    const ext = path.extname(origin);
+    const basename = path.basename(origin, ext);
+    const truncatedBasename = basename.substring(0, ORIGIN_WIDTH - ext.length - 3) + '...';
+    formattedOrigin = chalk.grey(`${truncatedBasename}${ext}`.padEnd(ORIGIN_WIDTH, " "));
   } else {
-    labelName = labelNames[label];
-    labelColor = labelColors[label];
+    formattedOrigin = chalk.grey(origin.padEnd(ORIGIN_WIDTH, " "));
   }
-  /* --- Log message to console --- */
-  const _getLogOrigin = () => {
-    let filename: any;
 
-    const _pst = Error.prepareStackTrace;
-    Error.prepareStackTrace = function (_err, stack) {
-      return stack;
-    };
-    try {
-      /* The code snippet you provided is a part of the `_getLogOrigin` function in your TypeScript file.
-      This function is responsible for determining the origin or source file of the log message being
-      processed. Here's a breakdown of what the code is doing: */
-      const err: any = new Error();
-      let callerfile: string;
+  const formattedTime = chalk.hex("#386ce9")(`[${time}]`.padEnd(TIME_WIDTH, " "));
 
-      const currentfile: string = err.stack.shift().getFileName();
+  // Build the main log line
+  const mainLineParts = [
+    `${formattedLabel}→`,  // Arrow after label
+    formattedAppInfo,
+    formattedHost,
+    formattedOrigin,
+    `${formattedTime}\n`,
+    message
+  ];
 
-      while (err.stack.length) {
-        callerfile = err.stack.shift().getFileName();
+  console.log(mainLineParts.join(" "));
 
-        if (currentfile !== callerfile) {
-          filename = callerfile;
-          break;
-        }
-      }
-    } catch (err) {
-      throw new Error(err as string);
-    }
-    Error.prepareStackTrace = _pst;
+  /**
+   * Logs additional context data if provided and the environment is set to "development".
+   * The context is formatted as a JSON string and indented for readability.
+   */
+  if (process.env.NODE_ENV === "development" && options?.context) {
+    const contextStr = JSON.stringify(options.context, null, 2)
+      .split('\n')
+      .map(line => `  ${line}`)
+      .join('\n');
+    console.log(chalk.hex("#2aa198")(`  Context:\n${contextStr}`));
+  }
 
-    return filename;
-  };
+  /**
+   * Logs the stack trace of an error if provided. The stack trace is indented for readability.
+   * If no stack trace is available, a default message is displayed.
+   */
+  if (options?.error) {
+    const errorStack = options.error.stack?.split('\n')
+      .map(line => `  ${line}`)
+      .join('\n') || 'No stack available';
+    console.log(chalk.red(`  Error Stack:\n${errorStack}`));
+  }
 
-  /* This code snippet is responsible for logging messages to the console with specific formatting and
-colors based on the label provided. Here's a breakdown of what it does: */
-  const origin = _getLogOrigin().split(/[\\/]/).pop();
-  const time = new Date().toLocaleTimeString();
-  console.log(
-    labelColor(`${labelName.padEnd(10, " ")} -> `) +
-      chalk.hex("#ffffbf")(`💻 ${config.project.name} ~ `) +
-      chalk.grey(`${origin.length > 15 ? origin.substring(0, 17) + "..." : origin}`) +
-      " ".repeat(25 - (origin.length > 15 ? 15 : origin.length)) +
-      `${chalk.hex("#386ce9")(`[${time}]`)}` +
-      `\n  ➜  ${message}`,
+  // Winston logging
+  logger.info(
+    JSON.stringify({
+      message,
+      level: level === "custom" ? "info" : level,
+      origin,
+      timestamp: time,
+      hostname,
+      pid,
+      version: appVersion,
+      ...options?.context,
+      ...(options?.error && { stack: options.error.stack }),
+    }),
   );
 
-  /* Log message to WinstonLogger */
-  const logCategory = label === "custom" ? customName : labelName;
-  logger.info(message, logCategory);
+  // Sentry integration for errors
+  if (level === "error") {
+    Sentry.withScope((scope) => {
+      if (options?.context) {
+        scope.setExtras(options.context);
+      }
+      if (options?.error) {
+        scope.setExtra("stack", options.error.stack);
+      }
+      Sentry.captureException(options?.error || new Error(message));
+    });
+  }
 }
+
+/**
+ * Retrieves the origin file path of the log call.
+ * 
+ * This function analyzes the stack trace to determine the file and line number where the log function was called.
+ * It skips frames related to the logger itself and attempts to return a relative path from the project root.
+ * 
+ * @returns {string} The relative file path of the log origin, or "unknown" if it cannot be determined.
+ */
+const getLogOrigin = (): string => {
+  try {
+    const originalPrepare = Error.prepareStackTrace;
+    Error.prepareStackTrace = (_, stack) => stack;
+
+    const err = new Error();
+    const stack = err.stack as unknown as NodeJS.CallSite[];
+    Error.prepareStackTrace = originalPrepare;
+
+    if (!Array.isArray(stack)) return "unknown";
+
+    // Skip frames from this file and logger-related files
+    const currentFile = __filename;
+    const loggerFiles = ['logger', 'log', 'winston']; // Add other logger-related keywords if needed
+
+    for (const frame of stack.slice(1)) {
+      const fileName = frame.getFileName();
+      if (!fileName) continue;
+
+      const isLoggerFile = loggerFiles.some(keyword => 
+        fileName.toLowerCase().includes(keyword)
+      );
+
+      if (fileName !== currentFile && !isLoggerFile) {
+        // Return relative path from project root if possible
+        const projectRoot = path.join(__dirname, '../../');
+        const relativePath = path.relative(projectRoot, fileName);
+        return relativePath || path.basename(fileName);
+      }
+    }
+
+    return "unknown";
+  } catch {
+    return "unknown";
+  }
+};

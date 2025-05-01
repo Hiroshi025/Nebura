@@ -46,7 +46,13 @@ export class IPBlocker {
    */
   private async loadBlockedIPs(): Promise<void> {
     try {
-      logWithLabel("IPBlocker", "Loading blocked IPs...");
+      logWithLabel("custom", "Loading blocked IPs...", {
+        customLabel: "IP",
+        context: {
+          blockedIPs: this.blockedIPs,
+          lastUpdate: this.lastUpdate,
+        },
+      });
       const now = new Date();
       const activeBlocks = await main.prisma.blockedIP.findMany({
         where: {
@@ -58,14 +64,28 @@ export class IPBlocker {
       this.blockedIPs = new Set(activeBlocks.map((block) => block.ipAddress));
       this.lastUpdate = new Date();
       logWithLabel(
-        "IPBlocker",
+        "custom",
         [
           `${this.blockedIPs.size} Ips is blocked and loaded in memory.`,
           `  ${chalk.grey(`${emojis.moderator}   Last update: ${this.lastUpdate.toISOString()}`)}`,
         ].join("\n"),
+        {
+          customLabel: "IP",
+          context: {
+            blockedIPs: this.blockedIPs,
+            lastUpdate: this.lastUpdate,
+          },
+        },
       );
     } catch (error) {
-      logWithLabel("IPBlocker", `Error loading blocked IPs: ${error}`, "error");
+      logWithLabel("custom", `Error loading blocked IPs: ${error}`, {
+        customLabel: "IP",
+        context: {
+          error: error,
+          blockedIPs: this.blockedIPs,
+          lastUpdate: this.lastUpdate,
+        },
+      });
       throw error;
     }
   }
@@ -89,12 +109,26 @@ export class IPBlocker {
 
       if (expiredBlocks.length > 0) {
         logWithLabel(
-          "IPBlocker",
+          "custom",
           `${expiredBlocks.length} expired IP blocks have been automatically unblocked.`,
+          {
+            customLabel: "IP",
+            context: {
+              expiredBlocks: expiredBlocks.map((block) => block.ipAddress),
+              lastUpdate: this.lastUpdate,
+            },
+          },
         );
       }
     } catch (error) {
-      logWithLabel("IPBlocker", `Error during auto-unblock of expired IPs: ${error}`, "error");
+      logWithLabel("custom", `Error during auto-unblock of expired IPs: ${error}`, {
+        customLabel: "IP",
+        context: {
+          error: error,
+          blockedIPs: this.blockedIPs,
+          lastUpdate: this.lastUpdate,
+        },
+      });
     }
   }
 

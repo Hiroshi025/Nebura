@@ -67,13 +67,34 @@ export class MyApp {
     });
 
     this.client.on("qr", (qr) => {
-      logWithLabel("custom", "QR RECEIVED. PLEASE SCAN", "WhatsApp");
+      logWithLabel("custom", "QR RECEIVED. PLEASE SCAN", {
+        customLabel: "WhatsApp",
+        context: {
+          clientId: this.client.info.wid.user,
+          clientName: this.client.info.pushname,
+          timestamp: new Date().toISOString(),
+        },
+      });
       qrcode.generate(qr, { small: true });
     });
 
     this.client.on("authenticated", () => {
-      logWithLabel("custom", "AUTHENTICATED. The session is ready to be used.", "WhatsApp");
-      logWithLabel("custom", "Registered Client on the Web", "WhatsApp");
+      logWithLabel("custom", "AUTHENTICATED. The session is ready to be used.", {
+        customLabel: "WhatsApp",
+        context: {
+          clientId: this.client.info.wid.user,
+          clientName: this.client.info.pushname,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      logWithLabel("custom", "Registered Client on the Web", {
+        customLabel: "WhatsApp",
+        context: {
+          clientId: this.client.info.wid.user,
+          clientName: this.client.info.pushname,
+          timestamp: new Date().toISOString(),
+        },
+      });
     });
 
     this.client.on("message", async (msg: Message) => {
@@ -97,10 +118,24 @@ export class MyApp {
         logWithLabel(
           "info",
           `[${new Date().toLocaleTimeString()}] Message from ${messageData.sender}: ${messageData.message.substring(0, 30)}${messageData.message.length > 30 ? "..." : ""}`,
-          "WhatsApp",
+          {
+            customLabel: "WhatsApp",
+            context: {
+              clientId: this.client.info.wid.user,
+              clientName: this.client.info.pushname,
+              timestamp: new Date().toISOString(),
+            },
+          },
         );
       } catch (error) {
-        logWithLabel("error", `Error processing message: ${error}`, "WhatsApp");
+        logWithLabel("error", `Error processing message: ${error}`, {
+          customLabel: "WhatsApp",
+          context: {
+            clientId: this.client.info.wid.user,
+            clientName: this.client.info.pushname,
+            timestamp: new Date().toISOString(),
+          },
+        });
       }
     });
 
@@ -207,7 +242,14 @@ export class MyApp {
           "Client is ready!",
           `  ${emojis.info}  ${chalk.gray("The WhatsApp API module has started.")}`,
         ].join("\n"),
-        "WhatsApp",
+        {
+          customLabel: "WhatsApp",
+          context: {
+            clientId: this.client.info.wid.user,
+            clientName: this.client.info.pushname,
+            timestamp: new Date().toISOString(),
+          },
+        },
       );
     });
   };

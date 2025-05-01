@@ -275,7 +275,13 @@ public async reloadCommand(commandName: string): Promise<void> {
     const commandFile = this.findCommandFile(commandPath, commandName);
     
     if (!commandFile) {
-      logWithLabel("custom", `Command ${commandName} not found in ${commandPath}`, "Warning");
+      logWithLabel("custom", `Command ${commandName} not found in ${commandPath}`, {
+        customLabel: "Warning",
+        context: {
+          commandName,
+          commandPath,
+        },
+      });
       throw new Error(`Command ${commandName} not found`);
     }
 
@@ -362,7 +368,12 @@ public async loadCommands(): Promise<void> {
     const commandFiles = this.findAllCommandFiles(commandPath);
     
     if (commandFiles.length === 0) {
-      logWithLabel("custom", `No command files found in ${commandPath}`, "Warning");
+      logWithLabel("custom", `No command files found in ${commandPath}`, {
+        customLabel: "Warning",
+        context: {
+          commandPath,
+        },
+      });
       return;
     }
     
@@ -378,7 +389,12 @@ public async loadCommands(): Promise<void> {
         const command = commandModule.default || commandModule;
         
         if (!command || !command.name) {
-          logWithLabel("custom", `Skipping invalid command file: ${file}`, "Warning");
+          logWithLabel("custom", `Skipping invalid command file: ${file}`, {
+            customLabel: "Warning",
+            context: {
+              file,
+            },
+          });
           return;
         }
         

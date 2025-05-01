@@ -1,14 +1,7 @@
 import { stripIndent } from "common-tags";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ComponentType,
-  EmbedBuilder,
-  Message,
-  StringSelectMenuBuilder,
-  StringSelectMenuInteraction,
+	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ComponentType, EmbedBuilder,
+	Message, StringSelectMenuBuilder, StringSelectMenuInteraction
 } from "discord.js";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";

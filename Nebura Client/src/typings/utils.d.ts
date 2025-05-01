@@ -376,22 +376,118 @@ export interface LogEntry {
   category?: string;
 }
 
+/**
+ * Represents the options for a button component.
+ * This interface defines the structure of a button object, which includes
+ * properties for the button's label, style, and optional disabled state.
+ */
 export interface ButtonOptions {
+  /**
+   * The text label displayed on the button.
+   * This property is required and represents the button's main identifier.
+   */
   label: string;
+
+  /**
+   * The visual style of the button.
+   * This property determines the button's appearance and is required.
+   */
   style: ButtonStyle;
+
+  /**
+   * Indicates whether the button is disabled.
+   * If true, the button will be non-interactive. This property is optional.
+   */
   disabled?: boolean;
 }
 
+/**
+ * Represents the set of buttons used for pagination controls.
+ * This interface defines the structure of an object containing buttons
+ * for navigating through paginated content.
+ */
 export interface PaginationButtons {
+  /**
+   * The button used to navigate to the first page.
+   */
   first: ButtonOptions;
+
+  /**
+   * The button used to navigate to the previous page.
+   */
   previous: ButtonOptions;
+
+  /**
+   * The button used to display the current page index.
+   */
   index: ButtonOptions;
+
+  /**
+   * The button used to navigate to the next page.
+   */
   next: ButtonOptions;
+
+  /**
+   * The button used to navigate to the last page.
+   */
   last: ButtonOptions;
 }
 
+/**
+ * Represents the options for configuring pagination behavior.
+ * This interface defines the structure of an object used to customize
+ * pagination functionality, including methods, button configurations, and index handling.
+ */
 export interface PaginationOptions {
+  /**
+   * The method used to handle pagination.
+   * - "addEmbeds": Adds embeds to the existing content.
+   * - "createPages": Creates separate pages for the content.
+   * - null: No specific pagination method is applied.
+   */
   method: "addEmbeds" | "createPages" | null;
+
+  /**
+   * Determines whether the current page index should be preserved.
+   * If true, the index will remain consistent across pagination actions.
+   */
   keepIndex: boolean;
+
+  /**
+   * The set of buttons used for pagination controls.
+   * This property defines the navigation buttons for the pagination interface.
+   */
   buttons: PaginationButtons;
+}
+
+/**
+ * Represents the context for logging operations.
+ * This interface defines the structure of an object used to provide
+ * additional context information for log entries, such as user and session details.
+ */
+export interface LogContext {
+  /**
+   * The unique identifier of the user associated with the log entry.
+   * This property is optional and can be used to trace user-specific actions.
+   */
+  userId?: string;
+
+  /**
+   * The unique identifier of the session associated with the log entry.
+   * This property is optional and can be used to trace session-specific actions.
+   */
+  sessionId?: string;
+
+  /**
+   * The unique identifier of the request associated with the log entry.
+   * This property is optional and can be used for tracing and debugging purposes.
+   */
+  requestId?: string;
+
+  /**
+   * Additional custom properties for the log context.
+   * This property allows for the inclusion of arbitrary key-value pairs
+   * to provide more detailed context for the log entry.
+   */
+  [key: string]: any;
 }

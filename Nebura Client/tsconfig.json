@@ -1,34 +1,70 @@
 {
   "compilerOptions": {
     // === Compilación ===
-    "strict": true, // Habilita todas las verificaciones estrictas de TypeScript.
-    "noImplicitAny": true, // Prohíbe el uso de variables con tipo 'any' implícito.
-    "strictNullChecks": true, // Requiere que las variables que puedan ser null o undefined sean manejadas explícitamente.
-    "strictFunctionTypes": true, // Refuerza la compatibilidad de tipos en funciones.
-    "strictBindCallApply": true, // Verifica los argumentos en métodos como bind, call y apply.
-    "strictPropertyInitialization": true, // Asegura que las propiedades de las clases sean inicializadas correctamente.
-    "noUnusedLocals": true, // Marca como error las variables locales no utilizadas.
-    "noUnusedParameters": true, // Marca como error los parámetros no utilizados en funciones.
-    "noImplicitReturns": true, // Asegura que todas las rutas de una función devuelvan un valor.
-    "noFallthroughCasesInSwitch": true, // Prohíbe que los casos en un switch caigan al siguiente sin un break.
+    // Habilita todas las verificaciones estrictas de TypeScript.
+    "strict": true,
+
+    // Prohíbe el uso de variables con tipo 'any' implícito.
+    "noImplicitAny": true,
+
+    // Requiere que las variables que puedan ser null o undefined sean manejadas explícitamente.
+    "strictNullChecks": true,
+
+    // Refuerza la compatibilidad de tipos en funciones.
+    "strictFunctionTypes": true,
+
+    // Verifica los argumentos en métodos como bind, call y apply.
+    "strictBindCallApply": true,
+
+    // Asegura que las propiedades de las clases sean inicializadas correctamente.
+    "strictPropertyInitialization": true,
+
+    // Marca como error las variables locales no utilizadas.
+    "noUnusedLocals": true,
+
+    // Marca como error los parámetros no utilizados en funciones.
+    "noUnusedParameters": true,
+
+    // Asegura que todas las rutas de una función devuelvan un valor.
+    "noImplicitReturns": true,
+
+    // Prohíbe que los casos en un switch caigan al siguiente sin un break.
+    "noFallthroughCasesInSwitch": true,
 
     // === Módulos ===
-    "module": "CommonJS", // Especifica el sistema de módulos a usar (CommonJS para Node.js).
-    "moduleResolution": "node10", // Define cómo resolver los módulos (compatibilidad con Node.js v10).
-    "esModuleInterop": true, // Habilita la interoperabilidad con módulos ES6.
-    "resolveJsonModule": true, // Permite importar archivos JSON como módulos.
+    // Especifica el sistema de módulos a usar (CommonJS para Node.js).
+    "module": "CommonJS",
+
+    // Define cómo resolver los módulos (compatibilidad con Node.js v10).
+    "moduleResolution": "node10",
+
+    // Habilita la interoperabilidad con módulos ES6.
+    "esModuleInterop": true,
+
+    // Permite importar archivos JSON como módulos.
+    "resolveJsonModule": true,
 
     // === Compatibilidad y Librerías ===
-    "target": "ESNext", // Define la versión de ECMAScript para el código de salida.
-    "lib": ["ES2022", "DOM"], // Especifica las bibliotecas que se incluirán en la compilación.
+    // Define la versión de ECMAScript para el código de salida.
+    "target": "ESNext",
+
+    // Especifica las bibliotecas que se incluirán en la compilación.
+    "lib": ["ES2022", "DOM"],
 
     // === Decoradores ===
-    "experimentalDecorators": true, // Habilita el soporte para decoradores experimentales.
-    "emitDecoratorMetadata": true, // Genera metadatos para decoradores.
-    "outDir": "./dist", // Directorio de salida para los archivos compilados.
+    // Habilita el soporte para decoradores experimentales.
+    "experimentalDecorators": true,
+
+    // Genera metadatos para decoradores.
+    "emitDecoratorMetadata": true,
+
+    // Directorio de salida para los archivos compilados.
+    "outDir": "./dist",
 
     // === Estructura ===
-    "baseUrl": "./", // Base para resolver rutas relativas.
+    // Base para resolver rutas relativas.
+    "baseUrl": "./",
+
     "paths": {
       // Alias para rutas de módulos.
       "@constants/*": ["src/structure/constants/*"],
@@ -40,14 +76,28 @@
       "@config/*": ["./config/*"],
       "@/*": ["./src/*"]
     },
-    "rootDir": "./", // Directorio raíz del proyecto.
+
+    // Directorio raíz del proyecto.
+    "rootDir": "./",
 
     // === Tipos ===
-    "types": ["node", "jest"], // Tipos incluidos en el proyecto (Node.js y Jest).
+    // Tipos incluidos en el proyecto (Node.js y Jest).
+    "types": ["node", "jest"],
 
     // === Validación ===
-    "skipLibCheck": true, // Omite la verificación de tipos en archivos de bibliotecas.
-    "forceConsistentCasingInFileNames": true // Fuerza el uso consistente de mayúsculas y minúsculas en nombres de archivo.
+    // Omite la verificación de tipos en archivos de bibliotecas.
+    "skipLibCheck": true,
+
+    // Fuerza el uso consistente de mayúsculas y minúsculas en nombres de archivo.
+    "forceConsistentCasingInFileNames": true,
+
+    "sourceMap": true,
+    "inlineSources": true,
+
+    // Set `sourceRoot` to  "/" to strip the build path prefix
+    // from generated source code references.
+    // This improves issue grouping in Sentry.
+    "sourceRoot": "/"
   },
   "include": [
     // Archivos y directorios incluidos en la compilación.

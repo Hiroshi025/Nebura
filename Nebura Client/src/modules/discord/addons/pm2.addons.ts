@@ -102,7 +102,10 @@ export default new Addons(
         let message = await channel.messages.fetch(configuration.messageid).catch(() => null);
 
         if (!message || message.author !== client.user) {
-          logWithLabel("custom", "Message not found, sending a new one.", "PM2 Manager");
+          logWithLabel("custom", "Message not found, sending a new one.", {
+            customLabel: "PM2",
+            context: { channelId: configuration.channelid },
+          });
           message = await channel.send({
             content: "Status updated by PM2 Manager.",
             embeds: [embed],
@@ -117,7 +120,10 @@ export default new Addons(
           });
         }
       } catch (error: any) {
-        logWithLabel("error", `Error updating PM2 status: ${error.message}`, "PM2 Manager");
+        logWithLabel("error", `Error updating PM2 status: ${error.message}`, {
+          customLabel: "PM2",
+          context: { channelId: configuration.channelid },
+        });
       }
     }
 
@@ -254,7 +260,10 @@ export default new Addons(
         await handleButtonInteraction(interaction);
       });
     } else {
-      logWithLabel("custom", "PM2 Manager is disabled.", "PM2 Manager");
+      logWithLabel("custom", "PM2 Manager is disabled.", {
+        customLabel: "PM2",
+        context: { channelId: configuration.channelid },
+      });
     }
   },
 );

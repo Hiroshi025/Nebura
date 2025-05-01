@@ -1,8 +1,11 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
+import { Request, Response } from "express";
+
+import { main } from "@/main";
 import { isDevelopment } from "@/server/shared/middlewares/jwt/auth.middleware";
-import { authenticateToken } from "@/server/shared/middlewares/jwt/token.middleware";
+import { authenticateToken, isAdminToken } from "@/server/shared/middlewares/jwt/token.middleware";
 import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
@@ -80,5 +83,33 @@ export default ({ app }: TRoutesInput) => {
     authenticateToken,
     isDevelopment,
     security.cacheIndex,
+  );
+
+  app.get(
+    formatRoute("/prisma-metrics"),
+    RateLimitManager.getInstance().createCustomLimiter({
+      max: 10,
+      windowMs: 60 * 1000, // 1 minuto
+      message: "Too many requests, please try again later.",
+    }),
+    isAdminToken,
+    async (_req: Request, res: Response) => {
+      const prismaMetrics = await main.prisma.metrics.findMany({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 60 * 60 * 1000), 
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 100,
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: prismaMetrics,
+      });
+    },
   );
 };

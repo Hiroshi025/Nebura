@@ -3,7 +3,7 @@
 
 import { Request, Response } from "express";
 
-import { IPBlocker } from "@/shared/class/ipBlocker";
+import { IPBlocker } from "@/shared/class/administrator";
 import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 

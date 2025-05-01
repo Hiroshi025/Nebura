@@ -7,5 +7,14 @@ export default new Event("warn", async (info) => {
   const data = await main.prisma.myDiscord.findUnique({ where: { clientId: client.user.id } });
   if (!data || data.logconsole === false) return;
 
-  logWithLabel("custom", info, "Warn");
+  logWithLabel("custom", info, {
+    customLabel: "Discord",
+    context: {
+      clientId: client.user.id,
+      clientName: client.user.username,
+      guilds: client.guilds.cache.size,
+      userId: data.clientId,
+      timestamp: new Date().toISOString(),
+    },
+  });
 });
