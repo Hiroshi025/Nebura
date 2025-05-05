@@ -5,152 +5,72 @@ coverY: 0
 
 # Nebura Client
 
-Este proyecto es una API modular que integra múltiples servicios como Discord, WhatsApp, GitHub, Google AI, y más. A continuación, se detallan las funcionalidades, rutas, comandos y eventos disponibles en el proyecto.
+## Nebura Platform
 
-***
+Nebura Platform es una solución integral diseñada para gestionar y automatizar múltiples servicios en un entorno modular y escalable. Este proyecto combina funcionalidades avanzadas para la administración de servidores Discord, integración con WhatsApp, gestión de APIs y mucho más, todo bajo una arquitectura robusta y personalizable.
 
-### Funcionalidades Principales
+### Características Principales
 
-#### Discord
+#### 1. **Módulo de Discord**
 
-* **Cliente personalizado (`MyClient`)**:
-  * Gestión de comandos, botones, menús, modales y addons.
-  * Métodos personalizados como `getEmoji` para obtener emojis del servidor o predeterminados.
-  * Configuración avanzada de caché, intents y barridos automáticos.
-  * Handlers para cargar y desplegar módulos.
+* **Gestión de comandos y eventos**: Incluye un sistema avanzado para cargar, recargar y gestionar comandos de manera dinámica.
+* **Colecciones personalizadas**: Manejo de botones, menús, modales y más, con soporte para categorías y alias.
+* **Integración de emojis**: Obtención de emojis personalizados desde servidores o archivos de configuración.
+* **Automatización de tareas**: Soporte para recordatorios, economía de servidores, roles de reacción y más.
+* **Logs y métricas**: Registro detallado de eventos y métricas de rendimiento.
 
-#### WhatsApp
+#### 2. **Módulo de WhatsApp**
 
-* **Cliente de WhatsApp (`MyApp`)**:
-  * Gestión de mensajes con almacenamiento en archivos Excel.
-  * Escaneo de códigos QR para autenticación.
-  * Registro de mensajes con detalles como remitente, adjuntos y contenido.
+* **Cliente WhatsApp-Web**: Integración con WhatsApp utilizando `whatsapp-web.js` para enviar y recibir mensajes.
+* **Registro de mensajes en Excel**: Almacena mensajes en archivos Excel organizados por fecha, incluyendo detalles como remitente, contenido y archivos adjuntos.
+* **Escaneo de QR**: Proceso de autenticación simplificado mediante códigos QR.
+* **Automatización**: Ideal para gestionar interacciones automatizadas con clientes o usuarios.
 
-#### API HTTP
+#### 3. **API REST**
 
-* **Rutas públicas y protegidas**:
-  * Gestión de licencias.
-  * Autenticación y registro de usuarios.
-  * Bloqueo y desbloqueo de direcciones IP.
-  * Estado del sistema y servicios como Discord.
-  * Integración con GitHub para obtener datos de usuarios y repositorios.
-  * Procesamiento de texto y archivos con Google AI.
+* **Servidor Express**: Configuración avanzada con soporte para middleware como `helmet`, `apicache` e integración con `i18next` para internacionalización.
+* **Gestión de sesiones**: Uso de SQLite para almacenar sesiones de usuario de manera segura.
+* **WebSockets**: Comunicación en tiempo real mediante `socket.io`.
+* **Swagger**: Documentación interactiva de la API para facilitar su uso y comprensión.
+* **Bloqueo de IPs**: Protección contra accesos no autorizados mediante un sistema de bloqueo dinámico.
 
-***
+#### 4. **Base de Datos con Prisma**
 
-### Rutas Disponibles
+* **Modelos avanzados**: Estructura de datos optimizada para usuarios, licencias, tareas, economía, métricas y más.
+* **Soporte para MongoDB**: Uso de MongoDB como base de datos principal, con índices y relaciones bien definidas.
+* **Métricas y análisis**: Registro de métricas como latencia, solicitudes y errores para cada endpoint.
 
-#### Discord
+#### 5. **Módulo de Recordatorios**
 
-* **Estado del servicio**:
-  * `GET /api/v1/public/discord/status`
-* **Actualizaciones recientes**:
-  * `GET /api/v1/public/discord/updates`
-* **Incidentes recientes**:
-  * `GET /api/v1/public/discord/incidents`
-* **Datos combinados (estado, actualizaciones, incidentes)**:
-  * `GET /api/v1/public/discord/recent`
+* **Gestión de recordatorios**: Sistema para programar y enviar recordatorios personalizados en Discord.
+* **Automatización**: Ideal para comunidades que necesitan mantener a sus miembros informados.
 
-#### WhatsApp
+### Ventajas
 
-* **No se exponen rutas HTTP directamente, pero el cliente maneja eventos de mensajes y autenticación.**
+* **Modularidad**: Cada funcionalidad está separada en módulos, lo que permite una fácil personalización y escalabilidad.
+* **Automatización**: Reduce la carga manual mediante procesos automatizados en Discord y WhatsApp.
+* **Escalabilidad**: Diseñado para crecer con tu proyecto, soportando múltiples usuarios y servicios.
+* **Seguridad**: Implementa medidas como bloqueo de IPs, gestión de sesiones y protección de datos sensibles.
+* **Documentación**: Incluye documentación interactiva mediante Swagger para facilitar la integración con otros sistemas.
 
-#### Licencias
+### Usos Recomendados
 
-* **Crear licencia**:
-  * `POST /api/v1/license/`
-* **Actualizar licencia**:
-  * `PUT /api/v1/license/:id`
-* **Eliminar licencia**:
-  * `DELETE /api/v1/license/:id`
-* **Obtener todas las licencias**:
-  * `GET /api/v1/license/`
-* **Obtener licencia por ID**:
-  * `GET /api/v1/license/:id`
-* **Validar licencia**:
-  * `POST /api/v1/license/validate/:key`
+* **Gestión de comunidades**: Ideal para administradores de servidores Discord que buscan automatizar tareas y mejorar la experiencia de los usuarios.
+* **Atención al cliente**: Perfecto para empresas que desean integrar WhatsApp como canal de comunicación con clientes.
+* **Desarrollo de APIs**: Proporciona una base sólida para construir y gestionar APIs seguras y escalables.
+* **Automatización de tareas**: Útil para programar recordatorios, gestionar economías virtuales y más.
 
-#### Autenticación
+### Documentación
 
-* **Obtener perfil de usuario**:
-  * `GET /api/v1/auth/:id`
-* **Registrar usuario**:
-  * `POST /api/v1/auth/register`
-* **Iniciar sesión**:
-  * `POST /api/v1/auth/login`
+* **Swagger**: Accede a la documentación interactiva de la API en `/swagger`.
+* **Guías de uso**: Consulta las guías detalladas para cada módulo en la carpeta `docs`.
 
-#### Bloqueo de IP
+### Tecnologías Utilizadas
 
-* **Bloquear IP**:
-  * `POST /api/v1/admin/block-ip`
-* **Desbloquear IP**:
-  * `DELETE /api/v1/admin/unblock-ip/:ipAddress`
-* **Listar IPs bloqueadas**:
-  * `GET /api/v1/admin/blocked-ips`
-
-#### Seguridad
-
-* **Información de IP**:
-  * `GET /api/v1/admin/ip-info/:ipAddress`
-* **Información de licencia**:
-  * `GET /api/v1/admin/license-info/:licenseKey`
-
-#### GitHub
-
-* **Información de usuario**:
-  * `GET /api/v1/public/github/users/:username`
-* **Información completa de usuario**:
-  * `GET /api/v1/public/github/users/:username/all`
-* **Repositorios de usuario**:
-  * `GET /api/v1/public/github/users/:username/repos`
-* **Información de repositorio**:
-  * `GET /api/v1/public/github/repos/:owner/:repo`
-
-#### Google AI
-
-* **Procesar texto**:
-  * `POST /api/v1/service/google/model-ai/text`
-* **Procesar archivo**:
-  * `POST /api/v1/service/google/model-ai/file`
-* **Procesar texto y archivo combinado**:
-  * `POST /api/v1/service/google/model-ai/advanced`
-
-#### Tareas y Recordatorios
-
-* **Crear tarea**:
-  * `POST /api/v1/service/tasks`
-* **Obtener tarea por ID**:
-  * `GET /api/v1/service/tasks/:id`
-* **Obtener todas las tareas**:
-  * `GET /api/v1/service/tasks`
-* **Actualizar tarea**:
-  * `PATCH /api/v1/service/tasks/:id`
-* **Eliminar tarea**:
-  * `DELETE /api/v1/service/tasks/:id`
-* **Obtener recordatorios próximos**:
-  * `GET /reminders`
-
-***
-
-### Comandos y Eventos
-
-#### Discord
-
-* **Comandos**:
-  * Gestión de comandos personalizados con categorías y alias.
-* **Eventos**:
-  * `ready`: Indica que el cliente está listo.
-  * `messageCreate`: Manejo de mensajes entrantes.
-  * `interactionCreate`: Manejo de interacciones como botones y menús.
-
-#### WhatsApp
-
-* **Eventos**:
-  * `qr`: Generación de código QR para autenticación.
-  * `authenticated`: Confirmación de autenticación exitosa.
-  * `message`: Manejo de mensajes entrantes.
-
-#### WebSocket
-
-* **Eventos**:
-  * `connection`: Establecimiento de conexión con clientes WebSocket.
+* **Node.js**: Plataforma principal para el desarrollo del proyecto.
+* **TypeScript**: Lenguaje utilizado para garantizar un código robusto y mantenible.
+* **Prisma**: ORM para la gestión de la base de datos MongoDB.
+* **Discord.js**: Biblioteca para la integración con Discord.
+* **whatsapp-web.js**: Biblioteca para la integración con WhatsApp.
+* **Express**: Framework para la creación de la API REST.
+* **Socket.IO**: Comunicación en tiempo real mediante WebSockets.
