@@ -6,7 +6,7 @@ import {
 import { config } from "@/shared/utils/config";
 import { CommandOptions } from "@typings/modules/discord";
 
-import { MyClient } from "../client";
+import { MyClient } from "../../client";
 
 /**
  * Class representing an event in the bot system.

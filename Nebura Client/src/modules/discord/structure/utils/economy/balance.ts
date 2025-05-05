@@ -2,7 +2,7 @@ import { ChannelType, ChatInputCommandInteraction, Message } from "discord.js";
 
 import { EmbedCorrect } from "@extenders/discord/embeds.extender";
 
-import { MyClient } from "../../client";
+import { MyClient } from "../../../client";
 import { getBalance } from "../functions";
 
 export const BalanceCommand = {

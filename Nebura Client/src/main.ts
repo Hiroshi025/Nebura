@@ -1,112 +1,192 @@
-import { ObjectId } from "bson";
-import chalk from "chalk";
+import { ObjectId } from "bson"; // BSON library for working with ObjectId: https://www.npmjs.com/package/bson
+import chalk from "chalk"; // Chalk library for terminal string styling: https://www.npmjs.com/package/chalk
 
-import emojis from "@config/json/emojis.json";
-import { Utils } from "@extenders/discord/utils.extender";
-import { ProyectError } from "@extenders/errors.extender";
-import { PrismaClient } from "@prisma/client";
-import Sentry from "@sentry/node";
-import { loadPendingReminders } from "@utils/functions/reminders";
+import emojis from "@config/json/emojis.json"; // JSON file containing emoji configurations
+import { Utils } from "@extenders/discord/utils.extender"; // Utility functions for Discord
+import { ProyectError } from "@extenders/errors.extender"; // Custom error handling class
+import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
+import Sentry from "@sentry/node"; // Sentry for error monitoring: https://docs.sentry.io/platforms/node/
+import { loadPendingReminders } from "@utils/functions/reminders"; // Function to load pending reminders
 
-import { MyClient } from "./modules/discord/structure/client";
-import { ErrorConsole } from "./modules/discord/structure/handlers/errors";
-import { MyApp } from "./modules/whatsapp";
-import { API } from "./server";
-import { config } from "./shared/utils/config";
-import { logWithLabel } from "./shared/utils/functions/console";
-import { ProyectConfig } from "./typings/config";
+import { MyClient } from "./modules/discord/client"; // Custom Discord client implementation
+import { ErrorConsole } from "./modules/discord/structure/handlers/errors"; // Error handling for Discord
+import { MyApp } from "./modules/whatsapp"; // WhatsApp module
+import { API } from "./server"; // API server module
+import { config } from "./shared/utils/config"; // Application configuration
+import { logWithLabel } from "./shared/utils/functions/console"; // Logging utility
+import { BackupService } from "./structure/backups"; // Backup service
+import { ProyectConfig } from "./typings/config"; // TypeScript type for configuration
 
-process.loadEnvFile();
-const defaultConfig = config as ProyectConfig;
+process.loadEnvFile(); // Load environment variables from a file
+const defaultConfig = config as ProyectConfig; // Cast configuration to ProyectConfig type
+const { SENTRY_NODE_KEY, NODE_ENV, CRON_BACKUPS_TIME } = process.env; // Destructure environment variables
 
 /**
  * Main class responsible for initializing and managing the core modules of the application.
+ *
+ * This class serves as the entry point for the application, orchestrating the initialization
+ * and management of various modules such as Discord, WhatsApp, API, and database operations.
+ *
+ * @remarks
+ * - The class uses Prisma ORM for database interactions.
+ * - Sentry is used for error monitoring and reporting.
+ * - The application supports modular architecture with Discord and WhatsApp modules.
+ *
+ * @see {@link https://www.prisma.io/docs | Prisma Documentation}
+ * @see {@link https://docs.sentry.io/platforms/node/ | Sentry Documentation}
+ * @see {@link https://www.npmjs.com/package/chalk | Chalk Documentation}
  */
 export class Engine {
-  /**
-   * Prisma client instance used for database interactions.
-   */
-  public prisma: PrismaClient;
-
-  /**
-   * Instance of the Discord module.
-   */
-  public discord: MyClient;
-
-  /**
-   * Instance of the API server module.
-   */
-  public api: API;
-
-  /**
-   * Instance of the WhatsApp module.
-   */
-  public whatsapp: MyApp;
-
-  /**
-   * Configuration object for the project.
-   */
-  public config: ProyectConfig;
-
-  /**
-   * Instance of the Utils class, providing utility functions and helpers.
-   */
-  public utils: Utils;
+  public readonly prisma: PrismaClient; // Prisma client instance for database operations
+  public readonly discord: MyClient; // Discord client instance
+  public readonly whatsapp: MyApp; // WhatsApp module instance
+  public readonly api: API; // API server instance
 
   /**
    * Initializes the core module instances.
    *
-   * @param prisma - Instance of PrismaClient for database operations.
-   * @param config - Configuration object for the application.
-   * @param discord - Instance of the Discord client.
-   * @param whatsapp - Instance of the WhatsApp module.
-   * @param api - Instance of the API server.
+   * @param prisma - Instance of PrismaClient for database operations. Defaults to a new instance.
+   * @param config - Configuration object for the application. Defaults to the loaded configuration.
+   * @param utils - Utility functions for Discord. Defaults to a new Utils instance.
+   * @param discord - Instance of the Discord client. Defaults to a new MyClient instance.
+   * @param whatsapp - Instance of the WhatsApp module. Defaults to a new MyApp instance.
+   * @param api - Instance of the API server. Defaults to a new API instance.
    */
   constructor(
-    prisma: PrismaClient = new PrismaClient({
-      log: [
-        {
-          emit: "event",
-          level: "query",
-        },
-        {
-          emit: "stdout",
-          level: "error",
-        },
-        {
-          emit: "stdout",
-          level: "info",
-        },
-        {
-          emit: "stdout",
-          level: "warn",
-        },
-      ],
-      errorFormat: "colorless",
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL,
-        },
-      },
-    }),
-    config: ProyectConfig = defaultConfig,
+    prisma: PrismaClient = Engine.createDefaultPrismaClient(),
+    public readonly config: ProyectConfig = defaultConfig,
+    public readonly utils: Utils = new Utils(),
     discord: MyClient = new MyClient(),
     whatsapp: MyApp = new MyApp(),
     api: API = new API(),
   ) {
-    this.utils = new Utils();
     this.whatsapp = whatsapp;
     this.discord = discord;
-    this.api = api;
     this.prisma = prisma;
-    this.config = config;
+    this.api = api;
+  }
+
+  /**
+   * Creates a default Prisma client instance with predefined settings.
+   *
+   * @returns A new instance of PrismaClient.
+   * @see {@link https://www.prisma.io/docs/reference/api-reference/prisma-client-reference | Prisma Client API Reference}
+   */
+  private static createDefaultPrismaClient(): PrismaClient {
+    return new PrismaClient({
+      log: [
+        { emit: "event", level: "query" },
+        { emit: "stdout", level: "error" },
+        { emit: "stdout", level: "info" },
+        { emit: "stdout", level: "warn" },
+      ],
+      errorFormat: "colorless",
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL, // Database connection URL from environment variables
+        },
+      },
+    });
+  }
+
+  /**
+   * Configures application monitoring using Sentry.
+   *
+   * @remarks
+   * Sentry is used to monitor and report errors in the application. The configuration
+   * includes the DSN, environment, and debug settings.
+   *
+   * @see {@link https://docs.sentry.io/platforms/node/ | Sentry Node.js Documentation}
+   */
+  private async configureMonitoring(): Promise<void> {
+    await Sentry.init({
+      dsn: SENTRY_NODE_KEY,
+      tracesSampleRate: 1.0,
+      environment: NODE_ENV,
+      debug: NODE_ENV !== "production",
+      beforeSend(event, hint) {
+        const error = hint.originalException || hint.syntheticException;
+        if (error) {
+          logWithLabel("error", `Sentry error: ${error}`, {
+            customLabel: "Sentry",
+          });
+        }
+        return event;
+      },
+    });
+    logWithLabel("custom", "Sentry monitoring configured successfully.", {
+      customLabel: "Monitoring",
+    });
+  }
+
+  /**
+   * Sets up the backup service with scheduled backups.
+   *
+   * @remarks
+   * The backup service uses a cron expression to schedule backups. The cron expression
+   * is retrieved from the environment variables.
+   *
+   * @see {@link https://www.npmjs.com/package/node-cron | Node-Cron Documentation}
+   */
+  private async setupBackupService(): Promise<void> {
+    const backupClient = new BackupService();
+    await backupClient.scheduleBackups(CRON_BACKUPS_TIME);
+
+    logWithLabel("custom", `Backup scheduled with cron expression: ${CRON_BACKUPS_TIME}`, {
+      customLabel: "Backups",
+    });
+  }
+
+  /**
+   * Starts the WhatsApp module if it is enabled in the configuration.
+   *
+   * @remarks
+   * If the WhatsApp module is disabled, a log message is displayed indicating that
+   * the module has not started.
+   */
+  private async conditionallyStartWhatsApp(): Promise<void> {
+    try {
+      if (this.config.modules.whatsapp.enabled) {
+        await this.whatsapp.start();
+      } else {
+        this.logWhatsAppDisabled();
+      }
+    } catch (err) {
+      console.error(err);
+      throw new ProyectError(`WhatsApp module failed to start: ${err}`);
+    }
+  }
+
+  /**
+   * Logs a message indicating that the WhatsApp module is disabled.
+   *
+   * @remarks
+   * This method uses the `logWithLabel` utility to log a custom message with a timestamp
+   * and module context.
+   */
+  private logWhatsAppDisabled(): void {
+    logWithLabel(
+      "custom",
+      [
+        "Client is not ready!",
+        `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
+      ].join("\n"),
+      {
+        customLabel: "whatsapp",
+        context: {
+          timestamp: new Date().toISOString(),
+          module: "whatsapp",
+        },
+      },
+    );
   }
 
   /**
    * Starts the core modules of the application.
    *
-   * This method initializes the Discord module, the API server module, and optionally the WhatsApp module.
-   * It ensures that all modules are started asynchronously.
+   * @remarks
+   * This method initializes the Discord module, the API server module, and optionally
+   * the WhatsApp module. It ensures that all modules are started asynchronously.
    *
    * @returns A promise that resolves when all modules have been successfully started.
    * @throws {ProyectError} If any module fails to start.
@@ -115,69 +195,44 @@ export class Engine {
     try {
       await ErrorConsole(this.discord);
       await this.initializeModules();
+
+      //// Load the configuration and set up the Discord client ////
       await this.clientCreate();
       await loadPendingReminders();
     } catch (err) {
-      this.handleError(err);
-      process.exit(1);
+      console.error(err);
+      throw new ProyectError(`Failed to start the application: ${err}`);
     }
   }
 
   /**
    * Initializes the core modules of the application.
    *
-   * This method starts the Discord and API modules. If the WhatsApp module is enabled in the configuration,
-   * it will also start the WhatsApp module. Otherwise, it logs a message indicating that the WhatsApp module is not started.
+   * @remarks
+   * This method starts the Discord and API modules. If the WhatsApp module is enabled
+   * in the configuration, it will also start the WhatsApp module. Otherwise, it logs
+   * a message indicating that the WhatsApp module is not started.
    *
    * @throws {ProyectError} If any module fails to initialize.
    */
   private async initializeModules() {
     try {
       await Promise.all([this.discord.start(), this.api.start()]);
-      await Sentry.init({
-        dsn: process.env.SENTRY_NODE_KEY,
-        tracesSampleRate: 1.0,
-        environment: process.env.NODE_ENV,
-        debug: process.env.NODE_ENV !== "production",
-      });
-
-      if (this.config.modules.whatsapp.enabled) {
-        await this.whatsapp.start();
-      } else {
-        logWithLabel(
-          "custom",
-          [
-            "Client is not ready!",
-            `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
-          ].join("\n"),
-          {
-            customLabel: "whatsapp",
-            context: {
-              timestamp: new Date().toISOString(),
-              module: "whatsapp",
-            },
-          },
-        );
-      }
+      await this.conditionallyStartWhatsApp();
+      await this.configureMonitoring();
+      await this.setupBackupService();
     } catch (err) {
+      console.error(err);
       throw new ProyectError(`Failed to initialize modules: ${err}`);
     }
   }
 
   /**
-   * Handles errors that occur during the application startup process.
-   *
-   * @param err - The error object or message.
-   * @throws {ProyectError} A custom error with a detailed message.
-   */
-  private handleError(err: unknown): void {
-    throw new ProyectError(`Error starting the application: ${err}`);
-  }
-
-  /**
    * Creates or updates the Discord client configuration in the database.
    *
-   * This method uses the Prisma client to upsert the Discord client configuration based on the token.
+   * @remarks
+   * This method uses the Prisma client to upsert the Discord client configuration
+   * based on the token. If the configuration does not exist, it creates a new entry.
    *
    * @throws {ProyectError} If the upsert operation fails.
    */
@@ -202,20 +257,25 @@ export class Engine {
         },
       });
     } catch (err) {
-      throw new ProyectError(`Failed to create/update Discord client configuration: ${err}`);
+      console.error(err);
+      throw new ProyectError(`Failed to Discord client configuration: ${err}`);
     }
   }
 }
 
-/**
- * Global instance of the `Engine` class.
- */
-export const main = new Engine();
+const main = new Engine();
+const client = main.discord;
+
+export { client, main };
 
 /**
- * Global instance of the Discord client.
+ * Starts the application and handles any errors during the startup process.
+ *
+ * @remarks
+ * If the application fails to start, a custom error is thrown, and the process exits
+ * with a failure code.
  */
-export const client = main.discord;
-
-// Starts the application and handles any errors during the startup process.
-main.start();
+main.start().catch((err) => {
+  throw new ProyectError(`Failed to start the application: ${err}`);
+  process.exit(1);
+});

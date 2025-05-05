@@ -16,6 +16,7 @@ import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import i18next from "@backend/shared/i18n";
 import emojis from "@config/json/emojis.json";
+import { DomainError } from "@extenders/errors.extender";
 
 import { SwaggerMonitor } from "./shared/monitor";
 import swaggerSetup from "./shared/swagger-doc";
@@ -122,8 +123,7 @@ export class API {
     }); */
 
     const cache = apicache.options({
-      debug: true,
-      //redisClient, Usar el cliente de Redis conectado
+      debug: process.env.NODE_ENV === "development" ? true : false, 
       defaultDuration: "5 minutes",
       headers: {
         "X-Cache-Channel": "API",
@@ -191,7 +191,7 @@ export class API {
             },
           });
         } catch (err: any) {
-          console.error(chalk.red(`[Metrics Error] ${err.message}`));
+          throw new DomainError(`The metrics could not be saved: ${err.message}`);
         }
       });
 

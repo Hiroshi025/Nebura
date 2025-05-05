@@ -19,7 +19,7 @@ import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/dis
 import { config } from "@utils/config";
 import { logWithLabel } from "@utils/functions/console";
 
-import { MyClient } from "../client";
+import { MyClient } from "../../client";
 
 const sleep = promisify(setTimeout);
 const MAX_OUTPUT_LENGTH = 1000;
@@ -427,14 +427,15 @@ export async function Ranking(message: Message, client: MyClient) {
 
   logWithLabel(
     "info",
-    `User talking: ${message.author.tag} | XP: ${xp} | Level: ${level} and earned ${xpAmount} XP.`, {
+    `User talking: ${message.author.tag} | XP: ${xp} | Level: ${level} and earned ${xpAmount} XP.`,
+    {
       customLabel: "Ranking",
       context: {
         userId: message.author.id,
         userName: message.author.username,
         userTag: message.author.tag,
       },
-    }
+    },
   );
 
   // Check for level-up

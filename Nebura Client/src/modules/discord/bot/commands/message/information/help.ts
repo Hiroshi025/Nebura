@@ -6,7 +6,7 @@ import {
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
-import { MyClient } from "@/modules/discord/structure/client";
+import { MyClient } from "@/modules/discord/client";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 import { Precommand } from "@typings/modules/discord";
 import { config } from "@utils/config";

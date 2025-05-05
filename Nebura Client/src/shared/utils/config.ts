@@ -14,6 +14,23 @@ import { logWithLabel } from "./functions/console";
 const configDir = path.resolve(__dirname, "..", "..", "..", "config");
 function readConfigFile<T>(filename: string): T {
   const filePath = path.join(configDir, filename);
+
+  if (!fs.existsSync(filePath)) {
+    logWithLabel("error", `Configuration file ${filename} not found.`);
+    process.exit(1);
+  }
+
+  if (!fs.statSync(filePath).isFile()) {
+    logWithLabel("error", `${filename} is not a file.`);
+    process.exit(1);
+  }
+
+  if (path.extname(filePath) !== ".yml" && path.extname(filePath) !== ".yaml") {
+    logWithLabel("error", `${filename} is not a YAML file.`);
+    process.exit(1);
+  }
+
+
   try {
     const fileContents = fs.readFileSync(filePath, "utf8");
     return YAML.parse(fileContents) as T;
@@ -23,9 +40,5 @@ function readConfigFile<T>(filename: string): T {
   }
 }
 
-// Determina el archivo de configuración según NODE_ENV
-const configFile = `config.yml`;
-
-const config = readConfigFile<ProyectConfig>(configFile);
-
+const config = readConfigFile<ProyectConfig>("config.yml");
 export { config, readConfigFile };

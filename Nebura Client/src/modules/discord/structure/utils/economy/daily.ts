@@ -5,7 +5,7 @@ import {
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
-import { MyClient } from "../../client";
+import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
 
 export const DailyCommand = {

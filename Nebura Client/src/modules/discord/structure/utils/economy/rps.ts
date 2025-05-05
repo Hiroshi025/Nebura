@@ -5,7 +5,7 @@ import {
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
-import { MyClient } from "../../client";
+import { MyClient } from "../../../client";
 import { fetchBalance } from "../functions";
 
 export async function RPSCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {

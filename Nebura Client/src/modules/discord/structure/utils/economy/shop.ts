@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction, PermissionFlagsBits, PermissionsBitField }
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
-import { MyClient } from "../../client";
+import { MyClient } from "../../../client";
 import { fetchBalance, generateToken, toFixedNumber } from "../functions";
 
 export async function ShopEconomy(interaction: ChatInputCommandInteraction, client: MyClient) {

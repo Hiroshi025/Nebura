@@ -4,14 +4,14 @@ import { inspect } from "util";
 import { main } from "@/main";
 import { config } from "@/shared/utils/config";
 
-import { MyClient } from "../client";
+import { MyClient } from "../../client";
 
 /**
  * Sets up error handling and logging for the Discord client and Node.js process.
- * 
+ *
  * This function listens for various error events, logs them to the console, and sends detailed
  * error information to a Discord webhook if configured.
- * 
+ *
  * @param client - The Discord client instance.
  */
 export async function ErrorConsole(client: MyClient) {

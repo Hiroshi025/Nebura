@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from "discord.js";
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 
-import { MyClient } from "../../client";
+import { MyClient } from "../../../client";
 
 export async function StateCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {
   if (!interaction.guild || !interaction.channel) return;
@@ -16,7 +16,9 @@ export async function StateCommand(interaction: ChatInputCommandInteraction, _cl
 
   if (!userEconomy) {
     return interaction.reply({
-      embeds: [new ErrorEmbed().setDescription(`${targetUser.username} does not have an economy profile.`)],
+      embeds: [
+        new ErrorEmbed().setDescription(`${targetUser.username} does not have an economy profile.`),
+      ],
       flags: "Ephemeral",
     });
   }
@@ -34,12 +36,13 @@ export async function StateCommand(interaction: ChatInputCommandInteraction, _cl
     return `${medal} **${interaction.guild?.members.cache.get(entry.userId)?.user.username || "Unknown"}** - $${entry.balance}`;
   });
 
-  const next15 = leaderboard.length > 3
-    ? leaderboard.slice(3).map((entry, index) => {
-        const rank = index + 4; // Adjust for 1-based index and top 3
-        return `**#${rank}** ${interaction.guild?.members.cache.get(entry.userId)?.user.username || "Unknown"} - $${entry.balance}`;
-      })
-    : ["No more users available in the leaderboard."];
+  const next15 =
+    leaderboard.length > 3
+      ? leaderboard.slice(3).map((entry, index) => {
+          const rank = index + 4; // Adjust for 1-based index and top 3
+          return `**#${rank}** ${interaction.guild?.members.cache.get(entry.userId)?.user.username || "Unknown"} - $${entry.balance}`;
+        })
+      : ["No more users available in the leaderboard."];
 
   const embed = new EmbedCorrect()
     .setTitle(`💰 Economy State for ${targetUser.username}`)

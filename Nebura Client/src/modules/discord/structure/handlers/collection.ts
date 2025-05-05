@@ -12,8 +12,8 @@ import { filesLoaded } from "@constants/tools.const";
 import { DiscordError } from "@extenders/errors.extender";
 import { FileType } from "@typings/modules/discord";
 
+import { MyClient } from "../../client";
 import { Addons } from "../addons";
-import { MyClient } from "../client";
 import { Command, Event } from "../utils/builders";
 
 /**
@@ -179,19 +179,15 @@ export class DiscordHandler {
       });
 
       rest.on("invalidRequestWarning", (info) => {
-        logWithLabel(
-          "custom",
-          [`Invalid Request Warning:`, `Count: ${info.count}`].join("\n"),
-          {
-            customLabel: "InvalidRequest",
-            context: {
-              clientId: this.client.user?.id,
-              clientName: this.client.user?.username,
-              guilds: this.client.guilds.cache.size,
-              owners: config.modules.discord.owners,
-            },
+        logWithLabel("custom", [`Invalid Request Warning:`, `Count: ${info.count}`].join("\n"), {
+          customLabel: "InvalidRequest",
+          context: {
+            clientId: this.client.user?.id,
+            clientName: this.client.user?.username,
+            guilds: this.client.guilds.cache.size,
+            owners: config.modules.discord.owners,
           },
-        );
+        });
       });
 
       rest.on("debug", (message) => {

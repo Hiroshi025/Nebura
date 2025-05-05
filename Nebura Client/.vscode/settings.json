@@ -1,0 +1,17 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    ".sentryclirc": true,
+    "CHANGELOG.md": true,
+    "LICENSE": true,
+  },
+  "editor.formatOnSave": true,
+  "typescript.suggest.completeJSDocs": true, // Esto es para que te sugiera completar JSDocs automáticamente
+  "typescript.suggest.autoImports": true, // Esto es para que te sugiera imports automáticamente
+  "typescript.suggest.completeFunctionCalls": true, // Esto es para que te sugiera completar funciones automáticamente
+  "typescript.suggestionActions.enabled": true, // Esto es para que te sugiera acciones automáticamente
+}

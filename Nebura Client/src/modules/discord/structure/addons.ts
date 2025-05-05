@@ -1,7 +1,7 @@
 import { config } from "@/shared/utils/config";
 import { AddonConfig } from "@typings/modules/discord";
 
-import { MyClient } from "./client";
+import { MyClient } from "../client";
 
 /**
  * @name Addons

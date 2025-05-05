@@ -7,7 +7,7 @@ import { main } from "@/main";
 import { EmbedCorrect } from "@extenders/discord/embeds.extender";
 import { Fields } from "@typings/utils";
 
-import { MyClient } from "../client";
+import { MyClient } from "../../client";
 
 //TODO correjir a que solo los fields con datos se manden
 
@@ -32,7 +32,7 @@ export class LogClass {
 
   /**
    * Creates an instance of the LogClass.
-   * 
+   *
    * @param client - The Discord client instance.
    * @param guilds - Array of guilds where the logger will operate.
    * @param delay - Optional delay in milliseconds for event processing. Default is 500ms.
@@ -45,7 +45,7 @@ export class LogClass {
 
   /**
    * Enables or disables the event logger.
-   * 
+   *
    * @param status - Boolean indicating whether to enable or disable the logger.
    * @returns A promise that resolves to `true` if enabled, otherwise `false`.
    */
@@ -57,7 +57,7 @@ export class LogClass {
 
   /**
    * Registers event listeners for the specified guilds based on their configuration.
-   * 
+   *
    * @private
    * @returns A promise that resolves when all events are registered.
    */
@@ -72,7 +72,9 @@ export class LogClass {
         continue;
       }
 
-      console.log(`[DEBUG] Registrando eventos para el servidor: ${guild.id}, eventos: ${events.join(", ")}`); // Log de depuración
+      console.log(
+        `[DEBUG] Registrando eventos para el servidor: ${guild.id}, eventos: ${events.join(", ")}`,
+      ); // Log de depuración
 
       events.forEach((event) => {
         switch (event) {
@@ -512,7 +514,7 @@ export class LogClass {
 
   /**
    * Sends a log message to the configured log channel of a guild.
-   * 
+   *
    * @private
    * @param guild - The guild where the log will be sent.
    * @param color - The color of the embed.
