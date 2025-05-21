@@ -47,11 +47,7 @@ export class IPBlocker {
   private async loadBlockedIPs(): Promise<void> {
     try {
       logWithLabel("custom", "Loading blocked IPs...", {
-        customLabel: "IP",
-        context: {
-          blockedIPs: this.blockedIPs,
-          lastUpdate: this.lastUpdate,
-        },
+        customLabel: "IP"
       });
       const now = new Date();
       const activeBlocks = await main.prisma.blockedIP.findMany({
@@ -61,7 +57,8 @@ export class IPBlocker {
         },
       });
 
-      this.blockedIPs = new Set(activeBlocks.map((block) => block.ipAddress));
+      // Asegura que activeBlocks sea siempre un array
+      this.blockedIPs = new Set((activeBlocks ?? []).map((block) => block.ipAddress));
       this.lastUpdate = new Date();
       logWithLabel(
         "custom",
@@ -70,11 +67,7 @@ export class IPBlocker {
           `  ${chalk.grey(`${emojis.moderator}   Last update: ${this.lastUpdate.toISOString()}`)}`,
         ].join("\n"),
         {
-          customLabel: "IP",
-          context: {
-            blockedIPs: this.blockedIPs,
-            lastUpdate: this.lastUpdate,
-          },
+          customLabel: "IP"
         },
       );
     } catch (error) {
@@ -112,11 +105,7 @@ export class IPBlocker {
           "custom",
           `${expiredBlocks.length} expired IP blocks have been automatically unblocked.`,
           {
-            customLabel: "IP",
-            context: {
-              expiredBlocks: expiredBlocks.map((block) => block.ipAddress),
-              lastUpdate: this.lastUpdate,
-            },
+            customLabel: "IP"
           },
         );
       }

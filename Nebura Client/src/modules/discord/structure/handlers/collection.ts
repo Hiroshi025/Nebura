@@ -4,7 +4,6 @@ import { Discord } from "eternal-support";
 import fs from "fs";
 import path from "path";
 
-import { main } from "@/main";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { getFiles } from "@/shared/utils/functions/files";
@@ -103,31 +102,51 @@ export class DiscordHandler {
       }
     }
 
-    const addonFiles = getFiles(this.settings.configs.addonspath, [".addons.ts", ".addons.js"]);
+    // Load addons: each addon is inside its own folder with a .addon.ts or .addon.js file (accept only one, whichever exists)
+    const addonDirs = fs
+      .readdirSync(this.settings.configs.addonspath, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
 
-    for (const file of addonFiles) {
-      const addonModule = require(file).default;
-      if (addonModule instanceof Addons) {
-        this.client.addons.set(addonModule.structure.name, addonModule);
-        await addonModule.initialize(this.client, config);
+    const loadedAddons: string[] = [];
+    let totalAddonCode = 0;
+    const startAddonsTime = performance.now();
+
+    for (const dir of addonDirs) {
+      // Accept any file ending with .addon.ts or .addon.js inside the addon folder
+      const addonFolderPath = path.join(this.settings.configs.addonspath, dir);
+      const filesInFolder = fs.readdirSync(addonFolderPath);
+      const addonFile = filesInFolder.find(
+        (file) => file.endsWith(".addon.ts") || file.endsWith(".addon.js"),
+      );
+      if (addonFile) {
+        const addonPath = path.join(addonFolderPath, addonFile);
+        const code = fs.readFileSync(addonPath, "utf8");
+        totalAddonCode += code.length;
+        const addonModule = require(addonPath).default;
+        if (addonModule instanceof Addons) {
+          this.client.addons.set(addonModule.structure.name, addonModule);
+          await addonModule.initialize(this.client, config);
+          loadedAddons.push(addonModule.structure.name);
+        }
       }
     }
+
+    const endAddonsTime = performance.now();
 
     logWithLabel(
       "custom",
       [
         "loaded the Addons-Client\n",
         chalk.grey(`  ✅  Finished Loading the Addons Module`),
-        chalk.grey(`  🟢  Addon-Loaded Successfully: ${addonFiles.length}`),
+        chalk.grey(`  🟢  Addon-Loaded Successfully: ${loadedAddons.length}`),
+        chalk.grey(`  🕛  Took: ${Math.round(endAddonsTime - startAddonsTime)}ms`),
+        chalk.grey(`  📦  Addons in cache: ${this.client.addons.size}`),
+        chalk.grey(`  📄  Total code read: ${totalAddonCode} chars`),
+        chalk.grey(`  🔗  Loaded Addons: ${loadedAddons.join(", ") || "None"}`),
       ].join("\n"),
       {
         customLabel: "addons",
-        context: {
-          clientId: this.client.user?.id,
-          clientName: this.client.user?.username,
-          guilds: this.client.guilds.cache.size,
-          owners: config.modules.discord.owners,
-        },
       },
     );
   }
@@ -150,60 +169,11 @@ export class DiscordHandler {
    */
   public async deploy() {
     const startTime = performance.now();
-    const data = await main.prisma.myDiscord.findUnique({
-      where: { clientId: config.modules.discord.clientId },
-    });
-    const rest = new REST({ version: "10" }).setToken(config.modules.discord.token);
-
-    if (data && data.logconsole) {
-      // INFO - API control events
-      rest.on("rateLimited", (info) => {
-        logWithLabel(
-          "custom",
-          [
-            `Method: ${info.method}`,
-            `Time: ${info.timeToReset}`,
-            `Limit: ${info.limit}`,
-            `Url: ${info.url}`,
-          ].join("\n"),
-          {
-            customLabel: "RateLimit",
-            context: {
-              clientId: this.client.user?.id,
-              clientName: this.client.user?.username,
-              guilds: this.client.guilds.cache.size,
-              owners: config.modules.discord.owners,
-            },
-          },
-        );
-      });
-
-      rest.on("invalidRequestWarning", (info) => {
-        logWithLabel("custom", [`Invalid Request Warning:`, `Count: ${info.count}`].join("\n"), {
-          customLabel: "InvalidRequest",
-          context: {
-            clientId: this.client.user?.id,
-            clientName: this.client.user?.username,
-            guilds: this.client.guilds.cache.size,
-            owners: config.modules.discord.owners,
-          },
-        });
-      });
-
-      rest.on("debug", (message) => {
-        logWithLabel("debug", message, {
-          customLabel: "REST",
-          context: {
-            clientId: this.client.user?.id,
-            clientName: this.client.user?.username,
-            guilds: this.client.guilds.cache.size,
-            owners: config.modules.discord.owners,
-          },
-        });
-        console.debug(chalk.blueBright(`🔍 REST Debug: ${message}`));
-      });
-    }
-
+    const rest = new REST({ version: "10" }).setToken(
+      config.modules.discord.token
+        ? config.modules.discord.token
+        : (process.env.TOKEN_DISCORD as string),
+    );
     const commands = [...this.client.commands.values()];
     await rest.put(Routes.applicationCommands(config.modules.discord.clientId), {
       body: commands.map((s) => s.structure),

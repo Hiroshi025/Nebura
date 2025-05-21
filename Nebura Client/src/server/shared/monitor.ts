@@ -75,10 +75,7 @@ export const SwaggerMonitor = (main: API) => {
     } else {
       // Log an error if the Swagger API specification fails validation
       logWithLabel("custom", `Swagger API: ${err}`, {
-        customLabel: "Swagger",
-        context: {
-          timestamp: new Date().toISOString(),
-        },
+        customLabel: "Swagger"
       });
       return;
     }

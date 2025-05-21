@@ -22,12 +22,7 @@ export async function globalCleanup(
         `  ${emojis.database} Deleted items: ${deletedCount}`,
       ].join("\n"),
       {
-        customLabel: "Tasks",
-        context: {
-          taskName,
-          deletedCount,
-          timestamp: new Date().toISOString(),
-        },
+        customLabel: "Tasks"
       },
     );
   } catch (error) {

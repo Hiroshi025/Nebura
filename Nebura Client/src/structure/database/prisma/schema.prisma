@@ -1,7 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["metrics"]
-  output = "./src/structure/database/prisma/generated/client"
 }
 
 datasource db {
@@ -273,26 +272,122 @@ model UserDiscord {
   bans   BanUser[]
 }
 
-model UserLevel {
-  id          String  @id @default(cuid()) @map("_id")
-  guildId     String
-  userId      String
-  xp          Int
-  level       Int
-  background  String?
-  barColor    String?
-  borderColor String?
-  blur        Int?
-
-  @@unique([guildId, userId]) // Clave única compuesta
-}
+//******************* DISCORD LEVEL MODELS **************//
 
 model LevelConfig {
-  id        String  @id @default(cuid()) @map("_id")
-  guildId   String
-  channelId String?
-  status    Boolean
+  id             String  @id @default(cuid()) @map("_id")
+  guildId        String  @unique
+  channelId      String?
+  status         Boolean
+  bonusChannels  Json? // Array of { channelId: String, multiplier: Number }
+  maxLevel       Int     @default(100)
+  weeklyRewards  Json? // <-- agrega esto
+  monthlyRewards Json? // <-- y esto/*  */
 }
+
+model UserLevel {
+  id            String    @id @default(cuid()) @map("_id")
+  guildId       String
+  userId        String
+  xp            Int
+  level         Int
+  prestige      Int       @default(0)
+  weeklyXp      Int       @default(0)
+  monthlyXp     Int       @default(0)
+  totalMessages Int       @default(0)
+  lastActive    DateTime?
+  background    String?
+  barColor      String?
+  borderColor   String?
+  blur          Int?
+
+  streaks         Streak?
+  quests          UserQuests?       @relation("UserLevelQuests")
+  achievements    UserAchievements? @relation("UserLevelAchievements")
+  prestigeHistory PrestigeHistory[] @relation("UserLevelToPrestigeHistory")
+
+  @@unique([guildId, userId])
+}
+
+model Streak {
+  id            String @id @default(cuid()) @map("_id")
+  userId        String
+  guildId       String
+  lastActive    String // YYYY-MM-DD
+  currentStreak Int    @default(1)
+  longestStreak Int    @default(1)
+
+  userLevel UserLevel? @relation(fields: [userId, guildId], references: [userId, guildId])
+
+  @@unique([userId, guildId])
+}
+
+model UserQuests {
+  id              String @id @default(cuid()) @map("_id")
+  userId          String
+  guildId         String
+  dailyProgress   Json // { questId: progress }
+  dailyCompleted  Json // { questId: boolean }
+  weeklyProgress  Json
+  weeklyCompleted Json
+
+  userLevel UserLevel? @relation("UserLevelQuests", fields: [userId, guildId], references: [userId, guildId])
+
+  @@unique([userId, guildId])
+}
+
+model UserAchievements {
+  id           String   @id @default(cuid()) @map("_id")
+  userId       String
+  guildId      String
+  achievements String[] // Array of achievement IDs
+
+  userLevel UserLevel? @relation("UserLevelAchievements", fields: [userId, guildId], references: [userId, guildId])
+
+  @@unique([userId, guildId])
+}
+
+model PrestigeHistory {
+  id            String   @id @default(cuid()) @map("_id")
+  userId        String
+  guildId       String
+  date          DateTime
+  levelAchieved Int
+
+  userLevel UserLevel @relation("UserLevelToPrestigeHistory", fields: [userId, guildId], references: [userId, guildId])
+
+  @@index([userId, guildId])
+}
+
+model WeeklyLeaderboard {
+  id        String   @id @default(cuid()) @map("_id")
+  guildId   String
+  week      Int // Week number of the year
+  data      Json // Top users data
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, week])
+}
+
+model MonthlyLeaderboard {
+  id        String   @id @default(cuid()) @map("_id")
+  guildId   String
+  month     Int // 1-12
+  year      Int
+  data      Json // Top users data
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, month, year])
+}
+
+model LeaderboardReset {
+  id        String @id @default(cuid()) @map("_id")
+  guildId   String @unique
+  lastWeek  Int
+  lastMonth Int
+}
+
+//******************* END DISCORD LEVEL MODELS **************//
 
 model Captcha {
   id        String  @id @map("_id") @db.ObjectId
@@ -313,9 +408,13 @@ model Suggestion {
   downvoters String[] @default([]) // Array of user IDs who downvoted
   authorId   String
   guildId    String
+  status     String
+  lastVoter  String?
+  resolvedBy String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime? @map("resolved_at")
 }
 
 model ReactionRole {
@@ -332,19 +431,18 @@ model ReactionRole {
 }
 
 model Metrics {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  endpoint_clientId_system String @unique
-  endpoint  String
-  clientId  String?
-  system    String
-  requests  Int      @default(0)
-  errors    Int      @default(0)
-  latency   Float    @default(0.0) // Promedio de latencia en ms
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                       String   @id @default(auto()) @map("_id") @db.ObjectId
+  endpoint_clientId_system String   @unique
+  endpoint                 String
+  clientId                 String?
+  system                   String
+  requests                 Int      @default(0)
+  errors                   Int      @default(0)
+  latency                  Float    @default(0.0) // Promedio de latencia en ms
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 
-  @@index([endpoint, clientId, system]) 
-
+  @@index([endpoint, clientId, system])
 }
 
 type EventLogs {

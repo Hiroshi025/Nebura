@@ -19,10 +19,16 @@ export class BackupService {
    * Initializes a new instance of the BackupService.
    * @param backupDir - The directory where backups will be stored. Defaults to a `backups` folder in the current directory.
    */
-  constructor(backupDir: string = path.join(__dirname, '../../config/backups')) {
+  constructor(backupDir: string = path.join(__dirname, "../../config/backups")) {
     this.prisma = new PrismaClient();
     this.backupDir = backupDir;
     this.job = null;
+  }
+
+  // --- RECOMENDACIÓN 1: Validar nombre de archivo para evitar path traversal ---
+  private isValidFileName(fileName: string): boolean {
+    // Solo permite nombres de archivo simples terminados en .json
+    return /^[\w\-]+(\.[\w\-]+)*\.json$/.test(fileName);
   }
 
   /**
@@ -40,7 +46,7 @@ export class BackupService {
    */
   private async getAllModels(): Promise<string[]> {
     const models = Object.keys(this.prisma).filter(
-      (key) => typeof (this.prisma as any)[key]?.findMany === 'function'
+      (key) => typeof (this.prisma as any)[key]?.findMany === "function",
     ) as string[];
     return models;
   }
@@ -64,7 +70,7 @@ export class BackupService {
         backupData[model] = await (this.prisma as any)[model].findMany();
       }
 
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const backupFile = path.join(this.backupDir, `backup-${timestamp}.json`);
 
       await fs.writeJson(backupFile, backupData, { spaces: 2 });
@@ -72,6 +78,8 @@ export class BackupService {
       logWithLabel("debug", `Backup completed: ${backupFile}`);
     } catch (error: any) {
       logWithLabel("error", `Error during the backup process: ${error.message}`);
+      // --- RECOMENDACIÓN 2: Propagar el error si se requiere manejo externo ---
+      throw error;
     }
   }
 
@@ -82,7 +90,7 @@ export class BackupService {
   public async listBackups(): Promise<string[]> {
     await this.ensureBackupDir();
     const files = await fs.readdir(this.backupDir);
-    return files.filter(file => file.endsWith('.json'));
+    return files.filter((file) => file.endsWith(".json"));
   }
 
   /**
@@ -92,6 +100,10 @@ export class BackupService {
    * @throws {PrismaError} If the backup file does not exist.
    */
   public async findBackupById(fileName: string): Promise<any> {
+    // --- RECOMENDACIÓN 3: Validar nombre de archivo ---
+    if (!this.isValidFileName(fileName)) {
+      throw new PrismaError(`Invalid backup file name: ${fileName}`);
+    }
     const filePath = path.join(this.backupDir, fileName);
     if (await fs.pathExists(filePath)) {
       return await fs.readJson(filePath);
@@ -107,6 +119,10 @@ export class BackupService {
    * @throws {PrismaError} If the backup file does not exist.
    */
   public async deleteBackup(fileName: string): Promise<void> {
+    // --- RECOMENDACIÓN 3: Validar nombre de archivo ---
+    if (!this.isValidFileName(fileName)) {
+      throw new PrismaError(`Invalid backup file name: ${fileName}`);
+    }
     const filePath = path.join(this.backupDir, fileName);
     if (await fs.pathExists(filePath)) {
       await fs.remove(filePath);
@@ -120,28 +136,33 @@ export class BackupService {
    * Schedules automatic backups using a cron expression.
    * @param cronExpression - The cron expression defining the backup schedule. Defaults to '0 2 * * *' (daily at 2 AM).
    */
-  public scheduleBackups(cronExpression: string = '0 2 * * *'): void {
+
+  // en un minuto
+  public scheduleBackups(cronExpression: string = "0 2 * * *"): void { 
     if (this.job) {
       this.job.cancel();
     }
-    this.job = schedule.scheduleJob(cronExpression, () => {
-      this.createBackup();
+    this.job = schedule.scheduleJob(cronExpression, async () => {
+      try {
+        await this.createBackup();
+      } catch (error: any) {
+        logWithLabel("error", `Scheduled backup failed: ${error.message}`);
+      }
     });
-    logWithLabel("error", [
-      "Backups scheduled with cron expression.",
-      `Next backup: ${this.job.nextInvocation()}`,
-      `Cron expression: ${cronExpression}`,
-    ].join("\n"))
+    // --- RECOMENDACIÓN 4: Usar nivel de log adecuado ---
+    logWithLabel(
+      "info",
+      [
+        "Backups scheduled with cron expression.",
+        `Next backup: ${this.job.nextInvocation()}`,
+        `Cron expression: ${cronExpression}`,
+      ].join("\n"),
+    );
   }
 
-  /**
-   * Stops any scheduled automatic backups.
-   */
-  public stopScheduledBackups(): void {
-    if (this.job) {
-      this.job.cancel();
-      this.job = null;
-      logWithLabel("debug", "Automatic backups stopped.");
-    }
+  // --- RECOMENDACIÓN 5: Método para cerrar PrismaClient ---
+  public async disconnect(): Promise<void> {
+    await this.prisma.$disconnect();
+    logWithLabel("debug", "PrismaClient disconnected.");
   }
 }

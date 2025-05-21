@@ -5,6 +5,7 @@ import { basename, extname, join } from "path";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
+import { DiscordError } from "@extenders/errors.extender";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
 
 import { DiscordHandler } from "./structure/handlers/collection";
@@ -123,7 +124,7 @@ export class MyClient extends Client {
     super({
       makeCache: Options.cacheWithLimits({
         ...Options.DefaultMakeCacheSettings,
-        ReactionManager: 0,
+        AutoModerationRuleManager: 0,
       }),
       intents: [
         GatewayIntentBits.Guilds,
@@ -154,12 +155,33 @@ export class MyClient extends Client {
       sweepers: {
         ...Options.DefaultSweeperSettings,
         users: {
-          interval: 3_600, // Every hour.
+          interval: 1_800, // Every hour.
           filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
         },
         threads: {
-          interval: 3_600, // Every hour.
+          interval: 1_800, // Every 30 minutes.
           lifetime: 86_400, // Remove threads older than 24 hours.
+        },
+        stickers: {
+          interval: 1_800, // Every 30 minutes.
+          filter: () => (sticker) => sticker.guildId !== this.settings.guildId,
+        },
+        threadMembers: {
+          interval: 1_800, // Every 30 minutes.
+          filter: () => (threadMember) => {
+            // Remove thread members that are not in the guild.
+            const guild = this.guilds.cache.get(this.settings.guildId);
+            if (!threadMember.user) return false; // If the user is not defined, do not remove.
+            return !guild?.members.cache.has(threadMember.user.id);
+          },
+        },
+        autoModerationRules: {
+          interval: 1_800, // Every 30 minutes.
+          filter: () => (rule) => {
+            // Remove auto moderation rules that are not in the guild.
+            const guild = this.guilds.cache.get(this.settings.guildId);
+            return !guild?.autoModerationRules.cache.has(rule.id);
+          },
         },
       },
     });
@@ -192,7 +214,7 @@ export class MyClient extends Client {
    * @returns {Promise<void>} Resolves when the client has successfully started or exits early if an error occurs.
    */
   public async start(): Promise<void> {
-    logWithLabel("debug", "APP Discord API Starting Project...");
+    logWithLabel("debug", "Starting Discord API...");
 
     // Check if the token is provided in the configuration
     if (!this.settings.token) {
@@ -233,14 +255,8 @@ export class MyClient extends Client {
         this.handlers.deploy(),
       ]);
     } catch (err) {
-      logWithLabel(
-        "error",
-        [
-          "APP Discord API Error:",
-          `  ${emojis.circle_x}  Error loading modules`,
-          `  ${emojis.circle_x}  ${err}`,
-        ].join("\n"),
-      );
+      console.error(err);
+      throw new DiscordError("Error loading handlers");
     }
   }
 

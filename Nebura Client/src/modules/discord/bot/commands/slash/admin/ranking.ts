@@ -1,4 +1,4 @@
-import { profileImage } from "discord-arts";
+import { Profile } from "discord-arts";
 import {
 	AttachmentBuilder, GuildMember, PermissionFlagsBits, SlashCommandBuilder
 } from "discord.js";
@@ -225,7 +225,7 @@ export default new Command(
                     },
                   });
 
-                  const Buffer = await profileImage(targetMember.user.id, {
+                  const Buffer = await Profile(targetMember.user.id, {
                     customBackground: image.url,
                   });
 
@@ -301,7 +301,7 @@ export default new Command(
                   const borderColor = user?.borderColor;
                   const backgroundBlur = user?.blur;
 
-                  const buffer = await profileImage(targetMember.user.id, {
+                  const buffer = await Profile(targetMember.user.id, {
                     customBackground: background as string,
                     borderColor: borderColor as string,
                     moreBackgroundBlur: !!backgroundBlur,
@@ -388,7 +388,7 @@ export default new Command(
                   const barColor = user.barColor;
                   const borderColor = user.borderColor;
 
-                  const buffer = await profileImage(targetMember.id, {
+                  const buffer = await Profile(targetMember.id, {
                     borderColor: borderColor as string,
                     presenceStatus: targetMember.presence?.status,
                     customBackground: background as string,
@@ -473,7 +473,7 @@ export default new Command(
                   const backgroundBlur = user.blur;
                   const barColor = user.barColor;
 
-                  const buffer = await profileImage(targetMember.user.id, {
+                  const buffer = await Profile(targetMember.user.id, {
                     customBackground: background as string,
                     borderColor: color,
                     moreBackgroundBlur: !!backgroundBlur,

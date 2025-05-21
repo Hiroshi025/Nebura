@@ -8,13 +8,6 @@ export default new Event("warn", async (info) => {
   if (!data || data.logconsole === false) return;
 
   logWithLabel("custom", info, {
-    customLabel: "Discord",
-    context: {
-      clientId: client.user.id,
-      clientName: client.user.username,
-      guilds: client.guilds.cache.size,
-      userId: data.clientId,
-      timestamp: new Date().toISOString(),
-    },
+    customLabel: "Discord"
   });
 });

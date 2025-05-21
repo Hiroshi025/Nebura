@@ -1,13 +1,12 @@
 import axios from "axios";
 import { createHash } from "crypto";
 import { format } from "date-fns";
-import { profileImage } from "discord-arts";
 import {
 	ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChannelType, codeBlock, Colors,
-	ComponentType, EmbedBuilder, Guild, GuildChannel, GuildDefaultMessageNotifications,
+	ComponentType, EmbedBuilder, Guild, GuildDefaultMessageNotifications,
 	GuildExplicitContentFilter, GuildFeature, GuildMember, GuildNSFWLevel, GuildPremiumTier,
-	GuildVerificationLevel, Message, MessageEditAttachmentData, PermissionFlagsBits,
-	StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel, User, UserFlagsBitField
+	GuildVerificationLevel, Message, MessageEditAttachmentData, StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder, TextChannel, User, UserFlagsBitField
 } from "discord.js";
 import moment from "moment";
 import { promisify } from "util";
@@ -17,7 +16,6 @@ import emojis from "@config/json/emojis.json";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/discord/embeds.extender";
 import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/discord";
 import { config } from "@utils/config";
-import { logWithLabel } from "@utils/functions/console";
 
 import { MyClient } from "../../client";
 
@@ -353,145 +351,6 @@ export async function createUser(userId: string) {
   }
 
   return dbUser;
-}
-
-const cooldown = new Set<string>();
-
-/**
- * Handles the ranking system for users in a Discord server.
- *
- * @param message
- * @param client
- * @returns
- */
-export async function Ranking(message: Message, client: MyClient) {
-  if (!message.guild || !message.channel || message.author.bot || !client.user) return;
-
-  const guildId = message.guild.id;
-  const userId = message.author.id;
-
-  // Cooldown check
-  if (cooldown.has(userId)) {
-    logWithLabel("info", `User: ${message.author.tag} | Cooldown activated.`, {
-      customLabel: "Ranking",
-      context: {
-        userId: message.author.id,
-        userName: message.author.username,
-        userTag: message.author.tag,
-      },
-    });
-    return;
-  }
-
-  // Fetch ranking channel configuration from the database
-  let rankingChannel = await main.prisma.levelConfig.findFirst({
-    where: { guildId, status: true },
-  });
-
-  // If no configuration exists, create a default one
-  if (!rankingChannel) {
-    rankingChannel = await main.prisma.levelConfig.create({
-      data: { guildId, channelId: null, status: true },
-    });
-  }
-
-  // Skip if the ranking system is disabled
-  if (!rankingChannel.status) return;
-
-  // Generate random XP and fetch user data from the database
-  const xpAmount = Math.floor(Math.random() * (25 - 15 + 1) + 15);
-  let user = await main.prisma.userLevel.findFirst({
-    where: { guildId, userId },
-  });
-
-  // Update or create user data
-  user = await main.prisma.userLevel.upsert({
-    where: {
-      guildId_userId: {
-        guildId: guildId,
-        userId: userId,
-      },
-    },
-    update: {
-      xp: { increment: xpAmount },
-    },
-    create: {
-      guildId: guildId,
-      userId: userId,
-      xp: xpAmount,
-      level: 0,
-    },
-  });
-
-  let { xp, level } = user;
-
-  logWithLabel(
-    "info",
-    `User talking: ${message.author.tag} | XP: ${xp} | Level: ${level} and earned ${xpAmount} XP.`,
-    {
-      customLabel: "Ranking",
-      context: {
-        userId: message.author.id,
-        userName: message.author.username,
-        userTag: message.author.tag,
-      },
-    },
-  );
-
-  // Check for level-up
-  if (xp >= level * 100) {
-    level++;
-    xp = 0;
-
-    let notificationChannel: GuildChannel | null = null;
-
-    // Fetch the notification channel if configured
-    if (rankingChannel.channelId) {
-      try {
-        notificationChannel = (await client.channels.fetch(
-          rankingChannel.channelId,
-        )) as GuildChannel;
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    // Use the current channel if no notification channel is set
-    if (!notificationChannel) {
-      notificationChannel = message.channel as GuildChannel;
-    }
-
-    // Check for permission to send messages
-    if (notificationChannel.permissionsFor(client.user)?.has(PermissionFlagsBits.SendMessages)) {
-      const buffer = await profileImage(userId, {
-        customTag: `You leveled up to: ${level}!`,
-      });
-
-      const attachment = new AttachmentBuilder(buffer, { name: "profile.png" });
-
-      (notificationChannel as TextChannel).send({ files: [attachment] });
-    } else {
-      // Send a DM if the bot can't send messages in the channel
-      const buffer = await profileImage(userId, {
-        customTag: `You leveled up to: ${level}!`,
-      });
-
-      await message.author.send({
-        content: `You leveled up to: ${level}!`,
-        files: [new AttachmentBuilder(buffer, { name: "profile.png" })],
-      });
-    }
-
-    // Update the user's level in the database
-    await main.prisma.userLevel.update({
-      where: { id: user.id },
-      data: { xp, level },
-    });
-
-    // Set cooldown to prevent spam
-    cooldown.add(userId);
-    setTimeout(() => cooldown.delete(userId), 60000);
-  }
 }
 
 export async function createGuild(guildId: string, client: MyClient) {

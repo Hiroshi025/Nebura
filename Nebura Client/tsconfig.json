@@ -1,72 +1,26 @@
 {
   "compilerOptions": {
-    // === Compilación ===
-    // Habilita todas las verificaciones estrictas de TypeScript.
     "strict": true,
-
-    // Prohíbe el uso de variables con tipo 'any' implícito.
     "noImplicitAny": true,
-
-    // Requiere que las variables que puedan ser null o undefined sean manejadas explícitamente.
     "strictNullChecks": true,
-
-    // Refuerza la compatibilidad de tipos en funciones.
     "strictFunctionTypes": true,
-
-    // Verifica los argumentos en métodos como bind, call y apply.
     "strictBindCallApply": true,
-
-    // Asegura que las propiedades de las clases sean inicializadas correctamente.
     "strictPropertyInitialization": true,
-
-    // Marca como error las variables locales no utilizadas.
     "noUnusedLocals": true,
-
-    // Marca como error los parámetros no utilizados en funciones.
     "noUnusedParameters": true,
-
-    // Asegura que todas las rutas de una función devuelvan un valor.
     "noImplicitReturns": true,
-
-    // Prohíbe que los casos en un switch caigan al siguiente sin un break.
     "noFallthroughCasesInSwitch": true,
-
-    // === Módulos ===
-    // Especifica el sistema de módulos a usar (CommonJS para Node.js).
     "module": "CommonJS",
-
-    // Define cómo resolver los módulos (compatibilidad con Node.js v10).
     "moduleResolution": "node10",
-
-    // Habilita la interoperabilidad con módulos ES6.
     "esModuleInterop": true,
-
-    // Permite importar archivos JSON como módulos.
     "resolveJsonModule": true,
-
-    // === Compatibilidad y Librerías ===
-    // Define la versión de ECMAScript para el código de salida.
     "target": "ESNext",
-
-    // Especifica las bibliotecas que se incluirán en la compilación.
     "lib": ["ES2022", "DOM"],
-
-    // === Decoradores ===
-    // Habilita el soporte para decoradores experimentales.
     "experimentalDecorators": true,
-
-    // Genera metadatos para decoradores.
     "emitDecoratorMetadata": true,
-
-    // Directorio de salida para los archivos compilados.
     "outDir": "./dist",
-
-    // === Estructura ===
-    // Base para resolver rutas relativas.
     "baseUrl": "./",
-
     "paths": {
-      // Alias para rutas de módulos.
       "@constants/*": ["src/structure/constants/*"],
       "@extenders/*": ["src/structure/extenders/*"],
       "@utils/*": ["src/shared/utils/*"],
@@ -76,31 +30,15 @@
       "@config/*": ["./config/*"],
       "@/*": ["./src/*"]
     },
-
-    // Directorio raíz del proyecto.
     "rootDir": "./",
-
-    // === Tipos ===
-    // Tipos incluidos en el proyecto (Node.js y Jest).
     "types": ["node", "jest"],
-
-    // === Validación ===
-    // Omite la verificación de tipos en archivos de bibliotecas.
     "skipLibCheck": true,
-
-    // Fuerza el uso consistente de mayúsculas y minúsculas en nombres de archivo.
     "forceConsistentCasingInFileNames": true,
-
     "sourceMap": true,
     "inlineSources": true,
-
-    // Set `sourceRoot` to  "/" to strip the build path prefix
-    // from generated source code references.
-    // This improves issue grouping in Sentry.
     "sourceRoot": "/"
   },
   "include": [
-    // Archivos y directorios incluidos en la compilación.
     "**/*.ts",
     "tsconfig.json",
     "config/json/*.json",
@@ -109,7 +47,6 @@
     "./**/*.json"
   ],
   "exclude": [
-    // Archivos y directorios excluidos de la compilación.
     "node_modules",
     "dist"
   ]

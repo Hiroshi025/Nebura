@@ -29,10 +29,6 @@ export interface ProyectConfig {
     /**
      * Path to the project's configuration file.
      */
-    guildId: string;
-    /**
-     * Path to the project's configuration file.
-     */
     winstonlog: string;
   };
   /**
@@ -57,6 +53,10 @@ export interface ProyectConfig {
        * Discord client ID.
        */
       clientId: string;
+      /**
+       * Path to the project's configuration file.
+       */
+      guildId: string;
       /**
        * Discord client ID owner for the bot.
        */

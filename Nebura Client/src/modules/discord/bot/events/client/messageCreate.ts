@@ -2,8 +2,9 @@ import { TextChannel } from "discord.js";
 
 import { client, main } from "@/main";
 import {
-	countMessage, createGuild, createUser, Economy, Ranking
+	countMessage, createGuild, createUser, Economy
 } from "@/modules/discord/structure/utils/functions";
+import { Ranking } from "@/modules/discord/structure/utils/ranking/helpers";
 import { config } from "@/shared/utils/config";
 import { ErrorEmbed } from "@extenders/discord/embeds.extender";
 import { Precommand } from "@typings/modules/discord";

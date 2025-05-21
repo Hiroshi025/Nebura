@@ -6,7 +6,6 @@ import path from "path";
 import winston, { LogEntry } from "winston";
 
 import { LogFile } from "@/typings/utils";
-import { config } from "@utils/config";
 
 /**
  * A logger utility class that wraps the Winston logging library.
@@ -23,7 +22,7 @@ export class WinstonLogger {
    */
   constructor(maxLogAgeDays: number = 14) {
     this.logDir = path.resolve(
-      process.env.WINSTON_LOG_DIR ? process.env.WINSTON_LOG_DIR : config.project.winstonlog,
+      process.env.WINSTON_LOG_DIR ? process.env.WINSTON_LOG_DIR : "./config/logs-apps/proyect",
     );
     if (!fs.existsSync(this.logDir)) {
       fs.mkdirSync(this.logDir, { recursive: true });

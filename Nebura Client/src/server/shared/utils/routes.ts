@@ -1,131 +1,118 @@
 import chalk from "chalk";
 import { Router } from "express";
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 
 import { logWithLabel } from "@/shared/utils/functions/console";
 
-/**
- * Recursively retrieves all subdirectories inside the specified base directory.
- *
- * @param baseDir - The base directory to scan for subdirectories.
- * @returns An array of absolute paths to the subdirectories.
- */
-function getSubdirectories(baseDir: string): string[] {
-  const entries = fs.readdirSync(baseDir, { withFileTypes: true }); // Read directory contents with file type information.
-  const directories = entries
-    .filter((dirent) => dirent.isDirectory()) // Filter only directories.
-    .map((dirent) => path.resolve(baseDir, dirent.name)); // Resolve full paths of the directories.
+// Cache para rutas ya cargadas
+const routeCache = new Map();
 
-  // Recursively get subdirectories for each directory.
-  const subdirectories = directories.flatMap((dir) => getSubdirectories(dir));
+async function getSubdirectories(baseDir: string): Promise<string[]> {
+  try {
+    const entries = await fs.readdir(baseDir, { withFileTypes: true });
+    const directories = entries
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => path.resolve(baseDir, dirent.name));
 
-  return [...directories, ...subdirectories]; // Combine current directories with their subdirectories.
+    const subdirPromises = directories.map((dir) => getSubdirectories(dir));
+    const subdirectories = await Promise.all(subdirPromises);
+
+    return [...directories, ...subdirectories.flat()];
+  } catch (error) {
+    logWithLabel("error", `Error scanning directories: ${error}`);
+    return [];
+  }
 }
 
-/**
- * Array of directories containing route files.
- * Automatically includes all subdirectories inside the `routes` directory.
- */
-const routesDirs = getSubdirectories(path.resolve(__dirname, "../../interfaces/http/routes"));
+// Validador de rutas
+function validateRouteHandler(handler: any, file: string): boolean {
+  if (typeof handler !== "function") {
+    logWithLabel("error", `Invalid route handler in ${file}`);
+    return false;
+  }
+  return true;
+}
 
-/**
- * Array to keep track of successfully loaded route files and their respective routes.
- * Each entry contains the file name and an array of route objects with method and path.
- */
-const routerLoadeds: { file: string; routes: { method: string; path: string }[] }[] = [];
-
-/**
- * Express Router instance that will be populated with the loaded routes.
- * This router will be used to register all the routes dynamically.
- */
-const router = Router();
-
-/**
- * Asynchronously loads all route files from the specified directories.
- *
- * This function scans the directories defined in `routesDirs`, imports the route files,
- * and registers their routes to the Express router. It also logs the loading process
- * and tracks the loaded routes for debugging purposes.
- *
- * @async
- * @function
- */
-(async () => {
-  const start = performance.now(); // Start measuring the time taken to load routes.
-
-  logWithLabel(
-    "custom",
-    [
-      `Loading Routes-Endpoints Express`,
-      chalk.grey(`  🟡  Loading Routes-Endpoints Express...`),
-      chalk.grey(`  📂  Directories Found: ${routesDirs.length}`),
-    ].join("\n"),
-    {
-      customLabel: "Express"
-    }
-  );
-
-  // Process each directory containing route files.
-  for (const routesDir of routesDirs) {
-    const files = fs
-      .readdirSync(routesDir) // Read all files in the directory.
-      .filter((file) => file.endsWith(".routes.ts") || file.endsWith(".routes.js")); // Filter route files.
-
-    // Load the routes asynchronously.
-    const imports = files.map(async (file) => {
-      const modulePath = path.join(routesDir, file); // Construct the full path to the module.
-
-      try {
-        const module = await import(modulePath); // Dynamically import the module.
-        if (module.default) {
-          const routesHandler = module.default; // Get the default export (route handler).
-          routesHandler({ app: router }); // Register the routes to the Express router.
-          routerLoadeds.push({ file, routes: [] }); // Track the loaded route file.
-        } else {
-          logWithLabel("custom", `No default export found in ${modulePath}`, {
-            customLabel: "Express",
-            context: {
-              file,
-              modulePath,
-            },
-          }); // Log missing default export.
-        }
-      } catch (err) {
-        logWithLabel("custom", `Error while importing ${modulePath}: ${err}`, {
-          customLabel: "Express",
-          context: {
-            file,
-            modulePath,
-            error: err,
-          },
-        }); // Log errors during import.
-      }
-    });
-
-    // Wait for all route files in the directory to be imported.
-    await Promise.all(imports);
+async function loadRouteModule(modulePath: string, file: string) {
+  if (routeCache.has(modulePath)) {
+    return routeCache.get(modulePath);
   }
 
-  const end = performance.now(); // End measuring the time taken to load routes.
-
-  // Log the summary of the route loading process.
-  logWithLabel(
-    "custom",
-    [
-      `Loading Routes-Endpoints Express`,
-      chalk.grey(`  ✅  Finished Loading Routes-Endpoints Express`),
-      chalk.grey(`  🟢  Routes-Endpoints Loaded Successfully: ${routerLoadeds.length}`),
-      chalk.grey(`  🕛  Took: ${((end - start) / 1000).toFixed(2)}s`),
-    ].join("\n"),
-    {
-      customLabel: "Express"
+  try {
+    const module = await import(modulePath);
+    if (module.default && validateRouteHandler(module.default, file)) {
+      routeCache.set(modulePath, module);
+      return module;
     }
-  );
+    throw new Error(`Invalid route module format in ${file}`);
+  } catch (error) {
+    throw new Error(`Failed to load route module ${file}: ${error}`);
+  }
+}
+
+const router = Router();
+const routerLoadeds: { file: string; routes: { method: string; path: string }[] }[] = [];
+
+// Función principal de carga de rutas con mejor manejo de performance
+(async () => {
+  const metrics = {
+    startTime: performance.now(),
+    routesLoaded: 0,
+    errors: 0,
+  };
+
+  try {
+    const routesDirs = await getSubdirectories(
+      path.resolve(__dirname, "../../interfaces/http/routes"),
+    );
+
+    logWithLabel(
+      "custom",
+      `Starting Routes-Endpoints Express Load (${routesDirs.length} directories)`,
+      { customLabel: "Express" },
+    );
+
+    const loadPromises = routesDirs.map(async (routesDir) => {
+      const files = (await fs.readdir(routesDir)).filter((file) => /\.routes\.(ts|js)$/.test(file));
+
+      return Promise.all(
+        files.map(async (file) => {
+          const modulePath = path.join(routesDir, file);
+
+          try {
+            const module = await loadRouteModule(modulePath, file);
+            await module.default({ app: router });
+            metrics.routesLoaded++;
+            routerLoadeds.push({ file, routes: [] });
+          } catch (error) {
+            metrics.errors++;
+            logWithLabel("error", `Route load error: ${error}`, {
+              context: { file, modulePath },
+            });
+          }
+        }),
+      );
+    });
+
+    await Promise.all(loadPromises);
+  } catch (error) {
+    logWithLabel("error", `Critical error loading routes: ${error}`);
+  } finally {
+    const loadTime = (performance.now() - metrics.startTime) / 1000;
+
+    logWithLabel(
+      "custom",
+      [
+        `Routes-Endpoints Express Summary:`,
+        chalk.grey(`  ✅  Loaded: ${metrics.routesLoaded} routes`),
+        chalk.grey(`  ❌  Errors: ${metrics.errors}`),
+        chalk.grey(`  ⏱️   Load time: ${loadTime.toFixed(2)}s`),
+        chalk.grey(`  📦  Cache size: ${routeCache.size}`),
+      ].join("\n"),
+      { customLabel: "Express" },
+    );
+  }
 })();
 
-/**
- * Export the Express router instance.
- * This router contains all the dynamically loaded routes and can be used in the main application.
- */
 export { router };

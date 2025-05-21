@@ -5,7 +5,6 @@ import emojis from "@config/json/emojis.json"; // JSON file containing emoji con
 import { Utils } from "@extenders/discord/utils.extender"; // Utility functions for Discord
 import { ProyectError } from "@extenders/errors.extender"; // Custom error handling class
 import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
-import Sentry from "@sentry/node"; // Sentry for error monitoring: https://docs.sentry.io/platforms/node/
 import { loadPendingReminders } from "@utils/functions/reminders"; // Function to load pending reminders
 
 import { MyClient } from "./modules/discord/client"; // Custom Discord client implementation
@@ -19,7 +18,7 @@ import { ProyectConfig } from "./typings/config"; // TypeScript type for configu
 
 process.loadEnvFile(); // Load environment variables from a file
 const defaultConfig = config as ProyectConfig; // Cast configuration to ProyectConfig type
-const { SENTRY_NODE_KEY, NODE_ENV, CRON_BACKUPS_TIME } = process.env; // Destructure environment variables
+const { CRON_BACKUPS_TIME } = process.env; // Destructure environment variables
 
 /**
  * Main class responsible for initializing and managing the core modules of the application.
@@ -99,24 +98,15 @@ export class Engine {
    * @see {@link https://docs.sentry.io/platforms/node/ | Sentry Node.js Documentation}
    */
   private async configureMonitoring(): Promise<void> {
-    await Sentry.init({
+/*     await Sentry.init({
       dsn: SENTRY_NODE_KEY,
       tracesSampleRate: 1.0,
       environment: NODE_ENV,
       debug: NODE_ENV !== "production",
-      beforeSend(event, hint) {
-        const error = hint.originalException || hint.syntheticException;
-        if (error) {
-          logWithLabel("error", `Sentry error: ${error}`, {
-            customLabel: "Sentry",
-          });
-        }
-        return event;
-      },
     });
     logWithLabel("custom", "Sentry monitoring configured successfully.", {
       customLabel: "Monitoring",
-    });
+    }); */
   }
 
   /**
@@ -172,11 +162,7 @@ export class Engine {
         `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
       ].join("\n"),
       {
-        customLabel: "whatsapp",
-        context: {
-          timestamp: new Date().toISOString(),
-          module: "whatsapp",
-        },
+        customLabel: "whatsapp"
       },
     );
   }
@@ -266,7 +252,28 @@ export class Engine {
 const main = new Engine();
 const client = main.discord;
 
-export { client, main };
+process.on("SIGINFO", (reason) => {
+  console.log("SIGINFO received:", reason);
+  logWithLabel("custom", `SIGINFO received: ${reason}`, {
+    customLabel: "Signal",
+  });
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received. Exiting gracefully...");
+  logWithLabel("custom", "SIGINT received. Exiting gracefully...", {
+    customLabel: "Signal",
+  });
+  process.exit(0); // Exit the process gracefully
+});
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received. Exiting gracefully...");
+  logWithLabel("custom", "SIGTERM received. Exiting gracefully...", {
+    customLabel: "Signal",
+  });
+  process.exit(0); // Exit the process gracefully
+});
 
 /**
  * Starts the application and handles any errors during the startup process.
@@ -276,6 +283,11 @@ export { client, main };
  * with a failure code.
  */
 main.start().catch((err) => {
-  throw new ProyectError(`Failed to start the application: ${err}`);
-  process.exit(1);
+  console.error(err);
+  logWithLabel("error", `Failed to start the application: ${err}`, {
+    customLabel: "Startup",
+  });
+  process.exit(1); // Exit the process with a failure code
 });
+
+export { client, main };

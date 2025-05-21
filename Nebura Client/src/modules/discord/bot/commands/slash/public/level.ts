@@ -1,4 +1,4 @@
-import { profileImage } from "discord-arts";
+import { Profile } from "discord-arts";
 import { AttachmentBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
 
 import { main } from "@/main";
@@ -73,7 +73,7 @@ export default new Command(
           }
 
           // Datos visuales para la tarjeta de perfil
-          const buffer = await profileImage(targetMember.id, {
+          const buffer = await Profile(targetMember.id, {
             borderColor: user.borderColor || "#000000",
             presenceStatus: targetMember.presence?.status || "offline",
             customBackground: user.background || undefined,
