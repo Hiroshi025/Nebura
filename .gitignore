@@ -18,6 +18,7 @@
 *.exe
 *.ini
 *.basic
+config.yml
 
 ### GitBook ###
 # Node rules:
