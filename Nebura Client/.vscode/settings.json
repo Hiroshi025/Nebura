@@ -8,6 +8,7 @@
     ".sentryclirc": true,
     "CHANGELOG.md": true,
     "LICENSE": true,
+    "**/docs": false
   },
   "editor.formatOnSave": true,
   "typescript.suggest.completeJSDocs": true, // Esto es para que te sugiera completar JSDocs automáticamente

@@ -130,6 +130,10 @@ export class MyApp {
    * The backup is saved in the status backup directory.
    */
   private async generateStatusBackup() {
+    // Solo generar backup si la variable de entorno está activada
+    if (process.env.WHATSAPP_BACKUPS !== "true") {
+      return;
+    }
     this.ensureStatusBackupDirExists();
     const now = new Date();
     const backupFileName = `status_${format(now, "yyyy-MM-dd_HH-mm-ss")}.xlsx`;

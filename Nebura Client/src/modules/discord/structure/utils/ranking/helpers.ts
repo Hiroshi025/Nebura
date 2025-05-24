@@ -626,10 +626,12 @@ async function getTopUsers(
     orderBy: { [xpField]: "desc" },
     take: limit,
     select: {
-      userId: true,
+      userId: true, // <-- Esto debe ser string
       level: true,
       [xpField]: true,
       prestige: true,
+      // Si necesitas el historial de prestigio, usa otro nombre:
+      // prestigeHistory: true,
     },
   });
 }
@@ -656,24 +658,25 @@ async function awardTopUsers(guildId: string, period: "weekly" | "monthly") {
   // Apply rewards
   for (const user of topUsers) {
     const reward = rewards.find((r) => r.position === topUsers.indexOf(user) + 1);
-    const userId = user.userId.find((u) => u.userId);
+    // Si user.userId es un array, necesitas obtener el string correcto:
+    // Por ejemplo, si tienes user.userId como [{...}], usa user.userId[0].userId
+    // Pero lo correcto es que sea string, así:
+    const topUserId = typeof user.userId === "string" ? user.userId : user.userId[0]?.userId;
     if (!reward) continue;
-    if (!userId) return;
+    if (!topUserId) continue;
 
     await main.prisma.userLevel.update({
-      where: { guildId_userId: { guildId, userId: userId.userId } },
+      where: { guildId_userId: { guildId, userId: topUserId } },
       data: { xp: { increment: reward.xp } },
     });
 
-    // If there's a role reward
     if (reward.roleId) {
       try {
         const guild = await client.guilds.fetch(guildId);
-        // Cambio importante aquí: pasar el userId directamente en lugar del objeto completo
-        const member = await guild.members.fetch(userId.userId);
+        const member = await guild.members.fetch(topUserId);
         await member.roles.add(reward.roleId);
       } catch (error) {
-        console.error(`Failed to add reward role to user ${user.userId}:`, error);
+        console.error(`Failed to add reward role to user ${topUserId}:`, error);
       }
     }
   }
