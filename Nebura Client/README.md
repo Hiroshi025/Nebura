@@ -57,6 +57,9 @@ The core of Nebura Works is orchestrated by the `Engine` class (`src/main.ts`), 
 ```mermaid
 graph TD
 
+    28044["User<br>External Actor"]
+    28045["Main Orchestrator<br>Node.js"]
+    28046["WhatsApp Client<br>whatsapp-web.js"]
     subgraph 28005["External Services & Actors"]
         28020["End User<br>External Actor"]
         28021["Discord Platform<br>Discord API"]
@@ -75,24 +78,73 @@ graph TD
         28008["WhatsApp Integration"] -->|uses| 28007["Shared Infrastructure"]
         28009["Discord Bot"] -->|uses| 28007["Shared Infrastructure"]
         28010["API Server"] -->|uses| 28007["Shared Infrastructure"]
-        28011["Main Orchestrator<br>Node.js"] -->|uses| 28007["Shared Infrastructure"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28008["WhatsApp Integration"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28009["Discord Bot"]
         28011["Main Orchestrator<br>Node.js"] -->|initializes| 28010["API Server"]
+        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28009["Discord Bot"]
+        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28008["WhatsApp Integration"]
+        28011["Main Orchestrator<br>Node.js"] -->|uses| 28007["Shared Infrastructure"]
+    end
+    subgraph 28026["External Systems"]
+        28039["Chat Platforms<br>Discord, WhatsApp APIs"]
+        28040["AI APIs<br>Google Gemini, etc."]
+        28041["Version Control APIs<br>GitHub API, etc."]
+        28042["Databases<br>Prisma, SQLite"]
+        28043["Process Management<br>PM2"]
+    end
+    subgraph 28027["Shared Libraries"]
+        28036["Shared Utilities &amp; Classes<br>TypeScript"]
+        28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
+        28038["App Configuration<br>YAML/JSON"]
+        %% Edges at this level (grouped by source)
+        28036["Shared Utilities &amp; Classes<br>TypeScript"] -->|reads| 28038["App Configuration<br>YAML/JSON"]
+    end
+    subgraph 28028["Nebura Discord Bot<br>Discord.js"]
+        28033["Discord Client Entry<br>TypeScript"]
+        28034["Core Event &amp; Command Handlers<br>TypeScript"]
+        28035["Bot Features &amp; Addons<br>TypeScript"]
+        %% Edges at this level (grouped by source)
+        28033["Discord Client Entry<br>TypeScript"] -->|loads| 28034["Core Event &amp; Command Handlers<br>TypeScript"]
+        28034["Core Event &amp; Command Handlers<br>TypeScript"] -->|route to| 28035["Bot Features &amp; Addons<br>TypeScript"]
+    end
+    subgraph 28029["Nebura API Server<br>Node.js/Express"]
+        28030["API Server Entry<br>TypeScript"]
+        28031["HTTP Routes<br>TypeScript"]
+        28032["Domain Services<br>TypeScript"]
+        %% Edges at this level (grouped by source)
+        28030["API Server Entry<br>TypeScript"] -->|sets up| 28031["HTTP Routes<br>TypeScript"]
+        28031["HTTP Routes<br>TypeScript"] -->|invoke| 28032["Domain Services<br>TypeScript"]
     end
     %% Edges at this level (grouped by source)
+    28044["User<br>External Actor"] -->|interacts via API| 28029["Nebura API Server<br>Node.js/Express"]
+    28044["User<br>External Actor"] -->|interacts via Discord| 28028["Nebura Discord Bot<br>Discord.js"]
+    28044["User<br>External Actor"] -->|interacts via WhatsApp| 28046["WhatsApp Client<br>whatsapp-web.js"]
+    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28029["Nebura API Server<br>Node.js/Express"]
+    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28028["Nebura Discord Bot<br>Discord.js"]
+    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28046["WhatsApp Client<br>whatsapp-web.js"]
+    28045["Main Orchestrator<br>Node.js"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
+    28045["Main Orchestrator<br>Node.js"] -->|uses for backups| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
+    28033["Discord Client Entry<br>TypeScript"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
+    28035["Bot Features &amp; Addons<br>TypeScript"] -->|interact with| 28039["Chat Platforms<br>Discord, WhatsApp APIs"]
+    28035["Bot Features &amp; Addons<br>TypeScript"] -->|use| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
+    28035["Bot Features &amp; Addons<br>TypeScript"] -->|access data via| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
+    28035["Bot Features &amp; Addons<br>TypeScript"] -->|managed by| 28043["Process Management<br>PM2"]
+    28046["WhatsApp Client<br>whatsapp-web.js"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
+    28046["WhatsApp Client<br>whatsapp-web.js"] -->|interacts with| 28039["Chat Platforms<br>Discord, WhatsApp APIs"]
+    28037["Data Management &amp; Structure<br>TypeScript/Prisma"] -->|persists to| 28042["Databases<br>Prisma, SQLite"]
     28008["WhatsApp Integration"] -->|connects to| 28022["WhatsApp Platform<br>WhatsApp API"]
     28009["Discord Bot"] -->|connects to| 28021["Discord Platform<br>Discord API"]
     28009["Discord Bot"] -->|manages processes via| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
     28010["API Server"] -->|calls| 28023["AI APIs<br>Google Gemini, etc."]
     28010["API Server"] -->|integrates with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28020["End User<br>External Actor"] -->|interacts via WhatsApp| 28008["WhatsApp Integration"]
-    28020["End User<br>External Actor"] -->|interacts via Discord| 28009["Discord Bot"]
     28020["End User<br>External Actor"] -->|interacts via HTTP| 28010["API Server"]
+    28020["End User<br>External Actor"] -->|interacts via Discord| 28009["Discord Bot"]
+    28020["End User<br>External Actor"] -->|interacts via WhatsApp| 28008["WhatsApp Integration"]
+    28007["Shared Infrastructure"] -->|persists to/reads from| 28025["Application Database<br>SQL/SQLite"]
     28007["Shared Infrastructure"] -->|sends notifications to| 28021["Discord Platform<br>Discord API"]
     28007["Shared Infrastructure"] -->|interacts with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28007["Shared Infrastructure"] -->|persists to/reads from| 28025["Application Database<br>SQL/SQLite"]
-
+    28032["Domain Services<br>TypeScript"] -->|use| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
+    28032["Domain Services<br>TypeScript"] -->|access data via| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
+    28032["Domain Services<br>TypeScript"] -->|calls| 28040["AI APIs<br>Google Gemini, etc."]
+    28032["Domain Services<br>TypeScript"] -->|calls| 28041["Version Control APIs<br>GitHub API, etc."]
 ```
 
 ---
