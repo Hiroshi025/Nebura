@@ -56,14 +56,43 @@ The core of Nebura Works is orchestrated by the `Engine` class (`src/main.ts`), 
 
 ```mermaid
 graph TD
-    A[Engine (main.ts)] --> B[API Server]
-    A --> C[Discord Module]
-    A --> D[WhatsApp Module]
-    A --> E[Prisma ORM]
-    B --> F[Express + Socket.IO]
-    B --> G[Swagger Docs]
-    C --> H[Dynamic Commands]
-    D --> I[Excel Logging]
+
+    subgraph 28005["External Services & Actors"]
+        28020["End User<br>External Actor"]
+        28021["Discord Platform<br>Discord API"]
+        28022["WhatsApp Platform<br>WhatsApp API"]
+        28023["AI APIs<br>Google Gemini, etc."]
+        28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
+        28025["Application Database<br>SQL/SQLite"]
+    end
+    subgraph 28006["Nebura Client Application"]
+        28007["Shared Infrastructure"]
+        28008["WhatsApp Integration"]
+        28009["Discord Bot"]
+        28010["API Server"]
+        28011["Main Orchestrator<br>Node.js"]
+        %% Edges at this level (grouped by source)
+        28008["WhatsApp Integration"] -->|uses| 28007["Shared Infrastructure"]
+        28009["Discord Bot"] -->|uses| 28007["Shared Infrastructure"]
+        28010["API Server"] -->|uses| 28007["Shared Infrastructure"]
+        28011["Main Orchestrator<br>Node.js"] -->|uses| 28007["Shared Infrastructure"]
+        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28008["WhatsApp Integration"]
+        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28009["Discord Bot"]
+        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28010["API Server"]
+    end
+    %% Edges at this level (grouped by source)
+    28008["WhatsApp Integration"] -->|connects to| 28022["WhatsApp Platform<br>WhatsApp API"]
+    28009["Discord Bot"] -->|connects to| 28021["Discord Platform<br>Discord API"]
+    28009["Discord Bot"] -->|manages processes via| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
+    28010["API Server"] -->|calls| 28023["AI APIs<br>Google Gemini, etc."]
+    28010["API Server"] -->|integrates with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
+    28020["End User<br>External Actor"] -->|interacts via WhatsApp| 28008["WhatsApp Integration"]
+    28020["End User<br>External Actor"] -->|interacts via Discord| 28009["Discord Bot"]
+    28020["End User<br>External Actor"] -->|interacts via HTTP| 28010["API Server"]
+    28007["Shared Infrastructure"] -->|sends notifications to| 28021["Discord Platform<br>Discord API"]
+    28007["Shared Infrastructure"] -->|interacts with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
+    28007["Shared Infrastructure"] -->|persists to/reads from| 28025["Application Database<br>SQL/SQLite"]
+
 ```
 
 ---

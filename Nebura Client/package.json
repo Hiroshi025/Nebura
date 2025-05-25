@@ -128,6 +128,8 @@
     "copyfiles": "^2.4.1",
     "ejs": "^3.1.10",
     "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.5",
     "eslint-plugin-sonarjs": "^3.0.2",
     "eslint-plugin-unicorn": "^58.0.0",

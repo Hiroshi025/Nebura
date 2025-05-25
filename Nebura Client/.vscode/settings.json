@@ -7,8 +7,9 @@
     "**/Thumbs.db": true,
     ".sentryclirc": true,
     "CHANGELOG.md": true,
-    "LICENSE": true,
-    "**/docs": false
+    "**/.husky": true,
+    "LICENSE": false,
+    "**/docs": true,
   },
   "editor.formatOnSave": true,
   "typescript.suggest.completeJSDocs": true, // Esto es para que te sugiera completar JSDocs automáticamente
