@@ -1,6 +1,6 @@
 {
   "name": "nebura-works",
-  "version": "0.0.16",
+  "version": "0.0.10",
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .ts .",
