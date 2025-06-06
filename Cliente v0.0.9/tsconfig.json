@@ -36,10 +36,10 @@
     "baseUrl": "./", // Base para la resolución de rutas relativas
     "paths": {
       // Alias para rutas de importación
-      "@constants/*": ["src/structure/constants/*"],
-      "@extenders/*": ["src/structure/extenders/*"],
+      "@constants/*": ["src/shared/structure/constants/*"],
+      "@extenders/*": ["src/shared/structure/extenders/*"],
       "@utils/*": ["src/shared/utils/*"],
-      "@modules/*": ["src/modules/*"],
+      "@modules/*": ["src/interfaces/messaging/modules/*"],
       "@typings/*": ["src/typings/*"],
       "@backend/*": ["src/server/*"],
       "@tests/*": ["./__tests__/*"],
@@ -51,7 +51,7 @@
     "rootDir": "./", // Carpeta raíz de los archivos fuente
 
     // === Tipos Globales ===
-    "types": ["node", "jest"], // Tipos incluidos globalmente (Node.js y Jest para testing)
+    "types": ["node"], // Tipos incluidos globalmente (Node.js y Jest para testing)
 
     // === Otras Opciones ===
     "skipLibCheck": true, // Omite la comprobación de tipos en archivos de definición de librerías

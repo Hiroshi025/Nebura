@@ -3,7 +3,7 @@ import os from "os";
 import path from "path";
 
 import { WinstonLogger } from "@/shared/class/winston";
-import { labelColors, labelNames, Labels } from "@constants/tools";
+import { labelColors, labelNames, Labels } from "@/shared/structure/constants/tools";
 import Sentry from "@sentry/node";
 import { LogContext } from "@typings/utils";
 

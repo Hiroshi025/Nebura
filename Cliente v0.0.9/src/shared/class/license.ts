@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from "express";
 
 import { main } from "@/main";
 
+import { Notification } from "../../interfaces/messaging/broker/notification";
 import { config } from "../utils/config";
 import { logWithLabel } from "../utils/functions/console";
 import { IPBlocker } from "./administrator";
-import { Notification } from "./notification";
 
 /**
  * Middleware to handle license validation and IP blocking.

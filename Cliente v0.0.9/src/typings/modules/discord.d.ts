@@ -4,7 +4,7 @@ import {
 	StringSelectMenuInteraction
 } from "discord.js";
 
-import { MyClient } from "@/modules/discord/client";
+import { MyClient } from "@/interfaces/messaging/modules/discord/client";
 
 /**
  * Options for configuring a command.

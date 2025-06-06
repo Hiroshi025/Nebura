@@ -3,10 +3,10 @@ import { rateLimit } from "express-rate-limit";
 
 import { main } from "@/main";
 
+import { Notification } from "../../interfaces/messaging/broker/notification";
 import { config } from "../utils/config";
 import { logWithLabel } from "../utils/functions/console";
 import { IPBlocker } from "./administrator";
-import { Notification } from "./notification";
 
 const ipBlocker = IPBlocker.getInstance();
 const notification = new Notification();

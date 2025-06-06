@@ -5,8 +5,8 @@ import { main } from "@/main";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
+import { Notification } from "../../interfaces/messaging/broker/notification";
 import { config } from "../utils/config";
-import { Notification } from "./notification";
 
 /**
  * Class to manage IP address blocking.
@@ -47,7 +47,7 @@ export class IPBlocker {
   private async loadBlockedIPs(): Promise<void> {
     try {
       logWithLabel("custom", "Loading blocked IPs...", {
-        customLabel: "IP"
+        customLabel: "IP",
       });
       const now = new Date();
       const activeBlocks = await main.prisma.blockedIP.findMany({
@@ -67,7 +67,7 @@ export class IPBlocker {
           `  ${chalk.grey(`${emojis.moderator}   Last update: ${this.lastUpdate.toISOString()}`)}`,
         ].join("\n"),
         {
-          customLabel: "IP"
+          customLabel: "IP",
         },
       );
     } catch (error) {
@@ -105,7 +105,7 @@ export class IPBlocker {
           "custom",
           `${expiredBlocks.length} expired IP blocks have been automatically unblocked.`,
           {
-            customLabel: "IP"
+            customLabel: "IP",
           },
         );
       }
