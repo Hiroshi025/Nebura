@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nebura Status</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+    rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #FF6EC7;
+      --secondary-color: #5D3FD3;
+      --accent-color: #00FFFF;
+      --dark-bg: #1A1A2E;
+      --card-bg: rgba(26, 26, 46, 0.8);
+      --text-primary: #FFFFFF;
+      --text-secondary: #B8C2CC;
+      --success-color: #00FF7F;
+      --danger-color: #FF3860;
+      --warning-color: #FFD700;
+    }
+
+    body {
+      font-family: 'Exo 2', sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image:
+        url('https://i.pinimg.com/736x/be/7b/54/be7b5436fee27d4fd2346ef18fd7aa60.jpg'),
+        url('https://i.pinimg.com/736x/77/8b/14/778b14f10525bdf9b626fca75d2eaf3d.jpg');
+      background-position: left top, right bottom;
+      background-repeat: no-repeat;
+      background-size: 30%, 25%;
+      background-attachment: fixed;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(26, 26, 46, 0.85);
+      z-index: -1;
+    }
+
+    .h-100 {
+      height: auto !important;
+    }
+
+    /* Anime title style */
+    .anime-title {
+      font-family: 'Press Start 2P', cursive;
+      text-shadow: 3px 3px 0 var(--secondary-color),
+        6px 6px 0 var(--primary-color);
+      letter-spacing: 2px;
+      color: var(--accent-color);
+      animation: titleGlow 2s infinite alternate;
+    }
+
+    @keyframes titleGlow {
+      from {
+        text-shadow: 3px 3px 0 var(--secondary-color), 6px 6px 0 var(--primary-color);
+      }
+
+      to {
+        text-shadow: 3px 3px 10px var(--secondary-color), 6px 6px 15px var(--primary-color);
+      }
+    }
+
+    /* Anime card style */
+    .anime-card {
+      background: var(--card-bg);
+      border: 2px solid var(--primary-color);
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(93, 63, 211, 0.3);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .anime-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(to bottom right,
+          rgba(255, 110, 199, 0.1) 0%,
+          rgba(93, 63, 211, 0.1) 50%,
+          rgba(0, 255, 255, 0.1) 100%);
+      transform: rotate(30deg);
+      z-index: -1;
+    }
+
+    .anime-card:hover {
+      transform: translateY(-10px) rotate(1deg);
+      box-shadow: 0 15px 30px rgba(255, 110, 199, 0.4);
+      border-color: var(--accent-color);
+    }
+
+    .anime-card:hover::before {
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% {
+        transform: rotate(30deg) translate(-10%, -10%);
+      }
+
+      100% {
+        transform: rotate(30deg) translate(10%, 10%);
+      }
+    }
+
+    /* Status indicators */
+    .status-badge {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-badge::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(to bottom right,
+          rgba(255, 255, 255, 0.3) 0%,
+          rgba(255, 255, 255, 0) 60%);
+      transform: rotate(30deg);
+    }
+
+    .status-badge:hover::after {
+      animation: shine 1.5s infinite;
+    }
+
+    /* Anime buttons */
+    .anime-btn {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.8rem;
+      padding: 0.8rem 1.5rem;
+      border: 2px solid;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2);
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .anime-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .anime-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .anime-btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .anime-btn-primary:hover {
+      background-color: #FF4D9E;
+      border-color: #FF4D9E;
+    }
+
+    /* Progress bars anime style */
+    .anime-progress {
+      height: 10px;
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .anime-progress-bar {
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      position: relative;
+      transition: width 1s ease-in-out;
+    }
+
+    .anime-progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg,
+          rgba(255, 255, 255, 0.3) 0%,
+          rgba(255, 255, 255, 0) 50%,
+          rgba(255, 255, 255, 0.3) 100%);
+      animation: progressShine 2s infinite linear;
+    }
+
+    @keyframes progressShine {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    /* Character images */
+    .character-img {
+      position: absolute;
+      z-index: -1;
+      opacity: 0.9;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));
+      transition: all 0.5s ease;
+    }
+
+    .character-img:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 0 15px rgba(255, 110, 199, 0.7));
+    }
+
+    /* Floating animation */
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-15px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    .floating {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    /* Pulsing animation */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    /* Section titles */
+    .section-title {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1.2rem;
+      color: var(--accent-color);
+      text-shadow: 2px 2px 0 var(--secondary-color);
+      position: relative;
+      padding-left: 1rem;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .section-title::before {
+      content: '>';
+      position: absolute;
+      left: -0.5rem;
+      color: var(--primary-color);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--primary-color), var(--secondary-color));
+      border-radius: 10px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      body {
+        background-size: 50%, 40%;
+      }
+
+      .section-title {
+        font-size: 1rem;
+      }
+
+      .anime-title {
+        font-size: 1.5rem;
+        text-shadow: 2px 2px 0 var(--secondary-color),
+          4px 4px 0 var(--primary-color);
+      }
+    }
+
+    /* Network status indicator */
+    .network-status {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+      box-shadow: 0 0 5px currentColor;
+    }
+
+    .network-status.online {
+      background-color: var(--success-color);
+      animation: pulse 1.5s infinite;
+    }
+
+    .network-status.offline {
+      background-color: var(--danger-color);
+    }
+
+    /* Terminal style for system info */
+    .terminal {
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--primary-color);
+      border-radius: 5px;
+      padding: 1rem;
+      font-family: monospace;
+      color: var(--accent-color);
+      text-shadow: 0 0 5px var(--accent-color);
+      position: relative;
+    }
+
+    .terminal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    }
+
+    .terminal-command {
+      color: var(--success-color);
+    }
+
+    .terminal-response {
+      color: var(--text-primary);
+    }
+
+    /* Chip style for small info */
+    .chip {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(93, 63, 211, 0.3);
+      border: 1px solid var(--secondary-color);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      margin: 0.25rem;
+    }
+  </style>
+</head>
+
+<body class="d-flex flex-column h-100">
+  <!-- Floating anime characters -->
+  <img src="https://i.pinimg.com/736x/71/e3/ea/71e3ea330566746b24ce0909ab2fa6e2.jpg" class="character-img floating"
+    style="width: 200px; top: 10%; left: 5%; transform: rotate(-10deg);">
+
+  <img src="https://i.pinimg.com/736x/55/7a/32/557a3225643b6113f05dd8fe24c64a12.jpg" class="character-img floating"
+    style="width: 180px; bottom: 10%; right: 5%; transform: rotate(10deg); animation-delay: 0.5s;">
+
+  <div class="container my-4">
+    <!-- Header -->
+    <header class="text-center mb-5">
+      <div class="d-flex justify-content-center align-items-center">
+        <img src="/images/logo.png" alt="Nebura Logo" height="80" class="me-3 pulse">
+        <div>
+          <h1 class="anime-title m-0">NEBURA STATUS</h1>
+          <p class="text-muted">Real-time system monitoring dashboard</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Status Overview -->
+      <section class="mb-5">
+        <h2 class="section-title">SYSTEM STATUS</h2>
+        <div class="row g-4">
+          <!-- API Status -->
+          <div class="col-md-6">
+            <div class="anime-card h-100 p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="m-0 d-flex align-items-center">
+                  <i class="mdi mdi-api me-3" style="color: var(--accent-color); font-size: 1.5rem;"></i>
+                  <span>API STATUS</span>
+                </h3>
+                <span class="status-badge <%= status.status === 'Operational' ? 'bg-success' : 'bg-danger' %>">
+                  <%= status.status %>
+                </span>
+              </div>
+
+              <div class="terminal mb-3">
+                <div class="terminal-command">> nebura-api --status</div>
+                <div class="terminal-response">
+                  <div>• Version: <span class="text-info">
+                      <%= status.meta.apiVersion %>
+                    </span></div>
+                  <div>• Environment: <span class="text-warning">
+                      <%= status.meta.environment %>
+                    </span></div>
+                  <div>• Uptime: <span class="text-success">
+                      <%= (status.uptime / 60 / 60).toFixed(2) %> hours
+                    </span></div>
+                  <div>• Last update: <span>
+                      <%= new Date(status.timestamp).toLocaleString() %>
+                    </span></div>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap">
+                <span class="chip">Node.js <%= status.system.nodeVersion %></span>
+                <span class="chip">
+                  <%= status.system.platform %>/<%= status.system.arch %>
+                </span>
+                <span class="chip">PID: <%= process.pid %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Database Status -->
+          <div class="col-md-6">
+            <div class="anime-card h-100 p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="m-0 d-flex align-items-center">
+                  <i class="mdi mdi-database me-3" style="color: var(--accent-color); font-size: 1.5rem;"></i>
+                  <span>DATABASE STATUS</span>
+                </h3>
+                <span class="status-badge <%= status.database.status === 'healthy' ? 'bg-success' : 'bg-danger' %>">
+                  <%= status.database.status==='healthy' ? 'Healthy' : 'Critical' %>
+                </span>
+              </div>
+
+              <div class="terminal mb-3">
+                <div class="terminal-command">> mongodb --diagnostics</div>
+                <div class="terminal-response">
+                  <div>• Response time: <span class="text-info">
+                      <%= status.database.responseTime %>
+                    </span></div>
+                  <div>• Memory usage:
+                    <span class="text-success">
+                      <%= (status.system.memoryUsage.heapUsed / 1024 / 1024).toFixed(2) %>MB
+                    </span> /
+                    <span>
+                      <%= (status.system.memoryUsage.heapTotal / 1024 / 1024).toFixed(2) %>MB
+                    </span>
+                  </div>
+                  <div>• Connections: <span class="text-warning">12 active</span></div>
+                  <div>• Queries: <span>42/min</span></div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="network-status online"></span>
+                  <span>Connected to primary</span>
+                </div>
+                <div>
+                  <span class="network-status online"></span>
+                  <span>2 replicas</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- System Metrics -->
+      <section class="mb-5">
+        <h2 class="section-title">SYSTEM METRICS</h2>
+        <div class="anime-card p-4">
+          <div class="row">
+            <!-- CPU Usage -->
+            <div class="col-md-4 mb-4">
+              <h4 class="d-flex align-items-center">
+                <i class="mdi mdi-cpu-64-bit me-2" style="color: var(--primary-color);"></i>
+                CPU USAGE
+              </h4>
+              <div class="anime-progress mb-2">
+                <div class="anime-progress-bar-1" data-width="<%= (status.system.systemLoad[0] * 100).toFixed(2) %>">
+                </div>
+              </div>
+              <div class="d-flex justify-content-between">
+                <small>Load: <%= status.system.systemLoad.map(l=> l.toFixed(2)).join(', ') %></small>
+                <small>
+                  <%= (status.system.cpuUsage.user / 1000000).toFixed(2) %>s user
+                </small>
+              </div>
+            </div>
+
+            <!-- Memory Usage -->
+            <div class="col-md-4 mb-4">
+              <h4 class="d-flex align-items-center">
+                <i class="mdi mdi-memory me-2" style="color: var(--primary-color);"></i>
+                MEMORY USAGE
+              </h4>
+              <div class="anime-progress mb-2">
+                <div class="anime-progress-bar"
+                  data-width="<%= ((status.system.totalMemory - status.system.freeMemory) / status.system.totalMemory * 100).toFixed(2) %>">
+                </div>
+              </div>
+              <div class="d-flex justify-content-between">
+                <small>
+                  Used:
+                  <%= Math.floor((status.system.totalMemory - status.system.freeMemory) / 1024 / 1024 / 1024) %>
+                    .<%= Math.floor(((status.system.totalMemory - status.system.freeMemory) / 1024 / 1024) % 1024) %>GB
+                </small>
+                <small>
+                  Total: <%= Math.floor(status.system.totalMemory / 1024 / 1024 / 1024) %>GB
+                </small>
+              </div>
+            </div>
+
+            <!-- Network -->
+            <div class="col-md-4 mb-4">
+              <h4 class="d-flex align-items-center">
+                <i class="mdi mdi-access-point-network me-2" style="color: var(--primary-color);"></i>
+                NETWORK INTERFACES
+              </h4>
+              <% Object.keys(status.system.networkInterfaces).forEach(iface=> {
+                const net = status.system.networkInterfaces[iface].find(i => i.family === 'IPv4'); %>
+                <% if(net) { %>
+                  <div class="mb-2">
+                    <small class="d-block text-truncate" title="<%= iface %>">
+                      <%= iface %>
+                    </small>
+                    <code class="d-block text-truncate"><%= net.address %></code>
+                  </div>
+                  <% } %>
+                    <% }); %>
+            </div>
+          </div>
+
+          <div class="terminal mt-3">
+            <div class="terminal-command">> system --info</div>
+            <div class="terminal-response">
+              <div>• Hostname: <span class="text-info">
+                  <%= status.system.hostname %>
+                </span></div>
+              <div>• Platform: <span>
+                  <%= status.system.platform %> (<%= status.system.arch %>)
+                </span></div>
+              <div>• Uptime: <span class="text-success">
+                  <%= (status.system.uptime / 60 / 60).toFixed(2) %> hours
+                </span></div>
+              <div>• Start time: <span>
+                  <%= new Date(status.meta.startTime).toLocaleString() %>
+                </span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Discord Status -->
+      <section class="mb-5">
+        <h2 class="section-title">DISCORD STATUS</h2>
+        <div class="anime-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="m-0 d-flex align-items-center">
+              <i class="mdi mdi-discord me-3" style="color: #5865F2; font-size: 1.5rem;"></i>
+              <span>DISCORD API STATUS</span>
+            </h3>
+            <span id="discord-status-badge" class="status-badge">
+              Loading...
+            </span>
+          </div>
+
+          <div id="discord-status-content">
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Community Section -->
+      <section class="mb-5">
+        <div class="anime-card p-5 text-center"
+          style="background: linear-gradient(135deg, var(--secondary-color), var(--dark-bg));">
+          <h3 class="mb-4" style="color: var(--accent-color); text-shadow: 2px 2px 0 var(--primary-color);">JOIN OUR
+            COMMUNITY!</h3>
+          <p class="lead mb-4">Connect with other developers and get the latest updates</p>
+          <div class="d-flex justify-content-center flex-wrap gap-3">
+            <a href="https://help.hiroshi-dev.me/" class="anime-btn anime-btn-primary">
+              <i class="mdi mdi-book-open me-2"></i>DOCS
+            </a>
+            <a href="https://discord.gg/p6gZfY4jWm" class="anime-btn"
+              style="background-color: #5865F2; border-color: #5865F2; color: white;">
+              <i class="mdi mdi-discord me-2"></i>DISCORD
+            </a>
+            <a href="https://github.com/Hiroshi025" class="anime-btn"
+              style="background-color: #333; border-color: #333; color: white;">
+              <i class="mdi mdi-github me-2"></i>GITHUB
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-auto py-4 text-center"
+    style="background-color: rgba(0,0,0,0.3); border-top: 1px solid var(--primary-color);">
+    <div class="container">
+      <div class="d-flex justify-content-center mb-3">
+        <img src="/images/logo.png" alt="Nebura Logo" height="40" class="me-3">
+        <div>
+          <p class="m-0">Nebura Status Dashboard</p>
+          <small>v<%= status.meta.apiVersion %> | <%= status.meta.environment %></small>
+        </div>
+      </div>
+      <p class="m-0">
+        © 2025 Nebura Project. All systems operational.
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Fetch Discord status
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('https://discordstatus.com/api/v2/status.json')
+        .then(response => response.json())
+        .then(data => {
+          const badge = document.getElementById('discord-status-badge');
+          const content = document.getElementById('discord-status-content');
+
+          // Update badge
+          badge.className = `status-badge ${data.status.indicator === 'none' ? 'bg-success' : 'bg-warning'}`;
+          badge.textContent = data.status.description.toUpperCase();
+
+          // Update content
+          content.innerHTML = `
+            <div class="terminal">
+              <div class="terminal-command">> discord-api --status</div>
+              <div class="terminal-response">
+                <div>• Status: <span class="${data.status.indicator === 'none' ? 'text-success' : 'text-warning'}">${data.status.description}</span></div>
+                <div>• Last update: <span>${new Date(data.page.updated_at).toLocaleString()}</span></div>
+                <div>• Timezone: <span>${data.page.time_zone}</span></div>
+              </div>
+            </div>
+            <div class="text-center mt-3">
+              <a href="${data.page.url}" target="_blank" class="anime-btn" style="background-color: #5865F2; border-color: #5865F2; color: white;">
+                <i class="mdi mdi-open-in-new me-2"></i>OFFICIAL STATUS PAGE
+              </a>
+            </div>
+          `;
+        })
+        .catch(error => {
+          console.error('Error fetching Discord status:', error);
+          document.getElementById('discord-status-badge').className = 'status-badge bg-danger';
+          document.getElementById('discord-status-badge').textContent = 'ERROR';
+          document.getElementById('discord-status-content').innerHTML = `
+            <div class="alert alert-danger">
+              Failed to load Discord status. Please try again later.
+            </div>
+          `;
+        });
+
+      // Add hover effects to all anime cards
+      document.querySelectorAll('.anime-card').forEach(card => {
+        card.addEventListener('mouseenter', function () {
+          this.style.boxShadow = `0 15px 30px rgba(255, 110, 199, 0.4)`;
+          this.style.borderColor = 'var(--accent-color)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+          this.style.boxShadow = '0 10px 20px rgba(93, 63, 211, 0.3)';
+          this.style.borderColor = 'var(--primary-color)';
+        });
+      });
+    });
+  </script>
+  <script>
+    document.querySelectorAll('.anime-progress-bar-1').forEach(el => {
+      el.style.width = el.dataset.width + '%';
+    });
+  </script>
+  <!-- Al final de tu archivo, antes de cerrar </body> -->
+  <script>
+    // Inicializar todas las barras de progreso
+    document.addEventListener('DOMContentLoaded', function () {
+      const progressBars = document.querySelectorAll('.anime-progress-bar');
+
+      progressBars.forEach(bar => {
+        const width = bar.dataset.width;
+        if (width) {
+          bar.style.width = width + '%';
+
+          // Opcional: Añadir animación
+          bar.style.transition = 'width 1s ease-in-out';
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
