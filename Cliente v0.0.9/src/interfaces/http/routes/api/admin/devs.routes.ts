@@ -7,8 +7,8 @@ import { isDevelopment } from "@/interfaces/http/middlewares/jwt/auth.middleware
 import {
 	authenticateToken, isAdminToken
 } from "@/interfaces/http/middlewares/jwt/token.middleware";
+import { RateLimitManager } from "@/interfaces/messaging/broker/rateLimit";
 import { main } from "@/main";
-import { RateLimitManager } from "@/shared/class/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { SecurityController } from "../../../controllers/admin/devs.controllers";

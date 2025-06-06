@@ -2,7 +2,7 @@
 // import { Request, Response } from 'express';
 
 import { authenticateToken } from "@/interfaces/http/middlewares/jwt/token.middleware";
-import { RateLimitManager } from "@/shared/class/rateLimit";
+import { RateLimitManager } from "@/interfaces/messaging/broker/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
 import { AuthController } from "../../../controllers/auth/auth.controllers";

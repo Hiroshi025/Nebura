@@ -11,13 +11,13 @@ import swaggerUi from "swagger-ui-express";
 import { v4 as uuidv4 } from "uuid";
 
 import { main } from "@/main";
-import { IPBlocker } from "@/shared/class/administrator";
 import i18next from "@/shared/i18n";
 import { DomainError } from "@/shared/structure/extenders/error.extend";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
+import { IPBlocker } from "./interfaces/messaging/broker/administrator";
 import { SwaggerMonitor } from "./shared/monitor";
 import swaggerSetup from "./shared/swagger-doc";
 import { router } from "./shared/utils/routes";
@@ -251,17 +251,17 @@ export class API {
     });
 
     // Serve static files for documentation
-    this.app.use("/documentation", express.static(path.join(__dirname, "..", "..", "docs")));
+    this.app.use("/documentation", express.static(path.join(__dirname, "..", "docs")));
 
     // Serve the main documentation HTML file
     this.app.get("/documentation", (_req: Request, res: Response) => {
-      res.sendFile(path.join(__dirname, "..", "..", "docs", "index.html"));
+      res.sendFile(path.join(__dirname, "..", "docs", "index.html"));
     });
 
     /* This part of the code is setting up static file serving for different directories like css, js, img,
     assets, and json. Here's a breakdown of what it does: */
-    this.app.set("views", path.join(__dirname, "view"));
-    const publicDir = path.join(__dirname, "view", "public");
+    this.app.set("views", path.join(__dirname, "interfaces", "http", "views"));
+    const publicDir = path.join(__dirname, "interfaces", "http", "views", "public");
     const staticDirs = ["css", "js", "assets", "vendor", "fonts", "images", "scss"];
     staticDirs.forEach((dir): void => {
       const staticPath = path.join(publicDir, dir);

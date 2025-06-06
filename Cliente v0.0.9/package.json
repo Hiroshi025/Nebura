@@ -44,7 +44,7 @@
     ]
   },
   "prisma": {
-    "schema": "src/structure/database/prisma/schema.prisma"
+    "schema": "src/infrastructure/database/prisma/schema.prisma"
   },
   "imports": {},
   "description": "Este proyecto es una API modular que integra múltiples servicios como Discord, WhatsApp, GitHub, Google AI, y más. A continuación, se detallan las funcionalidades, rutas, comandos y eventos disponibles en el proyecto.",

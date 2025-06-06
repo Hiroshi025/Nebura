@@ -6,13 +6,13 @@ import os from "os";
 import process from "process";
 import si from "systeminformation";
 
+import { PM2Manager } from "@/infrastructure/external/PM2";
 import { Addons } from "@/interfaces/messaging/modules/discord/structure/addons";
 import { client, main } from "@/main";
-import { PM2Manager } from "@/shared/class/PM2";
 // Importa WinstonLogger
-import { WinstonLogger } from "@/shared/class/winston";
 import { createCanvas } from "@napi-rs/canvas";
 import { logWithLabel } from "@utils/functions/console";
+import { WinstonLogger } from "@utils/winston";
 
 import configuration from "./config";
 

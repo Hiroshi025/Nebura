@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
+import { safeCompare } from "@/shared/functions";
 import { config } from "@/shared/utils/config";
-import { safeCompare } from "@utils/functions";
 import { getToken } from "@utils/token";
 
 const ERROR_MESSAGES = {

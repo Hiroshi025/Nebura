@@ -18,12 +18,12 @@ export default ({ app }: TRoutesInput) => {
     try {
       const [serverResponse, discordResponse] = await Promise.all([
         axios.get(`${hostURL()}/api/v1/public/status`),
-        axios.get("https://discordstatus.com/api/v2/status.json")
+        axios.get("https://discordstatus.com/api/v2/status.json"),
       ]);
 
       if (serverResponse.status !== 200 || discordResponse.status !== 200) {
         return res.status(500).json({
-          message: "Failed to retrieve server status"
+          message: "Failed to retrieve server status",
         });
       }
 
@@ -31,12 +31,12 @@ export default ({ app }: TRoutesInput) => {
         title: "Nebura Client",
         user: req.user,
         status: serverResponse.data,
-        discordStatus: discordResponse.data
+        discordStatus: discordResponse.data,
       });
     } catch (error: any) {
       return res.status(500).json({
         message: "Error processing requests",
-        error: error.message
+        error: error.message,
       });
     }
   });

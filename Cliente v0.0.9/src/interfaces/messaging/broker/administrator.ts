@@ -4,9 +4,9 @@ import { NextFunction, Request, Response } from "express";
 import { main } from "@/main";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
+import { config } from "@utils/config";
 
-import { Notification } from "../../interfaces/messaging/broker/notification";
-import { config } from "../utils/config";
+import { Notification } from "./notification";
 
 /**
  * Class to manage IP address blocking.

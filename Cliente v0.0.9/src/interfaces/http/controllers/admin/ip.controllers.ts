@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { IPBlocker } from "@/shared/class/administrator";
+import { IPBlocker } from "@/interfaces/messaging/broker/administrator";
 
 /**
  * Controller for managing IP blocking and unblocking operations.
