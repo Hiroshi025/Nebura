@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Menus } from "@typings/modules/discord";
 
 const OwnerSelectMenu: Menus = {

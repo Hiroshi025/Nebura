@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
+import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 import { logWithLabel } from "@utils/functions/console";
 

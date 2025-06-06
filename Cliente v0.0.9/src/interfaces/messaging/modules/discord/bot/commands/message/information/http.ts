@@ -2,8 +2,8 @@
 import { EmbedBuilder } from "discord.js";
 import { STATUS_CODES } from "http";
 
-import { ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
 import emojis from "@config/json/emojis.json";
+import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const httpCommand: Precommand = {

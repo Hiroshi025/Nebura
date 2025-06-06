@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance } from "../functions";

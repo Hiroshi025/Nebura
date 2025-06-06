@@ -1,9 +1,9 @@
 import { ObjectId } from "bson"; // BSON library for working with ObjectId: https://www.npmjs.com/package/bson
 import chalk from "chalk"; // Chalk library for terminal string styling: https://www.npmjs.com/package/chalk
 
-import { Utils } from "@/shared/structure/extenders/discord/utils.extend"; // Utility functions for Discord
-import { ProyectError } from "@/shared/structure/extenders/error.extend"; // Custom error handling class
+import { ProyectError } from "@/shared/infrastructure/extends/error.extend"; // Custom error handling class
 import emojis from "@config/json/emojis.json"; // JSON file containing emoji configurations
+import { Utils } from "@modules/discord/structure/extends/utils.extend";
 import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
 import { loadPendingReminders } from "@utils/functions/reminders"; // Function to load pending reminders
 
@@ -11,7 +11,7 @@ import { API } from "./";
 import { MyClient } from "./interfaces/messaging/modules/discord/client"; // Custom Discord client implementation
 import { ErrorConsole } from "./interfaces/messaging/modules/discord/structure/handlers/errors"; // Error handling for Discord
 import { MyApp } from "./interfaces/messaging/modules/whatsapp"; // WhatsApp module
-import { BackupService } from "./shared/structure/backups"; // Backup service
+import { BackupService } from "./shared/infrastructure/backups"; // Backup service
 import { config } from "./shared/utils/config"; // Application configuration
 import { logWithLabel } from "./shared/utils/functions/console"; // Logging utility
 import { ProyectConfig } from "./typings/config"; // TypeScript type for configuration

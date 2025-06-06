@@ -4,8 +4,8 @@ import {
 	StringSelectMenuBuilder, TextChannel
 } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
 import { Precommand, RoleAssignmentConfig } from "@/typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 
 //TODO: Arreglar los errores de respuesta, el codigo ya esta completo solo falta arreglar los errores de las interacciones
 const AddRoleCommand: Precommand = {

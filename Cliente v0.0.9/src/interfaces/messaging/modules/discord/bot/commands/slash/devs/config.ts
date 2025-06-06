@@ -6,7 +6,7 @@ import {
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { logWithLabel } from "@utils/functions/console";
 
 //TODO: Seguir Mejorandolo

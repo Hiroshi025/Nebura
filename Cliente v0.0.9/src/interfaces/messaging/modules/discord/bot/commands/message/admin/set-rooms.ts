@@ -3,7 +3,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const roomsCommand: Precommand = {

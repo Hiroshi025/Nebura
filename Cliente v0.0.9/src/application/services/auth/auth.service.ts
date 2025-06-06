@@ -1,5 +1,5 @@
 import { main } from "@/main";
-import { AuthLogin, AuthRegister } from "@/shared/structure/constants/user";
+import { AuthLogin, AuthRegister } from "@/shared/infrastructure/constants/user";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { User } from "@/typings/utils";
 import { Prisma } from "@prisma/client";

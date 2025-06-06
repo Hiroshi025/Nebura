@@ -1,8 +1,8 @@
 openapi: "3.0.0"
 info:
-  title: "NEBURA AI API Documentation"
+  title: "NEBURA API Documentation"
   description: |
-    Welcome to the NEBURA AI API documentation. This API provides a comprehensive suite of endpoints for managing tasks, reminders, IP blocking, licenses, and integrations with external services like Discord and Google Gemini.
+    Welcome to the NEBURA API documentation. This API provides a comprehensive suite of endpoints for managing tasks, reminders, IP blocking, licenses, and integrations with external services like Discord and Google Gemini.
 
     ### Key Features:
     - **Task Management**: Create, update, delete, and retrieve tasks with advanced filtering options.
@@ -28,17 +28,15 @@ info:
   contact:
     name: "Hiroshi Development Team"
     email: "support@hiroshi-dev.me"
-    url: "https://docs.hiroshi-dev.me"
-  termsOfService: "https://docs.hiroshi-dev.me/mas/terminos-y-usos"
+    url: "https://www.hiroshi-dev.me"
+  termsOfService: "https://help.hiroshi-dev.me/mas/terminos-y-usos"
   license:
     name: "MIT License"
     url: "https://opensource.org/licenses/MIT"
 
 servers:
-  - url: "https://admin.hiroshi-dev.me/api/v1"
+  - url: "https://host.hiroshi-dev.me/api/v1"
     description: "Production Server"
-  - url: "https://staging.hiroshi-dev.me/api/v1"
-    description: "Staging Server"
 
 paths:
   ###### API CACHE ########
@@ -52,7 +50,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -72,11 +70,10 @@ paths:
                   size:
                     type: integer
                     description: Current cache size
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
   /admin/cache-index:
     get:
       tags:
@@ -86,7 +83,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -95,27 +92,19 @@ paths:
                 additionalProperties:
                   type: string
                   description: Cache entry information
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
 
   ###### GITHUB ROUTES #######
 
-  /users/{username}:
+  /public/github/users/{username}:
     get:
       tags:
-        - Users
+        - Github
       summary: Get basic user information
       description: Returns basic GitHub user information including name, avatar, bio, etc.
-      parameters:
-        - name: username
-          in: path
-          required: true
-          description: GitHub username
-          schema:
-            type: string
-            example: octocat
       responses:
         "200":
           description: User information retrieved successfully
@@ -135,20 +124,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /users/{username}/all:
+  /public/github/users/{username}/all:
     get:
       tags:
-        - Users
+        - Github
       summary: Get complete user information
       description: Returns all available user data including repos, events, organizations, etc.
-      parameters:
-        - name: username
-          in: path
-          required: true
-          description: GitHub username
-          schema:
-            type: string
-            example: octocat
       responses:
         "200":
           description: Complete user data retrieved successfully
@@ -195,20 +176,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /users/{username}/repos:
+  /public/github/users/{username}/repos:
     get:
       tags:
-        - Users
+        - Github
       summary: Get user repositories
       description: Returns public repositories for a user with pagination and sorting options
       parameters:
-        - name: username
-          in: path
-          required: true
-          description: GitHub username
-          schema:
-            type: string
-            example: octocat
         - name: per_page
           in: query
           description: Items per page (max 100)
@@ -259,27 +233,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /repos/{owner}/{repo}:
+  /public/github/repos/{owner}/{repo}:
     get:
       tags:
-        - Repositories
+        - Github
       summary: Get repository information
       description: Returns detailed information about a specific repository
-      parameters:
-        - name: owner
-          in: path
-          required: true
-          description: Repository owner username
-          schema:
-            type: string
-            example: octocat
-        - name: repo
-          in: path
-          required: true
-          description: Repository name
-          schema:
-            type: string
-            example: Hello-World
       responses:
         "200":
           description: Repository information retrieved successfully
@@ -371,19 +330,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
   /service/tasks/{id}:
     get:
       tags: [Tasks]
       summary: Get a task by ID
       description: Returns the details of a specific task
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Task ID
       responses:
         "200":
           description: Task details
@@ -404,13 +355,6 @@ paths:
       tags: [Tasks]
       summary: Update a task
       description: Updates the specified fields of a task
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Task ID
       requestBody:
         required: true
         content:
@@ -437,13 +381,6 @@ paths:
       tags: [Tasks]
       summary: Delete a task
       description: Permanently deletes a task
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Task ID
       responses:
         "204":
           description: Task deleted successfully
@@ -455,7 +392,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
   /service/reminders:
     get:
       tags: [Reminders]
@@ -504,7 +440,6 @@ paths:
           description: Missing required headers or invalid request
         "500":
           description: Error processing the request
-
   /service/google/model-ai/file:
     post:
       tags: [Gemini]
@@ -543,7 +478,6 @@ paths:
           description: Missing required headers, no file provided, or invalid request
         "500":
           description: Error processing the request
-
   /service/google/model-ai/combined:
     post:
       tags: [Gemini]
@@ -642,7 +576,6 @@ paths:
           description: User lacks required permissions
         "500":
           description: Internal server error
-
   /admin/unblock-ip/{ipAddress}:
     delete:
       tags:
@@ -651,15 +584,6 @@ paths:
       description: Removes an IP address from the active block list
       security:
         - bearerAuth: []
-      parameters:
-        - name: ipAddress
-          in: path
-          required: true
-          schema:
-            type: string
-            format: ipv4
-          example: "192.168.1.100"
-          description: IP address to be unblocked
       responses:
         "200":
           description: IP successfully unblocked
@@ -684,7 +608,6 @@ paths:
           description: Specified IP address is not currently blocked
         "500":
           description: Server error processing request
-
   /admin/blocked-ips:
     get:
       tags:
@@ -811,7 +734,6 @@ paths:
                   $ref: "#/components/schemas/License"
         401:
           $ref: "#/components/responses/Unauthorized"
-
   /license/{id}:
     get:
       operationId: getLicense
@@ -821,15 +743,6 @@ paths:
         - bearerAuth: []
       summary: Get license details
       description: Retrieve detailed information about a specific license
-      parameters:
-        - $ref: "#/components/parameters/licenseId"
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer your.jwt.token.here"
       responses:
         200:
           description: Successful operation
@@ -848,15 +761,6 @@ paths:
         - bearerAuth: []
       summary: Update a license
       description: Update license properties
-      parameters:
-        - $ref: "#/components/parameters/licenseId"
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer your.jwt.token.here"
       requestBody:
         required: true
         content:
@@ -883,15 +787,6 @@ paths:
         - bearerAuth: []
       summary: Delete a license
       description: Permanently remove a license from the system
-      parameters:
-        - $ref: "#/components/parameters/licenseId"
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer your.jwt.token.here"
       responses:
         204:
           description: License deleted successfully
@@ -899,7 +794,6 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         404:
           $ref: "#/components/responses/NotFound"
-
   /license/validate/{key}:
     post:
       operationId: validateLicense
@@ -908,13 +802,6 @@ paths:
       summary: Validate a license key
       description: Check if a license key is valid and meets all requirements
       parameters:
-        - name: key
-          in: path
-          description: License key to validate
-          required: true
-          schema:
-            type: string
-            example: "LIC-123-456-789"
         - name: hwid
           in: query
           description: Hardware ID to validate against
@@ -948,13 +835,6 @@ paths:
       description: Retrieve user data from the API using the provided JWT token.
       summary: Get user data from the API.
       parameters:
-        - name: id
-          in: path
-          description: ID of the user to retrieve.
-          required: true
-          schema:
-            type: string
-            example: "userId123"
         - name: Authorization
           in: header
           description: JWT token for authentication.
@@ -1005,7 +885,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
   /auth/register:
     post:
       operationId: registerUser
@@ -1055,7 +934,6 @@ paths:
                 status: false
                 message: "Invalid request parameters"
                 data: "Email already exists"
-
   /auth/login:
     post:
       operationId: loginUser
@@ -1259,105 +1137,10 @@ paths:
                   code:
                     type: string
                     example: "UNAUTHORIZED"
-
-  ###### SECURITY ROUTES #######
-
-  /license/info/{licenseKey}:
-    get:
-      tags:
-        - Licenses
-      summary: Get license information
-      description: Retrieve detailed information about a specific license including associated IPs and usage statistics
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: licenseKey
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Unique license key identifier
-          example: "5f8d04b3ab35de3a342f3a5b"
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  license:
-                    $ref: "#/components/schemas/License"
-                  blockedIPs:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BlockedIP"
-                  usageStats:
-                    $ref: "#/components/schemas/UsageStats"
-        "400":
-          description: Invalid license key format
-        "401":
-          description: Unauthorized - Missing or invalid authentication token
-        "403":
-          description: Forbidden - User doesn't have required permissions
-        "404":
-          description: License not found
-        "500":
-          description: Internal server error
-
-  /admin/ip-info/{ipAddress}:
-    get:
-      tags:
-        - Admin
-      summary: Get IP address information
-      description: Retrieve security information about a specific IP address including block status and related activity
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: ipAddress
-          in: path
-          required: true
-          schema:
-            type: string
-            format: ipv4
-          description: IP address to query
-          example: "192.168.1.100"
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ipAddress:
-                    type: string
-                    example: "192.168.1.100"
-                  isBlocked:
-                    type: boolean
-                    example: true
-                  blockedInfo:
-                    $ref: "#/components/schemas/BlockedIP"
-                  failedAttempts:
-                    type: integer
-                    example: 3
-                  licenseUsage:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/LicenseUsage"
-        "400":
-          description: Invalid IP address format
-        "401":
-          description: Unauthorized - Missing or invalid authentication token
-        "403":
-          description: Forbidden - User doesn't have required permissions
-        "500":
-          description: Internal server error
-
   /public/discord/status:
     get:
       tags:
-        - Discord
+        - Status
       summary: Retrieve Discord Service Status
       description: |
         Fetch the current operational status of Discord's services. This endpoint provides real-time information about whether Discord is operational, degraded, or experiencing an outage.
@@ -1382,11 +1165,10 @@ paths:
                     example: "2024-08-30T14:53:44.077Z"
         "500":
           description: Failed to retrieve Discord service status.
-
   /public/discord/updates:
     get:
       tags:
-        - Discord
+        - Status
       summary: Retrieve Recent Discord Updates
       description: |
         Fetch a list of recent updates published by Discord. These updates may include announcements, feature releases, or general updates.
@@ -1420,11 +1202,10 @@ paths:
                       example: "announcement"
         "500":
           description: Failed to retrieve Discord updates.
-
   /public/discord/incidents:
     get:
       tags:
-        - Discord
+        - Status
       summary: Retrieve Active Discord Incidents
       description: |
         Fetch a list of active incidents reported by Discord. Incidents include service disruptions or outages that are currently unresolved.
@@ -1458,11 +1239,10 @@ paths:
                       example: "incident"
         "500":
           description: Failed to retrieve Discord incidents.
-
-  /public/discord/recent:
+  /publicdiscord/recent:
     get:
       tags:
-        - Discord
+        - Status
       summary: Retrieve Recent Discord Data
       description: |
         Fetch recent data from Discord, including the current status, updates, and incidents from the last 24 hours.
@@ -1544,6 +1324,81 @@ paths:
         "500":
           description: Failed to retrieve recent Discord data.
 
+  ###### SECURITY ROUTES #######
+
+  /license/info/{licenseKey}:
+    get:
+      tags:
+        - Licenses
+      summary: Get license information
+      description: Retrieve detailed information about a specific license including associated IPs and usage statistics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  license:
+                    $ref: "#/components/schemas/License"
+                  blockedIPs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/BlockedIP"
+                  usageStats:
+                    $ref: "#/components/schemas/UsageStats"
+        "400":
+          description: Invalid license key format
+        "401":
+          description: Unauthorized - Missing or invalid authentication token
+        "403":
+          description: Forbidden - User doesn't have required permissions
+        "404":
+          description: License not found
+        "500":
+          description: Internal server error
+  /admin/ip-info/{ipAddress}:
+    get:
+      tags:
+        - Admin
+      summary: Get IP address information
+      description: Retrieve security information about a specific IP address including block status and related activity
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ipAddress:
+                    type: string
+                    example: "192.168.1.100"
+                  isBlocked:
+                    type: boolean
+                    example: true
+                  blockedInfo:
+                    $ref: "#/components/schemas/BlockedIP"
+                  failedAttempts:
+                    type: integer
+                    example: 3
+                  licenseUsage:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/LicenseUsage"
+        "400":
+          description: Invalid IP address format
+        "401":
+          description: Unauthorized - Missing or invalid authentication token
+        "403":
+          description: Forbidden - User doesn't have required permissions
+        "500":
+          description: Internal server error
   /admin/prisma-metrics:
     get:
       tags:
@@ -1553,7 +1408,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
@@ -1581,10 +1436,10 @@ paths:
                         value:
                           type: number
                           example: 123.45
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
 
 components:
   schemas:
@@ -2350,14 +2205,6 @@ components:
           example: "2023-01-20T14:30:00Z"
 
   parameters:
-    licenseId:
-      name: id
-      in: path
-      description: License ID
-      required: true
-      schema:
-        type: string
-        example: "507f1f77bcf86cd799439013"
     XGeminiApiKey:
       name: x-gemini-api-key
       in: header

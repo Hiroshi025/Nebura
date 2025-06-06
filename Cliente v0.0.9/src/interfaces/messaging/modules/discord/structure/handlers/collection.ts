@@ -4,11 +4,11 @@ import { Discord } from "eternal-support";
 import fs from "fs";
 import path from "path";
 
-import { filesLoaded } from "@/shared/structure/constants/tools";
-import { DiscordError } from "@/shared/structure/extenders/error.extend";
+import { filesLoaded } from "@/shared/infrastructure/constants/tools";
+import { DiscordError } from "@/shared/infrastructure/extends/error.extend";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
-import { getFiles } from "@/shared/utils/functions/files";
+import { getFiles } from "@modules/discord/structure/utils/files";
 import { FileType } from "@typings/modules/discord";
 
 import { MyClient } from "../../client";
@@ -69,11 +69,13 @@ export class DiscordHandler {
    * @throws {Error} If there is an issue loading commands, events, or addons.
    */
   public async _load() {
-    for (const dir of fs.readdirSync(this.settings.configs.commandpath)) {
+    for (const dir of fs.readdirSync(
+      this.settings.configs.default + this.settings.configs.commandpath,
+    )) {
       this.client.categories.set(dir, []);
 
       const files = getFiles(
-        this.settings.configs.commandpath + dir,
+        this.settings.configs.default + this.settings.configs.commandpath + dir,
         this.settings.configs["bot-extensions"],
       );
       for (const [_index, file] of files.entries()) {
@@ -86,9 +88,11 @@ export class DiscordHandler {
       }
     }
 
-    for (const dir of fs.readdirSync(this.settings.configs.eventpath)) {
+    for (const dir of fs.readdirSync(
+      this.settings.configs.default + this.settings.configs.eventpath,
+    )) {
       const files = getFiles(
-        this.settings.configs.eventpath + dir,
+        this.settings.configs.default + this.settings.configs.eventpath + dir,
         this.settings.configs["bot-extensions"],
       );
       for (const file of files) {
@@ -104,7 +108,9 @@ export class DiscordHandler {
 
     // Load addons: each addon is inside its own folder with a .addon.ts or .addon.js file (accept only one, whichever exists)
     const addonDirs = fs
-      .readdirSync(this.settings.configs.addonspath, { withFileTypes: true })
+      .readdirSync(this.settings.configs.default + this.settings.configs.addonspath, {
+        withFileTypes: true,
+      })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name);
 
@@ -114,7 +120,10 @@ export class DiscordHandler {
 
     for (const dir of addonDirs) {
       // Accept any file ending with .addon.ts or .addon.js inside the addon folder
-      const addonFolderPath = path.join(this.settings.configs.addonspath, dir);
+      const addonFolderPath = path.join(
+        this.settings.configs.default + this.settings.configs.addonspath,
+        dir,
+      );
       const filesInFolder = fs.readdirSync(addonFolderPath);
       const addonFile = filesInFolder.find(
         (file) => file.endsWith(".addon.ts") || file.endsWith(".addon.js"),
@@ -220,7 +229,9 @@ export class DiscordHandler {
    * @throws {DiscordError} If there is an issue loading the components.
    */
   async loadAndSet(client: MyClient, fileType: FileType) {
-    const folderPath = `${config.modules.discord.configs.componentspath}/${fileType}`;
+    const folderPath =
+      this.settings.configs.default +
+      `${config.modules.discord.configs.componentspath}/${fileType}`;
     const files = await Discord.loadFiles(folderPath);
     try {
       files.forEach(async (file: string) => {
@@ -290,7 +301,9 @@ export class DiscordHandler {
     }
 
     try {
-      const componentsDir = path.resolve(`${config.modules.discord.configs.precommands}`);
+      const componentsDir = path.resolve(
+        this.settings.configs.default + `${config.modules.discord.configs.precommands}`,
+      );
       await readComponentsRecursively(componentsDir);
     } catch (error) {
       throw new Error(`Error loading components: ${error}`);

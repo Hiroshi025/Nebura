@@ -99,6 +99,7 @@ export interface ProyectConfig {
        * Additional configuration for Discord commands and events.
        */
       configs: {
+        default: string;
         /**
          * Path to the event handlers.
          */

@@ -2,8 +2,8 @@ import axios from "axios";
 import { AttachmentBuilder, ChannelType, EmbedBuilder, TextChannel } from "discord.js";
 import { NekoClient } from "eternal-support";
 
-import { ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
 import emojis from "@config/json/emojis.json";
+import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 import { logWithLabel } from "@utils/functions/console";
 

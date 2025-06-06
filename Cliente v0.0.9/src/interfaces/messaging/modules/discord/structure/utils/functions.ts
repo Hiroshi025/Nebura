@@ -12,8 +12,8 @@ import moment from "moment";
 import { promisify } from "util";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
 import emojis from "@config/json/emojis.json";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/discord";
 import { config } from "@utils/config";
 

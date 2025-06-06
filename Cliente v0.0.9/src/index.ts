@@ -12,14 +12,14 @@ import { v4 as uuidv4 } from "uuid";
 
 import { main } from "@/main";
 import i18next from "@/shared/i18n";
-import { DomainError } from "@/shared/structure/extenders/error.extend";
+import { DomainError } from "@/shared/infrastructure/extends/error.extend";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
+import swaggerSetup from "./adapters/external/swagger";
 import { IPBlocker } from "./interfaces/messaging/broker/administrator";
 import { SwaggerMonitor } from "./shared/monitor";
-import swaggerSetup from "./shared/swagger-doc";
 import { router } from "./shared/utils/routes";
 
 // Extender la interfaz Request para incluir la propiedad 'id'

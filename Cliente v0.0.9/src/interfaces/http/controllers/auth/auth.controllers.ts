@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { AuthService } from "@/application/services/auth/auth.service";
-import { ErrorResponse } from "@/shared/structure/constants/user";
+import { ErrorResponse } from "@/shared/infrastructure/constants/user";
 
 /**
  * Controller for handling authentication-related HTTP requests.

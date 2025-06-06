@@ -3,8 +3,8 @@ import {
 	StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel
 } from "discord.js";
 
-import { ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
 import { Precommand } from "@/typings/modules/discord";
+import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 
 const ToolsChannel: Precommand = {
   name: "channel-tools",

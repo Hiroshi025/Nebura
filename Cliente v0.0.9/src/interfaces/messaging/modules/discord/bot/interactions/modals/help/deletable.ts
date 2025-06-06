@@ -1,7 +1,7 @@
 import { readdirSync, statSync, unlinkSync } from "fs";
 import { join } from "path";
 
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Modals } from "@typings/modules/discord";
 import { config } from "@utils/config";
 import { logWithLabel } from "@utils/functions/console";

@@ -6,8 +6,8 @@ import {
 } from "discord.js";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EmbedCorrect, ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
 import currency from "@config/json/coins.json";
+import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const precommandConversor: Precommand = {

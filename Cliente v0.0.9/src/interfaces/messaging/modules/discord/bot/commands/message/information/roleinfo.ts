@@ -3,7 +3,7 @@ import {
 	PermissionFlagsBits, PermissionsBitField, Role, StringSelectMenuBuilder, time
 } from "discord.js";
 
-import { EmbedCorrect } from "@/shared/structure/extenders/discord/embeds.extend";
+import { EmbedCorrect } from "@modules/discord/structure/extends/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const roleInfo: Precommand = {

@@ -1,7 +1,7 @@
 import { compare, hash } from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
 
-import { DomainError } from "@/shared/structure/extenders/error.extend";
+import { DomainError } from "@/shared/infrastructure/extends/error.extend";
 import { config } from "@/shared/utils/config";
 
 const sessions = config.environments.default.api.sessions;

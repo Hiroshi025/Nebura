@@ -2,7 +2,7 @@ import { Client, Collection, GatewayIntentBits, Options, Partials } from "discor
 import { readdirSync, statSync } from "fs";
 import { basename, extname, join } from "path";
 
-import { DiscordError } from "@/shared/structure/extenders/error.extend";
+import { DiscordError } from "@/shared/infrastructure/extends/error.extend";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";

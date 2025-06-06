@@ -2,7 +2,7 @@ import chalk from "chalk";
 import os from "os";
 import path from "path";
 
-import { labelColors, labelNames, Labels } from "@/shared/structure/constants/tools";
+import { labelColors, labelNames, Labels } from "@/shared/infrastructure/constants/tools";
 import Sentry from "@sentry/node";
 import { LogContext } from "@typings/utils";
 import { WinstonLogger } from "@utils/winston";

@@ -5,8 +5,8 @@ import {
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { Ranking } from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
 import { client, main } from "@/main";
-import { ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
 import { config } from "@/shared/utils/config";
+import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 import { Event } from "../../../structure/utils/builders";

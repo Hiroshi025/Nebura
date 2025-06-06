@@ -2,7 +2,7 @@ import { ChannelType } from "discord.js";
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
-import { DiscordError } from "@/shared/structure/extenders/error.extend";
+import { DiscordError } from "@/shared/infrastructure/extends/error.extend";
 
 export default new Event("voiceStateUpdate", async (oldState, newState) => {
   const { member, guild } = newState;

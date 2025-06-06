@@ -6,7 +6,7 @@ import {
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
-import { ErrorEmbed } from "@/shared/structure/extenders/discord/embeds.extend";
+import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
 import { config } from "@utils/config";
 

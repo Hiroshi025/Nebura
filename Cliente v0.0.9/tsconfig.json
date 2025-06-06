@@ -36,8 +36,8 @@
     "baseUrl": "./", // Base para la resolución de rutas relativas
     "paths": {
       // Alias para rutas de importación
-      "@constants/*": ["src/shared/structure/constants/*"],
-      "@extenders/*": ["src/shared/structure/extenders/*"],
+      "@constants/*": ["src/shared/infrastructure/constants/*"],
+      "@extenders/*": ["src/shared/infrastructure/extends/*"],
       "@utils/*": ["src/shared/utils/*"],
       "@modules/*": ["src/interfaces/messaging/modules/*"],
       "@typings/*": ["src/typings/*"],
