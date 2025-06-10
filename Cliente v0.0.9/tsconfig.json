@@ -38,8 +38,8 @@
       // Alias para rutas de importación
       "@constants/*": ["src/shared/infrastructure/constants/*"],
       "@extenders/*": ["src/shared/infrastructure/extends/*"],
-      "@utils/*": ["src/shared/utils/*"],
       "@modules/*": ["src/interfaces/messaging/modules/*"],
+      "@utils/*": ["src/shared/utils/*"],
       "@typings/*": ["src/typings/*"],
       "@backend/*": ["src/server/*"],
       "@tests/*": ["./__tests__/*"],

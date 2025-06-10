@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Agente Gemini AI - Interfaz para interactuar con Google Gemini desde Nebura Works">
+  <meta name="keywords" content="Nebura, Gemini, Google AI, Agente, API, Dashboard, Multilenguaje">
+  <meta name="author" content="Nebura">
+  <meta property="og:title" content="Agente Gemini - Nebura Works">
+  <meta property="og:description"
+    content="Utiliza Gemini AI con tu propia API Key y modelo. Interfaz avanzada, documentación y multilenguaje.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://host.hiroshi-dev.me/dashboard/agent">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agente Gemini - Nebura Works">
+  <meta name="twitter:description"
+    content="Interfaz visual para Google Gemini AI. Soporte multilenguaje y modo oscuro.">
+  <title>Agente Gemini - Nebura</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  <link rel="stylesheet" href="/css/agent.css">
+</head>
+
+<body>
+  <div id="app-container">
+    <div class="d-flex" style="min-height: 100vh;">
+      <!-- SIDEBAR -->
+      <%- include('partials/sidebar', { user: user, panelSection: ` <div class='sidebar-section-title'>Gemini Agent
+    </div>
+    <ul class='nav flex-column sidebar-nav'>
+      <li class='nav-item'><a class='nav-link active' href='/dashboard/agent'><i class='fa-solid fa-robot'></i> Agente
+          Gemini</a></li>
+    </ul>
+    <div class='sidebar-divider'></div> ` }) %>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow-1 p-4">
+      <div class="container-fluid animate__animated animate__fadeIn">
+        <div class="row mb-4">
+          <div class="col-12 d-flex align-items-center justify-content-between">
+            <h2 class="mb-0"><i class="fa-solid fa-robot me-2"></i>Agente Gemini</h2>
+            <div class="d-flex align-items-center">
+              <div class="language-switcher me-3">
+                <a href="#" class="active" data-lang="es">ES</a>|
+                <a href="#" data-lang="en">EN</a>
+              </div>
+              <span class="theme-switcher" id="themeSwitcher" title="Cambiar tema"><i
+                  class="fa-solid fa-moon"></i></span>
+            </div>
+          </div>
+        </div>
+        <!-- Formulario de configuración de Gemini -->
+        <div class="card form-section animate__animated animate__fadeInUp">
+          <div class="card-header"><i class="fa-solid fa-gear me-2"></i>Configuración de Gemini</div>
+          <div class="card-body">
+            <form id="geminiConfigForm" autocomplete="off">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label" for="apiKey">API Key</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="apiKey" name="apiKey" required
+                      placeholder="Tu API Key de Gemini">
+                    <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="model">Modelo</label>
+                  <input type="text" class="form-control" id="model" name="model" required placeholder="Ej: gemini-pro">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="systemInstruction">Instrucción del sistema (opcional)</label>
+                  <input type="text" class="form-control" id="systemInstruction" name="systemInstruction"
+                    placeholder="Ej: Sé conciso y profesional">
+                </div>
+              </div>
+              <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa-solid fa-floppy-disk me-2"></i>Guardar configuración
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Tabs de endpoints -->
+        <ul class="nav nav-tabs mb-3" id="agentTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button"
+              role="tab"><i class="fa-solid fa-message me-2"></i>Texto</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file" type="button"
+              role="tab"><i class="fa-solid fa-file-arrow-up me-2"></i>Archivo</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button"
+              role="tab"><i class="fa-solid fa-layer-group me-2"></i>Avanzado</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="doc-tab" data-bs-toggle="tab" data-bs-target="#doc" type="button" role="tab"><i
+                class="fa-solid fa-book me-2"></i>Documentación</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="agentTabsContent">
+          <!-- Texto -->
+          <div class="tab-pane fade show active" id="text" role="tabpanel">
+            <div class="card animate__animated animate__fadeIn">
+              <div class="card-header"><i class="fa-solid fa-message me-2"></i>Procesar Texto</div>
+              <div class="card-body">
+                <form id="textForm">
+                  <div class="mb-3">
+                    <label class="form-label" for="textInput">Texto a procesar</label>
+                    <textarea class="form-control" id="textInput" name="text" rows="4" required
+                      placeholder="Escribe tu texto aquí..."></textarea>
+                  </div>
+                  <div class="text-end">
+                    <button type="submit" class="btn btn-primary" id="textSubmitBtn">
+                      <i class="fa-solid fa-paper-plane me-2"></i>Enviar
+                    </button>
+                  </div>
+                </form>
+                <div id="textResponse" class="response-box mt-3 d-none">
+                  <div class="response-content" id="textResponseContent"></div>
+                  <div class="response-links" id="textResponseLinks"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Archivo -->
+          <div class="tab-pane fade" id="file" role="tabpanel">
+            <div class="card animate__animated animate__fadeIn">
+              <div class="card-header"><i class="fa-solid fa-file-arrow-up me-2"></i>Procesar Archivo</div>
+              <div class="card-body">
+                <form id="fileForm" enctype="multipart/form-data">
+                  <div class="mb-3">
+                    <label class="form-label" for="fileInput">Selecciona un archivo</label>
+                    <input class="form-control" type="file" id="fileInput" name="file" required>
+                    <div class="form-text">Formatos soportados: PDF, TXT, DOCX, PPTX, imágenes</div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="fileText">Texto de contexto (opcional)</label>
+                    <input class="form-control" type="text" id="fileText" name="text"
+                      placeholder="Describe el archivo o tu petición">
+                  </div>
+                  <div class="text-end">
+                    <button type="submit" class="btn btn-primary" id="fileSubmitBtn">
+                      <i class="fa-solid fa-paper-plane me-2"></i>Enviar
+                    </button>
+                  </div>
+                </form>
+                <div id="fileResponse" class="response-box mt-3 d-none">
+                  <div class="response-content" id="fileResponseContent"></div>
+                  <div class="response-links" id="fileResponseLinks"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Avanzado -->
+          <div class="tab-pane fade" id="advanced" role="tabpanel">
+            <div class="card animate__animated animate__fadeIn">
+              <div class="card-header"><i class="fa-solid fa-layer-group me-2"></i>Texto + Archivo</div>
+              <div class="card-body">
+                <form id="advancedForm" enctype="multipart/form-data">
+                  <div class="mb-3">
+                    <label class="form-label" for="advText">Texto</label>
+                    <textarea class="form-control" id="advText" name="text" rows="3" required
+                      placeholder="Texto para combinar con archivo..."></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="advFile">Archivo</label>
+                    <input class="form-control" type="file" id="advFile" name="file" required>
+                    <div class="form-text">Formatos soportados: PDF, TXT, DOCX, PPTX, imágenes</div>
+                  </div>
+                  <div class="text-end">
+                    <button type="submit" class="btn btn-primary" id="advancedSubmitBtn">
+                      <i class="fa-solid fa-paper-plane me-2"></i>Enviar
+                    </button>
+                  </div>
+                </form>
+                <div id="advancedResponse" class="response-box mt-3 d-none">
+                  <div class="response-content" id="advancedResponseContent"></div>
+                  <div class="response-links" id="advancedResponseLinks"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Documentación -->
+          <div class="tab-pane fade" id="doc" role="tabpanel">
+            <div class="doc-section animate__animated animate__fadeIn">
+              <h4><i class="fa-solid fa-book me-2"></i>Documentación del Agente Gemini</h4>
+              <p>Este agente te permite interactuar con la API de Google Gemini usando tu propia API Key y modelo.
+                Puedes procesar texto, archivos o ambos combinados. Configura tus credenciales y usa los formularios
+                para enviar peticiones a los endpoints.</p>
+
+              <div class="alert alert-primary" role="alert">
+                <i class="fa-solid fa-circle-info me-2"></i> Recuerda que necesitas una API Key válida de Google Gemini
+                para usar este servicio.
+              </div>
+
+              <h5 class="mt-4"><i class="fa-solid fa-plug me-2"></i>Endpoints disponibles</h5>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Método</th>
+                      <th>Endpoint</th>
+                      <th>Descripción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="badge bg-primary">POST</span></td>
+                      <td><code>/api/v1/service/google/model-ai/text</code></td>
+                      <td>Procesa texto plano</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge bg-primary">POST</span></td>
+                      <td><code>/api/v1/service/google/model-ai/file</code></td>
+                      <td>Procesa un archivo (imagen, PDF, etc) con texto opcional</td>
+                    </tr>
+                    <tr>
+                      <td><span class="badge bg-primary">POST</span></td>
+                      <td><code>/api/v1/service/google/model-ai/advanced</code></td>
+                      <td>Procesa texto y archivo combinados</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h5 class="mt-4"><i class="fa-solid fa-graduation-cap me-2"></i>¿Cómo usar?</h5>
+              <div class="steps">
+                <div class="step mb-3 d-flex">
+                  <div
+                    class="step-number me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 30px; height: 30px;">1</div>
+                  <div class="step-content">
+                    Introduce tu API Key y modelo en la sección de configuración y guarda.
+                  </div>
+                </div>
+                <div class="step mb-3 d-flex">
+                  <div
+                    class="step-number me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 30px; height: 30px;">2</div>
+                  <div class="step-content">
+                    Selecciona el tipo de petición (Texto, Archivo, Avanzado).
+                  </div>
+                </div>
+                <div class="step mb-3 d-flex">
+                  <div
+                    class="step-number me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 30px; height: 30px;">3</div>
+                  <div class="step-content">
+                    Completa el formulario y envía. El resultado aparecerá abajo con formato mejorado.
+                  </div>
+                </div>
+              </div>
+
+              <h5 class="mt-4"><i class="fa-solid fa-sliders me-2"></i>Opciones avanzadas</h5>
+              <ul class="feature-list">
+                <li><i class="fa-solid fa-check text-success me-2"></i> Puedes cambiar el idioma de la interfaz (ES/EN)
+                </li>
+                <li><i class="fa-solid fa-check text-success me-2"></i> Soporte para modo oscuro y claro</li>
+                <li><i class="fa-solid fa-check text-success me-2"></i> La configuración se guarda localmente en tu
+                  navegador</li>
+                <li><i class="fa-solid fa-check text-success me-2"></i> Visualización mejorada de respuestas con código,
+                  tablas y enlaces</li>
+              </ul>
+
+              <h5 class="mt-4"><i class="fa-solid fa-shield-halved me-2"></i>Seguridad</h5>
+              <div class="alert alert-warning" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i> Tu API Key se almacena solo en tu navegador y se
+                envía únicamente al hacer peticiones. No se guarda en nuestros servidores.
+              </div>
+
+              <h5 class="mt-4"><i class="fa-brands fa-discord me-2"></i>Automatización avanzada en bots de Discord</h5>
+              <p>
+                Puedes crear sistemas inteligentes en Discord combinando los endpoints de Gemini con eventos y comandos
+                avanzados de <b>discord.js</b>. Aquí tienes un ejemplo de integración profesional:
+              </p>
+              <pre>
+                <code class="language-js">
+// Configuración
+const CONFIG = {
+  API_KEY: 'TU_API_KEY',
+  API_BASE_URL: 'https://tu-dominio.com/api/v1/service/google/model-ai',
+  MODEL: 'gemini-pro',
+  MAX_RESPONSE_LENGTH: 2000
+};
+
+// Función para llamar a la API de Gemini
+async function callGeminiAPI({ prompt, filePath = null }) {
+  try {
+    const endpoint = filePath ? '/advanced' : '/text';
+    const url = `${CONFIG.API_BASE_URL}${endpoint}`;
+    
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-gemini-api-key': CONFIG.API_KEY,
+          'x-gemini-model': CONFIG.MODEL
+        },
+        body: JSON.stringify({ text: prompt })
+      });
+      
+      return await response.json();
+  } catch (error) {
+    console.error('Error en la API de Gemini:', error);
+    return { error: 'Error al conectar con el servicio' };
+  }
+}
+
+                </code>
+              </pre>
+              <ul>
+                <li>Soporta <b>comandos slash</b> con texto y archivos adjuntos.</li>
+                <li>Responde automáticamente a menciones en cualquier canal.</li>
+                <li>Ejemplo de integración de archivos usando <code>FormData</code> y <code>fs</code>.</li>
+                <li>Recorta respuestas largas para cumplir con el límite de Discord.</li>
+              </ul>
+              <div class="alert alert-info mt-2">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Puedes expandir este ejemplo para automatizar flujos de moderación, generación de reportes, respuestas
+                contextuales y mucho más usando los endpoints de Gemini.
+              </div>
+              
+              <h5 class="mt-4"><i class="fa-solid fa-code me-2"></i>Ejemplo de uso con cURL</h5>
+              <pre><code class="language-bash">curl -X POST \
+  https://tu-dominio.com/api/v1/service/google/model-ai/text \
+  -H 'Content-Type: application/json' \
+  -H 'x-gemini-api-key: TU_API_KEY' \
+  -H 'x-gemini-model: gemini-pro' \
+  -d '{
+    "text": "Explica la teoría de la relatividad en términos simples",
+    "systemInstruction": "Sé conciso y claro"
+  }'</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  </div>
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toast-title">Notificación</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toast-body"></div>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.2.12/marked.min.js"></script>
+    <script>
+      // Multilenguaje y tema
+      const langData = {
+        es: {
+          agent: 'Agente Gemini',
+          config: 'Configuración de Gemini',
+          save: 'Guardar configuración',
+          text: 'Texto',
+          file: 'Archivo',
+          advanced: 'Avanzado',
+          doc: 'Documentación',
+          send: 'Enviar',
+          response: 'Respuesta',
+          processing: 'Procesando...',
+          configSaved: 'Configuración guardada',
+          noFile: 'Selecciona un archivo',
+          error: 'Error',
+          success: 'Éxito',
+          warning: 'Advertencia',
+          info: 'Información',
+          show: 'Mostrar',
+          hide: 'Ocultar'
+        },
+        en: {
+          agent: 'Gemini Agent',
+          config: 'Gemini Configuration',
+          save: 'Save configuration',
+          text: 'Text',
+          file: 'File',
+          advanced: 'Advanced',
+          doc: 'Documentation',
+          send: 'Send',
+          response: 'Response',
+          processing: 'Processing...',
+          configSaved: 'Configuration saved',
+          noFile: 'Select a file',
+          error: 'Error',
+          success: 'Success',
+          warning: 'Warning',
+          info: 'Info',
+          show: 'Show',
+          hide: 'Hide'
+        }
+      };
+
+      let currentLang = localStorage.getItem('agentLang') || 'es';
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('agentLang', lang);
+        document.querySelectorAll('.language-switcher a').forEach(a => a.classList.remove('active'));
+        document.querySelector(`.language-switcher a[data-lang="${lang}"]`).classList.add('active');
+        // Actualizar textos dinámicos
+        document.getElementById('text-tab').innerHTML = `<i class="fa-solid fa-message me-2"></i>${langData[lang].text}`;
+        document.getElementById('file-tab').innerHTML = `<i class="fa-solid fa-file-arrow-up me-2"></i>${langData[lang].file}`;
+        document.getElementById('advanced-tab').innerHTML = `<i class="fa-solid fa-layer-group me-2"></i>${langData[lang].advanced}`;
+        document.getElementById('doc-tab').innerHTML = `<i class="fa-solid fa-book me-2"></i>${langData[lang].doc}`;
+      }
+
+      document.querySelectorAll('.language-switcher a').forEach(a => {
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          setLang(this.dataset.lang);
+        });
+      });
+
+      setLang(currentLang);
+
+      // Tema oscuro/claro
+      const themeSwitcher = document.getElementById('themeSwitcher');
+      themeSwitcher.addEventListener('click', function () {
+        const html = document.documentElement;
+        if (html.getAttribute('data-bs-theme') === 'dark') {
+          html.setAttribute('data-bs-theme', 'light');
+          localStorage.setItem('agentTheme', 'light');
+          this.innerHTML = '<i class="fa-solid fa-moon"></i>';
+        } else {
+          html.setAttribute('data-bs-theme', 'dark');
+          localStorage.setItem('agentTheme', 'dark');
+          this.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+      });
+
+      // Cargar tema guardado
+      const savedTheme = localStorage.getItem('agentTheme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        themeSwitcher.innerHTML = savedTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+      }
+
+      // Toggle para mostrar/ocultar API Key
+      const toggleApiKey = document.getElementById('toggleApiKey');
+      const apiKeyInput = document.getElementById('apiKey');
+      toggleApiKey.addEventListener('click', function () {
+        if (apiKeyInput.type === 'password') {
+          apiKeyInput.type = 'text';
+          this.innerHTML = `<i class="fa-solid fa-eye-slash"></i> ${langData[currentLang].hide}`;
+        } else {
+          apiKeyInput.type = 'password';
+          this.innerHTML = `<i class="fa-solid fa-eye"></i> ${langData[currentLang].show}`;
+        }
+      });
+
+      // Guardar configuración
+      const geminiConfigForm = document.getElementById('geminiConfigForm');
+      geminiConfigForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const apiKey = document.getElementById('apiKey').value;
+        const model = document.getElementById('model').value;
+        const systemInstruction = document.getElementById('systemInstruction').value;
+        localStorage.setItem('geminiApiKey', apiKey);
+        localStorage.setItem('geminiModel', model);
+        localStorage.setItem('geminiSystemInstruction', systemInstruction);
+        showToast(langData[currentLang].configSaved, 'success');
+      });
+
+      // Cargar config guardada
+      window.addEventListener('DOMContentLoaded', function () {
+        document.body.classList.add('loaded');
+        document.getElementById('apiKey').value = localStorage.getItem('geminiApiKey') || '';
+        document.getElementById('model').value = localStorage.getItem('geminiModel') || '';
+        document.getElementById('systemInstruction').value = localStorage.getItem('geminiSystemInstruction') || '';
+
+        // Inicializar highlight.js
+        hljs.highlightAll();
+      });
+
+      // Utilidad para mostrar toast
+      function showToast(msg, type = 'info') {
+        const toastEl = document.getElementById('notificationToast');
+        const toastTitle = document.getElementById('toast-title');
+        const toastBody = document.getElementById('toast-body');
+
+        // Configurar según el tipo
+        let icon = '';
+        let bgClass = '';
+
+        switch (type) {
+          case 'success':
+            icon = '<i class="fa-solid fa-circle-check me-2"></i>';
+            bgClass = 'bg-success';
+            toastTitle.textContent = langData[currentLang].success;
+            break;
+          case 'error':
+            icon = '<i class="fa-solid fa-circle-xmark me-2"></i>';
+            bgClass = 'bg-danger';
+            toastTitle.textContent = langData[currentLang].error;
+            break;
+          case 'warning':
+            icon = '<i class="fa-solid fa-triangle-exclamation me-2"></i>';
+            bgClass = 'bg-warning';
+            toastTitle.textContent = langData[currentLang].warning;
+            break;
+          default:
+            icon = '<i class="fa-solid fa-circle-info me-2"></i>';
+            bgClass = 'bg-primary';
+            toastTitle.textContent = langData[currentLang].info;
+        }
+
+        toastBody.innerHTML = icon + msg;
+        toastEl.classList.add(bgClass, 'text-white');
+
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+
+        // Limpiar después de mostrar
+        setTimeout(() => {
+          toastEl.classList.remove(bgClass, 'text-white');
+        }, 5000);
+      }
+
+      // Función para procesar y mostrar la respuesta
+      function processResponse(response, contentElement, linksElement) {
+        // Limpiar elementos
+        contentElement.innerHTML = '';
+        linksElement.innerHTML = '';
+
+        // Procesar markdown si es necesario
+        let formattedResponse = response;
+        try {
+          formattedResponse = marked.parse(response);
+        } catch (e) {
+          console.log('No es markdown válido, mostrando texto plano');
+        }
+
+        // Establecer contenido
+        contentElement.innerHTML = formattedResponse;
+
+        // Resaltar código
+        document.querySelectorAll('pre code').forEach(block => {
+          hljs.highlightElement(block);
+        });
+
+        // Extraer enlaces y crear botones
+        const linkRegex = /https?:\/\/[^\s\)\]\}]+/g;
+        const links = response.match(linkRegex) || [];
+
+        // Crear botones para enlaces únicos
+        const uniqueLinks = [...new Set(links)];
+        uniqueLinks.forEach(link => {
+          const linkBtn = document.createElement('a');
+          linkBtn.href = link;
+          linkBtn.target = '_blank';
+          linkBtn.rel = 'noopener noreferrer';
+          linkBtn.className = 'response-link-btn';
+          linkBtn.innerHTML = `<i class="fa-solid fa-up-right-from-square"></i> ${new URL(link).hostname}`;
+          linksElement.appendChild(linkBtn);
+        });
+
+        // Mostrar la caja de respuesta
+        contentElement.parentElement.classList.remove('d-none');
+        contentElement.parentElement.classList.add('pulse');
+      }
+
+      // Envío de formularios a endpoints
+      async function sendGeminiRequest(endpoint, data, isFile = false) {
+        const apiKey = localStorage.getItem('geminiApiKey');
+        const model = localStorage.getItem('geminiModel');
+        const customerkey = JSON.parse('<%- JSON.stringify(customer_key) %>');
+        const systemInstruction = localStorage.getItem('geminiSystemInstruction');
+
+        if (!apiKey || !model) {
+          showToast('Configura tu API Key y modelo primero', 'error');
+          return { error: 'Configura tu API Key y modelo primero' };
+        }
+
+        let formData;
+        let headers = {};
+
+        if (isFile) {
+          formData = new FormData();
+          Object.keys(data).forEach(k => formData.append(k, data[k]));
+          formData.append('systemInstruction', systemInstruction || '');
+        } else {
+          formData = JSON.stringify({ ...data, systemInstruction });
+          headers['Content-Type'] = 'application/json';
+        }
+
+        headers["x-secret-customer"] = customerkey;
+        headers['x-gemini-api-key'] = apiKey;
+        headers['x-gemini-model'] = model;
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers,
+            body: isFile ? formData : formData
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Error en la solicitud');
+          }
+
+          const result = await res.json();
+          return result;
+        } catch (err) {
+          console.error('Error en la solicitud:', err);
+          return { error: err.message || 'Error de red o servidor' };
+        }
+      }
+
+      // Texto
+      document.getElementById('textForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const text = document.getElementById('textInput').value;
+        const responseBox = document.getElementById('textResponse');
+        const contentElement = document.getElementById('textResponseContent');
+        const linksElement = document.getElementById('textResponseLinks');
+        const submitBtn = document.getElementById('textSubmitBtn');
+
+        // Mostrar estado de carga
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="loading-spinner me-2"></span> ${langData[currentLang].processing}`;
+
+        responseBox.classList.remove('d-none');
+        contentElement.textContent = langData[currentLang].processing;
+
+        const result = await sendGeminiRequest('/api/v1/service/google/model-ai/text', { text });
+
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane me-2"></i> ${langData[currentLang].send}`;
+
+        if (result.error) {
+          showToast(result.error, 'error');
+          contentElement.textContent = result.error;
+          return;
+        }
+
+        processResponse(result.response || result.error || 'Sin respuesta', contentElement, linksElement);
+      });
+
+      // Archivo
+      document.getElementById('fileForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('fileInput');
+        const text = document.getElementById('fileText').value;
+        const responseBox = document.getElementById('fileResponse');
+        const contentElement = document.getElementById('fileResponseContent');
+        const linksElement = document.getElementById('fileResponseLinks');
+        const submitBtn = document.getElementById('fileSubmitBtn');
+
+        const file = fileInput.files[0];
+        if (!file) {
+          showToast(langData[currentLang].noFile, 'error');
+          return;
+        }
+
+        // Mostrar estado de carga
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="loading-spinner me-2"></span> ${langData[currentLang].processing}`;
+
+        responseBox.classList.remove('d-none');
+        contentElement.textContent = langData[currentLang].processing;
+
+        const result = await sendGeminiRequest('/api/v1/service/google/model-ai/file', { file, text }, true);
+
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane me-2"></i> ${langData[currentLang].send}`;
+
+        if (result.error) {
+          showToast(result.error, 'error');
+          contentElement.textContent = result.error;
+          return;
+        }
+
+        processResponse(result.response || result.error || 'Sin respuesta', contentElement, linksElement);
+      });
+
+      // Avanzado
+      document.getElementById('advancedForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const text = document.getElementById('advText').value;
+        const fileInput = document.getElementById('advFile');
+        const responseBox = document.getElementById('advancedResponse');
+        const contentElement = document.getElementById('advancedResponseContent');
+        const linksElement = document.getElementById('advancedResponseLinks');
+        const submitBtn = document.getElementById('advancedSubmitBtn');
+
+        const file = fileInput.files[0];
+        if (!file) {
+          showToast(langData[currentLang].noFile, 'error');
+          return;
+        }
+
+        // Mostrar estado de carga
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="loading-spinner me-2"></span> ${langData[currentLang].processing}`;
+
+        responseBox.classList.remove('d-none');
+        contentElement.textContent = langData[currentLang].processing;
+
+        const result = await sendGeminiRequest('/api/v1/service/google/model-ai/advanced', { text, file }, true);
+
+        // Restaurar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane me-2"></i> ${langData[currentLang].send}`;
+
+        if (result.error) {
+          showToast(result.error, 'error');
+          contentElement.textContent = result.error;
+          return;
+        }
+
+        processResponse(result.response || result.error || 'Sin respuesta', contentElement, linksElement);
+      });
+
+      // Inicializar tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    </script>
+</body>
+
+</html>

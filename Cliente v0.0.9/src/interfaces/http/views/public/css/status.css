@@ -1,0 +1,644 @@
+:root {
+  --primary-color: #ff6ec7;
+  --secondary-color: #5d3fd3;
+  --accent-color: #00ffff;
+  --success-color: #00ff7f;
+  --danger-color: #ff3860;
+  --warning-color: #ffd700;
+
+  /* Light Mode Palette */
+  --light-bg: #f0f2f5;
+  --light-card-bg: rgba(255, 255, 255, 0.7);
+  --light-text-primary: #1a1a2e;
+  --light-text-secondary: #555b6e;
+  --light-border-color: #d1d9e6;
+
+  /* Dark Mode Palette (Original) */
+  --dark-bg: #1a1a2e;
+  --dark-card-bg: rgba(26, 26, 46, 0.6);
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: #b8c2cc;
+  --dark-border-color: #ff6ec7;
+}
+
+[data-theme="light"] {
+  --bg-color: var(--light-bg);
+  --card-bg-color: var(--light-card-bg);
+  --text-primary-color: var(--light-text-primary);
+  --text-secondary-color: var(--light-text-secondary);
+  --card-border-color: var(--light-border-color);
+  --terminal-bg-color: rgba(230, 230, 250, 0.5);
+  --terminal-text-color: #5d3fd3;
+}
+
+[data-theme="dark"] {
+  --bg-color: var(--dark-bg);
+  --card-bg-color: var(--dark-card-bg);
+  --text-primary-color: var(--dark-text-primary);
+  --text-secondary-color: var(--dark-text-secondary);
+  --card-border-color: var(--primary-color);
+  --terminal-bg-color: rgba(0, 0, 0, 0.5);
+  --terminal-text-color: var(--accent-color);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body {
+  font-family: "Exo 2", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary-color);
+  background-image:
+    url("https://i.pinimg.com/736x/be/7b/54/be7b5436fee27d4fd2346ef18fd7aa60"),
+    url("https://i.pinimg.com/736x/25/5a/50/255a50de5f9be2c269e0d7a359b78c17.jpg"),
+    url("https://i.pinimg.com/736x/f8/80/47/f88047786151b7e922c7e3728669b697.jpg"),
+    url("https://i.pinimg.com/736x/77/8b/14/778b14f10525bdf9b626fca75d2eaf3d.jpg");
+  background-position:
+    left top,
+    right bottom;
+  background-repeat: no-repeat;
+  background-size: 30%, 25%;
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.85), rgba(93, 63, 211, 0.7));
+  z-index: -2;
+  animation: animatedGradient 15s ease infinite;
+}
+
+[data-theme="light"] body::before,
+[data-theme="light"] body::after {
+  opacity: 0.5;
+}
+
+.anime-title {
+  font-family: "Press Start 2P", cursive;
+  text-shadow:
+    3px 3px 0 var(--secondary-color),
+    6px 6px 0 var(--primary-color);
+  letter-spacing: 2px;
+  color: var(--accent-color);
+  animation: titleGlow 2s infinite alternate;
+}
+
+.anime-card {
+  background: var(--card-bg-color);
+  border: 2px solid var(--card-border-color);
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(93, 63, 211, 0.3);
+  transition: all 0.4s ease;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.anime-card:hover {
+  transform: translateY(-10px) rotateX(5deg) rotateY(-3deg) scale(1.02);
+  box-shadow: 0 20px 40px rgba(255, 110, 199, 0.5);
+  border-color: var(--accent-color);
+}
+
+.status-badge {
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.7rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  box-shadow: 0 0 8px currentColor;
+  vertical-align: middle;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.section-title {
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.2rem;
+  color: var(--accent-color);
+  text-shadow: 2px 2px 0 var(--secondary-color);
+  margin-bottom: 2rem;
+}
+
+.terminal {
+  background-color: var(--terminal-bg-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+  padding: 1rem;
+  font-family: "Fira Code", "Courier New", monospace;
+  color: var(--terminal-text-color);
+  text-shadow: 0 0 5px var(--accent-color);
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+.terminal-command {
+  color: var(--success-color);
+  position: relative;
+  padding-left: 1.5ch;
+}
+
+.terminal-command::before {
+  content: ">";
+  position: absolute;
+  left: 0;
+}
+
+.terminal-command::after {
+  content: "▋";
+  animation: blink 1s steps(1) infinite;
+  color: var(--success-color);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.terminal-response {
+  color: var(--text-primary-color);
+  transition: color 0.5s ease;
+}
+
+/* NEW: Maintenance Section */
+.maintenance-timeline {
+  position: relative;
+  padding-left: 40px;
+}
+
+.maintenance-item {
+  position: relative;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.1);
+  border-left: 3px solid var(--primary-color);
+}
+
+.maintenance-item:before {
+  content: "";
+  position: absolute;
+  left: -40px;
+  top: 15px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  border: 3px solid var(--secondary-color);
+}
+
+.maintenance-timeline::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 15px;
+
+  width: 3px;
+  background: var(--secondary-color);
+}
+
+.character-img {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* NEW: Theme & Lang Switcher */
+.header-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.control-btn {
+  background: var(--card-bg-color);
+  border: 1px solid var(--card-border-color);
+  color: var(--text-primary-color);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.lang-selector .dropdown-menu {
+  background: var(--card-bg-color);
+  border-color: var(--card-border-color);
+  min-width: 0;
+}
+
+.lang-selector .dropdown-item {
+  color: var(--text-primary-color);
+}
+
+.lang-selector .dropdown-item:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.flag-icon {
+  width: 20px;
+  height: 15px;
+}
+
+@keyframes animatedGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.anime-title {
+  font-family: "Press Start 2P", cursive;
+  text-shadow:
+    3px 3px 0 var(--secondary-color),
+    6px 6px 0 var(--primary-color);
+  color: var(--accent-color);
+  animation: titleGlow 2s infinite alternate;
+}
+
+.anime-card {
+  background: var(--card-bg-color);
+  border: 2px solid transparent;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s ease;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animated-border {
+  padding: 3px;
+  background: linear-gradient(
+    115deg,
+    var(--secondary-color),
+    var(--primary-color),
+    var(--accent-color)
+  );
+  background-size: 200% 200%;
+  animation: gradient-border 4s ease infinite;
+}
+
+@keyframes gradient-border {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.chart-container {
+  height: 250px;
+  position: relative;
+}
+
+.chart-title {
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  text-shadow: 1px 1px 0 var(--secondary-color);
+}
+
+.terminal {
+  background-color: var(--terminal-bg-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+  padding: 1rem;
+  font-family: "Fira Code", "Courier New", monospace;
+  color: var(--terminal-text-color);
+  text-shadow: 0 0 5px var(--accent-color);
+}
+
+.section-title {
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.2rem;
+  color: var(--accent-color);
+  text-shadow: 2px 2px 0 var(--secondary-color);
+  margin-bottom: 2rem;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.8rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--primary-color);
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary-color);
+  margin-bottom: 0.2rem;
+  display: block;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary-color);
+  word-wrap: break-word;
+}
+
+/* Glitch effect */
+.glitch {
+  position: relative;
+  color: var(--accent-color);
+  font-family: "Press Start 2P", cursive;
+  animation: glitch-skew 1s infinite linear alternate-reverse;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  color: var(--primary-color);
+  z-index: 1;
+}
+
+.glitch::before {
+  animation: glitch-top 1s infinite linear alternate-reverse;
+  top: -2px;
+  text-shadow: 2px 0 var(--secondary-color);
+}
+
+.glitch::after {
+  animation: glitch-bottom 1s infinite linear alternate-reverse;
+  top: 2px;
+  text-shadow: -2px 0 var(--accent-color);
+}
+
+@keyframes glitch-skew {
+  0% {
+    transform: skew(0deg);
+  }
+
+  20% {
+    transform: skew(2deg);
+  }
+
+  40% {
+    transform: skew(-2deg);
+  }
+
+  60% {
+    transform: skew(1deg);
+  }
+
+  100% {
+    transform: skew(0deg);
+  }
+}
+
+@keyframes glitch-top {
+  0% {
+    clip-path: inset(0 0 80% 0);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes glitch-bottom {
+  0% {
+    clip-path: inset(80% 0 0 0);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Terminal typing effect */
+.hacker-terminal {
+  background: rgba(0, 0, 0, 0.7);
+  color: #00ffae;
+  font-family: "Fira Code", "Courier New", monospace;
+  border-radius: 8px;
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  box-shadow: 0 0 16px #00ffae44;
+  min-height: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hacker-terminal .typed-cursor {
+  display: inline-block;
+  width: 1ch;
+  background: #00ffae;
+  animation: blink 1s steps(1) infinite;
+  margin-left: 2px;
+}
+
+/* CSV Button anime/hacker style */
+.anime-btn-csv {
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: "Press Start 2P", cursive;
+  font-size: 0.9rem;
+  box-shadow:
+    0 0 8px var(--primary-color),
+    0 0 24px var(--accent-color);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.3s;
+  position: relative;
+  overflow: hidden;
+  outline: 2px solid var(--accent-color);
+}
+
+.anime-btn-csv:hover,
+.anime-btn-csv:focus {
+  transform: scale(1.07) rotate(-2deg);
+  background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+  box-shadow:
+    0 0 16px var(--accent-color),
+    0 0 32px var(--primary-color);
+  outline: 2px solid var(--primary-color);
+}
+
+.anime-btn-csv.exported::after {
+  content: "✔";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--success-color);
+  font-size: 1.2rem;
+  animation: pop 0.5s;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0);
+  }
+
+  80% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Particles background */
+#particles-bg {
+  position: fixed;
+  z-index: -10;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* Smooth theme transitions */
+html,
+body,
+.anime-card,
+.terminal,
+.hacker-terminal {
+  transition:
+    background 0.7s,
+    color 0.7s,
+    border-color 0.7s;
+}
+
+/* Improved light theme contrast */
+[data-theme="light"] body {
+  background-color: #f6f7fb;
+  color: #1a1a2e;
+}
+
+[data-theme="light"] .anime-card,
+[data-theme="light"] .terminal,
+[data-theme="light"] .hacker-terminal {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1a1a2e;
+  border-color: var(--secondary-color);
+}
+
+[data-theme="light"] .anime-btn-csv {
+  color: #1a1a2e;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  box-shadow:
+    0 0 8px var(--secondary-color),
+    0 0 24px var(--primary-color);
+}
+
+@media (max-width: 991px) {
+  .row.g-4 > [class^="col-"] {
+    margin-bottom: 1.5rem;
+  }
+
+  .anime-card {
+    padding: 1rem !important;
+  }
+
+  .section-title {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .chart-container {
+    height: 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  .anime-title {
+    font-size: 1.1rem;
+  }
+
+  .chart-title {
+    font-size: 0.7rem;
+  }
+
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}

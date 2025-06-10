@@ -22,18 +22,14 @@ model UserAPI {
   blockedIPs BlockedIP[] @relation("BlockedUserRelation")
   bans       BanUser[]   @relation("UserBans")
   tasks      Task[]      @relation("UserTasks")
-
-  licenses      License[] @relation("UserAPILicenses")
-  adminLicenses License[] @relation("AdminLicenses")
 }
 
 model License {
   id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  key          String
   type         LicenseType
-  userId       String      @db.ObjectId
-  user         UserAPI     @relation("UserAPILicenses", fields: [userId], references: [id])
-  adminId      String      @db.ObjectId
-  admin        UserAPI     @relation("AdminLicenses", fields: [adminId], references: [id])
+  userId       String
+  adminId      String
   hwid         String[]
   requestLimit Int         @default(1000)
   requestCount Int         @default(0)
@@ -131,7 +127,6 @@ model MyDiscord {
 model MyGuild {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   guildId   String  @unique
-  modlogId  String? @db.ObjectId
   prefix    String? @default("!")
   discordId String
   rooms     String?
@@ -140,7 +135,6 @@ model MyGuild {
   warns     UserWarn[]
   bans      BanUser[]
 
-  modlog    ServerModlog? @relation
   eventlogs EventLogs?
   economy   Economy?
   captcha   Captcha?
@@ -193,7 +187,6 @@ model UserWarn {
 model ServerModlog {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   guildId   String  @unique @db.ObjectId
-  guild     MyGuild @relation(fields: [guildId], references: [id])
   channelId String
 
   @@map("serverModlogs")
@@ -464,6 +457,33 @@ model Metrics {
   updatedAt                DateTime @updatedAt
 
   @@index([endpoint, clientId, system])
+}
+
+model FileMetadata {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String
+  originalName String
+  fileName     String
+  title        String
+  description  String?
+  uploadedAt   DateTime @default(now())
+  uploadedBy   String
+  path         String
+  size         Int
+  mimeType     String
+  downloadUrl  String
+
+  @@map("file_metadata")
+}
+
+model sharedLinkCDN {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  fileId       String
+  url          String
+  expiresAt    DateTime? // Puede ser null si no expira
+  maxDownloads Int? // Puede ser null si no hay límite
+  downloads    Int       @default(0)
+  password     String? // Puede ser null si no tiene contraseña
 }
 
 type EventLogs {

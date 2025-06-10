@@ -283,7 +283,7 @@ export class MyClient extends Client {
    * @returns {Promise<void>} Resolves when the command is reloaded or rejects on error
    */
   public async reloadCommand(commandName: string): Promise<void> {
-    const commandPath = config.modules.discord.configs.precommands;
+    const commandPath = config.modules.discord.configs.default + config.modules.discord.configs.precommands;
     logWithLabel("debug", `Starting reload for command: ${commandName}`);
 
     try {
@@ -375,7 +375,7 @@ export class MyClient extends Client {
    * @returns {Promise<void>} Resolves when all commands are reloaded
    */
   public async loadCommands(): Promise<void> {
-    const commandPath = config.modules.discord.configs.precommands;
+    const commandPath = config.modules.discord.configs.default + config.modules.discord.configs.precommands;
     logWithLabel("debug", `Starting reload of all commands from ${commandPath}`);
 
     try {

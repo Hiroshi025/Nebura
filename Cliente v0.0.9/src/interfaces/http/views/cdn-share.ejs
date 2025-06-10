@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Visualización de archivo compartido en Nebura CDN">
+  <meta name="author" content="Nebura">
+  <title>Archivo Compartido - Nebura CDN</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="/css/cdn-share.css">
+</head>
+
+<body>
+  <header class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">
+        <i class="fas fa-server me-2" style="color: #6a5af9;"></i>Nebura CDN
+      </a>
+    </div>
+  </header>
+
+  <main class="container py-5 flex-grow-1">
+    <div class="d-flex justify-content-center">
+      <div class="file-card w-100">
+        <div class="file-preview-container">
+          <button type="button" class="btn-close" onclick="window.history.back()" aria-label="Close"></button>
+          <div id="file-content">
+            <!-- El contenido del archivo se cargará aquí -->
+          </div>
+        </div>
+
+        <div class="file-info">
+          <h1 class="file-title" id="file-title">Cargando archivo...</h1>
+          <div class="file-meta">
+            <span id="file-size"></span> •
+            <span id="file-type"></span> •
+            <span id="file-date"></span>
+          </div>
+
+          <a href="#" class="btn btn-download" id="download-btn">
+            <i class="fas fa-download me-2"></i> Descargar Archivo
+          </a>
+
+          <div class="toolbox mt-4">
+            <button class="tool-btn" id="copy-link-btn">
+              <i class="fas fa-link me-2"></i> Copiar enlace
+            </button>
+            <button class="tool-btn" id="share-btn">
+              <i class="fas fa-share-alt me-2"></i> Compartir
+            </button>
+            <button class="tool-btn" id="view-original-btn">
+              <i class="fas fa-expand me-2"></i> Ver original
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- footer -->
+  <%- include('partials/footer') %>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Obtener parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+
+        // Elementos del DOM
+        const fileContent = document.getElementById('file-content');
+        const fileTitle = document.getElementById('file-title');
+        const fileSize = document.getElementById('file-size');
+        const fileType = document.getElementById('file-type');
+        const fileDate = document.getElementById('file-date');
+        const downloadBtn = document.getElementById('download-btn');
+        const copyLinkBtn = document.getElementById('copy-link-btn');
+        const shareBtn = document.getElementById('share-btn');
+        const viewOriginalBtn = document.getElementById('view-original-btn');
+
+        // Mostrar notificación
+        function showToast(message, type = 'success') {
+          const toast = document.createElement('div');
+          toast.className = `position-fixed bottom-0 end-0 p-3 toast-${type}`;
+          toast.style.zIndex = '11';
+          toast.innerHTML = `
+          <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body">
+              ${message}
+            </div>
+          </div>
+        `;
+          document.body.appendChild(toast);
+
+          setTimeout(() => {
+            toast.remove();
+          }, 3000);
+        }
+
+        // Formatear tamaño
+        function formatSize(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Formatear fecha
+        function formatDate(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+        }
+
+        // Determinar tipo de archivo
+        function getFileType(mimeType) {
+          if (!mimeType) return 'Archivo';
+
+          const typeMap = {
+            'image/': 'Imagen',
+            'video/': 'Video',
+            'audio/': 'Audio',
+            'application/pdf': 'PDF',
+            'text/': 'Documento de texto',
+            'application/msword': 'Documento Word',
+            'application/vnd.ms-excel': 'Documento Excel',
+            'application/vnd.ms-powerpoint': 'Presentación',
+            'application/zip': 'Archivo ZIP',
+            'application/x-rar-compressed': 'Archivo RAR'
+          };
+
+          for (const [prefix, typeName] of Object.entries(typeMap)) {
+            if (mimeType.startsWith(prefix)) {
+              return typeName;
+            }
+          }
+
+          return 'Archivo';
+        }
+
+        // Obtener icono para el tipo de archivo
+        function getFileIcon(mimeType) {
+          const iconMap = {
+            'image/': 'fa-file-image',
+            'video/': 'fa-file-video',
+            'audio/': 'fa-file-audio',
+            'application/pdf': 'fa-file-pdf',
+            'text/': 'fa-file-lines',
+            'application/msword': 'fa-file-word',
+            'application/vnd.ms-excel': 'fa-file-excel',
+            'application/vnd.ms-powerpoint': 'fa-file-powerpoint',
+            'application/zip': 'fa-file-zipper',
+            'application/x-rar-compressed': 'fa-file-zipper'
+          };
+
+          for (const [prefix, icon] of Object.entries(iconMap)) {
+            if (mimeType.startsWith(prefix)) {
+              return icon;
+            }
+          }
+
+          return 'fa-file';
+        }
+
+        // Renderizar vista previa del archivo
+        function renderFilePreview(url, mimeType) {
+          if (mimeType.startsWith('image/')) {
+            fileContent.innerHTML = `
+            <img src="${url}" alt="Vista previa" class="file-preview" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e1e1e/6a5af9?text=Imagen+no+disponible'">
+          `;
+          } else if (mimeType.startsWith('video/')) {
+            fileContent.innerHTML = `
+            <video controls class="file-preview">
+              <source src="${url}" type="${mimeType}">
+              Tu navegador no soporta la reproducción de video.
+            </video>
+          `;
+          } else if (mimeType.startsWith('audio/')) {
+            fileContent.innerHTML = `
+            <div class="text-center">
+              <i class="fas ${getFileIcon(mimeType)} file-icon mb-3"></i>
+              <audio controls style="width: 100%;">
+                <source src="${url}" type="${mimeType}">
+                Tu navegador no soporta la reproducción de audio.
+              </audio>
+            </div>
+          `;
+          } else {
+            fileContent.innerHTML = `
+            <div class="text-center">
+              <i class="fas ${getFileIcon(mimeType)} file-icon"></i>
+            </div>
+          `;
+          }
+        }
+
+        // Cargar datos del archivo desde los parámetros de la URL
+        function loadFileData() {
+          if (!params.has('title') || !params.has('url')) {
+            fileContent.innerHTML = `
+            <div class="alert alert-danger text-center">
+              <h4>Error al cargar el archivo</h4>
+              <p>El enlace compartido es inválido o está incompleto.</p>
+            </div>
+          `;
+            return;
+          }
+
+          const title = decodeURIComponent(params.get('title'));
+          const url = decodeURIComponent(params.get('url'));
+          const mimeType = params.has('mime') ? decodeURIComponent(params.get('mime')) : 'application/octet-stream';
+          const size = params.has('size') ? parseInt(params.get('size')) : 0;
+          const date = params.has('date') ? decodeURIComponent(params.get('date')) : new Date().toISOString();
+
+          // Actualizar la interfaz con los datos del archivo
+          fileTitle.textContent = title;
+          fileSize.textContent = formatSize(size);
+          fileType.textContent = getFileType(mimeType);
+          fileDate.textContent = formatDate(date);
+
+          // Configurar botón de descarga
+          downloadBtn.href = url;
+          downloadBtn.download = title;
+
+          // Renderizar vista previa
+          renderFilePreview(url, mimeType);
+
+          // Configurar botones de herramientas
+          copyLinkBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(window.location.href)
+              .then(() => showToast('Enlace copiado al portapapeles'))
+              .catch(() => showToast('Error al copiar el enlace', 'error'));
+          });
+
+          shareBtn.addEventListener('click', () => {
+            if (navigator.share) {
+              navigator.share({
+                title: title,
+                text: 'Mira este archivo compartido en Nebura CDN',
+                url: window.location.href
+              }).catch(() => showToast('Error al compartir', 'error'));
+            } else {
+              navigator.clipboard.writeText(window.location.href)
+                .then(() => showToast('Enlace copiado al portapapeles'))
+                .catch(() => showToast('Error al copiar el enlace', 'error'));
+            }
+          });
+
+          viewOriginalBtn.addEventListener('click', () => {
+            window.open(url, '_blank');
+          });
+        }
+
+        // Inicializar
+        loadFileData();
+      });
+    </script>
+</body>
+
+</html>

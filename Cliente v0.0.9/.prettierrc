@@ -11,5 +11,6 @@
   "bracketSameLine": false,
 
   "arrowParens": "always",
-  "endOfLine": "auto"
+  "endOfLine": "auto",
+  "ignorePathPatterns": ["**/node_modules/**", "**/view/**"]
 }

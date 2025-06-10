@@ -4,8 +4,7 @@ import { Modals } from "@typings/modules/discord";
 
 const modalLogsEvents: Modals = {
   id: "button-enabled-logevents-modal",
-  tickets: true,
-  cooldown: 10,
+  tickets: false,
   owner: false,
   permissions: ["SendMessages"],
   botpermissions: ["SendMessages"],

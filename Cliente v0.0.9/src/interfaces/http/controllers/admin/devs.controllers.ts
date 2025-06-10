@@ -38,11 +38,6 @@ export class SecurityController {
       const { licenseKey } = req.params;
       const license = await main.prisma.license.findUnique({
         where: { id: licenseKey },
-        include: {
-          user: { select: { id: true, name: true, email: true } },
-          admin: { select: { id: true, name: true, email: true } },
-          // blockedIps property removed as it does not exist in the license type
-        },
       });
 
       if (!license) {

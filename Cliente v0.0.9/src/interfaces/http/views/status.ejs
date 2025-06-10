@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-theme="dark">
+
+<head>
+  <!-- ...existing code... -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO Básico -->
+  <meta name="description"
+    content="Nebura Live Status: Dashboard de monitoreo en tiempo real del sistema, API, base de datos y servicios de la plataforma Nebura.">
+  <meta name="keywords"
+    content="Nebura, dashboard, status, monitoreo, API, sistema, base de datos, tiempo real, devops, server, health, discord">
+  <meta name="author" content="Nebura">
+
+  <!-- Open Graph para compartir en redes sociales -->
+  <meta property="og:title" content="Nebura Live Status">
+  <meta property="og:description"
+    content="Monitorea el estado de Nebura en tiempo real: CPU, memoria, red, API, base de datos y más.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://host.hiroshi-dev.me/dashboard/status">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nebura Live Status">
+  <meta name="twitter:description" content="Dashboard de monitoreo en tiempo real de la plataforma Nebura.">
+
+  <!-- ...existing code... -->
+  <title>Nebura Live Status</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <!-- Particles.js para fondo anime/hacker -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.1.0/tsparticles.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/css/status.css">
+</head>
+
+<body class="d-flex flex-column h-100">
+  <div id="particles-bg"></div>
+
+  <img src="https://i.pinimg.com/736x/71/e3/ea/71e3ea330566746b24ce0909ab2fa6e2.jpg" class="character-img floating"
+    style="width: 200px; top: 10%; left: 5%; transform: rotate(-10deg);">
+  <img src="https://i.pinimg.com/736x/55/7a/32/557a3225643b6113f05dd8fe24c64a12.jpg" class="character-img floating"
+    style="width: 180px; bottom: 10%; right: 5%; transform: rotate(10deg); animation-delay: 0.5s;">
+
+  <div class="header-controls">
+    <button id="theme-toggle" class="control-btn" title="Toggle Theme">
+      <i class="mdi mdi-brightness-4"></i>
+    </button>
+    <div class="dropdown lang-selector">
+      <button class="control-btn dropdown-toggle" type="button" id="lang-menu" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        <i class="mdi mdi-web"></i>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="lang-menu">
+        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')"><img src="https://flagcdn.com/w20/gb.png"
+              class="flag-icon me-2"> EN</a></li>
+        <li><a class="dropdown-item" href="#" onclick="switchLanguage('es')"><img src="https://flagcdn.com/w20/es.png"
+              class="flag-icon me-2"> ES</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container my-4">
+    <div id="offline-alert" class="alert alert-warning text-center d-none" role="alert"
+      style="position:fixed;top:0;left:0;width:100%;z-index:9999;">
+      <i class="mdi mdi-wifi-off me-2" aria-hidden="true"></i>
+      <span data-lang-key="offline_alert">You are offline or the API is unreachable.</span>
+    </div>
+
+    <div class="d-flex justify-content-end mb-3">
+      <button id="export-csv" class="btn anime-btn-csv" aria-label="Export metrics as CSV" tabindex="0">
+        <i class="mdi mdi-file-download-outline me-2" aria-hidden="true"></i>
+        <span data-lang-key="export_csv">Export CSV</span>
+      </button>
+    </div>
+
+    <header class="text-center mb-5">
+      <div class="d-flex justify-content-center align-items-center">
+        <img src="/images/logo.png" alt="Nebura Logo" height="80" class="me-3 pulse">
+        <div>
+          <h1 class="anime-title glitch" data-text="NEBURA LIVE STATUS">NEBURA LIVE STATUS</h1>
+          <div class="hacker-terminal" id="hacker-terminal"></div>
+          <p class="text-muted" id="last-update">Connecting to API...</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="mb-5">
+        <h2 class="section-title">LIVE SYSTEM METRICS</h2>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="anime-card p-3 h-100 animated-border">
+              <div class="anime-card p-3 h-100">
+                <h4 class="chart-title text-center">CPU</h4>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="chart-container">
+                      <canvas id="cpuUsageChart"></canvas>
+                    </div>
+                    <p class="text-center text-secondary-color small mt-2">Process CPU Time</p>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="chart-container">
+                      <canvas id="cpuLoadChart"></canvas>
+                    </div>
+                    <p class="text-center text-secondary-color small mt-2">System Load Average</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="anime-card p-3 h-100 animated-border">
+              <div class="anime-card p-3 h-100">
+                <h4 class="chart-title text-center">MEMORY</h4>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="chart-container">
+                      <canvas id="systemMemoryChart"></canvas>
+                    </div>
+                    <p class="text-center text-secondary-color small mt-2">System RAM</p>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="chart-container">
+                      <canvas id="processMemoryChart"></canvas>
+                    </div>
+                    <p class="text-center text-secondary-color small mt-2">Process Heap</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="anime-card p-4 mt-4">
+              <h4 class="chart-title text-center">NETWORK TRAFFIC (SIMULATED)</h4>
+              <div class="chart-container" style="height: 150px;">
+                <canvas id="networkTrafficChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <!-- NUEVAS GRÁFICAS -->
+          <div class="col-lg-6">
+            <div class="anime-card p-4 mt-4 animated-border">
+              <h4 class="chart-title text-center">CPU USAGE HISTORY</h4>
+              <div class="chart-container" style="height: 180px;">
+                <canvas id="cpuHistoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="anime-card p-4 mt-4 animated-border">
+              <h4 class="chart-title text-center">SYSTEM MEMORY HISTORY</h4>
+              <div class="chart-container" style="height: 180px;">
+                <canvas id="memoryHistoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-5">
+        <h2 class="section-title" data-lang-key="section_system_status">SYSTEM STATUS</h2>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="anime-card h-100 p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="m-0 d-flex align-items-center">
+                  <i class="mdi mdi-api me-3" style="color: var(--accent-color);"></i>
+                  <span data-lang-key="card_api_title">API STATUS</span>
+                </h3>
+                <span class="status-badge <%= status.status === 'Operational' ? 'bg-success' : 'bg-danger' %>"
+                  data-lang-key-conditional='{"key": "<%= status.status %>", "values": {"Operational": "status_operational", "Critical": "status_critical"}}'>
+                  <%= status.status %>
+                </span>
+              </div>
+              <div class="terminal mb-3">
+                <div class="terminal-command">> nebura-api --status</div>
+                <div class="terminal-response">
+                  <div>• <span data-lang-key="api_version">Version</span>: <span class="text-info">
+                      <%= status.meta.apiVersion %>
+                    </span></div>
+                  <div>• <span data-lang-key="api_env">Environment</span>: <span class="text-warning">
+                      <%= status.meta.environment %>
+                    </span></div>
+                  <div>• <span data-lang-key="api_uptime">Uptime</span>: <span class="text-success">
+                      <%= (status.uptime / 60 / 60).toFixed(2) %> <span data-lang-key="hours">hours</span>
+                    </span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="anime-card h-100 p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="m-0 d-flex align-items-center">
+                  <i class="mdi mdi-database me-3" style="color: var(--accent-color);"></i>
+                  <span data-lang-key="card_db_title">DATABASE STATUS</span>
+                </h3>
+                <span class="status-badge <%= status.database.status === 'healthy' ? 'bg-success' : 'bg-danger' %>"
+                  data-lang-key-conditional='{"key": "<%= status.database.status %>", "values": {"healthy": "status_healthy", "critical": "status_critical"}}'>
+                  <%= status.database.status==='healthy' ? 'Healthy' : 'Critical' %>
+                </span>
+              </div>
+              <div class="terminal mb-3">
+                <div class="terminal-command">> mongodb --diagnostics</div>
+                <div class="terminal-response">
+                  <div>• <span data-lang-key="db_response_time">Response time</span>: <span class="text-info">
+                      <%= status.database.responseTime %>
+                    </span></div>
+                  <div>• <span data-lang-key="db_mem_usage">Memory usage</span>: <span class="text-success">
+                      <%= (status.system.memoryUsage.heapUsed / 1024 / 1024).toFixed(2) %>MB
+                    </span></div>
+                  <div>• <span data-lang-key="db_connections">Connections</span>: <span class="text-warning"><span
+                        data-lang-key="active">12 active</span></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-5">
+        <h2 class="section-title" data-lang-key="section_discord_status">DISCORD STATUS</h2>
+        <div class="row g-4">
+          <div class="col-md-6 mx-auto">
+            <div class="anime-card h-100 p-4 text-center">
+              <span id="discord-status-badge" class="status-badge bg-warning" style="margin-bottom:1rem;">
+                <span data-lang-key="loading">Loading...</span>
+              </span>
+              <div id="discord-status-content"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-5">
+        <div class="anime-card p-5 text-center"
+          style="background: linear-gradient(135deg, var(--secondary-color), var(--dark-bg));">
+          <h3 class="mb-4" style="color: var(--accent-color); text-shadow: 2px 2px 0 var(--primary-color);"
+            data-lang-key="community_title">JOIN OUR COMMUNITY!</h3>
+          <p class="lead mb-4" data-lang-key="community_desc">Connect with other developers and get the latest updates
+          </p>
+          <div class="d-flex justify-content-center flex-wrap gap-3">
+            <a href="https://help.hiroshi-dev.me/" class="btn anime-btn anime-btn-primary"><i
+                class="mdi mdi-book-open me-2"></i>DOCS</a>
+            <a href="https://discord.gg/p6gZfY4jWm" class="btn"
+              style="background-color: #5865F2; border-color: #5865F2; color: white;"><i
+                class="mdi mdi-discord me-2"></i>DISCORD</a>
+            <a href="https://github.com/Hiroshi025" class="btn"
+              style="background-color: #333; border-color: #333; color: white;"><i
+                class="mdi mdi-github me-2"></i>GITHUB</a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="mt-auto py-4 text-center"
+    style="background-color: rgba(0,0,0,0.3); border-top: 1px solid var(--primary-color);">
+    <div class="container">
+      <p class="m-0" data-lang-key="footer_copy">© 2025 Nebura Project. All systems operational.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const CHART_COLORS = {
+        primary: 'rgba(255, 110, 199, 0.8)',
+        primaryLight: 'rgba(255, 110, 199, 0.5)',
+        accent: 'rgba(0, 255, 255, 0.8)',
+        accentLight: 'rgba(0, 255, 255, 0.5)',
+        secondary: 'rgba(93, 63, 211, 0.8)',
+        secondaryLight: 'rgba(93, 63, 211, 0.5)',
+        grid: 'rgba(255, 255, 255, 0.1)',
+        text: '#E0E0E0'
+      };
+
+      Chart.defaults.color = CHART_COLORS.text;
+      Chart.defaults.font.family = "'Exo 2', sans-serif";
+      Chart.defaults.plugins.legend.position = 'bottom';
+      Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0,0,0,0.7)';
+      Chart.defaults.plugins.tooltip.cornerRadius = 8;
+
+      let cpuUsageChart, cpuLoadChart, systemMemoryChart, processMemoryChart, networkTrafficChart;
+      let cpuHistoryChart, memoryHistoryChart;
+      const apiUrl = '/api/v1/public/status';
+      let metricsHistory = [];
+
+      // Función para mostrar/ocultar alerta de offline
+      function showOfflineAlert(show) {
+        const alert = document.getElementById('offline-alert');
+        if (show) {
+          alert.classList.remove('d-none');
+        } else {
+          alert.classList.add('d-none');
+        }
+      }
+
+      // Función para formatear bytes
+      function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+      }
+
+      // Función para crear gráficos (reemplaza a createChart que no estaba definida)
+      function createChartInstance(ctx, config) {
+        return new Chart(ctx, config);
+      }
+
+      // --- PARTICLES BACKGROUND ---
+      tsParticles.load("particles-bg", {
+        fpsLimit: 60,
+        background: {
+          color: {
+            value: "transparent"
+          }
+        },
+        particles: {
+          number: {
+            value: 80,
+            density: {
+              enable: true,
+              area: 800
+            }
+          },
+          color: {
+            value: ["#FF6EC7", "#00FFFF", "#5D3FD3"]
+          },
+          shape: {
+            type: ["circle", "triangle", "star"]
+          },
+          opacity: {
+            value: 0.5,
+            random: true
+          },
+          size: {
+            value: 3,
+            random: true
+          },
+          move: {
+            enable: true,
+            speed: 1.2,
+            direction: "none",
+            outModes: {
+              default: "out"
+            }
+          }
+        },
+        interactivity: {
+          events: {
+            onHover: {
+              enable: true,
+              mode: "repulse"
+            },
+            resize: true
+          },
+          modes: {
+            repulse: {
+              distance: 80,
+              duration: 0.4
+            }
+          }
+        },
+        detectRetina: true
+      });
+
+      // --- TERMINAL TYPING EFFECT ---
+      const terminalLines = [
+        "nebura@status:~$ <span style='color:#FFD700'>watching system...</span>",
+        "nebura@status:~$ <span style='color:#00FF7F'>API: Operational</span>",
+        "nebura@status:~$ <span style='color:#00FFFF'>Database: Healthy</span>",
+        "nebura@status:~$ <span style='color:#FF3860'>No threats detected</span>",
+        "nebura@status:~$ <span style='color:#FFD700'>Ready for action!</span>"
+      ];
+      let terminalIndex = 0,
+        charIndex = 0,
+        typingTimeout;
+
+      function typeTerminalLine() {
+        const el = document.getElementById('hacker-terminal');
+        if (!el) return;
+        if (terminalIndex >= terminalLines.length) terminalIndex = 0;
+        const line = terminalLines[terminalIndex];
+        el.innerHTML = line.slice(0, charIndex) + '<span class="typed-cursor"></span>';
+        if (charIndex < line.length) {
+          charIndex++;
+          typingTimeout = setTimeout(typeTerminalLine, 30 + Math.random() * 40);
+        } else {
+          setTimeout(() => {
+            charIndex = 0;
+            terminalIndex++;
+            typeTerminalLine();
+          }, 1200);
+        }
+      }
+      typeTerminalLine();
+
+      // --- CSV BUTTON FEEDBACK ---
+      const csvBtn = document.getElementById('export-csv');
+      csvBtn.addEventListener('click', () => {
+        if (metricsHistory.length === 0) return;
+        const csvRows = [
+          'timestamp,cpuUser,cpuSystem,ramUsed,ramTotal',
+          ...metricsHistory.map(row =>
+            [row.timestamp, row.cpuUser, row.cpuSystem, row.ramUsed, row.ramTotal].join(',')
+          )
+        ];
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'metrics_history.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        csvBtn.classList.add('exported');
+        setTimeout(() => csvBtn.classList.remove('exported'), 1200);
+      });
+
+      function updateCpuHistoryChart() {
+        const labels = metricsHistory.map(m => new Date(m.timestamp));
+        const userData = metricsHistory.map(m => m.cpuUser);
+        const sysData = metricsHistory.map(m => m.cpuSystem);
+        const data = {
+          labels,
+          datasets: [{
+            label: 'User',
+            data: userData,
+            borderColor: CHART_COLORS.primary,
+            backgroundColor: CHART_COLORS.primaryLight,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0
+          },
+          {
+            label: 'System',
+            data: sysData,
+            borderColor: CHART_COLORS.accent,
+            backgroundColor: CHART_COLORS.accentLight,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0
+          }
+          ]
+        };
+        if (!cpuHistoryChart) {
+          cpuHistoryChart = createChartInstance(document.getElementById('cpuHistoryChart'), {
+            type: 'line',
+            data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: true },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: 'rgba(26,26,46,0.95)',
+                  titleColor: '#00FFFF',
+                  bodyColor: '#FFD700',
+                  borderColor: '#FF6EC7',
+                  borderWidth: 2,
+                  padding: 12,
+                  callbacks: {
+                    label: function (context) {
+                      // Personaliza el texto del tooltip
+                      if (context.dataset.label) {
+                        return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
+                      }
+                      return context.parsed;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: { type: 'time', time: { unit: 'minute' }, grid: { color: CHART_COLORS.grid } },
+                y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text } }
+              }
+            }
+          });
+        } else {
+          cpuHistoryChart.data = data;
+          cpuHistoryChart.update('quiet');
+        }
+      }
+
+      function updateMemoryHistoryChart() {
+        const labels = metricsHistory.map(m => new Date(m.timestamp));
+        const used = metricsHistory.map(m => m.ramUsed / 1024 / 1024);
+        const total = metricsHistory.map(m => m.ramTotal / 1024 / 1024);
+        const data = {
+          labels,
+          datasets: [{
+            label: 'Heap Used (MB)',
+            data: used,
+            borderColor: CHART_COLORS.secondary,
+            backgroundColor: CHART_COLORS.secondaryLight,
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0
+          },
+          {
+            label: 'Heap Total (MB)',
+            data: total,
+            borderColor: CHART_COLORS.accent,
+            backgroundColor: CHART_COLORS.accentLight,
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0
+          }
+          ]
+        };
+        if (!memoryHistoryChart) {
+          memoryHistoryChart = createChartInstance(document.getElementById('memoryHistoryChart'), {
+            type: 'line',
+            data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: true },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: 'rgba(26,26,46,0.95)',
+                  titleColor: '#00FFFF',
+                  bodyColor: '#FFD700',
+                  borderColor: '#FF6EC7',
+                  borderWidth: 2,
+                  padding: 12,
+                  callbacks: {
+                    label: function (context) {
+                      // Personaliza el texto del tooltip
+                      if (context.dataset.label) {
+                        return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
+                      }
+                      return context.parsed;
+                    }
+                  }
+                }
+              },
+              scales: {
+                x: { type: 'time', time: { unit: 'minute' }, grid: { color: CHART_COLORS.grid } },
+                y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text, callback: v => v + ' MB' } }
+              }
+            }
+          });
+        } else {
+          memoryHistoryChart.data = data;
+          memoryHistoryChart.update('quiet');
+        }
+      }
+
+      function updateCpuCharts({ cpuUsage, systemLoad }) {
+        // CPU Usage (User vs System)
+        const cpuUsageData = {
+          labels: ['User', 'System'],
+          datasets: [{
+            label: 'CPU Time',
+            data: [cpuUsage.user, cpuUsage.system],
+            backgroundColor: [CHART_COLORS.primary, CHART_COLORS.accent],
+            borderColor: '#1A1A2E',
+            borderWidth: 2,
+          }]
+        };
+        if (!cpuUsageChart) {
+          cpuUsageChart = createChartInstance(document.getElementById('cpuUsageChart'), {
+            type: 'doughnut',
+            data: cpuUsageData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: true },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: 'rgba(26,26,46,0.95)',
+                  titleColor: '#00FFFF',
+                  bodyColor: '#FFD700',
+                  borderColor: '#FF6EC7',
+                  borderWidth: 2,
+                  padding: 12,
+                  callbacks: {
+                    label: function (context) {
+                      // Personaliza el texto del tooltip
+                      if (context.dataset.label) {
+                        return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
+                      }
+                      return context.parsed;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          cpuUsageChart.data.datasets[0].data = cpuUsageData.datasets[0].data;
+          cpuUsageChart.update();
+        }
+
+        // CPU Load Average
+        const cpuLoadData = {
+          labels: ['1m', '5m', '15m'],
+          datasets: [{
+            label: 'Load Average',
+            data: systemLoad,
+            backgroundColor: [CHART_COLORS.primaryLight, CHART_COLORS.accentLight, CHART_COLORS.secondaryLight],
+            borderColor: [CHART_COLORS.primary, CHART_COLORS.accent, CHART_COLORS.secondary],
+            borderWidth: 2
+          }]
+        };
+        if (!cpuLoadChart) {
+          cpuLoadChart = createChartInstance(document.getElementById('cpuLoadChart'), {
+            type: 'bar',
+            data: cpuLoadData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              indexAxis: 'y',
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: 'rgba(26,26,46,0.95)',
+                  titleColor: '#00FFFF',
+                  bodyColor: '#FFD700',
+                  borderColor: '#FF6EC7',
+                  borderWidth: 2,
+                  padding: 12,
+                  callbacks: {
+                    label: function (context) {
+                      // Personaliza el texto del tooltip
+                      if (context.dataset.label) {
+                        return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
+                      }
+                      return context.parsed;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          cpuLoadChart.data.datasets[0].data = cpuLoadData.datasets[0].data;
+          cpuLoadChart.update();
+        }
+      }
+
+      function updateMemoryCharts({ freeMemory, totalMemory, memoryUsage }) {
+        // System Memory
+        const usedMemory = totalMemory - freeMemory;
+        const systemMemoryData = {
+          labels: [`Used (${formatBytes(usedMemory)})`, `Free (${formatBytes(freeMemory)})`],
+          datasets: [{
+            label: 'System RAM',
+            data: [usedMemory, freeMemory],
+            backgroundColor: [CHART_COLORS.primary, CHART_COLORS.secondary],
+            borderColor: '#1A1A2E',
+            borderWidth: 2,
+          }]
+        };
+        if (!systemMemoryChart) {
+          systemMemoryChart = createChartInstance(document.getElementById('systemMemoryChart'), {
+            type: 'doughnut',
+            data: systemMemoryData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '60%',
+              plugins: {
+                legend: { display: true },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: 'rgba(26,26,46,0.95)',
+                  titleColor: '#00FFFF',
+                  bodyColor: '#FFD700',
+                  borderColor: '#FF6EC7',
+                  borderWidth: 2,
+                  padding: 12,
+                  callbacks: {
+                    label: function (context) {
+                      // Personaliza el texto del tooltip
+                      if (context.dataset.label) {
+                        return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
+                      }
+                      return context.parsed;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          systemMemoryChart.data.datasets[0].data = systemMemoryData.datasets[0].data;
+          systemMemoryChart.data.labels = systemMemoryData.labels;
+          systemMemoryChart.update();
+        }
+
+        // Process Memory
+        const processMemoryData = {
+          labels: [`Used (${formatBytes(memoryUsage.heapUsed)})`, `Total (${formatBytes(memoryUsage.heapTotal)})`],
+          datasets: [{
+            label: 'Node.js Heap',
+            data: [memoryUsage.heapUsed, memoryUsage.heapTotal - memoryUsage.heapUsed],
+            backgroundColor: [CHART_COLORS.accent, CHART_COLORS.secondary],
+            borderColor: '#1A1A2E',
+            borderWidth: 2,
+          }]
+        };
+        if (!processMemoryChart) {
+          processMemoryChart = createChartInstance(document.getElementById('processMemoryChart'), {
+            type: 'doughnut',
+            data: processMemoryData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '60%',
+              plugins: {
+                legend: { display: true },
+                tooltip: {
+                  enabled: true,
+                  backgroundColor: 'rgba(26,26,46,0.95)',
+                  titleColor: '#00FFFF',
+                  bodyColor: '#FFD700',
+                  borderColor: '#FF6EC7',
+                  borderWidth: 2,
+                  padding: 12,
+                  callbacks: {
+                    label: function (context) {
+                      // Personaliza el texto del tooltip
+                      if (context.dataset.label) {
+                        return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
+                      }
+                      return context.parsed;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          processMemoryChart.data.datasets[0].data = processMemoryData.datasets[0].data;
+          processMemoryChart.data.labels = processMemoryData.labels;
+          processMemoryChart.update();
+        }
+      }
+
+      function initNetworkChart() {
+        const networkData = {
+          labels: [],
+          datasets: [
+            {
+              label: 'Received',
+              data: [],
+              borderColor: CHART_COLORS.primary,
+              backgroundColor: CHART_COLORS.primaryLight,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0
+            },
+            {
+              label: 'Sent',
+              data: [],
+              borderColor: CHART_COLORS.accent,
+              backgroundColor: CHART_COLORS.accentLight,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0
+            }
+          ]
+        };
+        const config = {
+          type: 'line',
+          data: networkData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { type: 'time', time: { unit: 'second' }, grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text } },
+              y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text, callback: (value) => `${value} KB/s` } }
+            }
+          }
+        };
+        networkTrafficChart = createChartInstance(document.getElementById('networkTrafficChart'), config);
+
+        setInterval(() => {
+          const now = Date.now();
+          networkTrafficChart.data.labels.push(now);
+          networkTrafficChart.data.datasets[0].data.push(Math.random() * 100);
+          networkTrafficChart.data.datasets[1].data.push(Math.random() * 50);
+
+          if (networkTrafficChart.data.labels.length > 20) {
+            networkTrafficChart.data.labels.shift();
+            networkTrafficChart.data.datasets.forEach(dataset => dataset.data.shift());
+          }
+          networkTrafficChart.update('quiet');
+        }, 2000);
+      }
+
+      function updateDashboard() {
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            metricsHistory.push({
+              timestamp: data.timestamp,
+              cpuUser: data.system.cpuUsage.user,
+              cpuSystem: data.system.cpuUsage.system,
+              ramUsed: data.system.memoryUsage.heapUsed,
+              ramTotal: data.system.memoryUsage.heapTotal
+            });
+            if (metricsHistory.length > 100) metricsHistory.shift();
+
+            updateCpuCharts(data.system);
+            updateMemoryCharts(data.system);
+            updateCpuHistoryChart();
+            updateMemoryHistoryChart();
+            showOfflineAlert(false);
+          })
+          .catch(error => {
+            console.error('Error fetching API status:', error);
+            showOfflineAlert(true);
+          });
+      }
+
+      // Initial call and set interval for updates
+      updateDashboard();
+      initNetworkChart();
+      setInterval(updateDashboard, 5000);
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // --- NEW: THEME SWITCHER LOGIC ---
+      const themeToggle = document.getElementById('theme-toggle');
+      const htmlEl = document.documentElement;
+
+      // Function to set theme
+      const setTheme = (theme) => {
+        htmlEl.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        const icon = theme === 'dark' ? 'mdi-brightness-4' : 'mdi-white-balance-sunny';
+        themeToggle.querySelector('i').className = `mdi ${icon}`;
+      };
+
+      // Load saved theme or use system preference
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initialTheme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+      setTheme(initialTheme);
+
+      // Toggle theme on button click
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlEl.getAttribute('data-theme');
+        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+      });
+
+      // --- NEW: MULTILANGUAGE LOGIC ---
+      const translations = {
+        en: {
+          header_subtitle: 'Real-time system monitoring dashboard',
+          section_system_status: 'SYSTEM STATUS',
+          card_api_title: 'API STATUS',
+          status_operational: 'Operational',
+          status_critical: 'Critical',
+          status_healthy: 'Healthy',
+          api_version: 'Version',
+          api_env: 'Environment',
+          api_uptime: 'Uptime',
+          hours: 'hours',
+          api_last_update: 'Last update',
+          card_db_title: 'DATABASE STATUS',
+          db_response_time: 'Response time',
+          db_mem_usage: 'Memory usage',
+          db_connections: 'Connections',
+          active: 'active',
+          section_maintenance: 'SCHEDULED MAINTENANCE',
+          maintenance1_title: 'Database Server Upgrade',
+          maintenance1_desc: 'We will be upgrading our primary database servers for improved performance and security.',
+          date: 'Date',
+          maintenance2_title: 'API v2 Deployment',
+          maintenance2_desc: 'Deploying the new version of our API. Brief periods of intermittent service may occur.',
+          no_maintenance: 'No scheduled maintenance at this time.',
+          section_discord_status: 'DISCORD STATUS',
+          card_discord_title: 'DISCORD API STATUS',
+          loading: 'Loading...',
+          community_title: 'JOIN OUR COMMUNITY!',
+          community_desc: 'Connect with other developers and get the latest updates',
+          footer_copy: '© 2025 Nebura Project. All systems operational.',
+          discord_official_page: 'OFFICIAL STATUS PAGE',
+          discord_status: 'Status',
+          discord_last_update: 'Last update',
+          discord_timezone: 'Timezone',
+          export_csv: "Export CSV",
+          offline_alert: "You are offline or the API is unreachable.",
+        },
+        es: {
+          header_subtitle: 'Dashboard de monitoreo de sistemas en tiempo real',
+          section_system_status: 'ESTADO DEL SISTEMA',
+          card_api_title: 'ESTADO DE LA API',
+          status_operational: 'Operacional',
+          status_critical: 'Crítico',
+          status_healthy: 'Saludable',
+          api_version: 'Versión',
+          api_env: 'Entorno',
+          api_uptime: 'Tiempo activo',
+          hours: 'horas',
+          api_last_update: 'Última act.',
+          card_db_title: 'ESTADO DE LA BASE DE DATOS',
+          db_response_time: 'Tiempo de resp.',
+          db_mem_usage: 'Uso de memoria',
+          db_connections: 'Conexiones',
+          active: 'activas',
+          section_maintenance: 'MANTENIMIENTO PROGRAMADO',
+          maintenance1_title: 'Actualización del Servidor de Base de Datos',
+          maintenance1_desc: 'Actualizaremos nuestros servidores de base de datos principales para mejorar el rendimiento y la seguridad.',
+          date: 'Fecha',
+          maintenance2_title: 'Despliegue de API v2',
+          maintenance2_desc: 'Desplegando la nueva versión de nuestra API. Pueden ocurrir breves períodos de servicio intermitente.',
+          no_maintenance: 'No hay mantenimiento programado en este momento.',
+          section_discord_status: 'ESTADO DE DISCORD',
+          card_discord_title: 'ESTADO DE LA API DE DISCORD',
+          loading: 'Cargando...',
+          community_title: '¡ÚNETE A NUESTRA COMUNIDAD!',
+          community_desc: 'Conéctate con otros desarrolladores y obtén las últimas actualizaciones',
+          footer_copy: '© 2025 Proyecto Nebura. Todos los sistemas operacionales.',
+          discord_official_page: 'PÁGINA DE ESTADO OFICIAL',
+          discord_status: 'Estado',
+          discord_last_update: 'Última act.',
+          discord_timezone: 'Zona horaria',
+          export_csv: "Exportar CSV",
+          offline_alert: "Estás sin conexión o la API no responde.",
+        },
+        ja: {
+          header_subtitle: 'リアルタイムシステム監視ダッシュボード',
+          section_system_status: 'システムステータス',
+          card_api_title: 'APIステータス',
+          status_operational: '稼働中',
+          status_critical: '重大',
+          status_healthy: '正常',
+          api_version: 'バージョン',
+          api_env: '環境',
+          api_uptime: '稼働時間',
+          hours: '時間',
+          api_last_update: '最終更新',
+          card_db_title: 'データベースステータス',
+          db_response_time: '応答時間',
+          db_mem_usage: 'メモリ使用量',
+          db_connections: '接続数',
+          active: 'アクティブ',
+          section_maintenance: '定期メンテナンス',
+          maintenance1_title: 'データベースサーバーアップグレード',
+          maintenance1_desc: 'パフォーマンスとセキュリティ向上のため、主要なデータベースサーバーをアップグレードします。',
+          date: '日付',
+          maintenance2_title: 'API v2 デプロイ',
+          maintenance2_desc: '新しいAPIバージョンをデプロイします。断続的なサービス停止が発生する場合があります。',
+          no_maintenance: '現在、予定されているメンテナンスはありません。',
+          section_discord_status: 'DISCORDステータス',
+          card_discord_title: 'DISCORD API ステータス',
+          loading: '読み込み中...',
+          community_title: 'コミュニティに参加しよう！',
+          community_desc: '他の開発者とつながり、最新情報をゲットしよう',
+          footer_copy: '© 2025 Nebura Project. 全システム稼働中。',
+          discord_official_page: '公式ステータスページ',
+          discord_status: 'ステータス',
+          discord_last_update: '最終更新',
+          discord_timezone: 'タイムゾーン',
+          export_csv: "CSVエクスポート",
+          offline_alert: "オフラインまたはAPIに接続できません。",
+        }
+      };
+
+      window.switchLanguage = (lang) => {
+        const langPack = translations[lang] || translations['en'];
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+          const key = el.getAttribute('data-lang-key');
+          if (langPack[key]) el.innerText = langPack[key];
+        });
+        document.querySelectorAll('[data-lang-key-conditional]').forEach(el => {
+          const config = JSON.parse(el.getAttribute('data-lang-key-conditional').replace(/&quot;/g, '"'));
+          if (config.values[config.key] && langPack[config.values[config.key]]) {
+            el.innerText = langPack[config.values[config.key]];
+          }
+        });
+        // Actualiza placeholder, title, value dinámicos
+        document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+          const key = el.getAttribute('data-lang-placeholder');
+          if (langPack[key]) el.placeholder = langPack[key];
+        });
+        document.querySelectorAll('[data-lang-title]').forEach(el => {
+          const key = el.getAttribute('data-lang-title');
+          if (langPack[key]) el.title = langPack[key];
+        });
+        localStorage.setItem('language', lang);
+      };
+
+      // Añadir idioma japonés al menú
+      const langMenu = document.getElementById('lang-menu').nextElementSibling;
+      if (langMenu && !langMenu.querySelector('img[src*="jp"]')) {
+        const li = document.createElement('li');
+        li.innerHTML = `<a class="dropdown-item" href="#" onclick="switchLanguage('ja')"><img src="https://flagcdn.com/w20/jp.png" class="flag-icon me-2"> 日本語</a>`;
+        langMenu.appendChild(li);
+      }
+
+      const savedLang = localStorage.getItem('language') || 'en';
+      switchLanguage(savedLang);
+
+      // --- DISCORD STATUS FETCH ---
+      fetch('https://discordstatus.com/api/v2/status.json')
+        .then(response => response.json())
+        .then(data => {
+          const badge = document.getElementById('discord-status-badge');
+          const content = document.getElementById('discord-status-content');
+          const currentLang = localStorage.getItem('language') || 'en';
+
+          badge.className = `status-badge ${data.status.indicator === 'none' ? 'bg-success' : 'bg-warning'}`;
+          badge.textContent = data.status.description.toUpperCase();
+
+          content.innerHTML = `
+            <div class="terminal">
+              <div class="terminal-command">> discord-api --status</div>
+              <div class="terminal-response">
+                <div>• <span data-lang-key="discord_status">${translations[currentLang].discord_status}</span>: <span class="${data.status.indicator === 'none' ? 'text-success' : 'text-warning'}">${data.status.description}</span></div>
+                <div>• <span data-lang-key="discord_last_update">${translations[currentLang].discord_last_update}</span>: <span>${new Date(data.page.updated_at).toLocaleString()}</span></div>
+                <div>• <span data-lang-key="discord_timezone">${translations[currentLang].discord_timezone}</span>: <span>${data.page.time_zone}</span></div>
+              </div>
+            </div>
+            <div class="text-center mt-3">
+              <a href="${data.page.url}" target="_blank" class="btn" style="background-color: #5865F2; border-color: #5865F2; color: white;">
+                <i class="mdi mdi-open-in-new me-2"></i> <span data-lang-key="discord_official_page">${translations[currentLang].discord_official_page}</span>
+              </a>
+            </div>
+          `;
+        })
+        .catch(error => {
+          console.error('Error fetching Discord status:', error);
+          // Handle fetch error
+        });
+
+      // --- PROGRESS BAR INITIALIZATION ---
+      document.querySelectorAll('.anime-progress-bar, .anime-progress-bar-1').forEach(bar => {
+        const width = bar.dataset.width;
+        if (width) {
+          bar.style.width = width + '%';
+          bar.style.transition = 'width 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        }
+      });
+
+    });
+  </script>
+  <script>
+    // --- TEMA OSCURO/CLARO MEJORADO ---
+    document.addEventListener('DOMContentLoaded', function () {
+      const themeToggle = document.getElementById('theme-toggle');
+      const htmlEl = document.documentElement;
+
+      // Function to set theme
+      const setTheme = (theme) => {
+        htmlEl.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        const icon = theme === 'dark' ? 'mdi-brightness-4' : 'mdi-white-balance-sunny';
+        themeToggle.querySelector('i').className = `mdi ${icon}`;
+        document.body.style.transition = 'background 0.7s, color 0.7s';
+      };
+
+      // Load saved theme or use system preference
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initialTheme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+      setTheme(initialTheme);
+
+      // Toggle theme on button click
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlEl.getAttribute('data-theme');
+        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+      });
+    });
+  </script>
+</body>
+
+</html>

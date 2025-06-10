@@ -302,7 +302,7 @@ export class DiscordHandler {
 
     try {
       const componentsDir = path.resolve(
-        this.settings.configs.default + `${config.modules.discord.configs.precommands}`,
+        this.settings.configs.default + `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}`,
       );
       await readComponentsRecursively(componentsDir);
     } catch (error) {

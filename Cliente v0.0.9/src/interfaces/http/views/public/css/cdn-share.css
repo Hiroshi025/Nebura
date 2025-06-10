@@ -1,0 +1,148 @@
+:root {
+  --primary-color: #6a5af9;
+  --primary-color-hover: #5a4af7;
+  --background-color-dark: #121212;
+  --card-bg-dark: #1e1e1e;
+  --text-color-dark: #e0e0e0;
+  --input-bg-dark: #2a2a2a;
+  --input-border-dark: #333;
+
+  --font-family: "Poppins", sans-serif;
+  --border-radius: 1rem;
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--background-color-dark);
+  color: var(--text-color-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  background-color: var(--card-bg-dark);
+  box-shadow: var(--box-shadow);
+}
+
+.file-card {
+  background: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.file-preview-container {
+  background-color: var(--input-bg-dark);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  min-height: 400px;
+  position: relative;
+}
+
+.file-preview {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.file-icon {
+  font-size: 5rem;
+  color: var(--primary-color);
+}
+
+.file-info {
+  padding: 2rem;
+  text-align: center;
+}
+
+.file-title {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  word-break: break-word;
+}
+
+.file-meta {
+  color: #aaa;
+  margin-bottom: 2rem;
+}
+
+.btn-download {
+  background-color: var(--primary-color);
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.btn-download:hover {
+  background-color: var(--primary-color-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(106, 90, 249, 0.4);
+}
+
+.toolbox {
+  background-color: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-top: 2rem;
+  box-shadow: var(--box-shadow);
+}
+
+.tool-btn {
+  background: none;
+  border: 1px solid var(--input-border-dark);
+  color: var(--text-color-dark);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin: 0.3rem;
+  transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+  background-color: rgba(106, 90, 249, 0.2);
+  border-color: var(--primary-color);
+}
+
+.btn-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  color: white;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .file-preview-container {
+    min-height: 300px;
+  }
+
+  .file-title {
+    font-size: 1.5rem;
+  }
+
+  .btn-download {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+  }
+}

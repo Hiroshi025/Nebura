@@ -126,7 +126,7 @@ const helpCommand: Precommand = {
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(client: MyClient, message: Message, args: string[], prefix: string) {
-    const categories = readdirSync(config.modules.discord.configs.precommands);
+    const categories = readdirSync(config.modules.discord.configs.default + config.modules.discord.configs.precommands);
     const isOwner = config.modules.discord.owners.includes(message.author.id);
 
     if (!message.guild || !client.user) return;
@@ -204,7 +204,7 @@ const helpCommand: Precommand = {
         });
       } else if (category) {
         const categoryCommands = getCommandsFromFolder(
-          `${config.modules.discord.configs.precommands}${category}`,
+          `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`,
         );
 
         const categoryEmbed = new EmbedBuilder()
@@ -284,7 +284,7 @@ const helpCommand: Precommand = {
     // Create category embeds
     const categoryEmbeds = categories.map((category, index) => {
       const commands = getCommandsFromFolder(
-        `${config.modules.discord.configs.precommands}${category}`,
+        `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`,
       );
 
       return new EmbedBuilder()
@@ -315,7 +315,7 @@ const helpCommand: Precommand = {
           categories.map((category) => ({
             label: category,
             value: category,
-            description: `${getCommandsFromFolder(`${config.modules.discord.configs.precommands}${category}`).length} commands`,
+            description: `${getCommandsFromFolder(`${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`).length} commands`,
             emoji: "📁",
           })),
         ),

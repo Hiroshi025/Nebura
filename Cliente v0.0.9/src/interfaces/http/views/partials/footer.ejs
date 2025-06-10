@@ -1,0 +1,211 @@
+<footer class="footer-section mt-5 pt-5 pb-3" 
+        style="background: linear-gradient(135deg, var(--card-bg-dark) 0%, #1a1e24 100%); color: var(--text-color-dark);">
+  <div class="container">
+    <div class="row gy-4">
+      <!-- Brand Column -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center mb-3">
+          <img src="/images/logo.png" alt="Nebura Logo" 
+               class="img-fluid" 
+               style="width:48px; height:48px; border-radius:12px; margin-right:12px;">
+          <div>
+            <span class="fw-bold fs-4" style="color:var(--primary-color);">Nebura</span>
+            <div class="text-muted small">AI Solutions</div>
+          </div>
+        </div>
+        <p class="small opacity-75 mb-4">
+          Plataforma avanzada para gestión de archivos, servidores y comunidad. Seguridad, velocidad y control en la nube.
+        </p>
+        <div class="social-links d-flex gap-3">
+          <a href="https://twitter.com/" target="_blank" 
+             class="social-icon rounded-circle d-flex align-items-center justify-content-center"
+             title="Twitter">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="https://discord.gg/" target="_blank" 
+             class="social-icon rounded-circle d-flex align-items-center justify-content-center"
+             title="Discord">
+            <i class="fab fa-discord"></i>
+          </a>
+          <a href="https://github.com/" target="_blank" 
+             class="social-icon rounded-circle d-flex align-items-center justify-content-center"
+             title="GitHub">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="https://linkedin.com/" target="_blank" 
+             class="social-icon rounded-circle d-flex align-items-center justify-content-center"
+             title="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Links Columns -->
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <h6 class="footer-title mb-3">Navegación</h6>
+        <ul class="footer-links list-unstyled">
+          <li class="mb-2"><a href="/dashboard" class="footer-link">Dashboard</a></li>
+          <li class="mb-2"><a href="/dashboard/cdn" class="footer-link">CDN</a></li>
+          <li class="mb-2"><a href="#" class="footer-link">Servidores</a></li>
+          <li class="mb-2"><a href="#" class="footer-link">Perfil</a></li>
+          <li class="mb-2"><a href="https://www.hiroshi-dev.me/nebura" class="footer-link">Planes</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-md-3 col-sm-6">
+        <h6 class="footer-title mb-3">Recursos</h6>
+        <ul class="footer-links list-unstyled">
+          <li class="mb-2"><a href="https://www.hiroshi-dev.me/docs" class="footer-link">Documentación</a></li>
+          <li class="mb-2"><a href="#" class="footer-link">Blog</a></li>
+          <li class="mb-2"><a href="/dashboard/status" class="footer-link">Estado</a></li>
+          <li class="mb-2"><a href="#" class="footer-link">FAQ</a></li>
+          <li class="mb-2"><a href="https://www.hiroshi-dev.me/docs" class="footer-link">Changelog</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Column -->
+      <div class="col-lg-4 col-md-6">
+        <h6 class="footer-title mb-3">Contacto</h6>
+        <ul class="footer-contact list-unstyled small">
+          <li class="mb-3 d-flex align-items-start">
+            <i class="fas fa-envelope mt-1 me-2" style="width:20px;"></i>
+            <a href="mailto:soporte@nebura.works" class="footer-link">soporte@nebura.works</a>
+          </li>
+          <li class="mb-3 d-flex align-items-start">
+            <i class="fas fa-phone mt-1 me-2" style="width:20px;"></i>
+            <a href="tel:+34999999999" class="footer-link">+34 999 999 999</a>
+          </li>
+          <li class="mb-3 d-flex align-items-start">
+            <i class="fas fa-map-marker-alt mt-1 me-2" style="width:20px;"></i>
+            <span>España / LATAM</span>
+          </li>
+        </ul>
+        
+        <div class="newsletter mt-4">
+          <h6 class="footer-title mb-3">Newsletter</h6>
+          <div class="input-group">
+            <input type="email" class="form-control form-control-sm" placeholder="Tu email" 
+                   style="background: var(--input-bg-dark); border-color: var(--input-border-dark); color: var(--text-color-dark);">
+            <button class="btn btn-primary btn-sm" type="button">Suscribir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <hr class="my-4" style="border-color:rgba(var(--primary-color-rgb), 0.2);">
+
+    <!-- Copyright -->
+    <div class="row align-items-center">
+      <div class="col-md-6 text-md-start text-center mb-3 mb-md-0">
+        <div class="small opacity-75">
+          &copy; <%= new Date().getFullYear() %> Nebura. Todos los derechos reservados.
+        </div>
+      </div>
+      <div class="col-md-6 text-md-end text-center">
+        <div class="small opacity-75">
+          <a href="https://help.hiroshi-dev.me" class="footer-link me-3">Privacidad</a>
+          <a href="#" class="footer-link me-3">Términos</a>
+          <a href="#" class="footer-link">Cookies</a>
+          <span class="ms-3 badge bg-primary opacity-75">v0.0.9</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-section {
+    font-size: 0.95rem;
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.2);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .footer-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), #6c5ce7);
+  }
+
+  .footer-title {
+    color: var(--primary-color);
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-bottom: 8px;
+  }
+
+  .footer-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--primary-color);
+  }
+
+  .footer-links li {
+    transition: transform 0.2s;
+  }
+
+  .footer-links li:hover {
+    transform: translateX(5px);
+  }
+
+  .footer-link {
+    color: var(--text-color-dark);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: all 0.2s;
+  }
+
+  .footer-link:hover {
+    color: var(--primary-color);
+    opacity: 1;
+  }
+
+  .social-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--text-color-dark);
+    transition: all 0.3s;
+  }
+
+  .social-icon:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  .newsletter .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+    border-color: var(--primary-color);
+  }
+
+  @media (max-width: 768px) {
+    .footer-section {
+      text-align: center;
+    }
+    
+    .footer-title::after {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .social-links {
+      justify-content: center;
+    }
+    
+    .footer-contact li {
+      justify-content: center;
+    }
+  }
+</style>

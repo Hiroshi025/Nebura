@@ -46,7 +46,6 @@ export class LicenseIPMiddleware {
 
     const license = await main.prisma.license.findUnique({
       where: { id: licenseKey },
-      include: { user: true, admin: true },
     });
 
     if (!license) {

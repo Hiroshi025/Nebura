@@ -150,7 +150,7 @@ export default new Command(
         }
 
         await main.prisma.serverModlog.update({
-          where: { id: existingModlog.id },
+          where: { guildId: guild.id }, // Cambiado de id: existingModlog.id a guildId: guild.id
           data: { channelId: channel.id },
         });
 
@@ -196,7 +196,7 @@ export default new Command(
         }
 
         await main.prisma.serverModlog.delete({
-          where: { id: existingModlog.id }, // Corregido para usar el ID correcto
+          where: { guildId: guild.id }, // Cambiado de id: existingModlog.id a guildId: guild.id
         });
 
         await interaction.reply({

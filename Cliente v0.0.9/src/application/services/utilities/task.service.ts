@@ -6,16 +6,32 @@ import { UpdateTaskDto } from "../../entitys/tasks/update-task.dto";
 
 export class TaskService {
   async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
-    const task = await main.prisma.task.create({
-      data: {
-        ...createTaskDto,
-        recurrence: createTaskDto.recurrence ? JSON.stringify(createTaskDto.recurrence) : undefined,
-        status: createTaskDto.status || "pending",
-        priority: createTaskDto.priority || "medium",
-        tags: createTaskDto.tags || [],
-        reminder: createTaskDto.reminder ? JSON.stringify(createTaskDto.reminder) : undefined,
-      },
-    });
+    const data: any = {
+      ...createTaskDto,
+      createdBy: createTaskDto.createdBy,
+      recurrence: createTaskDto.recurrence ? JSON.stringify(createTaskDto.recurrence) : undefined,
+      status: createTaskDto.status || "pending",
+      priority: createTaskDto.priority || "medium",
+      tags: createTaskDto.tags || [],
+      reminder: createTaskDto.reminder ? JSON.stringify(createTaskDto.reminder) : undefined,
+    };
+    if (data.dueDate) {
+      data.dueDate =
+        typeof data.dueDate === "string"
+          ? new Date(data.dueDate).toISOString()
+          : data.dueDate instanceof Date
+            ? data.dueDate.toISOString()
+            : undefined;
+    }
+    if (data.autoDelete) {
+      data.autoDelete =
+        typeof data.autoDelete === "string"
+          ? new Date(data.autoDelete).toISOString()
+          : data.autoDelete instanceof Date
+            ? data.autoDelete.toISOString()
+            : undefined;
+    }
+    const task = await main.prisma.task.create({ data });
     return {
       ...task,
       recurrence: task.recurrence
@@ -63,6 +79,31 @@ export class TaskService {
 
     if (updateTaskDto.status === "completed") {
       data.completedAt = new Date();
+    }
+
+    // Normalizar dueDate y autoDelete a ISO-8601
+    if (data.dueDate) {
+      data.dueDate =
+        typeof data.dueDate === "string"
+          ? new Date(data.dueDate).toISOString()
+          : data.dueDate instanceof Date
+            ? data.dueDate.toISOString()
+            : undefined;
+    }
+    if (data.autoDelete) {
+      data.autoDelete =
+        typeof data.autoDelete === "string"
+          ? new Date(data.autoDelete).toISOString()
+          : data.autoDelete instanceof Date
+            ? data.autoDelete.toISOString()
+            : undefined;
+    }
+    // Serializar recurrence y reminder si existen
+    if (data.recurrence) {
+      data.recurrence = JSON.stringify(data.recurrence);
+    }
+    if (data.reminder) {
+      data.reminder = JSON.stringify(data.reminder);
     }
 
     const task = await main.prisma.task.update({

@@ -63,7 +63,7 @@ export class GeminiService {
   async processCombined(
     text: string,
     file: Buffer,
-    _mimeType: string,
+    mimeType: string, // quitar el guion bajo para usar el parámetro
     options: GeminiOptions,
   ): Promise<GeminiResponse> {
     this.genAI = new GoogleGenerativeAI(options.apiKey);
@@ -73,7 +73,7 @@ export class GeminiService {
     });
 
     const fileData: Part = {
-      inlineData: { data: file.toString("base64"), mimeType: "application/octet-stream" },
+      inlineData: { data: file.toString("base64"), mimeType }, // usar el mimeType recibido
     };
 
     const contents: Part[] = [

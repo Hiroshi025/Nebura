@@ -38,12 +38,12 @@ const ModalDeleteCommand: Modals = {
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel) return;
     const commandName = interaction.fields.getTextInputValue("command_to_delete");
-    const categories = readdirSync(config.modules.discord.configs.precommands);
+    const categories = readdirSync(config.modules.discord.configs.default + config.modules.discord.configs.precommands);
 
     try {
       let found = false;
       for (const category of categories) {
-        const categoryPath = `${config.modules.discord.configs.precommands}${category}`;
+        const categoryPath = `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`;
         const commands = getCommandsFromFolder(categoryPath);
 
         if (commands.includes(commandName)) {

@@ -23,6 +23,7 @@
 - [Contributing](#contributing)
 - [Support & Links](#support--links)
 - [About the Creator](#about-the-creator)
+- [API Overview](#api-overview)
 
 ---
 
@@ -59,94 +60,69 @@ The core of Nebura Works is orchestrated by the `Engine` class (`src/main.ts`), 
 ```mermaid
 graph TD
 
-    28044["User<br>External Actor"]
-    28045["Main Orchestrator<br>Node.js"]
-    28046["WhatsApp Client<br>whatsapp-web.js"]
-    subgraph 28005["External Services & Actors"]
-        28020["End User<br>External Actor"]
-        28021["Discord Platform<br>Discord API"]
-        28022["WhatsApp Platform<br>WhatsApp API"]
-        28023["AI APIs<br>Google Gemini, etc."]
-        28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-        28025["Application Database<br>SQL/SQLite"]
+    14532["User<br>External Actor"]
+    subgraph 14519["External Systems"]
+        14533["Database Systems<br>SQL/NoSQL"]
+        14534["Version Control APIs<br>GitHub, etc."]
+        14535["AI APIs<br>Google Gemini, etc."]
+        14536["Authentication APIs<br>OAuth Providers, etc."]
+        14537["Discord Platform<br>Discord API"]
+        14538["WhatsApp Platform<br>WhatsApp Web"]
     end
-    subgraph 28006["Nebura Client Application"]
-        28007["Shared Infrastructure"]
-        28008["WhatsApp Integration"]
-        28009["Discord Bot"]
-        28010["API Server"]
-        28011["Main Orchestrator<br>Node.js"]
+    subgraph 14520["Cliente Application<br>Node.js/TypeScript"]
+        14521["Main Engine<br>TypeScript"]
+        14522["API Server<br>Express.js"]
+        14523["HTTP Routes<br>Express.js"]
+        14524["HTTP Controllers<br>TypeScript"]
+        14525["Application Logic<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"]
+        14528["Messaging Middleware<br>TypeScript"]
+        14529["Database Adapter<br>Prisma"]
+        14530["External Service Adapters<br>TypeScript"]
+        14531["Shared Code<br>TypeScript"]
         %% Edges at this level (grouped by source)
-        28008["WhatsApp Integration"] -->|uses| 28007["Shared Infrastructure"]
-        28009["Discord Bot"] -->|uses| 28007["Shared Infrastructure"]
-        28010["API Server"] -->|uses| 28007["Shared Infrastructure"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28010["API Server"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28009["Discord Bot"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28008["WhatsApp Integration"]
-        28011["Main Orchestrator<br>Node.js"] -->|uses| 28007["Shared Infrastructure"]
-    end
-    subgraph 28026["External Systems"]
-        28039["Chat Platforms<br>Discord, WhatsApp APIs"]
-        28040["AI APIs<br>Google Gemini, etc."]
-        28041["Version Control APIs<br>GitHub API, etc."]
-        28042["Databases<br>Prisma, SQLite"]
-        28043["Process Management<br>PM2"]
-    end
-    subgraph 28027["Shared Libraries"]
-        28036["Shared Utilities &amp; Classes<br>TypeScript"]
-        28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-        28038["App Configuration<br>YAML/JSON"]
-        %% Edges at this level (grouped by source)
-        28036["Shared Utilities &amp; Classes<br>TypeScript"] -->|reads| 28038["App Configuration<br>YAML/JSON"]
-    end
-    subgraph 28028["Nebura Discord Bot<br>Discord.js"]
-        28033["Discord Client Entry<br>TypeScript"]
-        28034["Core Event &amp; Command Handlers<br>TypeScript"]
-        28035["Bot Features &amp; Addons<br>TypeScript"]
-        %% Edges at this level (grouped by source)
-        28033["Discord Client Entry<br>TypeScript"] -->|loads| 28034["Core Event &amp; Command Handlers<br>TypeScript"]
-        28034["Core Event &amp; Command Handlers<br>TypeScript"] -->|route to| 28035["Bot Features &amp; Addons<br>TypeScript"]
-    end
-    subgraph 28029["Nebura API Server<br>Node.js/Express"]
-        28030["API Server Entry<br>TypeScript"]
-        28031["HTTP Routes<br>TypeScript"]
-        28032["Domain Services<br>TypeScript"]
-        %% Edges at this level (grouped by source)
-        28030["API Server Entry<br>TypeScript"] -->|sets up| 28031["HTTP Routes<br>TypeScript"]
-        28031["HTTP Routes<br>TypeScript"] -->|invoke| 28032["Domain Services<br>TypeScript"]
+        14525["Application Logic<br>TypeScript"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14525["Application Logic<br>TypeScript"] -->|uses (utils, DTOs)| 14531["Shared Code<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|uses services for commands| 14525["Application Logic<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|uses (e.g., GitHub)| 14530["External Service Adapters<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|uses (config, utils, embeds)| 14531["Shared Code<br>TypeScript"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|uses services| 14525["Application Logic<br>TypeScript"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|uses (config, utils)| 14531["Shared Code<br>TypeScript"]
+        14528["Messaging Middleware<br>TypeScript"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14528["Messaging Middleware<br>TypeScript"] -->|uses (config, logging)| 14531["Shared Code<br>TypeScript"]
+        14521["Main Engine<br>TypeScript"] -->|initializes & starts| 14522["API Server<br>Express.js"]
+        14521["Main Engine<br>TypeScript"] -->|uses services| 14525["Application Logic<br>TypeScript"]
+        14521["Main Engine<br>TypeScript"] -->|initializes| 14526["Discord Bot Module<br>discord.js"]
+        14521["Main Engine<br>TypeScript"] -->|initializes| 14527["WhatsApp Bot Module<br>whatsapp-web.js"]
+        14521["Main Engine<br>TypeScript"] -->|uses schema from| 14529["Database Adapter<br>Prisma"]
+        14521["Main Engine<br>TypeScript"] -->|uses config, logging| 14531["Shared Code<br>TypeScript"]
+        14522["API Server<br>Express.js"] -->|delegates to| 14523["HTTP Routes<br>Express.js"]
+        14522["API Server<br>Express.js"] -->|uses (IP Blocker, Rate Limiter)| 14528["Messaging Middleware<br>TypeScript"]
+        14522["API Server<br>Express.js"] -->|uses (Passport)| 14530["External Service Adapters<br>TypeScript"]
+        14522["API Server<br>Express.js"] -->|uses (config, logging, Swagger)| 14531["Shared Code<br>TypeScript"]
+        14523["HTTP Routes<br>Express.js"] -->|maps to| 14524["HTTP Controllers<br>TypeScript"]
+        14523["HTTP Routes<br>Express.js"] -->|uses (auth, rate limit)| 14528["Messaging Middleware<br>TypeScript"]
+        14523["HTTP Routes<br>Express.js"] -->|uses (Passport)| 14530["External Service Adapters<br>TypeScript"]
+        14524["HTTP Controllers<br>TypeScript"] -->|invokes| 14525["Application Logic<br>TypeScript"]
+        14524["HTTP Controllers<br>TypeScript"] -->|uses (response utils)| 14531["Shared Code<br>TypeScript"]
+        14531["Shared Code<br>TypeScript"] -->|uses (Swagger config)| 14530["External Service Adapters<br>TypeScript"]
     end
     %% Edges at this level (grouped by source)
-    28044["User<br>External Actor"] -->|interacts via API| 28029["Nebura API Server<br>Node.js/Express"]
-    28044["User<br>External Actor"] -->|interacts via Discord| 28028["Nebura Discord Bot<br>Discord.js"]
-    28044["User<br>External Actor"] -->|interacts via WhatsApp| 28046["WhatsApp Client<br>whatsapp-web.js"]
-    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28029["Nebura API Server<br>Node.js/Express"]
-    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28028["Nebura Discord Bot<br>Discord.js"]
-    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28046["WhatsApp Client<br>whatsapp-web.js"]
-    28045["Main Orchestrator<br>Node.js"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28045["Main Orchestrator<br>Node.js"] -->|uses for backups| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-    28033["Discord Client Entry<br>TypeScript"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|interact with| 28039["Chat Platforms<br>Discord, WhatsApp APIs"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|use| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|access data via| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|managed by| 28043["Process Management<br>PM2"]
-    28046["WhatsApp Client<br>whatsapp-web.js"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28046["WhatsApp Client<br>whatsapp-web.js"] -->|interacts with| 28039["Chat Platforms<br>Discord, WhatsApp APIs"]
-    28037["Data Management &amp; Structure<br>TypeScript/Prisma"] -->|persists to| 28042["Databases<br>Prisma, SQLite"]
-    28008["WhatsApp Integration"] -->|connects to| 28022["WhatsApp Platform<br>WhatsApp API"]
-    28009["Discord Bot"] -->|connects to| 28021["Discord Platform<br>Discord API"]
-    28009["Discord Bot"] -->|manages processes via| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28010["API Server"] -->|calls| 28023["AI APIs<br>Google Gemini, etc."]
-    28010["API Server"] -->|integrates with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28020["End User<br>External Actor"] -->|interacts via HTTP| 28010["API Server"]
-    28020["End User<br>External Actor"] -->|interacts via Discord| 28009["Discord Bot"]
-    28020["End User<br>External Actor"] -->|interacts via WhatsApp| 28008["WhatsApp Integration"]
-    28007["Shared Infrastructure"] -->|persists to/reads from| 28025["Application Database<br>SQL/SQLite"]
-    28007["Shared Infrastructure"] -->|sends notifications to| 28021["Discord Platform<br>Discord API"]
-    28007["Shared Infrastructure"] -->|interacts with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28032["Domain Services<br>TypeScript"] -->|use| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28032["Domain Services<br>TypeScript"] -->|access data via| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-    28032["Domain Services<br>TypeScript"] -->|calls| 28040["AI APIs<br>Google Gemini, etc."]
-    28032["Domain Services<br>TypeScript"] -->|calls| 28041["Version Control APIs<br>GitHub API, etc."]
+    14525["Application Logic<br>TypeScript"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14525["Application Logic<br>TypeScript"] -->|calls| 14535["AI APIs<br>Google Gemini, etc."]
+    14526["Discord Bot Module<br>discord.js"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14526["Discord Bot Module<br>discord.js"] -->|interacts with| 14537["Discord Platform<br>Discord API"]
+    14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|interacts with| 14538["WhatsApp Platform<br>WhatsApp Web"]
+    14528["Messaging Middleware<br>TypeScript"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14532["User<br>External Actor"] -->|sends HTTP requests| 14522["API Server<br>Express.js"]
+    14532["User<br>External Actor"] -->|interacts via Discord| 14526["Discord Bot Module<br>discord.js"]
+    14532["User<br>External Actor"] -->|interacts via WhatsApp| 14527["WhatsApp Bot Module<br>whatsapp-web.js"]
+    14530["External Service Adapters<br>TypeScript"] -->|calls| 14534["Version Control APIs<br>GitHub, etc."]
+    14530["External Service Adapters<br>TypeScript"] -->|integrates with| 14536["Authentication APIs<br>OAuth Providers, etc."]
 ```
 
 ---
@@ -307,5 +283,140 @@ Contributions are welcome! Please open issues or pull requests on [GitHub](https
 - **Contact:** [Open an Issue](https://github.com/Hiroshi025/Nebura-AI/issues) or [Help Center](https://help.hiroshi-dev.me/)
 
 ---
+
+## API Overview
+
+La API de Nebura expone endpoints RESTful para gestión de tareas, recordatorios, licencias, bloqueo de IPs, integración con Discord, Google Gemini y más.
+
+### Autenticación
+
+La mayoría de los endpoints requieren autenticación mediante un token Bearer JWT. Incluye el token en el header `Authorization`:
+
+```
+Authorization: Bearer tu.jwt.token.aqui
+```
+
+Algunos endpoints públicos (por ejemplo, `/public/github/users/{username}`) no requieren autenticación.
+
+---
+
+## Endpoints Principales
+
+### Tareas y Recordatorios
+
+- `GET /service/tasks`: Lista todas las tareas, permite filtrar por estado, prioridad, creador o etiqueta.
+- `POST /service/tasks`: Crea una nueva tarea.
+- `GET /service/tasks/{id}`: Obtiene detalles de una tarea.
+- `PATCH /service/tasks/{id}`: Actualiza campos de una tarea.
+- `DELETE /service/tasks/{id}`: Elimina una tarea.
+- `GET /service/reminders`: Lista los recordatorios próximos a activarse.
+
+### Licencias
+
+- `POST /license`: Crea una nueva licencia (requiere admin).
+- `GET /license`: Lista todas las licencias.
+- `GET /license/{id}`: Detalles de una licencia.
+- `PUT /license/{id}`: Actualiza una licencia.
+- `DELETE /license/{id}`: Elimina una licencia.
+- `POST /license/validate/{key}`: Valida una licencia contra un HWID.
+- `GET /license/info/{licenseKey}`: Información detallada de una licencia, IPs bloqueadas y estadísticas de uso.
+
+### Seguridad y Administración
+
+- `POST /admin/block-ip`: Bloquea una IP.
+- `DELETE /admin/unblock-ip/{ipAddress}`: Desbloquea una IP.
+- `GET /admin/blocked-ips`: Lista IPs bloqueadas.
+- `GET /admin/ip-info/{ipAddress}`: Información de seguridad de una IP.
+- `GET /admin/cache-performance`: Métricas de caché (solo desarrollo).
+- `GET /admin/prisma-metrics`: Métricas recientes de Prisma (solo admin).
+
+### Integraciones
+
+#### GitHub
+
+- `GET /public/github/users/{username}`: Info básica de usuario.
+- `GET /public/github/users/{username}/all`: Info completa (repos, eventos, orgs).
+- `GET /public/github/users/{username}/repos`: Repositorios públicos.
+- `GET /public/github/repos/{owner}/{repo}`: Info de un repositorio.
+
+#### Discord
+
+- `GET /public/discord/status`: Estado actual de Discord.
+- `GET /public/discord/updates`: Últimas novedades de Discord.
+- `GET /public/discord/incidents`: Incidentes activos.
+- `GET /publicdiscord/recent`: Estado, novedades e incidentes recientes.
+
+#### Google Gemini
+
+- `POST /service/google/model-ai/text`: Procesa texto con Gemini.
+- `POST /service/google/model-ai/file`: Procesa archivo con Gemini.
+- `POST /service/google/model-ai/combined`: Procesa texto y archivo juntos.
+
+### Autenticación de Usuarios
+
+- `POST /auth/register`: Registro de usuario y generación de JWT.
+- `POST /auth/login`: Login y obtención de JWT.
+- `GET /auth/{id}`: Datos del usuario autenticado.
+
+---
+
+## Ejemplo de Uso de la API
+
+### Crear una Tarea
+
+```bash
+curl -X POST https://host.hiroshi-dev.me/api/v1/service/tasks \
+  -H "Authorization: Bearer tu.jwt.token.aqui" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Reunión mensual","createdBy":"usuario123"}'
+```
+
+### Validar una Licencia
+
+```bash
+curl -X POST https://host.hiroshi-dev.me/api/v1/license/validate/CLAVE-LICENCIA \
+  -d "hwid=HWID12345"
+```
+
+### Obtener Estado del Sistema
+
+```bash
+curl https://host.hiroshi-dev.me/api/v1/public/status
+```
+
+---
+
+## Esquemas de Respuesta
+
+Las respuestas siguen los esquemas definidos en la documentación Swagger. Por ejemplo, una tarea (`TaskResponse`) incluye:
+
+```json
+{
+  "id": "507f1f77bcf86cd799439011",
+  "title": "Reunión mensual",
+  "description": "Discutir presupuesto",
+  "createdBy": "usuario123",
+  "createdAt": "2024-01-20T10:00:00Z",
+  "status": "pending",
+  "priority": "high",
+  "tags": ["trabajo", "finanzas"],
+  "reminder": { "enabled": true, "timeBefore": "30 minutes", "notified": false },
+  "recurrence": { "type": "monthly", "interval": 1 },
+  "autoDelete": "2024-12-31T23:59:59Z"
+}
+```
+
+---
+
+## Documentación Interactiva
+
+- Accede a la documentación Swagger UI en:  
+  [http://localhost:PORT/docs](http://localhost:PORT/docs) (después de iniciar el servidor)
+
+- Consulta la [documentación oficial](https://docs.hiroshi-dev.me) para guías y ejemplos detallados.
+
+---
+
+## License
 
 _This project is licensed under the ISC License. See the [LICENSE](./LICENSE) file for details._

@@ -5,32 +5,44 @@ import { LicenseEntity } from "../../entitys/license.entity";
 
 export class LicenseService {
   async create(createDto: CreateLicenseDto): Promise<LicenseEntity> {
+    const { userId, adminId, validUntil, key, ...licenseData } = createDto;
+    const licenseDataToCreate: any = {
+      ...licenseData,
+      key,
+      type: createDto.type,
+      userId,
+      adminId,
+      hwid: createDto.hwid ? createDto.hwid : [],
+      requestLimit: createDto.requestLimit || 1000,
+      requestCount: 0,
+      validUntil: validUntil ? new Date(validUntil) : undefined,
+    };
+
+    // Asegúrate de no enviar 'id' en el payload
+    delete licenseDataToCreate.id;
+
     const license = await main.prisma.license.create({
-      data: {
-        ...createDto,
-        requestLimit: createDto.requestLimit || 1000,
-        requestCount: 0,
-      },
-      include: {
-        user: true,
-        admin: true,
-      },
+      data: licenseDataToCreate,
     });
 
     return new LicenseEntity(license);
   }
 
   async findAll(): Promise<LicenseEntity[]> {
-    const licenses = await main.prisma.license.findMany({
-      include: { user: true, admin: true },
-    });
+    const licenses = await main.prisma.license.findMany();
     return licenses.map((license) => new LicenseEntity(license));
   }
 
   async findById(id: string): Promise<LicenseEntity | null> {
     const license = await main.prisma.license.findUnique({
       where: { id },
-      include: { user: true, admin: true },
+    });
+    return license ? new LicenseEntity(license) : null;
+  }
+
+  async findByKey(key: string): Promise<LicenseEntity | null> {
+    const license = await main.prisma.license.findFirst({
+      where: { key },
     });
     return license ? new LicenseEntity(license) : null;
   }
@@ -38,33 +50,62 @@ export class LicenseService {
   async findByUserId(userId: string): Promise<LicenseEntity[]> {
     const licenses = await main.prisma.license.findMany({
       where: { userId },
-      include: { user: true, admin: true },
     });
     return licenses.map((license) => new LicenseEntity(license));
   }
 
   async update(id: string, updateDto: UpdateLicenseDto): Promise<LicenseEntity> {
+    // Permite actualizar por id (ObjectId)
     const license = await main.prisma.license.update({
       where: { id },
       data: updateDto,
-      include: { user: true, admin: true },
     });
     return new LicenseEntity(license);
   }
 
-  async delete(id: string): Promise<void> {
-    await main.prisma.license.delete({ where: { id } });
+  async updateByKey(key: string, updateDto: UpdateLicenseDto) {
+    // Permite actualizar por key (clave de licencia)
+    const data = await main.prisma.license.findFirst({
+      where: { key },
+    });
+
+    if (!data) return null;
+    const license = await main.prisma.license.update({
+      where: { id: data.id },
+      data: updateDto,
+    });
+    return new LicenseEntity(license);
+  }
+
+  async delete(id: string) {
+    const data = await main.prisma.license.findFirst({
+      where: { key: id },
+    });
+
+    if (!data) return false;
+
+    return await main.prisma.license.delete({ where: { id: data.id } });
+  }
+
+  async deleteByKey(key: string) {
+    const data = await main.prisma.license.findFirst({
+      where: { key },
+    });
+
+    if (!data) return false;
+
+    return await main.prisma.license.delete({ where: { id: data.id } });
   }
 
   async validateLicense(key: string, hwid: string): Promise<boolean> {
-    const license = await main.prisma.license.findUnique({ where: { id: key } });
+    const license = await main.prisma.license.findFirst({ where: { key } });
 
     if (!license || license.validUntil < new Date() || !license.hwid.includes(hwid)) {
       return false;
     }
 
     await main.prisma.license.update({
-      where: { id: key },
+      where: { id: license.id },
       data: { requestCount: { increment: 1 } },
     });
 

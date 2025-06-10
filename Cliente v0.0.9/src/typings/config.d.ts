@@ -30,6 +30,7 @@ export interface ProyectConfig {
      * Path to the project's configuration file.
      */
     winstonlog: string;
+    cdnpath: string;
   };
   /**
    * Configuration for various modules.
@@ -69,9 +70,11 @@ export interface ProyectConfig {
        * Discord client secret.
        */
       clientSecret: string;
+      channel: string;
       /**
        * Presence configuration for the Discord bot.
        */
+      callback: string;
       presence: {
         /**
          * Presence status (e.g., online, idle).
@@ -182,8 +185,8 @@ export interface ProyectConfig {
       cron: string;
       cmd: string;
       cmdreload: string;
-    }
-  }
+    };
+  };
 }
 
 /**
@@ -326,5 +329,8 @@ export interface EnvironmentConfig {
      * Customer secret key.
      */
     customer: string;
+  };
+  website: {
+    role: string;
   };
 }

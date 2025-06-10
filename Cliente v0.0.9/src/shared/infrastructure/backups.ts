@@ -19,7 +19,7 @@ export class BackupService {
    * Initializes a new instance of the BackupService.
    * @param backupDir - The directory where backups will be stored. Defaults to a `backups` folder in the current directory.
    */
-  constructor(backupDir: string = path.join(__dirname, "../../config/backups")) {
+  constructor(backupDir: string = path.join(__dirname, "../../../config/backups/database")) {
     this.prisma = new PrismaClient();
     this.backupDir = backupDir;
     this.job = null;

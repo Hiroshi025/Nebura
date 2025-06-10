@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Nebura</title>
+  <meta name="description" content="Panel de administración de Nebura Works">
+  <meta name="keywords" content="Nebura, Admin, Dashboard, Licencias, Usuarios, Logs">
+  <meta name="author" content="Nebura">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/administrator.css">
+</head>
+
+<body>
+  <div id="app-container">
+    <div class="d-flex" style="min-height: 100vh;">
+      <!-- SIDEBAR -->
+      <%- include('partials/sidebar', { user: user, panelSection: `<div class="sidebar-section-title">Admin
+    </div>
+    <ul class='nav flex-column sidebar-nav'>
+      <li class='nav-item'><a class='nav-link active' href='/dashboard/administrator'><i class='fas fa-tools'></i>
+          <span>Panel Admin</span></a></li>
+    </ul>
+    <div class='sidebar-divider'></div>
+    ` }) %>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow-1 p-4">
+      <!-- HEADER DE ACCIONES (tema e idioma) -->
+      <div class="d-flex justify-content-end align-items-center mb-3 gap-3">
+        <!-- Cambiar idioma -->
+        <div class="language-switcher">
+          <a href="#" class="lang-link active" data-lang="es">ES</a> |
+          <a href="#" class="lang-link" data-lang="en">EN</a>
+        </div>
+        <!-- Cambiar tema -->
+        <div class="form-check form-switch ms-3">
+          <input class="form-check-input" type="checkbox" id="themeSwitch" checked>
+          <label class="form-check-label" for="themeSwitch">
+            <i class="fas fa-sun"></i>
+          </label>
+        </div>
+      </div>
+
+      <!-- SECCIÓN DE BIENVENIDA -->
+      <div class="admin-header d-flex align-items-center fade-in">
+        <img
+          src="<%= user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256` : '/images/logo.png' %>"
+          alt="Admin Avatar" class="admin-avatar">
+        <div>
+          <div class="welcome-title">Bienvenido, <%= user.name || user.global_name || user.username %>
+          </div>
+          <div class="welcome-desc">Panel de administración de Nebura. Gestiona usuarios, licencias, métricas, clientes
+            y logs desde un solo lugar.</div>
+          <div class="admin-badges mt-2">
+            <span class="badge badge-role <%= user.role %> text-uppercase"><i class="fas fa-user-shield me-1"></i>
+              <%= user.role %>
+            </span>
+            <span class="badge bg-secondary"><i class="fas fa-envelope me-1"></i>
+              <%= user.email %>
+            </span>
+            <span class="badge bg-dark"><i class="fas fa-calendar-alt me-1"></i> Registrado: <%= user.createdAt ?
+                user.createdAt.toLocaleDateString() : '-' %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAV TABS -->
+      <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-tab-pane"
+            type="button" role="tab" aria-controls="info-tab-pane" aria-selected="true">
+            <i class="fas fa-info-circle"></i> Información
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config-tab-pane" type="button"
+            role="tab" aria-controls="config-tab-pane" aria-selected="false">
+            <i class="fas fa-cogs"></i> Configuración
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks-tab-pane" type="button"
+            role="tab" aria-controls="tasks-tab-pane" aria-selected="false">
+            <i class="fa-solid fa-list-check"></i> Tareas
+          </button>
+        </li>
+        <!-- NUEVA PESTAÑA PARA LICENCIAS -->
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="licensesui-tab" data-bs-toggle="tab" data-bs-target="#licensesui-tab-pane"
+            type="button" role="tab" aria-controls="licensesui-tab-pane" aria-selected="false">
+            <i class="fa-solid fa-key"></i> Licencias
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="adminTabsContent">
+        <!-- TAB INFORMACIÓN -->
+        <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel" aria-labelledby="info-tab"
+          tabindex="0">
+          <!-- MÉTRICAS DEL SISTEMA -->
+          <div class="row fade-in">
+            <div class="col-md-3">
+              <div class="count-box">
+                <div class="section-title mb-2"><i class="fas fa-users"></i> Usuarios</div>
+                <h2>
+                  <%= users.length %>
+                </h2>
+                <div class="text-muted">Total registrados</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="count-box">
+                <div class="section-title mb-2"><i class="fas fa-key"></i> Licencias</div>
+                <h2>
+                  <%= licenses.length %>
+                </h2>
+                <div class="text-muted">Total emitidas</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="count-box">
+                <div class="section-title mb-2"><i class="fas fa-server"></i> Clientes Discord</div>
+                <h2>
+                  <%= myclientDiscord.length %>
+                </h2>
+                <div class="text-muted">Integraciones</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="count-box">
+                <div class="section-title mb-2"><i class="fas fa-chart-line"></i> Métricas</div>
+                <h2>
+                  <%= metrics.length %>
+                </h2>
+                <div class="text-muted">Endpoints monitorizados</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- USUARIOS -->
+          <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="section-title mb-0"><i class="fas fa-users"></i> Usuarios</span>
+              <div class="d-flex align-items-center gap-2">
+                <div class="search-group search-group-animate-in" id="users-search-group">
+                  <i class="fas fa-search search-icon"></i>
+                  <input type="text" id="search-users" class="form-control form-control-sm" autocomplete="off"
+                    placeholder="Buscar por nombre, email o rol" />
+                  <button type="button" class="clear-btn" id="clear-search-users" tabindex="-1"
+                    aria-label="Limpiar búsqueda">
+                    <i class="fas fa-times-circle"></i>
+                  </button>
+                  <span class="search-spinner" id="spinner-search-users"></span>
+                </div>
+                <select class="advanced-filter" id="users-advanced-filter">
+                  <option value="">Todos</option>
+                  <option value="name">Nombre</option>
+                  <option value="email">Email</option>
+                  <option value="role">Rol</option>
+                </select>
+                <!-- <span class="text-muted">Total: <%= users.length %></span> -->
+              </div>
+            </div>
+            <div class="card-body table-responsive">
+              <table class="table table-hover align-middle mb-0" id="users-table">
+                <thead>
+                  <tr>
+                    <th style="cursor:pointer" data-sort="name" class="sortable">Nombre <i class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="email" class="sortable">Email <i class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="role" class="sortable">Rol <i class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="createdAt" class="sortable">Registrado <i
+                        class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="licenses" class="sortable">Licencias <i
+                        class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="updatedAt" class="sortable">Última actualización <i
+                        class="fa fa-sort"></i></th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body">
+                  <% users.forEach(u=> { %>
+                    <tr>
+                      <td>
+                        <span class="badge bg-primary" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip"
+                          title="Nombre de usuario">
+                          <%= u.name %>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge bg-secondary" style="font-size:0.95em;cursor:pointer;"
+                          data-bs-toggle="tooltip" title="Email">
+                          <%= u.email %>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge badge-role <%= u.role %> text-uppercase"
+                          style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip" title="Rol">
+                          <%= u.role %>
+                        </span>
+                      </td>
+                      <td>
+                        <span data-bs-toggle="tooltip" title="Fecha de registro">
+                          <%= u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-' %>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge bg-info" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip"
+                          title="Cantidad de licencias">
+                          <%= licenses.filter(l=> l.userId === u.id).length %>
+                        </span>
+                      </td>
+                      <td>
+                        <span data-bs-toggle="tooltip" title="Última actualización">
+                          <%= u.updatedAt ? new Date(u.updatedAt).toLocaleDateString() : '-' %>
+                        </span>
+                      </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+              </table>
+              <nav>
+                <ul class="pagination pagination-sm justify-content-end" id="users-pagination"></ul>
+              </nav>
+            </div>
+          </div>
+
+          <!-- LICENCIAS -->
+          <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="section-title mb-0"><i class="fas fa-key"></i> Licencias</span>
+              <div class="d-flex align-items-center gap-2">
+                <div class="search-group search-group-animate-in" id="licenses-search-group">
+                  <i class="fas fa-search search-icon"></i>
+                  <input type="text" id="search-licenses" class="form-control form-control-sm" autocomplete="off"
+                    placeholder="Buscar por ID, tipo, usuario, admin o estado" />
+                  <button type="button" class="clear-btn" id="clear-search-licenses" tabindex="-1"
+                    aria-label="Limpiar búsqueda">
+                    <i class="fas fa-times-circle"></i>
+                  </button>
+                  <span class="search-spinner" id="spinner-search-licenses"></span>
+                </div>
+                <select class="advanced-filter" id="licenses-advanced-filter">
+                  <option value="">Todos</option>
+                  <option value="id">ID</option>
+                  <option value="type">Tipo</option>
+                  <option value="user">Usuario</option>
+                  <option value="admin">Admin</option>
+                  <option value="status">Estado</option>
+                </select>
+                <!-- <span class="text-muted">Total: <%= licenses.length %></span> -->
+              </div>
+            </div>
+            <div class="card-body table-responsive">
+              <table class="table table-hover align-middle mb-0" id="licenses-table">
+                <thead>
+                  <tr>
+                    <th style="cursor:pointer" data-sort="id" class="sortable">ID <i class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="type" class="sortable">Tipo <i class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="user" class="sortable">Usuario <i class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="admin" class="sortable">Admin <i class="fa fa-sort"></i></th>
+                    <th>HWID</th>
+                    <th style="cursor:pointer" data-sort="status" class="sortable">Estado <i class="fa fa-sort"></i>
+                    </th>
+                    <th style="cursor:pointer" data-sort="validUntil" class="sortable">Válida hasta <i
+                        class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="requests" class="sortable">Solicitudes <i
+                        class="fa fa-sort"></i></th>
+                    <th>Última IP</th>
+                  </tr>
+                </thead>
+                <tbody id="licenses-table-body">
+                  <% licenses.forEach(l=> {
+                    let userLic=users.find(u=> u.id === l.userId);
+                    let adminLic=users.find(u=> u.id === l.adminId);
+                    let status = 'ACTIVE';
+                    if (l.validUntil && new Date(l.validUntil) < new Date()) status='EXPIRED' ; if (l.status==='BANNED'
+                      ) status='BANNED' ; if (l.status==='REVOKED' ) status='REVOKED' ; let estadoIcon=status==='ACTIVE'
+                      ? '<i class="fa fa-check-circle text-success" title="Activa"></i>' : status==='EXPIRED'
+                      ? '<i class="fa fa-clock text-warning" title="Expirada"></i>'
+                      : '<i class="fa fa-ban text-danger" title="Revocada/Baneada"></i>' ; %>
+                      <tr>
+                        <td>
+                          <span class="badge bg-primary" style="font-size:0.95em;cursor:pointer;"
+                            data-bs-toggle="tooltip" title="ID de licencia">
+                            <%= l.id %>
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-info" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip"
+                            title="Tipo de licencia">
+                            <%= l.type %>
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary" style="font-size:0.95em;cursor:pointer;"
+                            data-bs-toggle="tooltip" title="Usuario">
+                            <%= userLic ? userLic.name : l.userId %>
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary" style="font-size:0.95em;cursor:pointer;"
+                            data-bs-toggle="tooltip" title="Admin">
+                            <%= adminLic ? adminLic.name : l.adminId %>
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-dark" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip"
+                            title="HWID">
+                            <%= Array.isArray(l.hwid) ? l.hwid.join(', ') : '' %>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge badge-status <%= status %> <%= status === ' ACTIVE' ? 'bg-success' :
+                              status==='EXPIRED' ? 'bg-warning text-dark' : 'bg-danger' %>" style="cursor:pointer;"
+                              data-bs-toggle="tooltip" title="<%= status==='ACTIVE' ? 'Licencia activa y válida' :
+                                status==='EXPIRED' ? 'Licencia expirada' : 'Licencia revocada/baneada' %>">
+                                <%- estadoIcon %>
+                                  <%= status %>
+                          </span>
+                        </td>
+                        <td>
+                          <span data-bs-toggle="tooltip"
+                            title="<%= l.validUntil ? new Date(l.validUntil).toLocaleString() : '-' %>">
+                            <%= l.validUntil ? new Date(l.validUntil).toLocaleDateString() : '-' %>
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-info" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip"
+                            title="Solicitudes">
+                            <%= l.requestCount %> / <%= l.requestLimit %>
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary" style="font-size:0.95em;cursor:pointer;"
+                            data-bs-toggle="tooltip" title="Última IP">
+                            <%= l.lastUsedIp || '-' %>
+                          </span>
+                        </td>
+                      </tr>
+                      <% }) %>
+                </tbody>
+              </table>
+              <nav>
+                <ul class="pagination pagination-sm justify-content-end" id="licenses-pagination"></ul>
+              </nav>
+            </div>
+          </div>
+
+          <!-- CLIENTES DISCORD -->
+          <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="section-title mb-0"><i class="fab fa-discord"></i> Clientes Discord</span>
+              <!-- <span class="text-muted">Total: <%= myclientDiscord.length %></span> -->
+            </div>
+            <div class="card-body table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Client ID</th>
+                    <th>Token</th>
+                    <th>Log Console</th>
+                    <th>Error Log</th>
+                    <th>Owners</th>
+                    <th>Creado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% myclientDiscord.forEach(c=> { %>
+                    <tr>
+                      <td>
+                        <%= c.clientId %>
+                      </td>
+                      <td><code><%= c.token.slice(0, 8) %>...<%= c.token.slice(-4) %></code></td>
+                      <td><span class="badge <%= c.logconsole ? 'bg-success' : 'bg-secondary' %>">
+                          <%= c.logconsole ? 'Sí' : 'No' %>
+                        </span></td>
+                      <td><span class="badge <%= c.errorlog ? 'bg-danger' : 'bg-secondary' %>">
+                          <%= c.errorlog ? 'Sí' : 'No' %>
+                        </span></td>
+                      <td>
+                        <%= Array.isArray(c.owners) ? c.owners.join(', ') : '' %></td>
+                      <td><%= c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ' -' %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- MÉTRICAS -->
+          <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="section-title mb-0"><i class="fas fa-chart-line"></i> Métricas de Endpoints</span>
+              <!-- <span class="text-muted">Total: <%= metrics.length %></span> -->
+            </div>
+            <div class="card-body table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Endpoint</th>
+                    <th>Cliente</th>
+                    <th>Sistema</th>
+                    <th>Solicitudes</th>
+                    <th>Errores</th>
+                    <th>Latencia Promedio</th>
+                    <th>Última actualización</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% metrics.forEach(m=> { %>
+                    <tr>
+                      <td>
+                        <%= m.endpoint %>
+                      </td>
+                      <td>
+                        <%= m.clientId || '-' %>
+                      </td>
+                      <td>
+                        <%= m.system %>
+                      </td>
+                      <td>
+                        <%= m.requests %>
+                      </td>
+                      <td><span class="badge <%= m.errors > 0 ? 'bg-danger' : 'bg-success' %>">
+                          <%= m.errors %>
+                        </span></td>
+                      <td>
+                        <%= m.latency ? m.latency.toFixed(2) : '-' %> ms
+                      </td>
+                      <td>
+                        <%= m.updatedAt ? new Date(m.updatedAt).toLocaleDateString() : '-' %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- LOGS RECIENTES -->
+          <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="section-title mb-0"><i class="fas fa-file-alt"></i> Logs recientes</span>
+              <div class="d-flex align-items-center gap-2">
+                <div class="search-group search-group-animate-in" id="logs-search-group">
+                  <i class="fas fa-search search-icon"></i>
+                  <input type="text" id="search-logs" class="form-control form-control-sm" autocomplete="off"
+                    placeholder="Buscar por archivo" />
+                  <button type="button" class="clear-btn" id="clear-search-logs" tabindex="-1"
+                    aria-label="Limpiar búsqueda">
+                    <i class="fas fa-times-circle"></i>
+                  </button>
+                  <span class="search-spinner" id="spinner-search-logs"></span>
+                </div>
+                <select class="advanced-filter" id="logs-advanced-filter">
+                  <option value="">Todos</option>
+                  <option value="filename">Archivo</option>
+                  <option value="isCompressed">Comprimido</option>
+                </select>
+                <!-- <span class="text-muted">Últimos <%= recentLogs.length %> archivos</span> -->
+              </div>
+            </div>
+            <div class="card-body table-responsive">
+              <table class="table table-hover align-middle mb-0" id="logs-table">
+                <thead>
+                  <tr>
+                    <th style="cursor:pointer" data-sort="filename" class="sortable">Archivo <i class="fa fa-sort"></i>
+                    </th>
+                    <th style="cursor:pointer" data-sort="lastModified" class="sortable">Última modificación <i
+                        class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="size" class="sortable">Tamaño <i class="fa fa-sort"></i></th>
+                    <th style="cursor:pointer" data-sort="isCompressed" class="sortable">Comprimido <i
+                        class="fa fa-sort"></i></th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="logs-table-body">
+                  <% recentLogs.forEach(log=> { %>
+                    <tr>
+                      <td>
+                        <span class="badge bg-primary" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip"
+                          title="Nombre de archivo">
+                          <%= log.filename %>
+                        </span>
+                      </td>
+                      <td>
+                        <span data-bs-toggle="tooltip" title="Última modificación">
+                          <%= log.lastModified ? new Date(log.lastModified).toLocaleString() : '-' %>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge bg-info" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip"
+                          title="Tamaño">
+                          <%= log.size %>
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge <%= log.isCompressed ? 'bg-success' : 'bg-secondary' %>"
+                          style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip" title="¿Comprimido?">
+                          <%= log.isCompressed ? 'Sí' : 'No' %>
+                        </span>
+                      </td>
+                      <td>
+                        <a href="/dashboard/utils/logs/<%= log.filename %>" class="btn btn-sm btn-outline-primary"
+                          target="_blank" data-bs-toggle="tooltip" title="Ver">
+                          <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="/dashboard/utils/logs/<%= log.filename %>?download=1"
+                          class="btn btn-sm btn-outline-success" target="_blank" data-bs-toggle="tooltip"
+                          title="Descargar">
+                          <i class="fas fa-download"></i>
+                        </a>
+                      </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+              </table>
+              <nav>
+                <ul class="pagination pagination-sm justify-content-end" id="logs-pagination"></ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB CONFIGURACIÓN -->
+        <div class="tab-pane fade" id="config-tab-pane" role="tabpanel" aria-labelledby="config-tab" tabindex="0">
+          <!-- SECCIÓN DE ACTUALIZACIÓN DE ROLES DE USUARIO -->
+          <div class="card fade-in mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="section-title mb-0"><i class="fas fa-user-cog"></i> Gestión de Roles de Usuario</span>
+            </div>
+            <div class="card-body">
+              <% if (user.role !=="owner" ) { %>
+                <div class="alert alert-danger mb-3">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  Solo los usuarios con rango <strong>owner</strong> pueden actualizar roles.
+                </div>
+                <% } %>
+                  <form id="role-update-form" class="row g-3 align-items-end" <%=(user.role &&
+                    user.role.trim().toLowerCase() !=="owner" ) ? 'style="pointer-events:none;opacity:0.7;"' : '' %>>
+                    <div class="col-md-5">
+                      <label for="select-user" class="form-label">Seleccionar usuario</label>
+                      <select class="form-select" id="select-user" required>
+                        <option value="" disabled selected>Elige un usuario...</option>
+                        <% users.forEach(u=> { %>
+                          <option value="<%= u.id %>">
+                            <%= u.name %> (<%= u.email %>) - <%= u.role %>
+                          </option>
+                          <% }) %>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label for="select-role" class="form-label">Nuevo rol</label>
+                      <select class="form-select" id="select-role" required>
+                        <option value="" disabled selected>Selecciona un rol...</option>
+                        <option value="admin">admin</option>
+                        <option value="user">user</option>
+                        <option value="guest">guest</option>
+                        <option value="developer">developer</option>
+                        <option value="owner">owner</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3 d-grid">
+                      <button type="submit" class="btn btn-primary" <%=(user.role && user.role.trim().toLowerCase()
+                        !=="owner" ) ? "disabled" : "" %>>
+                        <i class="fas fa-save me-1"></i> Actualizar Rol
+                      </button>
+                    </div>
+                  </form>
+                  <div id="role-update-result" class="mt-3"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB TASKS -->
+        <div class="tab-pane fade" id="tasks-tab-pane" role="tabpanel" aria-labelledby="tasks-tab" tabindex="0">
+          <%- include('partials/utils/tasks') %>
+        </div>
+        <!-- NUEVA TAB PARA LICENCIAS UI -->
+        <div class="tab-pane fade" id="licensesui-tab-pane" role="tabpanel" aria-labelledby="licensesui-tab"
+          tabindex="0">
+          <%- include('partials/utils/licences') %>
+        </div>
+    </main>
+  </div>
+  </div>
+
+
+  <!-- Toast para notificaciones -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toast-title">Notificación</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toast-body">Mensaje de notificación</div>
+    </div>
+  </div>
+  <%- include('partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // --- SISTEMA DE TRADUCCIÓN Y CAMBIO DE TEMA ---
+      document.addEventListener('DOMContentLoaded', function () {
+        // Traducciones
+        const translations = {
+          es: {
+            infoTab: "Información",
+            configTab: "Configuración",
+            users: "Usuarios",
+            licenses: "Licencias",
+            discordClients: "Clientes Discord",
+            metrics: "Métricas",
+            logs: "Logs recientes",
+            userRole: "Gestión de Roles de Usuario",
+            selectUser: "Seleccionar usuario",
+            selectRole: "Nuevo rol",
+            updateRole: "Actualizar Rol",
+            onlyOwner: "Solo los usuarios con rango owner pueden actualizar roles.",
+            // ...agrega más claves si lo necesitas...
+          },
+          en: {
+            infoTab: "Information",
+            configTab: "Configuration",
+            users: "Users",
+            licenses: "Licenses",
+            discordClients: "Discord Clients",
+            metrics: "Metrics",
+            logs: "Recent Logs",
+            userRole: "User Role Management",
+            selectUser: "Select user",
+            selectRole: "New role",
+            updateRole: "Update Role",
+            onlyOwner: "Only users with owner rank can update roles.",
+            // ...add more keys as needed...
+          }
+        };
+        let currentLanguage = localStorage.getItem('language') || (navigator.language.startsWith('es') ? 'es' : 'en');
+
+        // Cambiar idioma
+        const langLinks = document.querySelectorAll('.lang-link');
+        langLinks.forEach(link => {
+          link.classList.toggle('active', link.dataset.lang === currentLanguage);
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentLanguage = link.dataset.lang;
+            localStorage.setItem('language', currentLanguage);
+            langLinks.forEach(l => l.classList.toggle('active', l === link));
+            updateTranslations();
+          });
+        });
+
+        // Actualizar textos traducibles
+        function updateTranslations() {
+          // Tabs
+          document.getElementById('info-tab').innerHTML = `<i class="fas fa-info-circle"></i> ${translations[currentLanguage].infoTab}`;
+          document.getElementById('config-tab').innerHTML = `<i class="fas fa-cogs"></i> ${translations[currentLanguage].configTab}`;
+          // Secciones
+          document.querySelectorAll('.section-title').forEach(el => {
+            if (el.textContent.includes('Usuarios')) el.innerHTML = `<i class="fas fa-users"></i> ${translations[currentLanguage].users}`;
+            if (el.textContent.includes('Licencias')) el.innerHTML = `<i class="fas fa-key"></i> ${translations[currentLanguage].licenses}`;
+            if (el.textContent.includes('Clientes Discord')) el.innerHTML = `<i class="fab fa-discord"></i> ${translations[currentLanguage].discordClients}`;
+            if (el.textContent.includes('Métricas')) el.innerHTML = `<i class="fas fa-chart-line"></i> ${translations[currentLanguage].metrics}`;
+            if (el.textContent.includes('Logs')) el.innerHTML = `<i class="fas fa-file-alt"></i> ${translations[currentLanguage].logs}`;
+            if (el.textContent.includes('Gestión de Roles') || el.textContent.includes('User Role')) el.innerHTML = `<i class="fas fa-user-cog"></i> ${translations[currentLanguage].userRole}`;
+          });
+          // Formulario de roles
+          const labelUser = document.querySelector('label[for="select-user"]');
+          if (labelUser) labelUser.textContent = translations[currentLanguage].selectUser;
+          const labelRole = document.querySelector('label[for="select-role"]');
+          if (labelRole) labelRole.textContent = translations[currentLanguage].selectRole;
+          const btnRole = document.querySelector('#role-update-form button[type="submit"]');
+          if (btnRole) btnRole.innerHTML = `<i class="fas fa-save me-1"></i> ${translations[currentLanguage].updateRole}`;
+          // Mensaje de solo owner
+          const onlyOwnerAlert = document.querySelector('.alert-danger');
+          if (onlyOwnerAlert) onlyOwnerAlert.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i> ${translations[currentLanguage].onlyOwner}`;
+        }
+        updateTranslations();
+
+        // Tema
+        const themeSwitch = document.getElementById('themeSwitch');
+        const themeIcon = document.querySelector('label[for="themeSwitch"] i');
+        let savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        if (themeSwitch) themeSwitch.checked = savedTheme === 'dark';
+        if (themeIcon) themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        if (themeSwitch) {
+          themeSwitch.addEventListener('change', () => {
+            const theme = themeSwitch.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('theme', theme);
+            if (themeIcon) themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+          });
+        }
+      });
+
+      // Toast helper
+      const toastElement = document.getElementById('notificationToast');
+      const notificationToast = new bootstrap.Toast(toastElement);
+      const showToast = (title, body, type = 'success') => {
+        const toastTitle = document.getElementById('toast-title');
+        const toastBody = document.getElementById('toast-body');
+        toastTitle.textContent = title;
+        toastBody.textContent = body;
+        toastElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white');
+        if (type === 'success') {
+          toastElement.classList.add('bg-success', 'text-white');
+        } else if (type === 'danger' || type === 'error') {
+          toastElement.classList.add('bg-danger', 'text-white');
+        } else if (type === 'warning') {
+          toastElement.classList.add('bg-warning', 'text-white');
+        }
+        notificationToast.show();
+      };
+
+      // --- BUSCADOR, PAGINACIÓN Y ORDEN EN TABLAS ---
+      function setupTableFeatures(tableId, data, renderRow, searchFields) {
+        const tableBody = document.getElementById(tableId + '-body');
+        const searchInput = document.getElementById('search-' + tableId);
+        const pagination = document.getElementById(tableId.replace('-table', '') + '-pagination');
+        const headers = document.querySelectorAll('#' + tableId + ' th.sortable');
+        const searchGroup = document.getElementById(tableId.replace('-table', '') + '-search-group');
+        const clearBtn = document.getElementById('clear-search-' + tableId);
+        const spinnerEl = document.getElementById('spinner-search-' + tableId);
+        const advFilter = document.getElementById(tableId.replace('-table', '') + '-advanced-filter');
+        let currentPage = 1;
+        let rowsPerPage = 10;
+        let sortField = null;
+        let sortDir = 1;
+        let filtered = [...data];
+        let currentFields = [...searchFields];
+
+        // Placeholder dinámico
+        const placeholders = {
+          'users-table': [
+            { field: '', text: 'Buscar por nombre, email o rol' },
+            { field: 'name', text: 'Buscar por nombre' },
+            { field: 'email', text: 'Buscar por email' },
+            { field: 'role', text: 'Buscar por rol' }
+          ],
+          'licenses-table': [
+            { field: '', text: 'Buscar por ID, tipo, usuario, admin o estado' },
+            { field: 'id', text: 'Buscar por ID' },
+            { field: 'type', text: 'Buscar por tipo' },
+            { field: 'user', text: 'Buscar por usuario' },
+            { field: 'admin', text: 'Buscar por admin' },
+            { field: 'status', text: 'Buscar por estado' }
+          ],
+          'logs-table': [
+            { field: '', text: 'Buscar por archivo' },
+            { field: 'filename', text: 'Buscar por archivo' },
+            { field: 'isCompressed', text: 'Buscar por comprimido' }
+          ]
+        };
+
+        function updatePlaceholder() {
+          if (!searchInput || !advFilter) return;
+          const opts = placeholders[tableId] || [];
+          const found = opts.find(o => o.field === advFilter.value);
+          searchInput.placeholder = found ? found.text : 'Buscar...';
+        }
+
+        // Animación de entrada
+        if (searchGroup) {
+          searchGroup.classList.remove('search-group-animate-out');
+          searchGroup.classList.add('search-group-animate-in');
+        }
+
+        function renderTable() {
+          let rows = filtered.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+            .map(renderRow).join('');
+          if (filtered.length === 0) {
+            rows = `<tr class="no-results-row"><td colspan="100%">&#128533; No se encontraron resultados</td></tr>`;
+          }
+          tableBody.innerHTML = rows;
+          renderPagination();
+        }
+
+        function renderPagination() {
+          const totalPages = Math.ceil(filtered.length / rowsPerPage) || 1;
+          let html = '';
+          for (let i = 1; i <= totalPages; i++) {
+            html += `<li class="page-item${i === currentPage ? ' active' : ''}">
+              <a class="page-link" href="#">${i}</a></li>`;
+          }
+          pagination.innerHTML = html;
+          pagination.querySelectorAll('a').forEach((a, idx) => {
+            a.onclick = (e) => {
+              e.preventDefault();
+              currentPage = idx + 1;
+              renderTable();
+            };
+          });
+        }
+
+        // Feedback visual y animación buscador
+        let errorTimeout = null;
+        if (searchInput) {
+          searchInput.classList.add('search-animated');
+          searchInput.addEventListener('focus', () => searchInput.classList.add('search-animated'));
+          searchInput.addEventListener('blur', () => searchInput.classList.remove('search-animated'));
+
+          searchInput.addEventListener('input', function () {
+            if (spinnerEl) spinnerEl.style.display = 'inline-block';
+            setTimeout(() => {
+              try {
+                const val = this.value.toLowerCase();
+                if (val.length === 0) {
+                  filtered = [...data];
+                } else {
+                  filtered = data.filter(row =>
+                    currentFields.some(f => (row[f] || '').toString().toLowerCase().includes(val))
+                  );
+                }
+                currentPage = 1;
+                renderTable();
+                if (filtered.length === 0 && val.length > 0) {
+                  searchInput.classList.add('search-error');
+                  showToast('Sin resultados', 'No se encontraron coincidencias.', 'warning');
+                  if (errorTimeout) clearTimeout(errorTimeout);
+                  errorTimeout = setTimeout(() => searchInput.classList.remove('search-error'), 1200);
+                } else {
+                  searchInput.classList.remove('search-error');
+                }
+              } catch (err) {
+                searchInput.classList.add('search-error');
+                showToast('Error', 'Ocurrió un error al buscar.', 'danger');
+                if (errorTimeout) clearTimeout(errorTimeout);
+                errorTimeout = setTimeout(() => searchInput.classList.remove('search-error'), 1500);
+              }
+              if (spinnerEl) spinnerEl.style.display = 'none';
+            }, 180);
+          });
+        }
+
+        // Botón limpiar búsqueda
+        if (clearBtn && searchInput) {
+          clearBtn.onclick = function () {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+            searchInput.focus();
+          };
+        }
+
+        // Filtro avanzado por columna
+        if (advFilter && searchInput) {
+          advFilter.addEventListener('change', function () {
+            if (this.value) {
+              currentFields = [this.value];
+            } else {
+              currentFields = [...searchFields];
+            }
+            updatePlaceholder();
+            searchInput.dispatchEvent(new Event('input'));
+          });
+          updatePlaceholder();
+        }
+
+        // Animación de salida buscador (opcional, si se oculta)
+        // if (searchGroup) {
+        //   searchGroup.classList.remove('search-group-animate-in');
+        //   searchGroup.classList.add('search-group-animate-out');
+        // }
+
+        headers.forEach(th => {
+          th.addEventListener('click', function () {
+            const field = th.dataset.sort;
+            if (sortField === field) sortDir *= -1;
+            else {
+              sortField = field;
+              sortDir = 1;
+            }
+            filtered.sort((a, b) => {
+              let va = a[field], vb = b[field];
+              if (typeof va === 'string') va = va.toLowerCase();
+              if (typeof vb === 'string') vb = vb.toLowerCase();
+              if (va > vb) return sortDir;
+              if (va < vb) return -sortDir;
+              return 0;
+            });
+            renderTable();
+            headers.forEach(h => h.querySelector('i').className = 'fas fa-sort');
+            th.querySelector('i').className = sortDir === 1 ? 'fas fa-sort-up' : 'fas fa-sort-down';
+          });
+        });
+
+        renderTable();
+      }
+
+      // --- DATOS PARA TABLAS (del backend EJS) ---
+      const users = JSON.parse("<%- JSON.stringify(users).replace(/\\/g, '\\\\').replace(/\"/g, '\\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r') %>");
+      const licenses = JSON.parse("<%- JSON.stringify(licenses).replace(/\\/g, '\\\\').replace(/\"/g, '\\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r') %>");
+
+      const usersData = users.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt,
+        licenses: licenses.filter(l => l.userId === u.id).length
+      }));
+
+      const licensesData = licenses.map(l => ({
+        id: l.id,
+        type: l.type,
+        user: (users.find(u => u.id === l.userId) || {}).name || l.userId,
+        admin: (users.find(u => u.id === l.adminId) || {}).name || l.adminId,
+        hwid: Array.isArray(l.hwid) ? l.hwid.join(', ') : '',
+        status: l.status === 'BANNED' ? 'BANNED' : l.status === 'REVOKED' ? 'REVOKED' : (l.validUntil && new Date(l.validUntil) < new Date() ? 'EXPIRED' : 'ACTIVE'),
+        validUntil: l.validUntil,
+        requestCount: l.requestCount,
+        requestLimit: l.requestLimit,
+        lastUsedIp: l.lastUsedIp
+      }));
+
+      const logs = JSON.parse("<%- JSON.stringify(recentLogs).replace(/\\/g, '\\\\').replace(/\"/g, '\\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r') %>");
+      const logsData = logs.map(log => ({
+        filename: log.filename,
+        lastModified: log.lastModified,
+        size: log.size,
+        isCompressed: log.isCompressed
+      }));
+
+      // --- RENDERIZADORES DE FILAS ---
+      function renderUserRow(u) {
+        return `<tr>
+          <td>${u.name}</td>
+          <td>${u.email}</td>
+          <td><span class="badge badge-role ${u.role} text-uppercase">${u.role}</span></td>
+          <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-'}</td>
+          <td>${u.licenses}</td>
+          <td>${u.updatedAt ? new Date(u.updatedAt).toLocaleDateString() : '-'}</td>
+        </tr>`;
+      }
+
+      function renderLicenseRow(l) {
+        let icon = l.status === 'ACTIVE' ? 'fa-check-circle' : l.status === 'EXPIRED' ? 'fa-clock' : 'fa-ban';
+        return `<tr>
+          <td>${l.id}</td>
+          <td><span class="badge bg-primary">${l.type}</span></td>
+          <td>${l.user}</td>
+          <td>${l.admin}</td>
+          <td>${l.hwid}</td>
+          <td><span class="badge badge-status ${l.status}">
+            <i class="fas ${icon}"></i> ${l.status}
+          </span></td>
+          <td>${l.validUntil ? new Date(l.validUntil).toLocaleDateString() : '-'}</td>
+          <td>${l.requestCount} / ${l.requestLimit}</td>
+          <td>${l.lastUsedIp || '-'}</td>
+        </tr>`;
+      }
+
+      function renderLogRow(log) {
+        return `<tr>
+          <td>${log.filename}</td>
+          <td>${log.lastModified ? new Date(log.lastModified).toLocaleString() : '-'}</td>
+          <td>${log.size}</td>
+          <td><span class="badge ${log.isCompressed ? 'bg-info' : 'bg-secondary'}">${log.isCompressed ? 'Sí' : 'No'}</span></td>
+          <td>
+            <a href="/dashboard/utils/logs/${log.filename}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fas fa-eye"></i> Ver</a>
+            <a href="/dashboard/utils/logs/${log.filename}?download=1" class="btn btn-sm btn-outline-success" target="_blank"><i class="fas fa-download"></i> Descargar</a>
+          </td>
+        </tr>`;
+      }
+
+      // --- INICIALIZAR TABLAS ---
+      document.addEventListener('DOMContentLoaded', function () {
+        setupTableFeatures('users-table', usersData, renderUserRow, ['name', 'email', 'role']);
+        setupTableFeatures('licenses-table', licensesData, renderLicenseRow, ['id', 'type', 'user', 'admin', 'status']);
+        setupTableFeatures('logs-table', logsData, renderLogRow, ['filename', 'isCompressed']);
+      });
+
+      // --- MODAL DE CONFIRMACIÓN PARA ACCIONES CRÍTICAS ---
+      function showConfirmModal(msg, onConfirm) {
+        document.getElementById('confirmModalBody').textContent = msg;
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+        const okBtn = document.getElementById('confirmModalOk');
+
+        function handler() {
+          modal.hide();
+          okBtn.removeEventListener('click', handler);
+          onConfirm();
+        }
+        okBtn.addEventListener('click', handler);
+      }
+
+      // --- GESTIÓN DE ACTUALIZACIÓN DE ROLES CON MODAL ---
+      document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('role-update-form');
+        if (!form) return;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const userId = document.getElementById('select-user').value;
+          const role = document.getElementById('select-role').value;
+          const resultDiv = document.getElementById('role-update-result');
+          resultDiv.textContent = '';
+          if (!userId || !role) {
+            resultDiv.innerHTML = '<div class="alert alert-warning">Selecciona usuario y rol.</div>';
+            return;
+          }
+          showConfirmModal('¿Estás seguro de actualizar el rol de este usuario?', async function () {
+            try {
+              const res = await fetch('/dashboard/utils/auth/update', {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  userId,
+                  role
+                })
+              });
+              const data = await res.json();
+              if (data.success) {
+                resultDiv.innerHTML = '<div class="alert alert-success">Rol actualizado correctamente.</div>';
+                showToast('Éxito', 'Rol actualizado correctamente', 'success');
+              } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">${data.message || 'Error al actualizar el rol.'}</div>`;
+                showToast('Error', data.message || 'Error al actualizar el rol', 'danger');
+              }
+            } catch (err) {
+              resultDiv.innerHTML = '<div class="alert alert-danger">Error de red al actualizar el rol.</div>';
+              showToast('Error', 'Error de red al actualizar el rol', 'danger');
+            }
+          });
+        });
+      });
+
+      // --- DARK/LIGHT MODE CON PREVISUALIZACIÓN INSTANTÁNEA ---
+      document.addEventListener('DOMContentLoaded', function () {
+        const themeSwitch = document.getElementById('themeSwitch');
+        const themeIcon = document.querySelector('label[for="themeSwitch"] i');
+        let savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        if (themeSwitch) themeSwitch.checked = savedTheme === 'dark';
+        if (themeIcon) themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        if (themeSwitch) {
+          themeSwitch.addEventListener('input', () => {
+            const theme = themeSwitch.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('theme', theme);
+            if (themeIcon) themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+          });
+        }
+      });
+    </script>
+    <!-- Modal de confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalLabel"><i class="fas fa-exclamation-triangle text-warning"></i>
+              Confirmar acción</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body" id="confirmModalBody">
+            ¿Estás seguro de que deseas realizar esta acción?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmModalOk">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+
+</html>

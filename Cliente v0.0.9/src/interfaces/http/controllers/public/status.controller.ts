@@ -149,6 +149,13 @@ export class StatusController {
         this.getSystemInfo(),
       ]);
 
+      const projectInfo = {
+        name: _package.name,
+        description: _package.description,
+        author: _package.author,
+        repository: _package.repository?.url || "",
+      };
+
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.status(200).json({
         status: req.t("status.operational"),
@@ -160,6 +167,7 @@ export class StatusController {
           hostname: os.hostname(),
           networkInterfaces: os.networkInterfaces(),
         },
+        project: projectInfo,
         meta: {
           apiVersion: process.env.API_VERSION || _package.version,
           environment: process.env.NODE_ENV || "development",

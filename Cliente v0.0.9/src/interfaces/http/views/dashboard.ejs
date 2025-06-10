@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dashboard de usuario de Nebura Works - Gestiona tu perfil y servidores">
+  <meta name="keywords" content="Nebura, Dashboard, Discord, Perfil, Servidores">
+  <meta name="author" content="Nebura">
+  <meta property="og:title" content="Nebura Dashboard - Gestión de Usuario y Servidores">
+  <meta property="og:description"
+    content="Administra tu perfil y servidores de Discord desde el dashboard de Nebura Works">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://host.hiroshi-dev.me/dashboard">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nebura Dashboard">
+  <meta name="twitter:description" content="Panel de control para gestionar tu perfil y servidores de Discord.">
+
+  <title>Nebura Dashboard</title>
+
+  <!-- Link Utils -->
+  <%- include('partials/link', { user: user }) %>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+  <div id="app-container">
+    <div class="d-flex" style="min-height: 100vh;">
+      <!-- SIDEBAR MEJORADO -->
+      <!-- SIDEBAR MEJORADO -->
+      <%- include('partials/sidebar', { user: user, panelSection: ` <div class="sidebar-section-title">Panel
+    </div>
+    <ul class="nav flex-column sidebar-nav" id="dashboardTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile-tab-pane"
+          type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="true">
+          <i class="fas fa-user"></i> <span data-key="profileTab">Perfil</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="servers-tab" data-bs-toggle="pill" data-bs-target="#servers-tab-pane" type="button"
+          role="tab" aria-controls="servers-tab-pane" aria-selected="false">
+          <i class="fas fa-server"></i> <span data-key="serversTab">Servidores</span>
+        </button>
+      </li>
+    </ul>
+    <div class="sidebar-divider"></div>
+    ` }) %>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-grow-1 p-4">
+      <!-- PERFIL DE USUARIO -->
+      <div id="user-profile-section" class="user-profile animate__animated animate__fadeIn d-flex align-items-center">
+        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=256" alt="User Avatar"
+          class="user-avatar">
+        <div class="user-info">
+          <h3 class="mb-0">
+            <%= user.global_name || user.username %>
+          </h3>
+          <p class="mb-0 opacity-75">@<%= user.username %>
+          </p>
+          <div class="user-badges mt-2">
+            <% if (user.premium_type===2) { %>
+              <span class="badge bg-primary"><i class="fas fa-crown me-1"></i> Nitro</span>
+              <% } %>
+                <span class="badge bg-secondary"><i class="fas fa-users me-1"></i>
+                  <%= Array.isArray(user.guilds) ? user.guilds.length : 0 %>
+                    Servidores
+                </span>
+          </div>
+        </div>
+        <div class="ms-auto d-none d-md-block" style="max-width: 350px;">
+          <% if (user.banner) { %>
+            <img src="https://cdn.discordapp.com/banners/<%= user.id %>/<%= user.banner %>.png?size=512" alt="Banner"
+              class="user-banner w-100">
+            <% } else { %>
+              <div class="user-banner w-100 bg-secondary text-center text-white py-5">Sin banner</div>
+              <% } %>
+        </div>
+      </div>
+      <div class="user-stats">
+        <div class="stat-item">
+          <div class="stat-value">
+            <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> g.owner).length : 0 %>
+          </div>
+          <div class="stat-label" data-key="ownedServers">Servidores Propios</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">
+            <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> !g.owner).length : 0 %>
+          </div>
+          <div class="stat-label" data-key="memberServers">Servidores Miembro</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">
+            <%= user.created_at ? user.created_at.getFullYear() : '—' %>
+          </div>
+          <div class="stat-label" data-key="memberSince">Miembro desde</div>
+        </div>
+      </div>
+      <!-- TABS CONTENT -->
+      <div class="tab-content mt-4" id="dashboardTabsContent">
+        <!-- PERFIL -->
+        <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab"
+          tabindex="0">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-4" style="background: var(--card-bg-dark);">
+                <div class="card-header">
+                  <h5 class="mb-0 fw-bold" data-key="personalInfo">Información Personal</h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold" data-key="usernameLabel">Nombre de usuario</label>
+                    <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                      <%= user.username %>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold" data-key="globalNameLabel">Nombre global</label>
+                    <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                      <%= user.global_name || user.username %>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold" data-key="userIdLabel">ID de usuario</label>
+                    <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                      <%= user.id %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card mb-4" style="background: var(--card-bg-dark);">
+                <div class="card-header">
+                  <h5 class="mb-0 fw-bold" data-key="accountInfo">Información de la cuenta</h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold" data-key="accountTypeLabel">Tipo de cuenta</label>
+                    <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                      <% if (user.premium_type===2) { %> Nitro <% } else { %> Gratis <% } %>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold" data-key="localeLabel">Idioma</label>
+                    <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                      <% if (user.locale==='es-419' ) { %>Español (América Latina)<% } else if (user.locale==='en-US' )
+                          { %>English (US)<% } else { %>
+                            <%= user.locale %>
+                              <% } %>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold" data-key="mfaLabel">Autenticación de dos factores</label>
+                    <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                      <%= user.mfa_enabled ? 'Habilitada' : 'Deshabilitada' %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- SERVIDORES -->
+        <div class="tab-pane fade" id="servers-tab-pane" role="tabpanel" aria-labelledby="servers-tab" tabindex="0">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h3 class="h4 fw-bold" data-key="serversTitle">Mis Servidores</h3>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <!-- Filtros avanzados -->
+              <select id="filter-type" class="form-select form-select-sm" style="width: 120px;">
+                <option value="all" data-key="filterAll">Todos</option>
+                <option value="owner" data-key="filterOwner">Propios</option>
+                <option value="member" data-key="filterMember">Miembro</option>
+              </select>
+              <select id="filter-feature" class="form-select form-select-sm" style="width: 140px;">
+                <option value="all" data-key="filterFeatureAll">Todas</option>
+                <option value="COMMUNITY" data-key="filterCommunity">Comunitario</option>
+                <option value="VERIFIED" data-key="filterVerified">Verificado</option>
+                <option value="PARTNERED" data-key="filterPartnered">Asociado</option>
+              </select>
+              <!-- Toggle Compact/Expanded -->
+              <button id="toggle-compact" class="btn btn-outline-primary btn-sm" title="Modo compacto">
+                <i class="fas fa-th-large"></i>
+              </button>
+              <div class="input-group" style="max-width: 220px;">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="server-search" placeholder="Buscar servidores..."
+                  data-key="searchPlaceholder">
+              </div>
+            </div>
+          </div>
+          <div id="server-grid" class="row g-4">
+            <!-- Skeleton loaders -->
+            <% for(let i=0;i<6;i++){ %>
+              <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+                <div class="card server-card skeleton">
+                  <div class="skeleton-text"></div>
+                  <div class="skeleton-text" style="width:40%"></div>
+                </div>
+              </div>
+              <% } %>
+          </div>
+          <div id="loading-spinner" class="text-center my-5 d-none">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+          <div id="no-servers-message" class="text-center text-muted my-5 d-none">
+            <i class="fas fa-server fa-3x mb-3"></i>
+            <h4 data-key="noServersTitle">No hay servidores</h4>
+            <p data-key="noServersSubtitle">No estás en ningún servidor o no tienes permisos de administración</p>
+          </div>
+          <!-- Pagination -->
+          <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true" data-key="previous">Anterior</a>
+              </li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#" data-key="next">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <!-- TABLA DE LICENCIAS DEL USUARIO -->
+      <section class="card mb-4 fade-in" id="userLicensesSection"
+        style="background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+        <div class="card-header d-flex align-items-center justify-content-between"
+          style="background: transparent; border-bottom: 1px solid var(--input-border);">
+          <span class="section-title"><i class="fa-solid fa-key me-2"></i>Licencias de usuario</span>
+          <button class="btn btn-outline-secondary btn-sm" id="refreshUserLicensesBtn" title="Recargar licencias">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+            <input type="text" id="licenseSearch" class="form-control form-control-sm" style="max-width:200px;"
+              placeholder="Buscar licencia...">
+            <select id="licenseTypeFilter" class="form-select form-select-sm" style="max-width:150px;">
+              <option value="">Todos los tipos</option>
+            </select>
+            <select id="licenseStatusFilter" class="form-select form-select-sm" style="max-width:130px;">
+              <option value="">Todos los estados</option>
+              <option value="ACTIVA">Activa</option>
+              <option value="EXPIRADA">Expirada</option>
+            </select>
+            <button id="exportLicensesBtn" class="btn btn-outline-success btn-sm" title="Exportar a CSV">
+              <i class="fa fa-file-csv"></i> Exportar CSV
+            </button>
+            <span class="ms-auto small">
+              <span id="activeLicCount" class="badge bg-success">0 Activas</span>
+              <span id="expiredLicCount" class="badge bg-danger">0 Expiradas</span>
+            </span>
+          </div>
+          <div class="table-responsive position-relative">
+            <table class="table table-hover align-middle mb-0" id="userLicensesTable">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer" data-sort="key">Clave <i class="fa fa-sort"></i></th>
+                  <th style="cursor:pointer" data-sort="type">Tipo <i class="fa fa-sort"></i></th>
+                  <th style="cursor:pointer" data-sort="estado">Estado <i class="fa fa-sort"></i></th>
+                  <th style="cursor:pointer" data-sort="validUntil">Válida hasta <i class="fa fa-sort"></i></th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Licencias se insertan aquí -->
+              </tbody>
+            </table>
+            <div id="userLicensesEmpty" class="text-center text-muted my-3" style="display:none;">
+              No tienes licencias registradas.
+            </div>
+          </div>
+          <nav>
+            <ul class="pagination justify-content-center my-2" id="licensesPagination"></ul>
+          </nav>
+        </div>
+      </section>
+
+      <!-- Modal Detalles Licencia -->
+      <div class="modal fade" id="licenseDetailModal" tabindex="-1" aria-labelledby="licenseDetailModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="licenseDetailModalLabel">Detalles de la Licencia</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="licenseDetailBody">
+              <!-- Detalles dinámicos -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          // ...existing code...
+          const userId = JSON.parse('<%- JSON.stringify(user.id) %>');
+          const tableBody = document.querySelector('#userLicensesTable tbody');
+          const emptyMsg = document.getElementById('userLicensesEmpty');
+          const refreshBtn = document.getElementById('refreshUserLicensesBtn');
+          const searchInput = document.getElementById('licenseSearch');
+          const typeFilter = document.getElementById('licenseTypeFilter');
+          const statusFilter = document.getElementById('licenseStatusFilter');
+          const pagination = document.getElementById('licensesPagination');
+          const exportBtn = document.getElementById('exportLicensesBtn');
+          const activeLicCount = document.getElementById('activeLicCount');
+          const expiredLicCount = document.getElementById('expiredLicCount');
+          let allLicenses = [];
+          let filteredLicenses = [];
+          let currentPage = 1;
+          const licensesPerPage = 10;
+          let currentSort = { key: null, dir: 1 };
+
+          function getEstado(lic) {
+            return lic.validUntil && new Date(lic.validUntil) > new Date() ? 'ACTIVA' : 'EXPIRADA';
+          }
+
+          function renderLicensesTable(licenses) {
+            tableBody.innerHTML = '';
+            if (!licenses || licenses.length === 0) {
+              emptyMsg.style.display = 'block';
+              return;
+            }
+            emptyMsg.style.display = 'none';
+            // Paginación
+            const start = (currentPage - 1) * licensesPerPage;
+            const pageLicenses = licenses.slice(start, start + licensesPerPage);
+            pageLicenses.forEach((lic, idx) => {
+              const estado = getEstado(lic);
+              const estadoIcon = estado === 'ACTIVA'
+                ? '<i class="fa fa-check-circle text-success" title="Activa"></i>'
+                : '<i class="fa fa-times-circle text-danger" title="Expirada"></i>';
+              tableBody.innerHTML += `
+                <tr>
+                  <td>
+                    <span class="badge bg-primary" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip" title="Click para ver detalles" onclick="showLicenseDetail('${lic.key || lic.id || '-'}')">
+                      ${lic.key || lic.id || '-'}
+                    </span>
+                  </td>
+                  <td>${lic.type || '-'}</td>
+                  <td>
+                    <span class="badge badge-status ${estado} ${estado === 'ACTIVA' ? 'bg-success' : 'bg-danger'}" style="cursor:pointer;" data-bs-toggle="tooltip" title="${estado === 'ACTIVA' ? 'Licencia activa y válida' : 'Licencia expirada'}">
+                      ${estadoIcon} ${estado}
+                    </span>
+                  </td>
+                  <td>
+                    <span data-bs-toggle="tooltip" title="${lic.validUntil ? new Date(lic.validUntil).toLocaleString() : '-'}">
+                      ${lic.validUntil ? new Date(lic.validUntil).toLocaleDateString() : '-'}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-secondary" title="Copiar clave" onclick="navigator.clipboard.writeText('${lic.key || lic.id || '-'}')"><i class="fa fa-copy"></i></button>
+                    <button class="btn btn-sm btn-outline-info ms-1" title="Ver detalles" onclick="showLicenseDetail('${lic.key || lic.id || '-'}')"><i class="fa fa-eye"></i></button>
+                  </td>
+                </tr>
+              `;
+            });
+            // Inicializar tooltips
+            setTimeout(() => {
+              var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+              tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+              });
+            }, 100);
+          }
+
+          function renderPagination(total) {
+            pagination.innerHTML = '';
+            const totalPages = Math.ceil(total / licensesPerPage);
+            if (totalPages <= 1) return;
+            // Prev
+            pagination.innerHTML += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+            </li>`;
+            // Pages
+            for (let i = 1; i <= totalPages; i++) {
+              pagination.innerHTML += `<li class="page-item${i === currentPage ? ' active' : ''}">
+                <a class="page-link" href="#">${i}</a>
+              </li>`;
+            }
+            // Next
+            pagination.innerHTML += `<li class="page-item${currentPage === totalPages ? ' disabled' : ''}">
+              <a class="page-link" href="#">&raquo;</a>
+            </li>`;
+            // Eventos
+            Array.from(pagination.querySelectorAll('.page-link')).forEach((el, idx) => {
+              el.onclick = (e) => {
+                e.preventDefault();
+                if (el.innerHTML.includes('&laquo;') && currentPage > 1) {
+                  currentPage--;
+                } else if (el.innerHTML.includes('&raquo;') && currentPage < totalPages) {
+                  currentPage++;
+                } else if (!el.innerHTML.includes('&laquo;') && !el.innerHTML.includes('&raquo;')) {
+                  currentPage = Number(el.textContent);
+                }
+                renderLicensesTable(filteredLicenses);
+                renderPagination(filteredLicenses.length);
+              };
+            });
+          }
+
+          function updateTypeFilterOptions(licenses) {
+            const types = Array.from(new Set(licenses.map(l => l.type).filter(Boolean)));
+            typeFilter.innerHTML = '<option value="">Todos los tipos</option>' +
+              types.map(t => `<option value="${t}">${t}</option>`).join('');
+          }
+
+          function updateCounters(licenses) {
+            const act = licenses.filter(l => getEstado(l) === 'ACTIVA').length;
+            const exp = licenses.filter(l => getEstado(l) === 'EXPIRADA').length;
+            activeLicCount.textContent = `${act} Activas`;
+            expiredLicCount.textContent = `${exp} Expiradas`;
+          }
+
+          function applyFiltersAndRender() {
+            let list = [...allLicenses];
+            // Filtro búsqueda
+            const q = (searchInput.value || '').toLowerCase();
+            if (q) {
+              list = list.filter(l =>
+                (l.key || l.id || '').toLowerCase().includes(q) ||
+                (l.type || '').toLowerCase().includes(q) ||
+                getEstado(l).toLowerCase().includes(q)
+              );
+            }
+            // Filtro tipo
+            if (typeFilter.value) list = list.filter(l => l.type === typeFilter.value);
+            // Filtro estado
+            if (statusFilter.value) list = list.filter(l => getEstado(l) === statusFilter.value);
+            // Ordenamiento
+            if (currentSort.key) {
+              list.sort((a, b) => {
+                let va = a[currentSort.key] || '';
+                let vb = b[currentSort.key] || '';
+                if (currentSort.key === 'validUntil') {
+                  va = va ? new Date(va) : new Date(0);
+                  vb = vb ? new Date(vb) : new Date(0);
+                } else if (currentSort.key === 'estado') {
+                  va = getEstado(a);
+                  vb = getEstado(b);
+                }
+                if (va < vb) return -1 * currentSort.dir;
+                if (va > vb) return 1 * currentSort.dir;
+                return 0;
+              });
+            }
+            filteredLicenses = list;
+            currentPage = 1;
+            renderLicensesTable(filteredLicenses);
+            renderPagination(filteredLicenses.length);
+            updateCounters(filteredLicenses);
+          }
+
+          // Exportar a CSV
+          function exportToCSV() {
+            if (!filteredLicenses.length) return;
+            const header = ['Clave', 'Tipo', 'Estado', 'Válida hasta'];
+            const rows = filteredLicenses.map(l => [
+              `"${l.key || l.id || '-'}"`,
+              `"${l.type || '-'}"`,
+              `"${getEstado(l)}"`,
+              `"${l.validUntil ? new Date(l.validUntil).toLocaleDateString() : '-'}"`
+            ]);
+            let csv = header.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'licencias.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+
+          // Modal detalles
+          window.showLicenseDetail = function (key) {
+            const lic = allLicenses.find(l => (l.key || l.id) == key);
+            if (!lic) return;
+            const estado = getEstado(lic);
+            document.getElementById('licenseDetailBody').innerHTML = `
+              <ul class="list-group">
+                <li class="list-group-item"><b>Clave:</b> ${lic.key || lic.id || '-'}</li>
+                <li class="list-group-item"><b>Tipo:</b> ${lic.type || '-'}</li>
+                <li class="list-group-item"><b>Estado:</b> <span class="badge ${estado === 'ACTIVA' ? 'bg-success' : 'bg-danger'}">${estado}</span></li>
+                <li class="list-group-item"><b>Válida hasta:</b> ${lic.validUntil ? new Date(lic.validUntil).toLocaleString() : '-'}</li>
+                <li class="list-group-item"><b>Detalles:</b> <pre style="white-space:pre-wrap;">${JSON.stringify(lic, null, 2)}</pre></li>
+              </ul>
+            `;
+            new bootstrap.Modal(document.getElementById('licenseDetailModal')).show();
+          };
+
+          // Ordenamiento columnas
+          document.querySelectorAll('#userLicensesTable th[data-sort]').forEach(th => {
+            th.onclick = function () {
+              const key = th.dataset.sort;
+              if (currentSort.key === key) {
+                currentSort.dir *= -1;
+              } else {
+                currentSort.key = key;
+                currentSort.dir = 1;
+              }
+              applyFiltersAndRender();
+            };
+          });
+
+          // Eventos filtros y búsqueda
+          [searchInput, typeFilter, statusFilter].forEach(el => {
+            el && el.addEventListener('input', applyFiltersAndRender);
+            el && el.addEventListener('change', applyFiltersAndRender);
+          });
+
+          if (exportBtn) exportBtn.onclick = exportToCSV;
+
+          async function fetchUserLicenses() {
+            tableBody.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="height:24px;width:100%"></div></td></tr>';
+            emptyMsg.style.display = 'none';
+            try {
+              const res = await fetch(`/dashboard/utils/licenses/user/${userId}`);
+              const data = await res.json();
+              let licenses = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
+              allLicenses = licenses;
+              updateTypeFilterOptions(licenses);
+              applyFiltersAndRender();
+            } catch (e) {
+              console.error(e);
+              tableBody.innerHTML = '<tr><td colspan="5" class="text-danger">Error al cargar licencias</td></tr>';
+              emptyMsg.style.display = 'none';
+            }
+          }
+
+          fetchUserLicenses();
+          if (refreshBtn) refreshBtn.onclick = fetchUserLicenses;
+        });
+      </script>
+    </main>
+  </div>
+  <!-- Toast para notificaciones -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toast-title">Notificación</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toast-body">Mensaje de notificación</div>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <%- include('partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // ...dentro de document.addEventListener('DOMContentLoaded', function () { ...
+        const toastElement = document.getElementById('notificationToast');
+        const notificationToast = new bootstrap.Toast(toastElement);
+        // ...resto del código...
+
+        // --- CONFIGURACIÓN Y ESTADO ---
+        const USER_DATA = JSON.parse('<%- JSON.stringify(user) %>');
+
+        // Filtrar solo los servidores relevantes (con permisos de administración)
+        const ADMIN_PERMISSION = 0x8; // Permiso de administrador
+        let compactMode = localStorage.getItem('compactMode') === 'true';
+        let dragSrcIndex = null;
+        let filteredServers = USER_DATA.guilds.filter(guild =>
+          (guild.permissions & ADMIN_PERMISSION) === ADMIN_PERMISSION || guild.owner
+        );
+        let filterType = 'all';
+        let filterFeature = 'all';
+        let searchTerm = '';
+        let serversPerPage = 6; // <--- Agrega esta línea
+        let currentPage = 1;    // <--- Y esta para evitar otros errores
+
+        // --- DICCIONARIO DE TRADUCCIONES ---
+        const translations = {
+          en: {
+            profileTab: "Profile",
+            serversTab: "Servers",
+            personalInfo: "Personal Information",
+            usernameLabel: "Username",
+            globalNameLabel: "Global Name",
+            userIdLabel: "User ID",
+            accountInfo: "Account Information",
+            accountTypeLabel: "Account Type",
+            localeLabel: "Language",
+            mfaLabel: "Two-Factor Authentication",
+            serversTitle: "My Servers",
+            searchPlaceholder: "Search servers...",
+            noServersTitle: "No servers",
+            noServersSubtitle: "You're not in any servers or don't have admin permissions",
+            previous: "Previous",
+            next: "Next",
+            ownerBadge: "OWNER",
+            membersLabel: "Members",
+            featuresLabel: "Features",
+            manageBtn: "Manage",
+            viewBtn: "View",
+            serverFeatures: {
+              COMMUNITY: "Community Server",
+              VERIFIED: "Verified",
+              PARTNERED: "Partnered",
+              VANITY_URL: "Custom URL",
+              NEWS: "Announcement Channels",
+              DISCOVERABLE: "Discoverable"
+            },
+            filterAll: "All",
+            filterOwner: "Owned",
+            filterMember: "Member",
+            filterFeatureAll: "All",
+            filterCommunity: "Community",
+            filterVerified: "Verified",
+            filterPartnered: "Partnered",
+            dragInfo: "Drag to reorder servers",
+            toastSuccess: "Success",
+            toastError: "Error",
+          },
+          es: {
+            profileTab: "Perfil",
+            serversTab: "Servidores",
+            personalInfo: "Información Personal",
+            usernameLabel: "Nombre de usuario",
+            globalNameLabel: "Nombre global",
+            userIdLabel: "ID de usuario",
+            accountInfo: "Información de la cuenta",
+            accountTypeLabel: "Tipo de cuenta",
+            localeLabel: "Idioma",
+            mfaLabel: "Autenticación de dos factores",
+            serversTitle: "Mis Servidores",
+            searchPlaceholder: "Buscar servidores...",
+            noServersTitle: "No hay servidores",
+            noServersSubtitle: "No estás en ningún servidor o no tienes permisos de administración",
+            previous: "Anterior",
+            next: "Siguiente",
+            ownerBadge: "PROPIETARIO",
+            membersLabel: "Miembros",
+            featuresLabel: "Características",
+            manageBtn: "Administrar",
+            viewBtn: "Ver",
+            serverFeatures: {
+              COMMUNITY: "Servidor comunitario",
+              VERIFIED: "Verificado",
+              PARTNERED: "Asociado",
+              VANITY_URL: "URL personalizada",
+              NEWS: "Canales de anuncios",
+              DISCOVERABLE: "Descubrible"
+            },
+            filterAll: "Todos",
+            filterOwner: "Propios",
+            filterMember: "Miembro",
+            filterFeatureAll: "Todas",
+            filterCommunity: "Comunitario",
+            filterVerified: "Verificado",
+            filterPartnered: "Asociado",
+            dragInfo: "Arrastra para reordenar servidores",
+            toastSuccess: "Éxito",
+            toastError: "Error",
+          }
+        };
+
+        // --- FUNCIONES DE AYUDA ---
+        const showToast = (title, body, type = 'success') => {
+          const toastTitle = document.getElementById('toast-title');
+          const toastBody = document.getElementById('toast-body');
+          toastTitle.innerHTML = `${type === 'success'
+            ? '<i class="fas fa-check-circle me-2"></i>'
+            : type === 'error'
+              ? '<i class="fas fa-times-circle me-2"></i>'
+              : '<i class="fas fa-info-circle me-2"></i>'}${title}`;
+          toastBody.textContent = body;
+          toastElement.classList.remove('bg-success', 'bg-danger', 'bg-info', 'text-white');
+          if (type === 'success') {
+            toastElement.classList.add('bg-success', 'text-white');
+          } else if (type === 'error') {
+            toastElement.classList.add('bg-danger', 'text-white');
+          } else {
+            toastElement.classList.add('bg-info', 'text-white');
+          }
+          notificationToast.show();
+        };
+
+        const getServerIconUrl = (guildId, iconHash) => {
+          if (!iconHash) return 'https://cdn.discordapp.com/embed/avatars/0.png';
+          return `https://cdn.discordapp.com/icons/${guildId}/${iconHash}.png?size=256`;
+        };
+
+        const getServerBannerUrl = (guildId, bannerHash) => {
+          if (!bannerHash) return '';
+          return `https://cdn.discordapp.com/banners/${guildId}/${bannerHash}.png?size=512`;
+        };
+
+        const formatServerFeatures = (features) => {
+          if (!features || features.length === 0) return '';
+          return features.map(feature => {
+            const label = translations[currentLanguage].serverFeatures[feature] || feature;
+            return `<span class="badge bg-info me-1">${label}</span>`;
+          }).join(' ');
+        };
+
+        const updateTranslations = () => {
+          document.querySelectorAll('[data-key]').forEach(element => {
+            const key = element.dataset.key;
+            if (translations[currentLanguage][key]) {
+              if (element.tagName === 'INPUT' && element.placeholder) {
+                element.placeholder = translations[currentLanguage][key];
+              } else {
+                element.textContent = translations[currentLanguage][key];
+              }
+            }
+          });
+        };
+
+        // --- FILTRO Y BÚSQUEDA ---
+        function applyFilters() {
+          let servers = USER_DATA.guilds.filter(guild =>
+            (guild.permissions & ADMIN_PERMISSION) === ADMIN_PERMISSION || guild.owner
+          );
+          if (filterType === 'owner') {
+            servers = servers.filter(g => g.owner);
+          } else if (filterType === 'member') {
+            servers = servers.filter(g => !g.owner);
+          }
+          if (filterFeature !== 'all') {
+            servers = servers.filter(g => g.features && g.features.includes(filterFeature));
+          }
+          if (searchTerm) {
+            servers = servers.filter(server =>
+              server.name.toLowerCase().includes(searchTerm)
+            );
+          }
+          filteredServers = servers;
+          renderServers(filteredServers, 1);
+        }
+
+        // --- RENDERIZADO DE SERVIDORES ---
+        const renderServers = (servers, page = 1) => {
+          const serverGrid = document.getElementById('server-grid');
+          serverGrid.innerHTML = '';
+          currentPage = page;
+
+          if (!servers || servers.length === 0) {
+            document.getElementById('no-servers-message').classList.remove('d-none');
+            document.getElementById('loading-spinner').classList.add('d-none');
+            return;
+          }
+
+          document.getElementById('no-servers-message').classList.add('d-none');
+
+          // Paginación
+          const startIndex = (page - 1) * serversPerPage;
+          const paginatedServers = servers.slice(startIndex, startIndex + serversPerPage);
+
+          paginatedServers.forEach((server, index) => {
+            const serverCard = document.createElement('div');
+            serverCard.className = 'col-lg-2 col-md-4 col-sm-6 col-12 fade-in';
+            serverCard.style.animationDelay = `${index * 0.05}s`;
+
+            // Drag & Drop
+            serverCard.setAttribute('draggable', 'true');
+            serverCard.dataset.index = startIndex + index;
+            serverCard.addEventListener('dragstart', (e) => {
+              dragSrcIndex = Number(serverCard.dataset.index);
+              serverCard.classList.add('dragging');
+            });
+            serverCard.addEventListener('dragend', (e) => {
+              serverCard.classList.remove('dragging');
+            });
+            serverCard.addEventListener('dragover', (e) => {
+              e.preventDefault();
+              serverCard.classList.add('drag-over');
+            });
+            serverCard.addEventListener('dragleave', (e) => {
+              serverCard.classList.remove('drag-over');
+            });
+            serverCard.addEventListener('drop', (e) => {
+              e.preventDefault();
+              serverCard.classList.remove('drag-over');
+              const dropIndex = Number(serverCard.dataset.index);
+              if (dragSrcIndex !== null && dropIndex !== dragSrcIndex) {
+                // Reordenar
+                const moved = filteredServers.splice(dragSrcIndex, 1)[0];
+                filteredServers.splice(dropIndex, 0, moved);
+                localStorage.setItem('serverOrder', JSON.stringify(filteredServers.map(s => s.id)));
+                showToast(translations[currentLanguage].toastSuccess, translations[currentLanguage].dragInfo, 'success');
+                renderServers(filteredServers, currentPage);
+              }
+              dragSrcIndex = null;
+            });
+
+            const bannerUrl = getServerBannerUrl(server.id, server.banner);
+            const iconUrl = getServerIconUrl(server.id, server.icon);
+
+            serverCard.innerHTML = `
+          <div class="card server-card ${compactMode ? 'compact' : 'expanded'} h-100" tabindex="0">
+            ${bannerUrl ? `<img src="${bannerUrl}" class="server-banner" alt="${server.name} banner">` :
+                `<div class="server-banner bg-secondary"></div>`}
+            <img src="${iconUrl}" class="server-icon" alt="${server.name} icon">
+            ${server.owner ? `<span class="owner-badge">${translations[currentLanguage].ownerBadge}</span>` : ''}
+            <div class="card-body">
+              <h5 class="card-title">${server.name}</h5>
+              <p class="card-text">
+                <small class="text-muted">${translations[currentLanguage].membersLabel}: ${Math.floor(Math.random() * 5000) + 100}</small>
+              </p>
+            </div>
+            <div class="card-footer text-center">
+              <a href="/dashboard/server/${server.id}" class="btn btn-primary btn-sm">
+                <i class="fas fa-cog me-1"></i> ${translations[currentLanguage].manageBtn}
+              </a>
+              <a href="https://discord.com/channels/${server.id}" class="btn btn-outline-primary btn-sm ms-2" target="_blank">
+                <i class="fas fa-external-link-alt me-1"></i> ${translations[currentLanguage].viewBtn}
+              </a>
+            </div>
+          </div>
+        `;
+
+            serverGrid.appendChild(serverCard);
+          });
+
+          // Actualizar paginación
+          updatePagination(servers.length);
+          document.getElementById('loading-spinner').classList.add('d-none');
+        };
+
+        const updatePagination = (totalServers) => {
+          const totalPages = Math.ceil(totalServers / serversPerPage);
+          const pagination = document.querySelector('.pagination');
+          pagination.innerHTML = '';
+
+          // Botón Anterior
+          const prevItem = document.createElement('li');
+          prevItem.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+          prevItem.innerHTML = `
+        <a class="page-link" href="#" tabindex="-1" aria-disabled="true" data-key="previous">
+          ${translations[currentLanguage].previous}
+        </a>
+      `;
+          prevItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage > 1) {
+              renderServers(filteredServers, currentPage - 1);
+            }
+          });
+          pagination.appendChild(prevItem);
+
+          // Números de página
+          for (let i = 1; i <= totalPages; i++) {
+            const pageItem = document.createElement('li');
+            pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+            pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            pageItem.addEventListener('click', (e) => {
+              e.preventDefault();
+              renderServers(filteredServers, i);
+            });
+            pagination.appendChild(pageItem);
+          }
+
+          // Botón Siguiente
+          const nextItem = document.createElement('li');
+          nextItem.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+          nextItem.innerHTML = `
+        <a class="page-link" href="#" data-key="next">
+          ${translations[currentLanguage].next}
+        </a>
+      `;
+          nextItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentPage < totalPages) {
+              renderServers(filteredServers, currentPage + 1);
+            }
+          });
+          pagination.appendChild(nextItem);
+        };
+
+        // --- MANEJADORES DE EVENTOS ---
+        const themeSwitch = document.getElementById('themeSwitch');
+        if (themeSwitch) {
+          themeSwitch.addEventListener('change', () => {
+            const theme = themeSwitch.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            localStorage.setItem('theme', theme);
+            const themeIcon = document.querySelector('label[for="themeSwitch"] i');
+            if (themeIcon) themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+          });
+        }
+
+        const langLinks = document.querySelectorAll('.lang-link');
+        if (langLinks && langLinks.length) {
+          langLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              currentLanguage = link.dataset.lang;
+              localStorage.setItem('language', currentLanguage);
+              updateTranslations();
+              langLinks.forEach(l => l.classList.toggle('active', l === link));
+              // Volver a renderizar servidores para actualizar traducciones
+              renderServers(filteredServers, currentPage);
+            });
+          });
+        }
+
+        // Compact/Expanded toggle
+        const toggleCompact = document.getElementById('toggle-compact');
+        if (toggleCompact) {
+          toggleCompact.addEventListener('click', () => {
+            compactMode = !compactMode;
+            localStorage.setItem('compactMode', compactMode);
+            renderServers(filteredServers, currentPage);
+            toggleCompact.innerHTML = compactMode
+              ? '<i class="fas fa-th-list"></i>'
+              : '<i class="fas fa-th-large"></i>';
+          });
+          // Inicializar icono
+          toggleCompact.innerHTML = compactMode
+            ? '<i class="fas fa-th-list"></i>'
+            : '<i class="fas fa-th-large"></i>';
+        }
+
+        // Filtros avanzados
+        const filterTypeSelect = document.getElementById('filter-type');
+        const filterFeatureSelect = document.getElementById('filter-feature');
+        if (filterTypeSelect) {
+          filterTypeSelect.addEventListener('change', (e) => {
+            filterType = e.target.value;
+            applyFilters();
+          });
+        }
+        if (filterFeatureSelect) {
+          filterFeatureSelect.addEventListener('change', (e) => {
+            filterFeature = e.target.value;
+            applyFilters();
+          });
+        }
+
+        // Búsqueda de servidores
+        const serverSearch = document.getElementById('server-search');
+        if (serverSearch) {
+          serverSearch.addEventListener('input', (e) => {
+            searchTerm = e.target.value.toLowerCase();
+            applyFilters();
+          });
+        }
+
+        // --- INICIALIZACIÓN ---
+        const init = () => {
+          // Cargar tema guardado o preferencia del sistema
+          const savedTheme = localStorage.getItem('theme') || 'dark';
+          document.documentElement.setAttribute('data-bs-theme', savedTheme);
+          if (themeSwitch) themeSwitch.checked = savedTheme === 'dark';
+
+          // Cargar idioma guardado o preferencia del navegador
+          const savedLanguage = localStorage.getItem('language') ||
+            (navigator.language.startsWith('es') ? 'es' : 'en');
+          currentLanguage = savedLanguage;
+
+          // Activar pestaña de idioma correspondiente
+          document.querySelector(`.lang-link[data-lang="${savedLanguage}"]`).classList.add('active');
+
+          // Actualizar traducciones
+          updateTranslations();
+
+          // Restaurar orden de servidores si existe
+          const savedOrder = localStorage.getItem('serverOrder');
+          if (savedOrder) {
+            const order = JSON.parse(savedOrder);
+            filteredServers.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+          }
+
+          // Mostrar skeletons antes de cargar
+          setTimeout(() => {
+            renderServers(filteredServers, 1);
+          }, 600);
+        };
+
+        // Iniciar la aplicación
+        init();
+        document.body.classList.add('loaded');
+      });
+    </script>
+    </div>
+</body>
+
+</html>

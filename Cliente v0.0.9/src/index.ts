@@ -1,5 +1,6 @@
 import apicache from "apicache";
 import chalk from "chalk";
+import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
 import session from "express-session";
 import helmet from "helmet";
@@ -17,8 +18,10 @@ import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 
+import { passport } from "./adapters/external/passport";
 import swaggerSetup from "./adapters/external/swagger";
 import { IPBlocker } from "./interfaces/messaging/broker/administrator";
+import { hostURL } from "./shared/functions";
 import { SwaggerMonitor } from "./shared/monitor";
 import { router } from "./shared/utils/routes";
 
@@ -30,6 +33,12 @@ declare global {
     }
   }
 }
+
+const corsOptions = {
+  origin: hostURL(),
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true,
+};
 
 /**
  * Main class responsible for initializing and configuring the API server.
@@ -87,18 +96,24 @@ export class API {
     this.app.use(express.urlencoded({ extended: true }));
 
     // Disable the "X-Powered-By" header for security reasons
+    this.app.set("view engine", "ejs");
+    this.app.use(passport.initialize());
+    this.app.use(passport.session());
+
     this.app.disable("x-powered-by");
 
     // Trust the first proxy (useful for reverse proxies like Nginx)
     this.app.set("trust proxy", 1);
 
     // Parse JSON request bodies
+
     this.app.use(express.json());
 
     this.app.use(i18nextMiddleware.handle(i18next));
 
     // Use the router for handling application routes
     this.app.use(router);
+    await SwaggerMonitor(this);
 
     // Serve static files from the public directory
     // Configuración del cliente de Redis
@@ -135,6 +150,7 @@ export class API {
 
     // Add security headers using Helmet
     this.app.use(helmet({ contentSecurityPolicy: false, referrerPolicy: false }));
+    this.app.use("/dashboard/utils/", cors(corsOptions))
 
     // Assign a unique ID to each request
     this.app.use((req: Request, _res: Response, next: NextFunction) => {
@@ -199,7 +215,6 @@ export class API {
     });
 
     // Initialize Swagger monitoring and documentation
-    await SwaggerMonitor(this);
     this.app.use(
       config.environments.default.api.swagger.docs,
       swaggerUi.serve,

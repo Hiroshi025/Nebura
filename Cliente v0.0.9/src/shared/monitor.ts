@@ -1,4 +1,5 @@
 import chalk from "chalk";
+//import { Request, Response } from "express";
 import { debug } from "node:console";
 import SwaggerParser from "swagger-parser";
 import swStats from "swagger-stats";
@@ -56,7 +57,7 @@ export const SwaggerMonitor = (main: API) => {
         swStats.getMiddleware({
           name: projectconfig.name,
           version: projectconfig.version,
-          hostname: `${projectconfig.url}`,
+          hostname: projectconfig.url,
           timelineBucketDuration: 60000,
           swaggerSpec: swaggerSpec,
           uriPath: projectconfig.url,
@@ -73,10 +74,14 @@ export const SwaggerMonitor = (main: API) => {
           },
         }),
       );
+
+      /*       main.app.get(projectconfig.url, async (_req: Request, res: Response) => {
+        res.send(swStats.getCoreStats());
+      }); */
     } else {
       // Log an error if the Swagger API specification fails validation
       logWithLabel("custom", `Swagger API: ${err}`, {
-        customLabel: "Swagger"
+        customLabel: "Swagger",
       });
       return;
     }

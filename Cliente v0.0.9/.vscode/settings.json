@@ -14,7 +14,7 @@
     "LICENSE": false, // Archivo de licencia (no se oculta)
     "**/docs": true, // Carpeta de documentación
     "dist": true, // Carpeta de distribución (builds)
-    "build": true, // Carpeta de builds
+    "build": false, // Carpeta de builds
     "node_modules": true // Dependencias de Node.js
   },
 

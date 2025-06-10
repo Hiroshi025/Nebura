@@ -4,10 +4,9 @@ import { Modals } from "@typings/modules/discord";
 
 const modalWebhook: Modals = {
   id: "modal-webhook-config",
-  tickets: true,
+  tickets: false,
   owner: false,
   permissions: ["SendMessages"],
-  cooldown: 10,
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     const input = interaction.fields.getTextInputValue("input-webhook-url");
