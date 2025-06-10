@@ -17,6 +17,7 @@
       * [IP Administrador](proyectos/nebura-client/api/seguridad/ip-administrador.md)
     * [Routes API](proyectos/nebura-client/api/routes-api.md)
     * [RateLimit](proyectos/nebura-client/api/ratelimit.md)
+    * [Licencias](proyectos/nebura-client/api/licencias.md)
 
 ## TUTORIALES
 
