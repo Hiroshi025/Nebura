@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soporte - Nebura</title>
+  <meta name="description" content="Sistema de soporte de Nebura - Crea tickets, chatea con soporte y revisa historial">
+  <meta name="keywords" content="Nebura, Soporte, Tickets, Chat, Ayuda">
+  <meta name="author" content="Nebura">
+
+  <!-- Favicon y Open Graph -->
+  <link rel="icon" href="/favicon.ico">
+  <meta property="og:title" content="Sistema de Soporte Nebura">
+  <meta property="og:description" content="Accede al sistema de soporte de Nebura para resolver tus dudas y problemas">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://host.hiroshi-dev.me/support">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- CSS -->
+  <%- include('partials/link', { user: user }) %>
+    <link rel="stylesheet" href="/css/support.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+
+<body class="loaded">
+  <div id="app-container">
+    <div class="d-flex" style="min-height: 100vh;">
+      <%- include('partials/sidebar', { user: user }) %>
+
+        <main class="flex-grow-1 p-4">
+
+          <!-- Tabs principales -->
+          <ul class="nav nav-tabs mb-4" id="supportTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets-tab-pane"
+                type="button" role="tab" aria-controls="tickets-tab-pane" aria-selected="true">
+                <i class="fas fa-ticket-alt me-2"></i><span data-key="ticketsTab">Tickets</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat-tab-pane" type="button"
+                role="tab" aria-controls="chat-tab-pane" aria-selected="false">
+                <i class="fas fa-comments me-2"></i><span data-key="chatTab">Chat Global</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="transcripts-tab" data-bs-toggle="tab" data-bs-target="#transcripts-tab-pane"
+                type="button" role="tab" aria-controls="transcripts-tab-pane" aria-selected="false">
+                <i class="fas fa-file-alt me-2"></i><span data-key="transcriptsTab">Transcripciones</span>
+              </button>
+            </li>
+          </ul>
+
+          <!-- Estado del sistema -->
+          <section class="card mb-4 animate__animated animate__fadeIn" id="system-status-section">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-heartbeat me-2"></i>
+                <span data-key="systemStatus">Estado del Sistema</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <span id="socket-status-badge" class="badge bg-secondary me-2">
+                  <i class="fas fa-circle-notch fa-spin me-1"></i><span data-key="connecting">Conectando</span>
+                </span>
+                <span id="api-status-badge" class="badge bg-secondary">
+                  <i class="fas fa-circle-notch fa-spin me-1"></i><span data-key="checking">Verificando</span>
+                </span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                      <div class="status-indicator" id="socket-indicator"></div>
+                    </div>
+                    <div>
+                      <h6 class="mb-0" data-key="realtimeConnection">Conexión en tiempo real</h6>
+                      <small class="text-muted" id="socket-status-text" data-key="establishingConnection">Estableciendo
+                        conexión...</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                      <div class="status-indicator" id="api-indicator"></div>
+                    </div>
+                    <div>
+                      <h6 class="mb-0" data-key="supportApi">API de Soporte</h6>
+                      <small class="text-muted" id="api-status-text" data-key="checkingStatus">Verificando
+                        estado...</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="tab-content" id="supportTabsContent">
+            <!-- Tickets Tab -->
+            <div class="tab-pane fade show active" id="tickets-tab-pane" role="tabpanel" aria-labelledby="tickets-tab"
+              tabindex="0">
+              <!-- Filtros y búsqueda -->
+              <div class="card mb-4">
+                <div class="card-body py-2">
+                  <div class="d-flex flex-wrap align-items-center gap-2">
+                    <select id="ticket-filter" class="form-select form-select-sm" style="width: 150px;">
+                      <option value="all" data-key="filterAll">Todos</option>
+                      <option value="OPEN" data-key="filterOpen">Abiertos</option>
+                      <option value="CLOSED" data-key="filterClosed">Cerrados</option>
+                      <option value="PENDING" data-key="filterPending">Pendientes</option>
+                    </select>
+                    <div class="input-group input-group-sm" style="width: 200px;">
+                      <span class="input-group-text"><i class="fas fa-search"></i></span>
+                      <input type="text" class="form-control" placeholder="Buscar tickets..." id="ticket-search"
+                        data-key="searchTicketsPlaceholder">
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary ms-auto" id="refresh-tickets" title="Recargar">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-sm btn-primary" id="new-ticket-btn" data-bs-toggle="modal"
+                      data-bs-target="#newTicketModal">
+                      <i class="fas fa-plus"></i> <span data-key="newTicketBtn">Nuevo Ticket</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de tickets -->
+              <div class="card">
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="tickets-table">
+                      <thead>
+                        <tr>
+                          <th data-key="ticketId">ID</th>
+                          <th data-key="subject">Asunto</th>
+                          <th data-key="status">Estado</th>
+                          <th data-key="date">Fecha</th>
+                          <th data-key="actions">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tickets-list">
+                        <!-- Tickets se cargarán aquí -->
+                        <tr>
+                          <td colspan="5" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                              <span class="visually-hidden" data-key="loading">Cargando...</span>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Paginación -->
+              <nav class="mt-3">
+                <ul class="pagination justify-content-center" id="tickets-pagination">
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" data-key="previous">Anterior</a>
+                  </li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item">
+                    <a class="page-link" href="#" data-key="next">Siguiente</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <!-- Chat Global Tab -->
+            <div class="tab-pane fade" id="chat-tab-pane" role="tabpanel" aria-labelledby="chat-tab" tabindex="0">
+              <!-- Sección de Chat Global -->
+              <div class="animate__animated animate__fadeIn">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h3 class="h4 fw-bold">
+                    <i class="fas fa-comments me-2"></i><span data-key="communityChat">Chat de la Comunidad</span>
+                  </h3>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="input-group input-group-sm" style="width: 200px;">
+                      <span class="input-group-text"><i class="fas fa-users"></i></span>
+                      <input type="text" class="form-control" placeholder="Buscar usuarios..." id="user-search"
+                        data-key="searchUsersPlaceholder">
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary" id="toggle-chat-theme" title="Cambiar tema">
+                      <i class="fas fa-moon"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-body p-0">
+                    <div class="chat-container">
+                      <div class="chat-sidebar">
+                        <div class="chat-users-header">
+                          <h6><i class="fas fa-users me-2"></i>Usuarios en línea</h6>
+                        </div>
+                        <div class="chat-users-list" id="online-users">
+                          <!-- Usuarios en línea se cargarán aquí -->
+                          <div class="text-center py-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                              <span class="visually-hidden">Cargando...</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="chat-main">
+                        <div class="chat-messages" id="global-chat-messages">
+                          <div class="chat-welcome-message">
+                            <div class="welcome-icon">
+                              <i class="fas fa-comments"></i>
+                            </div>
+                            <h5>Bienvenido al chat global</h5>
+                            <p>Envía un mensaje para comenzar a chatear con la comunidad</p>
+                          </div>
+                        </div>
+                        <div class="chat-input-container">
+                          <div class="chat-input-tools">
+                            <button class="btn btn-sm btn-outline-secondary" title="Adjuntar archivo">
+                              <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" title="Emojis">
+                              <i class="far fa-smile"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" title="Formatear texto">
+                              <i class="fas fa-font"></i>
+                            </button>
+                          </div>
+                          <textarea class="form-control chat-input" id="global-chat-input"
+                            placeholder="Escribe tu mensaje..." rows="1"></textarea>
+                          <button class="btn btn-primary chat-send-btn" id="send-global-msg-btn">
+                            <i class="fas fa-paper-plane"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Transcripciones Tab -->
+            <div class="tab-pane fade" id="transcripts-tab-pane" role="tabpanel" aria-labelledby="transcripts-tab"
+              tabindex="0">
+              <!-- Sección de Transcripciones -->
+              <div class="animate__animated animate__fadeIn">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h3 class="h4 fw-bold">
+                    <i class="fas fa-file-alt me-2"></i><span data-key="myTranscripts">Mis Transcripciones</span>
+                  </h3>
+                  <div class="d-flex align-items-center gap-2">
+                    <select id="transcript-filter" class="form-select form-select-sm" style="width: 150px;">
+                      <option value="all" data-key="filterAll">Todos</option>
+                      <option value="ticket" data-key="filterTicket">Tickets</option>
+                      <option value="chat" data-key="filterChat">Chats</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-secondary" id="refresh-transcripts" title="Recargar">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0" id="transcripts-table">
+                        <thead>
+                          <tr>
+                            <th data-key="transcriptId">ID</th>
+                            <th data-key="type">Tipo</th>
+                            <th data-key="date">Fecha</th>
+                            <th data-key="participants">Participantes</th>
+                            <th data-key="actions">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody id="transcripts-list">
+                          <!-- Transcripciones se cargarán aquí -->
+                          <tr>
+                            <td colspan="5" class="text-center py-4">
+                              <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden" data-key="loading">Cargando...</span>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Paginación -->
+                <nav class="mt-3">
+                  <ul class="pagination justify-content-center" id="transcripts-pagination">
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#" tabindex="-1" data-key="previous">Anterior</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="#" data-key="next">Siguiente</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </main>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Ticket -->
+  <div class="modal fade" id="newTicketModal" tabindex="-1" aria-labelledby="newTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newTicketModalLabel">
+            <i class="fas fa-plus-circle me-2"></i><span data-key="createNewTicket">Crear Nuevo Ticket</span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="new-ticket-form">
+            <div class="mb-3">
+              <label for="ticket-subject" class="form-label" data-key="subjectLabel">Asunto</label>
+              <input type="text" class="form-control" id="ticket-subject" required>
+            </div>
+            <div class="mb-3">
+              <label for="ticket-category" class="form-label" data-key="categoryLabel">Categoría</label>
+              <select class="form-select" id="ticket-category" required>
+                <option value="" selected disabled data-key="selectCategory">Selecciona una categoría</option>
+                <option value="general" data-key="categoryGeneral">Consulta General</option>
+                <option value="technical" data-key="categoryTechnical">Problema Técnico</option>
+                <option value="billing" data-key="categoryBilling">Facturación/Pagos</option>
+                <option value="account" data-key="categoryAccount">Problema con Cuenta</option>
+                <option value="other" data-key="categoryOther">Otro</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="ticket-message" class="form-label" data-key="messageLabel">Mensaje</label>
+              <textarea class="form-control" id="ticket-message" rows="5" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" data-key="attachmentsLabel">Adjuntos (opcional)</label>
+              <div class="dropzone" id="ticket-attachments">
+                <div class="dropzone-content">
+                  <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                  <p data-key="dropFilesHere">Arrastra archivos aquí o haz clic para seleccionar</p>
+                  <small class="text-muted" data-key="attachmentsLimit">Máximo 5 archivos, 10MB cada uno</small>
+                </div>
+              </div>
+              <div id="attachments-preview" class="mt-2"></div>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="ticket-priority">
+              <label class="form-check-label" for="ticket-priority" data-key="markHighPriority">
+                Marcar como prioridad alta
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-key="cancelBtn">Cancelar</button>
+          <button type="submit" form="new-ticket-form" class="btn btn-primary">
+            <i class="fas fa-paper-plane me-1"></i><span data-key="sendTicketBtn">Enviar Ticket</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Chat Ticket -->
+  <div class="modal fade" id="ticketChatModal" tabindex="-1" aria-labelledby="ticketChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ticketChatModalLabel">
+            <i class="fas fa-ticket-alt me-2"></i><span data-key="ticketNumber">Ticket #</span><span
+              id="ticket-id-placeholder"></span>
+          </h5>
+          <div class="d-flex align-items-center">
+            <span class="badge bg-primary me-2" id="ticket-status-badge" data-key="openStatus">Abierto</span>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="modal-body p-0">
+          <div class="ticket-chat-container">
+            <div class="ticket-info-sidebar">
+              <div class="ticket-info-header">
+                <h6 data-key="ticketInfo">Información del Ticket</h6>
+              </div>
+              <div class="ticket-info-content">
+                <div class="info-item">
+                  <span class="info-label" data-key="createdLabel">Creado:</span>
+                  <span class="info-value" id="ticket-created-at">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label" data-key="updatedLabel">Actualizado:</span>
+                  <span class="info-value" id="ticket-updated-at">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label" data-key="categoryLabel">Categoría:</span>
+                  <span class="info-value" id="ticket-category-info">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label" data-key="priorityLabel">Prioridad:</span>
+                  <span class="info-value" id="ticket-priority-info">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label" data-key="subjectLabel">Asunto:</span>
+                  <span class="info-value" id="ticket-subject-info">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label" data-key="attachmentsLabel">Archivos adjuntos:</span>
+                  <div class="info-value" id="ticket-attachments-info">
+                    <span class="text-muted" data-key="none">Ninguno</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ticket-actions">
+                <button class="btn btn-sm btn-outline-danger w-100" id="close-ticket-btn">
+                  <i class="fas fa-times-circle me-1"></i><span data-key="closeTicketBtn">Cerrar Ticket</span>
+                </button>
+              </div>
+            </div>
+            <div class="ticket-chat-main">
+              <div class="ticket-chat-messages" id="ticket-chat-messages">
+                <!-- Mensajes del ticket se cargarán aquí -->
+              </div>
+              <div class="ticket-chat-input-container">
+                <div class="ticket-chat-tools">
+                  <button class="btn btn-sm btn-outline-secondary" title="Adjuntar archivo">
+                    <i class="fas fa-paperclip"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary" title="Insertar código">
+                    <i class="fas fa-code"></i>
+                  </button>
+                </div>
+                <textarea class="form-control ticket-chat-input" id="ticket-chat-input"
+                  placeholder="Escribe tu respuesta..." rows="2" data-key="writeReplyPlaceholder"></textarea>
+                <button class="btn btn-primary ticket-chat-send" id="send-ticket-msg-btn">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Transcripción -->
+  <div class="modal fade" id="transcriptModal" tabindex="-1" aria-labelledby="transcriptModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="transcriptModalLabel">
+            <i class="fas fa-file-alt me-2"></i><span data-key="transcriptNumber">Transcripción #</span><span
+              id="transcript-id-placeholder"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="transcript-info mb-4">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="info-item">
+                  <span class="info-label" data-key="typeLabel">Tipo:</span>
+                  <span class="info-value" id="transcript-type">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label" data-key="dateLabel">Fecha:</span>
+                  <span class="info-value" id="transcript-date">-</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-item">
+                  <span class="info-label" data-key="participantsLabel">Participantes:</span>
+                  <span class="info-value" id="transcript-participants">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label" data-key="durationLabel">Duración:</span>
+                  <span class="info-value" id="transcript-duration">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="transcript-content card">
+            <div class="card-body" id="transcript-content">
+              <!-- Contenido de la transcripción se cargará aquí -->
+              <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden" data-key="loading">Cargando...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-key="closeBtn">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="download-transcript">
+            <i class="fas fa-download me-1"></i><span data-key="downloadBtn">Descargar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+    <!-- Toast para notificaciones -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto" id="toast-title">Notificación</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-body">Mensaje de notificación</div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/build/highlight.min.js"></script>
+    <script>
+      /**
+       * -----------------------------------------------------------------------------
+       * Script principal de la página de soporte de Nebura
+       * URL: https://host.hiroshi-dev.me/support
+       * 
+       * Este script implementa toda la lógica de frontend para el sistema de soporte:
+       * - Gestión de tickets (crear, ver, cerrar, chatear)
+       * - Chat global de la comunidad
+       * - Visualización y descarga de transcripciones
+       * - Estado del sistema (API y WebSocket)
+       * - Notificaciones y multilenguaje
+       * 
+       * Tecnologías utilizadas:
+       * - Bootstrap 5 (UI y modales)
+       * - Socket.IO (comunicación en tiempo real)
+       * - Marked.js + Highlight.js (renderizado de Markdown y código)
+       * - Fetch API (peticiones HTTP)
+       * 
+       * Todas las variables y funciones están documentadas a continuación.
+       * -----------------------------------------------------------------------------
+       */
+
+      // Definir user y webURL globalmente para todos los scripts, usando los datos del backend
+      window.user = JSON.parse('<%- JSON.stringify(user) %>');
+      window.webURL = JSON.parse('<%- JSON.stringify(webURL) %>');
+
+      /**
+       * Evento principal al cargar el DOM.
+       * Inicializa temas, sockets, listeners y carga inicial de datos.
+       */
+      document.addEventListener('DOMContentLoaded', function () {
+        // -------------------- VARIABLES GLOBALES --------------------
+        /**
+         * @type {Socket} socket - Instancia de Socket.IO para comunicación en tiempo real.
+         * @type {string|null} currentTicketId - Ticket actualmente abierto en el modal de chat.
+         * @type {string|null} currentAdminTicketId - (No usado, reservado para admins).
+         * @type {string} currentSection - Sección actual ("tickets", "chat", "transcripts").
+         * @type {number} currentPage - Página actual de paginación.
+         * @type {number} itemsPerPage - Cantidad de ítems por página (tickets/transcripciones).
+         * @type {number|null} ticketChatAutoRefreshInterval - Intervalo para refresco automático del chat de tickets.
+         */
+        let socket;
+        let currentTicketId = null;
+        let currentAdminTicketId = null;
+        let currentSection = 'tickets';
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let ticketChatAutoRefreshInterval = null;
+
+        // -------------------- INICIALIZACIÓN --------------------
+        /**
+         * Inicializa el tema visual (oscuro/claro) según preferencia del usuario.
+         */
+        initTheme();
+
+        /**
+         * Inicializa la conexión WebSocket con el backend de soporte.
+         * Permite recibir eventos en tiempo real (tickets, chat, usuarios online).
+         */
+        initSocketConnection();
+
+        /**
+         * Inicializa todos los listeners de UI (botones, formularios, tabs, etc).
+         */
+        initEventListeners();
+
+        /**
+         * Carga la lista de tickets de soporte del usuario.
+         */
+        loadTickets();
+
+        /**
+         * Verifica el estado de la API de soporte y la conexión WebSocket.
+         */
+        checkSystemStatus();
+
+        // -------------------- FUNCIONES DE INICIALIZACIÓN --------------------
+
+        /**
+         * Lee el tema guardado en localStorage y lo aplica al documento.
+         * Actualiza el icono del botón de cambio de tema.
+         */
+        function initTheme() {
+          const savedTheme = localStorage.getItem('nebura-chat-theme') || 'dark';
+          document.documentElement.setAttribute('data-bs-theme', savedTheme);
+          updateThemeButton(savedTheme);
+        }
+
+        /**
+         * Establece la conexión con el servidor de soporte mediante Socket.IO.
+         * Maneja eventos de conexión, desconexión, errores y mensajes personalizados.
+         */
+        function initSocketConnection() {
+          // Se conecta usando el path personalizado para soporte.
+          socket = io({
+            path: '/support/socket.io',
+            transports: ['websocket'],
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+          });
+
+          // Evento: conexión exitosa
+          socket.on('connect', () => {
+            // Registra el usuario en el sistema de soporte
+            socket.emit('register', {
+              id: user.id,
+              name: `${user.global_name ? user.global_name : user.username}`,
+              avatar: `https://cdn.discordapp.com/banners/${user.id}/${user.banner}.png?size=512`,
+              status: 'online'
+            });
+            updateConnectionStatus('socket', true);
+            console.log('Conectado al servidor de soporte');
+            showNotification('Conectado al servidor en tiempo real', 'success');
+          });
+
+          // Evento: desconexión
+          socket.on('disconnect', () => {
+            updateConnectionStatus('socket', false);
+            console.log('Desconectado del servidor de soporte');
+            showNotification('Desconectado del servidor de soporte', 'warning');
+          });
+
+          // Evento: error de conexión
+          socket.on('connect_error', (err) => {
+            console.error('Error de conexión:', err.message);
+            updateConnectionStatus('socket', false);
+            showNotification('Error al conectar con el servidor', 'error');
+          });
+
+          // -------------------- EVENTOS PERSONALIZADOS SOCKET --------------------
+
+          // Nuevo ticket creado (por cualquier usuario)
+          socket.on('ticket:created', (ticket) => {
+            if (currentSection === 'tickets') {
+              addTicketToTable(ticket);
+              showNotification(`Ticket #${ticket.ticketId} creado`, 'success');
+            }
+          });
+
+          // Actualización de ticket (estado, mensajes, etc)
+          socket.on('ticket:updated', (ticket) => {
+            if (currentTicketId === ticket.ticketId) {
+              updateTicketChat(ticket);
+            }
+            updateTicketInList(ticket);
+          });
+
+          // Nuevo mensaje en un ticket
+          socket.on('ticket:message', (data) => {
+            if (currentTicketId === data.ticketId) {
+              appendNewMessage(data.message);
+            }
+          });
+
+          // Mensaje global en el chat de la comunidad
+          socket.on('global:message', (message) => {
+            if (currentSection === 'chat') {
+              appendGlobalMessage(message);
+            }
+          });
+
+          // Lista de usuarios online en el chat global
+          socket.on('user:online', (users) => {
+            if (currentSection === 'chat') {
+              updateOnlineUsers(users);
+            }
+          });
+
+          // Solicita unirse al canal de un ticket específico (cuando se abre el modal)
+          socket.emit('join:ticket', { ticketId: currentTicketId });
+
+          // Historial del chat global (al abrir el tab)
+          socket.on('global:history', (messages) => {
+            const container = document.getElementById('global-chat-messages');
+            container.innerHTML = ''; // Limpia el chat antes de mostrar el historial
+            messages.forEach(msg => appendGlobalMessage(msg));
+          });
+        }
+
+        /**
+         * Inicializa todos los listeners de UI:
+         * - Navegación entre tabs
+         * - Formularios y botones de tickets
+         * - Chat global y chat de tickets
+         * - Transcripciones
+         * - Eventos de modales
+         */
+        function initEventListeners() {
+          // Navegación entre secciones (sidebar)
+          document.querySelectorAll('#supportNav .nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              const target = link.getAttribute('href').substring(1);
+              switchSection(target);
+            });
+          });
+
+          // Tickets
+          document.getElementById('new-ticket-btn').addEventListener('click', initNewTicketModal);
+          document.getElementById('new-ticket-form').addEventListener('submit', handleNewTicketSubmit);
+          document.getElementById('refresh-tickets').addEventListener('click', () => {
+            loadTickets();
+            showNotification('Tickets actualizados', 'success');
+          });
+          document.getElementById('ticket-filter').addEventListener('change', filterTickets);
+          document.getElementById('ticket-search').addEventListener('input', debounce(searchTickets, 300));
+
+          // Chat global
+          document.getElementById('toggle-chat-theme').addEventListener('click', toggleChatTheme);
+          document.getElementById('send-global-msg-btn').addEventListener('click', sendGlobalMessage);
+          document.getElementById('global-chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendGlobalMessage();
+            }
+          });
+
+          // Chat de ticket
+          document.getElementById('send-ticket-msg-btn').addEventListener('click', sendTicketMessage);
+          document.getElementById('ticket-chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendTicketMessage();
+            }
+          });
+
+          document.getElementById('close-ticket-btn').addEventListener('click', closeCurrentTicket);
+
+          // Transcripciones
+          document.getElementById('refresh-transcripts').addEventListener('click', loadTranscripts);
+          document.getElementById('transcript-filter').addEventListener('change', filterTranscripts);
+          document.getElementById('download-transcript').addEventListener('click', downloadTranscript);
+
+          // Eventos de cierre de modal de ticket (para limpiar estado)
+          const ticketModal = document.getElementById('ticketChatModal');
+          if (ticketModal) {
+            ticketModal.addEventListener('hidden.bs.modal', () => {
+              currentTicketId = null;
+              stopTicketChatAutoRefresh();
+            });
+          }
+        }
+
+        // -------------------- SISTEMA DE TICKETS --------------------
+
+        /**
+         * Carga la lista de tickets del usuario desde el backend.
+         * @param {number} page - Página a cargar (paginación).
+         */
+        async function loadTickets(page = 1) {
+          try {
+            showLoader('#tickets-list');
+
+            const filter = document.getElementById('ticket-filter').value;
+            const search = document.getElementById('ticket-search').value;
+
+            const response = await fetch(`/dashboard/utils/tickets/${user.id}?page=${page}&limit=${itemsPerPage}&filter=${filter}&search=${search}`);
+
+            if (!response.ok) throw new Error('Error al cargar tickets');
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message || 'Error en la respuesta del servidor');
+
+            renderTickets(data.data);
+            updatePagination('#tickets-pagination', page, Math.ceil(data.total / itemsPerPage));
+          } catch (error) {
+            console.error('Error loading tickets:', error);
+            showNotification(`Error al cargar tickets: ${error.message}`, 'error');
+            document.getElementById('tickets-list').innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4 text-danger">
+            Error al cargar tickets. Intenta recargar la página.
+          </td>
+        </tr>
+      `;
+          }
+        }
+
+        /**
+         * Renderiza la tabla de tickets en la UI.
+         * @param {Array} tickets - Lista de tickets a mostrar.
+         */
+        function renderTickets(tickets) {
+          const tbody = document.getElementById('tickets-list');
+
+          if (!tickets || tickets.length === 0) {
+            tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4 text-muted">
+            No se encontraron tickets. Crea uno nuevo para comenzar.
+          </td>
+        </tr>
+      `;
+            return;
+          }
+
+          tbody.innerHTML = tickets.map(ticket => `
+      <tr data-ticket-id="${ticket.ticketId}">
+        <td>${ticket.ticketId}</td>
+        <td>${ticket.reason || 'Sin asunto'}</td>
+        <td>
+          <span class="ticket-status-badge ${ticket.status.toLowerCase()}">
+            ${getStatusText(ticket.status)}
+          </span>
+        </td>
+        <td>${formatDate(ticket.createdAt)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary view-ticket-btn" data-ticket-id="${ticket.ticketId}">
+            <i class="fas fa-eye"></i>
+          </button>
+          ${ticket.status === 'OPEN' ? `
+            <button class="btn btn-sm btn-outline-danger close-ticket-btn ms-2" data-ticket-id="${ticket.ticketId}">
+              <i class="fas fa-times"></i>
+            </button>
+          ` : ''}
+        </td>
+      </tr>
+    `).join('');
+
+          // Agregar event listeners a los botones
+          document.querySelectorAll('.view-ticket-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const ticketId = e.currentTarget.dataset.ticketId;
+              viewTicket(ticketId);
+            });
+          });
+
+          document.querySelectorAll('.close-ticket-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const ticketId = e.currentTarget.dataset.ticketId;
+              closeTicket(ticketId);
+            });
+          });
+        }
+
+        /**
+         * Abre el modal de chat de un ticket específico y carga sus mensajes.
+         * @param {string} ticketId - ID del ticket a visualizar.
+         */
+        async function viewTicket(ticketId) {
+          try {
+            showLoader('#ticket-chat-messages');
+
+            const response = await fetch(`/dashboard/utils/tickets/${user.id}/${ticketId}`);
+
+            if (!response.ok) throw new Error('Error al cargar ticket');
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message || 'Error en la respuesta del servidor');
+
+            const ticket = data.data;
+            currentTicketId = ticket.ticketId;
+
+            // Actualizar modal con la información del ticket
+            document.getElementById('ticket-id-placeholder').textContent = ticket.ticketId;
+            document.getElementById('ticket-status-badge').className = `badge ${getStatusBadgeClass(ticket.status)}`;
+            document.getElementById('ticket-status-badge').textContent = getStatusText(ticket.status);
+            document.getElementById('ticket-created-at').textContent = formatDateTime(ticket.createdAt);
+            document.getElementById('ticket-updated-at').textContent = formatDateTime(ticket.updatedAt);
+            document.getElementById('ticket-category-info').textContent = ticket.category || 'General';
+            document.getElementById('ticket-priority-info').textContent = ticket.priority || 'Normal';
+            document.getElementById('ticket-subject-info').textContent = ticket.reason || 'Sin asunto';
+
+            // Mostrar adjuntos
+            const attachmentsContainer = document.getElementById('ticket-attachments-info');
+            attachmentsContainer.innerHTML = ticket.attachments && ticket.attachments.length > 0 ?
+              ticket.attachments.map(file => `
+          <div class="d-flex align-items-center mb-2">
+            <a href="${file.url}" target="_blank" class="text-truncate" style="max-width: 200px;">
+              <i class="fas fa-paperclip me-2"></i>${file.name}
+            </a>
+          </div>
+        `).join('') : '<span class="text-muted">Ninguno</span>';
+
+            // --- NUEVO: Cargar mensajes del ticket ---
+            const msgResponse = await fetch(`/dashboard/utils/tickets/${user.id}/${ticketId}/messages`);
+            if (!msgResponse.ok) throw new Error('Error al cargar mensajes del ticket');
+            const msgData = await msgResponse.json();
+            if (!msgData.success) throw new Error(msgData.message || 'Error en la respuesta del servidor');
+            renderTicketMessages(msgData.data);
+
+            // Iniciar refresco automático
+            startTicketChatAutoRefresh();
+
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('ticketChatModal'));
+            modal.show();
+
+          } catch (error) {
+            console.error('Error viewing ticket:', error);
+            showNotification(`Error al cargar ticket: ${error.message}`, 'error');
+          }
+        }
+
+        /**
+         * Renderiza los mensajes de un ticket en el chat del modal.
+         * @param {Array} messages - Lista de mensajes del ticket.
+         */
+        function renderTicketMessages(messages) {
+          const container = document.getElementById('ticket-chat-messages');
+          container.innerHTML = '';
+
+          if (!messages || messages.length === 0) {
+            container.innerHTML = `
+        <div class="text-center py-4 text-muted">
+          No hay mensajes en este ticket. Envía el primero.
+        </div>
+      `;
+            return;
+          }
+
+          messages.forEach(msg => {
+            const isCurrentUser = msg.senderId === user.id;
+            const isSystem = msg.senderId === 'system';
+
+            if (isSystem) {
+              container.innerHTML += `
+          <div class="ticket-message system">
+            ${msg.content}
+          </div>
+        `;
+            } else {
+              container.innerHTML += `
+          <div class="ticket-message ${isCurrentUser ? 'user-message' : ''}">
+            <div class="ticket-message-inner">
+              <div class="ticket-message-header">
+                <img src="${msg.senderAvatar ? msg.senderAvatar : 'https://imgs.search.brave.com/feXSd8MjAKMZAv-aUujJ0kr2_cdg5RlRf8dsH021ig8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/cG5nYXJ0cy5jb20v/ZmlsZXMvMTAvRGVm/YXVsdC1Qcm9maWxl/LVBpY3R1cmUtUE5H/LUltYWdlLVRyYW5z/cGFyZW50LUJhY2tn/cm91bmQucG5n'}" 
+                     alt="${msg.senderName}" 
+                     class="ticket-message-avatar">
+                <span class="ticket-message-sender">${msg.senderName}</span>
+                <span class="ticket-message-time">${formatDateTime(msg.timestamp)}</span>
+              </div>
+              <div class="ticket-message-content markdown-content">
+                ${marked.parse(msg.content)}
+              </div>
+            </div>
+          </div>
+        `;
+            }
+          });
+
+          // Scroll al final
+          container.scrollTop = container.scrollHeight;
+        }
+
+        /**
+         * Agrega un nuevo mensaje al chat del ticket (cuando llega por socket).
+         * @param {Object} msg - Mensaje recibido.
+         */
+        function appendNewMessage(msg) {
+          const container = document.getElementById('ticket-chat-messages');
+          const isCurrentUser = msg.senderId === user.id;
+          const isSystem = msg.senderId === 'system';
+
+          if (isSystem) {
+            container.innerHTML += `
+      <div class="ticket-message system">
+        ${msg.content}
+      </div>
+    `;
+          } else {
+            container.innerHTML += `
+      <div class="ticket-message ${isCurrentUser ? 'user-message' : ''}">
+        <div class="ticket-message-inner">
+          <div class="ticket-message-header">
+            <img src="${msg.senderAvatar ? msg.senderAvatar : 'https://imgs.search.brave.com/feXSd8MjAKMZAv-aUujJ0kr2_cdg5RlRf8dsH021ig8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/cG5nYXJ0cy5jb20v/ZmlsZXMvMTAvRGVm/YXVsdC1Qcm9maWxl/LVBpY3R1cmUtUE5H/LUltYWdlLVRyYW5z/cGFyZW50LUJhY2tn/cm91bmQucG5n'}" 
+                 alt="${msg.senderName}" 
+                 class="ticket-message-avatar">
+            <span class="ticket-message-sender">${msg.senderName}</span>
+            <span class="ticket-message-time">${formatDateTime(msg.timestamp)}</span>
+          </div>
+          <div class="ticket-message-content markdown-content">
+            ${marked.parse(msg.content)}
+          </div>
+        </div>
+      </div>
+    `;
+          }
+          // Scroll al final
+          container.scrollTop = container.scrollHeight;
+          console.log('Nuevo mensaje agregado al chat del ticket:', msg);
+        }
+
+        /**
+         * Envía un mensaje en el chat del ticket actual.
+         * Utiliza Socket.IO para enviar el mensaje al backend.
+         */
+        async function sendTicketMessage() {
+          const input = document.getElementById('ticket-chat-input');
+          const message = input.value.trim();
+          if (!message || !currentTicketId) return;
+          input.value = '';
+          socket.emit('ticket:message', {
+            ticketId: currentTicketId,
+            senderId: user.id,
+            senderName: user.name,
+            senderAvatar: user.avatar,
+            content: message
+          }, (response) => {
+            if (!response || !response.success) {
+              showNotification(response?.message || 'Error al enviar mensaje', 'error');
+            }
+            // NO agregues el mensaje aquí, solo cuando llegue por socket
+          });
+        }
+
+        /**
+         * Inicializa el modal de nuevo ticket (limpia el formulario).
+         */
+        function initNewTicketModal() {
+          // Aquí puedes agregar lógica personalizada si lo necesitas.
+          // Por ejemplo, limpiar el formulario:
+          const form = document.getElementById('new-ticket-form');
+          if (form) form.reset();
+          // También puedes limpiar la previsualización de adjuntos, etc.
+        }
+
+        /**
+         * Filtra los tickets según el select de estado.
+         */
+        function filterTickets() {
+          loadTickets(1); // Recarga la lista de tickets desde la página 1 con el filtro actual
+        }
+
+        /**
+         * Busca tickets según el input de búsqueda.
+         */
+        function searchTickets() {
+          loadTickets(1); // Recarga la lista de tickets desde la página 1 con el filtro y búsqueda actual
+        }
+
+        /**
+         * Filtra las transcripciones según el tipo.
+         */
+        function filterTranscripts() {
+          loadTranscripts(1); // Recarga la lista de transcripciones desde la página 1 con el filtro actual
+        }
+
+        /**
+         * Maneja el envío del formulario de nuevo ticket.
+         * Valida los campos y envía la petición al backend.
+         */
+        async function handleNewTicketSubmit(event) {
+          event.preventDefault();
+
+          const subject = document.getElementById('ticket-subject').value.trim();
+          const category = document.getElementById('ticket-category').value;
+          const message = document.getElementById('ticket-message').value.trim();
+          const priority = document.getElementById('ticket-priority').checked ? 'Alta' : 'Normal';
+          // Adjuntos y validaciones extra pueden agregarse aquí
+
+          if (!subject || !category || !message) {
+            showNotification('Por favor completa todos los campos obligatorios', 'warning');
+            return;
+          }
+
+          try {
+            const response = await fetch(`/dashboard/utils/tickets`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+              },
+              body: JSON.stringify({
+                reason: subject,
+                userName: user.global_name || user.username,
+                userAvatar: user.avatar,
+                category,
+                message,
+                priority,
+                userId: user.id,
+                guildId: "Nebura AI",      // Valor dummy
+                channelId: "web-client" // Valor dummy
+              })
+            });
+
+            if (!response.ok) throw new Error('Error al crear ticket');
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message || 'Error en la respuesta del servidor');
+
+            showNotification('Ticket creado correctamente', 'success');
+            // Cierra el modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('newTicketModal'));
+            if (modal) modal.hide();
+            // Recarga la lista de tickets
+            loadTickets();
+
+          } catch (error) {
+            console.error('Error creando ticket:', error);
+            showNotification(`Error al crear ticket: ${error.message}`, 'error');
+          }
+        }
+
+        /**
+         * Cierra un ticket (cambia su estado a 'CLOSED').
+         * @param {string} ticketId - ID del ticket a cerrar.
+         */
+        async function closeTicket(ticketId) {
+          if (!confirm('¿Estás seguro de que quieres cerrar este ticket?')) return;
+
+          try {
+            const response = await fetch(`/dashboard/utils/tickets/${user.id}/${ticketId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+              },
+              body: JSON.stringify({ status: 'CLOSED' })
+            });
+
+            if (!response.ok) throw new Error('Error al cerrar ticket');
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message || 'Error en la respuesta del servidor');
+
+            showNotification('Ticket cerrado correctamente', 'success');
+            loadTickets(currentPage);
+
+            // Si el ticket cerrado es el que está abierto en el modal, actualizar
+            if (currentTicketId === ticketId) {
+              document.getElementById('ticket-status-badge').className = 'badge bg-danger';
+              document.getElementById('ticket-status-badge').textContent = 'Cerrado';
+              document.getElementById('close-ticket-btn').disabled = true;
+            }
+
+          } catch (error) {
+            console.error('Error closing ticket:', error);
+            showNotification(`Error al cerrar ticket: ${error.message}`, 'error');
+          }
+        }
+
+        /**
+         * Cierra el ticket actualmente abierto en el modal.
+         */
+        function closeCurrentTicket() {
+          if (currentTicketId) {
+            closeTicket(currentTicketId);
+          }
+        }
+
+        // -------------------- CHAT GLOBAL --------------------
+
+        /**
+         * Actualiza la lista de usuarios en línea en el chat global.
+         * @param {Array} users - Lista de usuarios online.
+         */
+        function updateOnlineUsers(users) {
+          const container = document.getElementById('online-users');
+
+          if (!users || users.length === 0) {
+            container.innerHTML = `
+        <div class="text-center py-3 text-muted">
+          No hay usuarios en línea
+        </div>
+      `;
+            return;
+          }
+
+          container.innerHTML = users.map(user => `
+      <div class="chat-user">
+        <img src="${user.avatar || 'https://imgs.search.brave.com/_kjApAJTf5tLbC6CDpbqV5r8IE6EzQV4DwEy0MwUYdo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/c2h1dHRlcnN0b2Nr/LmNvbS9zaHV0dGVy/c3RvY2svcGhvdG9z/LzUzNTg1MzI2My9k/aXNwbGF5XzE1MDAv/c3RvY2stdmVjdG9y/LXByb2ZpbGUtcGhv/dG8tdmVjdG9yLXBs/YWNlaG9sZGVyLXBp/Yy1tYWxlLXBlcnNv/bi1kZWZhdWx0LXBy/b2ZpbGUtZ3JheS1w/aG90by1waWN0dXJl/LWF2YXRhci01MzU4/NTMyNjMuanBn'}" 
+             alt="${user.name}" 
+             class="chat-user-avatar">
+        <span class="chat-user-name">${user.name}</span>
+        <span class="chat-user-status ${user.status === 'online' ? 'online' : ''}"></span>
+      </div>
+    `).join('');
+        }
+
+        /**
+         * Agrega un mensaje al chat global.
+         * @param {Object} message - Mensaje recibido.
+         */
+        function appendGlobalMessage(message) {
+          const container = document.getElementById('global-chat-messages');
+          const welcomeMsg = container.querySelector('.chat-welcome-message');
+
+          if (welcomeMsg) {
+            welcomeMsg.remove();
+          }
+
+          const isCurrentUser = message.senderId === user.id;
+
+          container.innerHTML += `
+      <div class="chat-message ${isCurrentUser ? 'user-message' : ''}">
+        <div class="chat-message-inner">
+          <div class="chat-message-header">
+            <img src="${message.senderAvatar || 'https://imgs.search.brave.com/_kjApAJTf5tLbC6CDpbqV5r8IE6EzQV4DwEy0MwUYdo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/c2h1dHRlcnN0b2Nr/LmNvbS9zaHV0dGVy/c3RvY2svcGhvdG9z/LzUzNTg1MzI2My9k/aXNwbGF5XzE1MDAv/c3RvY2stdmVjdG9y/LXByb2ZpbGUtcGhv/dG8tdmVjdG9yLXBs/YWNlaG9sZGVyLXBp/Yy1tYWxlLXBlcnNv/bi1kZWZhdWx0LXBy/b2ZpbGUtZ3JheS1w/aG90by1waWN0dXJl/LWF2YXRhci01MzU4/NTMyNjMuanBn'}" 
+                 alt="${message.senderName}" 
+                 class="chat-message-avatar">
+            <span class="chat-message-sender">${message.senderName}</span>
+            <span class="chat-message-time">${formatTime(message.timestamp)}</span>
+          </div>
+          <div class="chat-message-content markdown-content">
+            ${marked.parse(message.content)}
+          </div>
+        </div>
+      </div>
+    `;
+
+          // Scroll al final
+          container.scrollTop = container.scrollHeight;
+        }
+
+        /**
+         * Envía un mensaje en el chat global.
+         * Utiliza Socket.IO para enviar el mensaje al backend.
+         */
+        async function sendGlobalMessage() {
+          const input = document.getElementById('global-chat-input');
+          const message = input.value.trim();
+
+          if (!message) return;
+
+          try {
+            // NO agregar el mensaje localmente aquí
+            input.value = '';
+
+            // Enviar al servidor via socket
+            socket.emit('global:message', {
+              content: message,
+              senderId: user.id,
+              senderName: user.name,
+              senderAvatar: user.avatar
+            });
+
+          } catch (error) {
+            console.error('Error sending global message:', error);
+            showNotification(`Error al enviar mensaje: ${error.message}`, 'error');
+          }
+        }
+
+        // -------------------- TRANSCRIPCIONES --------------------
+
+        /**
+         * Carga la lista de transcripciones del usuario.
+         * @param {number} page - Página a cargar.
+         */
+        async function loadTranscripts(page = 1) {
+          try {
+            showLoader('#transcripts-list');
+
+            const filter = document.getElementById('transcript-filter').value;
+
+            const response = await fetch(`/dashboard/utils/transcripts?userId=${user.id}&page=${page}&limit=${itemsPerPage}&type=${filter}`);
+
+            if (!response.ok) throw new Error('Error al cargar transcripciones');
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message || 'Error en la respuesta del servidor');
+
+            renderTranscripts(data.data);
+            updatePagination('#transcripts-pagination', page, Math.ceil(data.total / itemsPerPage));
+
+          } catch (error) {
+            console.error('Error loading transcripts:', error);
+            showNotification(`Error al cargar transcripciones: ${error.message}`, 'error');
+            document.getElementById('transcripts-list').innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4 text-danger">
+            Error al cargar transcripciones. Intenta recargar la página.
+          </td>
+        </tr>
+      `;
+          }
+        }
+
+        /**
+         * Renderiza la tabla de transcripciones.
+         * @param {Array} transcripts - Lista de transcripciones.
+         */
+        function renderTranscripts(transcripts) {
+          const tbody = document.getElementById('transcripts-list');
+
+          if (!transcripts || transcripts.length === 0) {
+            tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center py-4 text-muted">
+            No se encontraron transcripciones
+          </td>
+        </tr>
+      `;
+            return;
+          }
+
+          tbody.innerHTML = transcripts.map(transcript => `
+      <tr>
+        <td>${transcript.id}</td>
+        <td>${transcript.type === 'ticket' ? 'Ticket' : 'Chat'}</td>
+        <td>${formatDate(transcript.createdAt)}</td>
+        <td>${transcript.participants.map(p => p.name).join(', ')}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary view-transcript-btn" 
+                  data-transcript-id="${transcript.id}">
+            <i class="fas fa-eye"></i> Ver
+          </button>
+          <button class="btn btn-sm btn-outline-secondary download-transcript-btn ms-2" 
+                  data-transcript-id="${transcript.id}">
+            <i class="fas fa-download"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+          // Agregar event listeners a los botones
+          document.querySelectorAll('.view-transcript-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const transcriptId = e.currentTarget.dataset.transcriptId;
+              viewTranscript(transcriptId);
+            });
+          });
+
+          document.querySelectorAll('.download-transcript-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const transcriptId = e.currentTarget.dataset.transcriptId;
+              downloadTranscript(transcriptId);
+            });
+          });
+        }
+
+        /**
+         * Abre el modal de una transcripción y muestra su contenido.
+         * @param {string} transcriptId - ID de la transcripción.
+         */
+        async function viewTranscript(transcriptId) {
+          try {
+            showLoader('#transcript-content');
+
+            const response = await fetch(`/dashboard/utils/transcripts/${transcriptId}`);
+
+            if (!response.ok) throw new Error('Error al cargar transcripción');
+
+            const data = await response.json();
+
+            if (!data.success) throw new Error(data.message || 'Error en la respuesta del servidor');
+
+            const transcript = data.data;
+
+            // Actualizar modal con la información de la transcripción
+            document.getElementById('transcript-id-placeholder').textContent = transcript.id;
+            document.getElementById('transcript-type').textContent = transcript.type === 'ticket' ? 'Ticket' : 'Chat';
+            document.getElementById('transcript-date').textContent = formatDateTime(transcript.createdAt);
+            document.getElementById('transcript-participants').textContent =
+              transcript.participants.map(p => p.name).join(', ');
+            document.getElementById('transcript-duration').textContent =
+              formatDuration(transcript.duration);
+
+            // Mostrar contenido de la transcripción
+            renderTranscriptContent(transcript.content);
+
+            // Configurar botón de descarga
+            document.getElementById('download-transcript').onclick = () => {
+              downloadTranscript(transcript.id);
+            };
+
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('transcriptModal'));
+            modal.show();
+
+          } catch (error) {
+            console.error('Error viewing transcript:', error);
+            showNotification(`Error al cargar transcripción: ${error.message}`, 'error');
+          }
+        }
+
+        /**
+         * Renderiza el contenido de una transcripción.
+         * @param {Array} content - Mensajes de la transcripción.
+         */
+        function renderTranscriptContent(content) {
+          const container = document.getElementById('transcript-content');
+
+          if (!content || content.length === 0) {
+            container.innerHTML = `
+        <div class="text-center py-4 text-muted">
+          No hay contenido en esta transcripción
+        </div>
+      `;
+            return;
+          }
+
+          container.innerHTML = content.map(item => {
+            if (item.type === 'system') {
+              return `
+          <div class="text-center my-3 text-muted small">
+            ${item.content}
+          </div>
+        `;
+            } else {
+              const isCurrentUser = item.senderId === user.id;
+              return `
+          <div class="d-flex mb-3 ${isCurrentUser ? 'justify-content-end' : ''}">
+            <div class="transcript-message ${isCurrentUser ? 'bg-primary text-white' : 'bg-light'} 
+                 p-3 rounded" style="max-width: 80%;">
+              <div class="d-flex align-items-center mb-1">
+                <strong>${item.senderName}</strong>
+                <span class="ms-2 small">${formatTime(item.timestamp)}</span>
+              </div>
+              <div class="markdown-content">
+                ${marked.parse(item.content)}
+              </div>
+            </div>
+          </div>
+        `;
+            }
+          }).join('');
+        }
+
+        /**
+         * Descarga una transcripción en formato PDF.
+         * @param {string} transcriptId - ID de la transcripción.
+         */
+        async function downloadTranscript(transcriptId) {
+          try {
+            const response = await fetch(`/dashboard/utils/transcripts/${transcriptId}/download`);
+
+            if (!response.ok) throw new Error('Error al descargar transcripción');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `transcripcion-${transcriptId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showNotification('Transcripción descargada', 'success');
+
+          } catch (error) {
+            console.error('Error downloading transcript:', error);
+            showNotification(`Error al descargar transcripción: ${error.message}`, 'error');
+          }
+        }
+
+        // -------------------- SINCRONIZACIÓN DE SECCIÓN Y TABS --------------------
+        document.querySelectorAll('#supportTabs .nav-link').forEach(tab => {
+          tab.addEventListener('shown.bs.tab', function (e) {
+            const target = e.target.getAttribute('data-bs-target');
+            if (target === '#chat-tab-pane') {
+              currentSection = 'chat';
+              // Solicitar usuarios en línea al servidor si el socket está conectado
+              if (socket && socket.connected) {
+                socket.emit('user:list');
+              }
+            } else if (target === '#tickets-tab-pane') {
+              currentSection = 'tickets';
+            } else if (target === '#transcripts-tab-pane') {
+              currentSection = 'transcripts';
+            }
+          });
+        });
+
+        // Cuando el socket se conecta, pedir la lista de usuarios si estamos en chat
+        if (socket) {
+          socket.on('connect', () => {
+            if (currentSection === 'chat') {
+              socket.emit('user:list');
+            }
+          });
+        }
+
+        // -------------------- FUNCIONES AUXILIARES --------------------
+
+        /**
+         * Cambia la sección visible de la interfaz (tickets, chat, transcripciones).
+         * @param {string} section - Nombre de la sección.
+         */
+        function switchSection(section) {
+          // Ocultar todas las secciones
+          document.querySelectorAll('main > section').forEach(sec => {
+            sec.classList.add('d-none');
+          });
+
+          // Mostrar la sección seleccionada SOLO si existe
+          const sectionElement = document.getElementById(section); // <-- CORREGIDO
+          if (sectionElement) {
+            sectionElement.classList.remove('d-none');
+          } else {
+            console.warn(`No existe la sección: ${section}`);
+            return;
+          }
+
+          // Actualizar navegación activa
+          document.querySelectorAll('#supportNav .nav-link').forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${section}`);
+          });
+
+          currentSection = section;
+
+          // Cargar datos según la sección
+          switch (section) {
+            case 'tickets':
+              loadTickets();
+              break;
+            case 'chat':
+              if (socket && !socket.connected) {
+                socket.connect();
+              }
+              break;
+            case 'transcripts':
+              loadTranscripts();
+              break;
+          }
+        }
+
+        /**
+         * Actualiza el estado visual de la conexión (WebSocket o API).
+         * @param {string} type - "socket" o "api".
+         * @param {boolean} connected - Estado de conexión.
+         */
+        function updateConnectionStatus(type, connected) {
+          const indicator = document.getElementById(`${type}-indicator`);
+          const badge = document.getElementById(`${type}-status-badge`);
+          const text = document.getElementById(`${type}-status-text`);
+
+          if (connected) {
+            indicator.classList.add('active');
+            badge.className = 'badge bg-success';
+            badge.innerHTML = `<i class="fas fa-check-circle me-1"></i>Conectado`;
+            text.textContent = type === 'socket' ? 'Conexión establecida' : 'API operativa';
+          } else {
+            indicator.classList.remove('active');
+            badge.className = 'badge bg-danger';
+            badge.innerHTML = `<i class="fas fa-times-circle me-1"></i>Desconectado`;
+            text.textContent = type === 'socket' ? 'Conexión perdida' : 'API no disponible';
+          }
+        }
+
+        /**
+         * Verifica el estado de la API pública de Nebura.
+         */
+        async function checkSystemStatus() {
+          try {
+            const response = await fetch('/api/v1/public/status');
+
+            if (!response.ok) throw new Error('Error al verificar estado del sistema');
+
+            const data = await response.json();
+
+            updateConnectionStatus('api', data.status === 'Operational');
+
+          } catch (error) {
+            console.error('Error checking system status:', error);
+            updateConnectionStatus('api', false);
+          }
+        }
+
+        /**
+         * Muestra un loader/spinner en el selector dado.
+         * @param {string} selector - Selector CSS del elemento.
+         */
+        function showLoader(selector) {
+          const element = document.querySelector(selector);
+          if (element) {
+            element.innerHTML = `
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      `;
+          }
+        }
+
+        /**
+         * Actualiza la paginación de la tabla actual.
+         * @param {string} selector - Selector CSS de la paginación.
+         * @param {number} currentPage - Página actual.
+         * @param {number} totalPages - Total de páginas.
+         */
+        function updatePagination(selector, currentPage, totalPages) {
+          const pagination = document.querySelector(selector);
+          if (!pagination) return;
+
+          let html = `
+      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" data-page="${currentPage - 1}">Anterior</a>
+      </li>
+    `;
+
+          // Mostrar máximo 5 páginas alrededor de la actual
+          const startPage = Math.max(1, currentPage - 2);
+          const endPage = Math.min(totalPages, currentPage + 2);
+
+          for (let i = startPage; i <= endPage; i++) {
+            html += `
+        <li class="page-item ${i === currentPage ? 'active' : ''}">
+          <a class="page-link" href="#" data-page="${i}">${i}</a>
+        </li>
+      `;
+          }
+
+          html += `
+      <li class="page-item ${currentPage >= totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" data-page="${currentPage + 1}">Siguiente</a>
+      </li>
+    `;
+
+          pagination.innerHTML = html;
+
+          // Agregar event listeners
+          pagination.querySelectorAll('.page-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+              e.preventDefault();
+              const page = parseInt(link.dataset.page);
+              if (currentSection === 'tickets') {
+                loadTickets(page);
+              } else if (currentSection === 'transcripts') {
+                loadTranscripts(page);
+              }
+            });
+          });
+        }
+
+        /**
+         * Muestra una notificación tipo toast en la esquina inferior derecha.
+         * @param {string} message - Mensaje a mostrar.
+         * @param {string} type - Tipo ('success', 'error', 'warning').
+         */
+        function showNotification(message, type = 'success') {
+          const toast = document.getElementById('notificationToast');
+          if (!toast) return;
+
+          const toastTitle = toast.querySelector('#toast-title');
+          const toastBody = toast.querySelector('#toast-body');
+
+          if (toastTitle) toastTitle.textContent = type === 'success' ? 'Éxito' :
+            type === 'error' ? 'Error' : 'Advertencia';
+          if (toastBody) toastBody.textContent = message;
+
+          // Cambiar color según tipo
+          toast.className = 'toast';
+          toast.classList.add(`bg-${type}`);
+
+          // Mostrar toast
+          const bsToast = new bootstrap.Toast(toast);
+          bsToast.show();
+        }
+
+        /**
+         * Función de utilidad para limitar la frecuencia de ejecución de otra función.
+         * @param {Function} func - Función a debilitar.
+         * @param {number} wait - Tiempo de espera en ms.
+         */
+        function debounce(func, wait) {
+          let timeout;
+          return function () {
+            const context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              func.apply(context, args);
+            }, wait);
+          };
+        }
+
+        /**
+         * Formatea una fecha a formato local corto.
+         * @param {string} dateString - Fecha en formato ISO.
+         * @returns {string}
+         */
+        function formatDate(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleDateString();
+        }
+
+        /**
+         * Formatea una hora a formato local corto.
+         * @param {string} dateString - Fecha en formato ISO.
+         * @returns {string}
+         */
+        function formatTime(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        /**
+         * Formatea fecha y hora a formato local completo.
+         * @param {string} dateString - Fecha en formato ISO.
+         * @returns {string}
+         */
+        function formatDateTime(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleString();
+        }
+
+        /**
+         * Formatea una duración en ms a minutos y segundos.
+         * @param {number} ms - Milisegundos.
+         * @returns {string}
+         */
+        function formatDuration(ms) {
+          if (!ms) return 'N/A';
+          const totalSeconds = Math.floor(ms / 1000);
+          const mins = Math.floor(totalSeconds / 60);
+          const secs = totalSeconds % 60;
+          return `${mins}m ${secs}s`;
+        }
+
+        /**
+         * Devuelve el texto legible de un estado de ticket.
+         * @param {string} status - Estado ('OPEN', 'CLOSED', 'PENDING').
+         * @returns {string}
+         */
+        function getStatusText(status) {
+          switch (status) {
+            case 'OPEN': return 'Abierto';
+            case 'CLOSED': return 'Cerrado';
+            case 'PENDING': return 'Pendiente';
+            default: return status;
+          }
+        }
+
+        /**
+         * Devuelve la clase CSS de badge para un estado de ticket.
+         * @param {string} status
+         * @returns {string}
+         */
+        function getStatusBadgeClass(status) {
+          switch (status) {
+            case 'OPEN': return 'bg-success';
+            case 'CLOSED': return 'bg-danger';
+            case 'PENDING': return 'bg-warning';
+            default: return 'bg-secondary';
+          }
+        }
+
+        /**
+         * Cambia el tema visual del chat (oscuro/claro).
+         */
+        function toggleChatTheme() {
+          const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+          document.documentElement.setAttribute('data-bs-theme', newTheme);
+          localStorage.setItem('nebura-chat-theme', newTheme);
+          updateThemeButton(newTheme);
+        }
+
+        /**
+         * Actualiza el icono del botón de cambio de tema.
+         * @param {string} theme - Tema actual ('dark' o 'light').
+         */
+        function updateThemeButton(theme) {
+          const btn = document.getElementById('toggle-chat-theme');
+          if (btn) {
+            btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+          }
+        }
+
+        // -------------------- CONFIGURACIÓN DE MARKED Y HIGHLIGHT --------------------
+        /**
+         * Configura Marked.js para renderizar Markdown y resaltar código con Highlight.js.
+         */
+        marked.setOptions({
+          highlight: function (code, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+              return hljs.highlight(lang, code).value;
+            }
+            return hljs.highlightAuto(code).value;
+          },
+          langPrefix: 'hljs language-',
+          breaks: true,
+          gfm: true
+        });
+
+        // -------------------- REFRESCO AUTOMÁTICO DEL CHAT DE TICKETS --------------------
+        /**
+         * Inicia el refresco automático de mensajes del chat del ticket abierto.
+         * Consulta cada 5 segundos los mensajes del ticket.
+         */
+        function startTicketChatAutoRefresh() {
+          stopTicketChatAutoRefresh();
+          if (!currentTicketId) return;
+          ticketChatAutoRefreshInterval = setInterval(async () => {
+            try {
+              const msgResponse = await fetch(`/dashboard/utils/tickets/${user.id}/${currentTicketId}/messages`);
+              if (!msgResponse.ok) return;
+              const msgData = await msgResponse.json();
+              if (!msgData.success) return;
+              renderTicketMessages(msgData.data);
+            } catch (e) {
+              // Silenciar errores para evitar spam en consola
+            }
+          }, 5000);
+        }
+
+        /**
+         * Detiene el refresco automático del chat de tickets.
+         */
+        function stopTicketChatAutoRefresh() {
+          if (ticketChatAutoRefreshInterval) {
+            clearInterval(ticketChatAutoRefreshInterval);
+            ticketChatAutoRefreshInterval = null;
+          }
+        }
+      });
+
+    </script>
+    <script>
+      // --- MULTILENGUAJE ---
+      const translations = {
+        es: {
+          supportTitle: "Soporte",
+          ticketsTab: "Tickets",
+          chatTab: "Chat Global",
+          transcriptsTab: "Transcripciones",
+          systemStatus: "Estado del Sistema",
+          connecting: "Conectando",
+          checking: "Verificando",
+          realtimeConnection: "Conexión en tiempo real",
+          establishingConnection: "Estableciendo conexión...",
+          supportApi: "API de Soporte",
+          checkingStatus: "Verificando estado...",
+          mySupportTickets: "Mis Tickets de Soporte",
+          newTicketBtn: "Nuevo Ticket",
+          filterAll: "Todos",
+          filterOpen: "Abiertos",
+          filterClosed: "Cerrados",
+          filterPending: "Pendientes",
+          searchTicketsPlaceholder: "Buscar tickets...",
+          ticketId: "ID",
+          subject: "Asunto",
+          status: "Estado",
+          date: "Fecha",
+          actions: "Acciones",
+          loading: "Cargando...",
+          previous: "Anterior",
+          next: "Siguiente",
+          communityChat: "Chat de la Comunidad",
+          searchUsersPlaceholder: "Buscar usuarios...",
+          myTranscripts: "Mis Transcripciones",
+          filterTicket: "Tickets",
+          filterChat: "Chats",
+          createNewTicket: "Crear Nuevo Ticket",
+          subjectLabel: "Asunto",
+          categoryLabel: "Categoría",
+          selectCategory: "Selecciona una categoría",
+          categoryGeneral: "Consulta General",
+          categoryTechnical: "Problema Técnico",
+          categoryBilling: "Facturación/Pagos",
+          categoryAccount: "Problema con Cuenta",
+          categoryOther: "Otro",
+          messageLabel: "Mensaje",
+          attachmentsLabel: "Adjuntos (opcional)",
+          dropFilesHere: "Arrastra archivos aquí o haz clic para seleccionar",
+          attachmentsLimit: "Máximo 5 archivos, 10MB cada uno",
+          markHighPriority: "Marcar como prioridad alta",
+          cancelBtn: "Cancelar",
+          sendTicketBtn: "Enviar Ticket",
+          ticketNumber: "Ticket #",
+          openStatus: "Abierto",
+          ticketInfo: "Información del Ticket",
+          createdLabel: "Creado:",
+          updatedLabel: "Actualizado:",
+          priorityLabel: "Prioridad:",
+          none: "Ninguno",
+          closeTicketBtn: "Cerrar Ticket",
+          writeReplyPlaceholder: "Escribe tu respuesta...",
+          transcriptNumber: "Transcripción #",
+          typeLabel: "Tipo:",
+          dateLabel: "Fecha:",
+          participantsLabel: "Participantes:",
+          durationLabel: "Duración:",
+          closeBtn: "Cerrar",
+          downloadBtn: "Descargar"
+        },
+        en: {
+          supportTitle: "Support",
+          ticketsTab: "Tickets",
+          chatTab: "Global Chat",
+          transcriptsTab: "Transcripts",
+          systemStatus: "System Status",
+          connecting: "Connecting",
+          checking: "Checking",
+          realtimeConnection: "Realtime Connection",
+          establishingConnection: "Establishing connection...",
+          supportApi: "Support API",
+          checkingStatus: "Checking status...",
+          mySupportTickets: "My Support Tickets",
+          newTicketBtn: "New Ticket",
+          filterAll: "All",
+          filterOpen: "Open",
+          filterClosed: "Closed",
+          filterPending: "Pending",
+          searchTicketsPlaceholder: "Search tickets...",
+          ticketId: "ID",
+          subject: "Subject",
+          status: "Status",
+          date: "Date",
+          actions: "Actions",
+          loading: "Loading...",
+          previous: "Previous",
+          next: "Next",
+          communityChat: "Community Chat",
+          searchUsersPlaceholder: "Search users...",
+          myTranscripts: "My Transcripts",
+          filterTicket: "Tickets",
+          filterChat: "Chats",
+          createNewTicket: "Create New Ticket",
+          subjectLabel: "Subject",
+          categoryLabel: "Category",
+          selectCategory: "Select a category",
+          categoryGeneral: "General Inquiry",
+          categoryTechnical: "Technical Issue",
+          categoryBilling: "Billing/Payments",
+          categoryAccount: "Account Issue",
+          categoryOther: "Other",
+          messageLabel: "Message",
+          attachmentsLabel: "Attachments (optional)",
+          dropFilesHere: "Drag files here or click to select",
+          attachmentsLimit: "Max 5 files, 10MB each",
+          markHighPriority: "Mark as high priority",
+          cancelBtn: "Cancel",
+          sendTicketBtn: "Send Ticket",
+          ticketNumber: "Ticket #",
+          openStatus: "Open",
+          ticketInfo: "Ticket Information",
+          createdLabel: "Created:",
+          updatedLabel: "Updated:",
+          priorityLabel: "Priority:",
+          none: "None",
+          closeTicketBtn: "Close Ticket",
+          writeReplyPlaceholder: "Write your reply...",
+          transcriptNumber: "Transcript #",
+          typeLabel: "Type:",
+          dateLabel: "Date:",
+          participantsLabel: "Participants:",
+          durationLabel: "Duration:",
+          closeBtn: "Close",
+          downloadBtn: "Download"
+        }
+      };
+
+      let currentLanguage = localStorage.getItem('language') || (navigator.language.startsWith('es') ? 'es' : 'en');
+
+      function updateTranslations() {
+        document.querySelectorAll('[data-key]').forEach(el => {
+          const key = el.getAttribute('data-key');
+          if (!key) return;
+          const value = translations[currentLanguage][key];
+          if (el.tagName === 'INPUT' && el.placeholder) {
+            el.placeholder = value;
+          } else if (el.tagName === 'OPTION') {
+            el.textContent = value;
+          } else {
+            el.textContent = value;
+          }
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // Cambiar idioma desde el sidebar
+        const langLinks = document.querySelectorAll('.lang-link');
+        langLinks.forEach(link => {
+          link.classList.toggle('active', link.dataset.lang === currentLanguage);
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentLanguage = link.dataset.lang;
+            localStorage.setItem('language', currentLanguage);
+            langLinks.forEach(l => l.classList.toggle('active', l === link));
+            updateTranslations();
+          });
+        });
+        updateTranslations();
+      });
+
+      // --- SISTEMA DE NOTIFICACIONES (TOAST) ---
+      const toastElement = document.getElementById('notificationToast');
+
+
+      // --- ADJUNTAR ARCHIVOS EN CHAT GLOBAL Y CHAT DE TICKETS ---
+      function showToast(title, body, type = 'success') {
+        const toastElement = document.getElementById('notificationToast');
+        if (!toastElement) return;
+        const toastTitle = toastElement.querySelector('.toast-title');
+        const toastBody = toastElement.querySelector('.toast-body');
+        if (toastTitle) toastTitle.textContent = title;
+        if (toastBody) toastBody.textContent = body;
+        toastElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white');
+        if (type === 'success') {
+          toastElement.classList.add('bg-success', 'text-white');
+        } else if (type === 'danger' || type === 'error') {
+          toastElement.classList.add('bg-danger', 'text-white');
+        } else if (type === 'warning') {
+          toastElement.classList.add('bg-warning', 'text-white');
+        }
+        const notificationToast = new bootstrap.Toast(toastElement);
+        notificationToast.show();
+      }
+
+      function showNotification(message, type = 'success') {
+        showToast(
+          type === 'success' ? 'Éxito' : type === 'error' ? 'Error' : 'Advertencia',
+          message,
+          type
+        );
+      }
+
+      // Utilidad para subir archivos al CDN
+      async function uploadChatFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('userId', user.id);
+        formData.append('title', file.name);
+        formData.append('description', 'Adjunto de chat');
+
+        const response = await fetch('/dashboard/utils/cdn', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          },
+          body: formData
+        });
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || 'Error al subir archivo');
+        // Devuelve la URL de descarga directa
+        return data.data.downloadUrl;
+      }
+
+      // --- CHAT GLOBAL ---
+      const globalFileInput = document.createElement('input');
+      globalFileInput.type = 'file';
+      globalFileInput.style.display = 'none';
+      document.body.appendChild(globalFileInput);
+
+      document.querySelector('#chat-tab-pane .fa-paperclip').parentElement.addEventListener('click', () => {
+        globalFileInput.value = '';
+        globalFileInput.click();
+      });
+
+      globalFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const url = await uploadChatFile(file);
+          // Construir enlace de compartición tipo CDN
+          const shareUrl = `${webURL}/dashboard/cdn/share?title=${encodeURIComponent(file.name)}&url=${encodeURIComponent(url)}&mime=${encodeURIComponent(file.type)}&size=${file.size}&date=${encodeURIComponent(new Date().toISOString())}`;
+          const input = document.getElementById('global-chat-input');
+          input.value += ` [${file.name}](${shareUrl}) `;
+          input.focus();
+          showNotification('Archivo adjuntado. Envía el mensaje para compartirlo.', 'success');
+        } catch (err) {
+          showNotification('Error al subir archivo: ' + err.message, 'error');
+        }
+      });
+
+      // --- CHAT DE TICKETS ---
+      const ticketFileInput = document.createElement('input');
+      ticketFileInput.type = 'file';
+      ticketFileInput.style.display = 'none';
+      document.body.appendChild(ticketFileInput);
+
+      document.querySelector('#ticketChatModal .fa-paperclip').parentElement.addEventListener('click', () => {
+        ticketFileInput.value = '';
+        ticketFileInput.click();
+      });
+
+      ticketFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const url = await uploadChatFile(file);
+
+          const shareUrl = `${webURL}/dashboard/cdn/share?title=${encodeURIComponent(file.name)}&url=${encodeURIComponent(url)}&mime=${encodeURIComponent(file.type)}&size=${file.size}&date=${encodeURIComponent(new Date().toISOString())}`;
+          const input = document.getElementById('ticket-chat-input');
+          input.value += ` [${file.name}](${shareUrl}) `;
+          input.focus();
+          showNotification('Archivo adjuntado. Envía el mensaje para compartirlo.', 'success');
+        } catch (err) {
+          showNotification('Error al subir archivo: ' + err.message, 'error');
+        }
+      });
+    </script>
+    <script>
+      /**
+ * Script para la mecánica de insertar código en el chat de tickets
+ */
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // Selector del botón de insertar código en el modal de ticket
+        const insertCodeBtn = document.querySelector('ticket-chat-tools .btn-outline-secondary[title="Insertar código"]');
+
+        if (insertCodeBtn) {
+          insertCodeBtn.addEventListener('click', function () {
+            showCodeInsertModal();
+          });
+        }
+
+        // Función para mostrar el modal de inserción de código
+        function showCodeInsertModal() {
+          // Crear el modal dinámicamente
+          const modalHTML = `
+            <div class="modal fade" id="codeInsertModal" tabindex="-1" aria-labelledby="codeInsertModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="codeInsertModalLabel">
+                                <i class="fas fa-code me-2"></i>Insertar Código
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="code-language" class="form-label">Lenguaje</label>
+                                <select class="form-select" id="code-language">
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="html">HTML</option>
+                                    <option value="css">CSS</option>
+                                    <option value="python">Python</option>
+                                    <option value="java">Java</option>
+                                    <option value="php">PHP</option>
+                                    <option value="sql">SQL</option>
+                                    <option value="bash">Bash</option>
+                                    <option value="json">JSON</option>
+                                    <option value="markdown">Markdown</option>
+                                    <option value="plaintext">Texto Plano</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="code-content" class="form-label">Código</label>
+                                <textarea class="form-control font-monospace" id="code-content" rows="10" style="font-family: 'Courier New', monospace;"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="insert-code-btn">Insertar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+          // Añadir el modal al DOM
+          document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+          // Mostrar el modal
+          const codeModal = new bootstrap.Modal(document.getElementById('codeInsertModal'));
+          codeModal.show();
+
+          // Configurar el evento para el botón de insertar
+          document.getElementById('insert-code-btn').addEventListener('click', function () {
+            insertCodeToChat();
+            codeModal.hide();
+          });
+
+          // Eliminar el modal del DOM cuando se cierre
+          document.getElementById('codeInsertModal').addEventListener('hidden.bs.modal', function () {
+            this.remove();
+          });
+        }
+
+        // Función para insertar el código formateado en el área de chat
+        function insertCodeToChat() {
+          const language = document.getElementById('code-language').value;
+          const codeContent = document.getElementById('code-content').value;
+          const chatInput = document.getElementById('ticket-chat-input');
+
+          if (!codeContent.trim()) return;
+
+          // Formatear el código para Markdown
+          const formattedCode = `\`\`\`${language}\n${codeContent}\n\`\`\``;
+
+          // Insertar en el campo de chat
+          if (chatInput) {
+            const currentValue = chatInput.value;
+            const newValue = currentValue ? `${currentValue}\n${formattedCode}` : formattedCode;
+            chatInput.value = newValue;
+
+            // Enfocar el campo y posicionar el cursor al final
+            chatInput.focus();
+            chatInput.setSelectionRange(newValue.length, newValue.length);
+
+            // Autoajustar la altura del textarea
+            autoResizeTextarea(chatInput);
+          }
+        }
+
+        // Función para autoajustar la altura del textarea
+        function autoResizeTextarea(textarea) {
+          textarea.style.height = 'auto';
+          textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+      });
+
+      // Inicializar el resaltado de código para los mensajes existentes
+      document.addEventListener('DOMContentLoaded', function () {
+        // Configurar marked para usar highlight.js
+        marked.setOptions({
+          highlight: function (code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+          },
+          langPrefix: 'hljs language-',
+        });
+
+        // Aplicar el resaltado a todos los bloques de código en los mensajes
+        document.querySelectorAll('.message-content pre code').forEach((block) => {
+          hljs.highlightElement(block);
+        });
+      });
+    </script>
+</body>
+
+</html>

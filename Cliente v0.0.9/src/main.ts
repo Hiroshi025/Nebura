@@ -1,3 +1,12 @@
+/**
+ * Main entry point for the Nebura Application Platform client.
+ *
+ * This file initializes and manages the core modules of the application,
+ * including Discord, WhatsApp, API, and database operations.
+ *
+ * @packageDocumentation
+ */
+
 import { ObjectId } from "bson"; // BSON library for working with ObjectId: https://www.npmjs.com/package/bson
 import chalk from "chalk"; // Chalk library for terminal string styling: https://www.npmjs.com/package/chalk
 
@@ -17,8 +26,14 @@ import { logWithLabel } from "./shared/utils/functions/console"; // Logging util
 import { ProyectConfig } from "./typings/config"; // TypeScript type for configuration
 
 process.loadEnvFile(); // Load environment variables from a file
-const defaultConfig = config as ProyectConfig; // Cast configuration to ProyectConfig type
-const { CRON_BACKUPS_TIME } = process.env; // Destructure environment variables
+
+/**
+ * Default configuration object loaded from the config utility.
+ * @type {ProyectConfig}
+ */
+const defaultConfig = config as ProyectConfig;
+
+const { CRON_BACKUPS_TIME } = process.env;
 
 /**
  * Main class responsible for initializing and managing the core modules of the application.
@@ -36,10 +51,41 @@ const { CRON_BACKUPS_TIME } = process.env; // Destructure environment variables
  * @see {@link https://www.npmjs.com/package/chalk | Chalk Documentation}
  */
 export class Engine {
-  public readonly prisma: PrismaClient; // Prisma client instance for database operations
-  public readonly discord: MyClient; // Discord client instance
-  public readonly whatsapp: MyApp; // WhatsApp module instance
-  public readonly api: API; // API server instance
+  /**
+   * Prisma client instance for database operations.
+   * @readonly
+   */
+  public readonly prisma: PrismaClient;
+
+  /**
+   * Discord client instance.
+   * @readonly
+   */
+  public readonly discord: MyClient;
+
+  /**
+   * WhatsApp module instance.
+   * @readonly
+   */
+  public readonly whatsapp: MyApp;
+
+  /**
+   * API server instance.
+   * @readonly
+   */
+  public readonly api: API;
+
+  /**
+   * Application configuration object.
+   * @readonly
+   */
+  public readonly config: ProyectConfig;
+
+  /**
+   * Utility functions for Discord.
+   * @readonly
+   */
+  public readonly utils: Utils;
 
   /**
    * Initializes the core module instances.
@@ -53,8 +99,8 @@ export class Engine {
    */
   constructor(
     prisma: PrismaClient = Engine.createDefaultPrismaClient(),
-    public readonly config: ProyectConfig = defaultConfig,
-    public readonly utils: Utils = new Utils(),
+    config: ProyectConfig = defaultConfig,
+    utils: Utils = new Utils(),
     discord: MyClient = new MyClient(),
     whatsapp: MyApp = new MyApp(),
     api: API = new API(),
@@ -63,6 +109,8 @@ export class Engine {
     this.discord = discord;
     this.prisma = prisma;
     this.api = api;
+    this.config = config;
+    this.utils = utils;
   }
 
   /**
@@ -133,6 +181,8 @@ export class Engine {
    * @remarks
    * If the WhatsApp module is disabled, a log message is displayed indicating that
    * the module has not started.
+   *
+   * @throws {ProyectError} If the WhatsApp module fails to start.
    */
   private async conditionallyStartWhatsApp(): Promise<void> {
     try {
@@ -177,7 +227,7 @@ export class Engine {
    * @returns A promise that resolves when all modules have been successfully started.
    * @throws {ProyectError} If any module fails to start.
    */
-  public async start() {
+  public async start(): Promise<void> {
     try {
       await ErrorConsole(this.discord);
       await this.initializeModules();
@@ -201,7 +251,7 @@ export class Engine {
    *
    * @throws {ProyectError} If any module fails to initialize.
    */
-  private async initializeModules() {
+  private async initializeModules(): Promise<void> {
     try {
       await Promise.all([this.discord.start(), this.api.start()]);
       await this.conditionallyStartWhatsApp();
@@ -222,7 +272,7 @@ export class Engine {
    *
    * @throws {ProyectError} If the upsert operation fails.
    */
-  private async clientCreate() {
+  private async clientCreate(): Promise<void> {
     try {
       const data = config.modules.discord;
       const validId = new ObjectId().toHexString();
@@ -249,9 +299,22 @@ export class Engine {
   }
 }
 
+/**
+ * Main application engine instance.
+ * @type {Engine}
+ */
 const main = new Engine();
+
+/**
+ * Discord client instance exported for external usage.
+ * @type {MyClient}
+ */
 const client = main.discord;
 
+/**
+ * Handles the SIGINFO signal for process information.
+ * @param reason - The reason or message for the signal.
+ */
 process.on("SIGINFO", (reason) => {
   console.log("SIGINFO received:", reason);
   logWithLabel("custom", `SIGINFO received: ${reason}`, {
@@ -259,6 +322,9 @@ process.on("SIGINFO", (reason) => {
   });
 });
 
+/**
+ * Handles the SIGINT signal for graceful shutdown.
+ */
 process.on("SIGINT", () => {
   console.log("SIGINT received. Exiting gracefully...");
   logWithLabel("custom", "SIGINT received. Exiting gracefully...", {
@@ -267,6 +333,9 @@ process.on("SIGINT", () => {
   process.exit(0); // Exit the process gracefully
 });
 
+/**
+ * Handles the SIGTERM signal for graceful shutdown.
+ */
 process.on("SIGTERM", () => {
   console.log("SIGTERM received. Exiting gracefully...");
   logWithLabel("custom", "SIGTERM received. Exiting gracefully...", {

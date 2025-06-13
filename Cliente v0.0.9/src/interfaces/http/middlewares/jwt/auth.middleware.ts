@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 
 import { main } from "@/main";
+import { User } from "@typings/utils";
 
 export const isDevelopment = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await main.prisma.userAPI.findUnique({ where: { id: req.user.id } });
+    const data = await main.prisma.userAPI.findUnique({ where: { id: (req.user as User).id } });
     if (!data) {
       return res.status(401).json({
         success: false,
@@ -45,7 +46,7 @@ export const isDevelopment = async (req: Request, res: Response, next: NextFunct
 
 export const isAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await main.prisma.userAPI.findUnique({ where: { id: req.user.id } });
+    const data = await main.prisma.userAPI.findUnique({ where: { id: (req.user as User).id } });
     if (!data) {
       return res.status(401).json({
         success: false,
@@ -87,7 +88,7 @@ export const isAdmin = async (req: Request, res: Response, next: NextFunction) =
 
 export const isCustomer = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = await main.prisma.userAPI.findUnique({ where: { id: req.user.id } });
+    const data = await main.prisma.userAPI.findUnique({ where: { id: (req.user as User).id } });
     if (!data) {
       return res.status(401).json({
         success: false,

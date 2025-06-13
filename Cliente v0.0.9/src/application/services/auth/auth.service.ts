@@ -1,5 +1,5 @@
 import { main } from "@/main";
-import { AuthLogin, AuthRegister } from "@/shared/infrastructure/constants/user";
+import { AuthLogin } from "@/shared/infrastructure/constants/user";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { User } from "@/typings/utils";
 import { Prisma } from "@prisma/client";
@@ -42,7 +42,7 @@ export class AuthService {
    */
   async createAuth(body: Partial<User>) {
     try {
-      const { email, password, name } = body;
+      const { email, password, name, discord } = body;
 
       // Validar campos requeridos
       if (!email || !password || !name) {
@@ -50,14 +50,14 @@ export class AuthService {
       }
 
       // Validar estructura de datos
-      const validation = AuthRegister.safeParse(body);
+      /*const validation = AuthRegister.safeParse(body);
       if (!validation.success) {
         return {
           error: "VALIDATION_ERROR",
           message: "Invalid data format",
           details: validation.error.errors,
         };
-      }
+      }*/
 
       // Verificar si el usuario ya existe
       const existingUser = await main.prisma.userAPI.findUnique({ where: { email } });
@@ -71,22 +71,46 @@ export class AuthService {
         return { error: "ENCRYPTION_ERROR", message: "Failed to encrypt password" };
       }
 
-      // Crear usuario
-      const newUser = await main.prisma.userAPI.create({
-        data: {
-          email,
-          password: passwordHash,
-          name,
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          createdAt: true,
-        },
-      });
+      if (discord) {
+        // Crear usuario
+        const newUser = await main.prisma.userAPI.create({
+          data: {
+            email,
+            password: passwordHash,
+            name,
+            discord: {
+              userId: discord.id,
+              userAvatar: discord.avatar,
+              userName: discord.username ? discord.username : discord.global_name,
+            },
+          },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            createdAt: true,
+          },
+        });
 
-      return { user: newUser };
+        return { user: newUser };
+      } else {
+        // Crear usuario
+        const newUser = await main.prisma.userAPI.create({
+          data: {
+            email,
+            password: passwordHash,
+            name,
+          },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            createdAt: true,
+          },
+        });
+
+        return { user: newUser };
+      }
     } catch (error) {
       logWithLabel("error", "Failed to create user");
 

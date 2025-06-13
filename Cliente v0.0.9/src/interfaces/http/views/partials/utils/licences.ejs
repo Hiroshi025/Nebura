@@ -848,6 +848,7 @@
       const startIdx = (currentPage - 1) * itemsPerPage;
       const endIdx = startIdx + itemsPerPage;
       const pageLicenses = filteredLicenses.slice(startIdx, endIdx);
+      const usersMap = JSON.parse('<%- JSON.stringify(usersMap) %>');
 
       let html = '';
 
@@ -863,7 +864,7 @@
               <td data-label="Clave">
                 <span class="badge bg-secondary">${license.key}</span>
               </td>
-              <td data-label="Usuario">${license.userId || '-'}</td>
+              <td data-label="Usuario">${usersMap[license.userId] || license.userId}</td>
               <td data-label="Tipo">${license.type || '-'}</td>
               <td data-label="Estado">
                 <span class="badge badge-status ${statusClass}">${estado}</span>
@@ -1075,6 +1076,7 @@
       setTimeout(() => {
         const status = new Date(license.validUntil) < new Date() ? 'Expirada' : 'Activa';
         const statusClass = status === 'Activa' ? 'ACTIVE' : 'EXPIRED';
+        const usersMap = JSON.parse('<%- JSON.stringify(usersMap) %>');
 
         body.innerHTML = `
           <div class="row">
@@ -1090,7 +1092,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label text-muted">Usuario</label>
-                <p>${license.userId || '-'}</p>
+                <p>${usersMap[license.userId] || license.userId}</p>
               </div>
               <div class="mb-3">
                 <label class="form-label text-muted">Tipo</label>

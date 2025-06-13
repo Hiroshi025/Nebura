@@ -3,9 +3,11 @@
 
 import axios from "axios";
 import { Request, Response } from "express";
+import { statSync } from "node:fs";
+import { join } from "node:path";
 
-import { AuthPublic } from "@/interfaces/http/middlewares/web/auth.middleware";
-import { main } from "@/main";
+import { AuthPublic, Maintenance } from "@/interfaces/http/middlewares/web/auth.middleware";
+import { client, main } from "@/main";
 import { hostURL } from "@/shared/functions";
 import { TRoutesInput } from "@/typings/utils";
 import { config } from "@utils/config";
@@ -46,7 +48,7 @@ export default ({ app }: TRoutesInput) => {
     }
   });
 
-  app.get(formatRoute("cdn"), AuthPublic, (req: Request, res: Response) => {
+  app.get(formatRoute("cdn"), AuthPublic, Maintenance, (req: Request, res: Response) => {
     return res.render("cdn.ejs", {
       title: "Nebura CDN",
       user: req.user,
@@ -85,60 +87,189 @@ export default ({ app }: TRoutesInput) => {
     return res.status(500).render("error.ejs", { title: "Nebura" });
   });
 
-  app.get(formatRoute(""), AuthPublic, async (req: Request, res: Response) => {
+  app.get(formatRoute(""), AuthPublic, Maintenance, async (req: Request, res: Response) => {
     /*     const logger = await new WinstonLogger();
     const recentLogger = await logger.getRecentLogs(3); */
+    const data = await main.prisma.userAPI.findMany();
+    const userData = data.find((user) => user.discord?.userId === req.user?.id);
 
     return res.render("dashboard.ejs", {
       title: "Nebura",
       user: req.user,
+      userAPI: userData || null,
       //recentLogs: recentLogger,
     });
   });
 
-  app.get(formatRoute("administrator"), AuthPublic, async (req: Request, res: Response) => {
-    //la redireccion a este endpoint lo hace con '/dashboard/administrator?id=' + data.user.id;
-    const userId = req.query.id as string;
-    if (!userId) {
-      return res.status(400).render("error.ejs", {
-        title: "Nebura - Bad Request",
-        user: req.user,
-        error: "User ID is required",
+  app.get(
+    formatRoute("administrator"),
+    AuthPublic,
+    Maintenance,
+    async (req: Request, res: Response) => {
+      //la redireccion a este endpoint lo hace con '/dashboard/administrator?id=' + data.user.id;
+      const userId = req.query.id as string;
+      if (!userId) {
+        return res.status(400).render("error.ejs", {
+          title: "Nebura - Bad Request",
+          user: req.user,
+          error: "User ID is required",
+        });
+      }
+
+      const allowedRole = ["owner", "developer"];
+      const data = await main.prisma.userAPI.findUnique({
+        where: { id: userId },
       });
-    }
 
-    const allowedRole = ["owner", "developer"];
-    const data = await main.prisma.userAPI.findUnique({
-      where: { id: userId },
-    });
+      if (!data || !allowedRole.includes(data.role)) {
+        return res.status(403).render("error.ejs", {
+          title: "Nebura - Access Denied",
+          user: req.user,
+          error: "You do not have permission to access this page",
+        });
+      }
 
-    if (!data || !allowedRole.includes(data.role)) {
-      return res.status(403).render("error.ejs", {
-        title: "Nebura - Access Denied",
-        user: req.user,
-        error: "You do not have permission to access this page",
+      const logger = await new WinstonLogger();
+      const recentLogger = await logger.getRecentLogs(5);
+
+      const usersMap: { [key: string]: string } = {};
+      client.users.cache.forEach((user) => {
+        usersMap[user.id] = user.username; // o user.tag si quieres el tag completo
       });
-    }
 
-    const logger = await new WinstonLogger();
-    const recentLogger = await logger.getRecentLogs(5);
+      return res.render("administrator.ejs", {
+        title: "Nebura",
+        user: req.user,
+        usersMap,
+        metrics: await main.prisma.metrics.findMany(),
+        users: await main.prisma.userAPI.findMany(),
+        licenses: await main.prisma.license.findMany(),
+        myclientDiscord: await main.prisma.myDiscord.findMany(),
+        userIdFromUrl: req.query.id,
+        recentLogs: recentLogger,
+      });
+    },
+  );
 
-    return res.render("administrator.ejs", {
-      title: "Nebura",
-      user: req.user,
-      metrics: await main.prisma.metrics.findMany(),
-      users: await main.prisma.userAPI.findMany(),
-      licenses: await main.prisma.license.findMany(),
-      myclientDiscord: await main.prisma.myDiscord.findMany(),
-      recentLogs: recentLogger,
-    });
-  });
-
-  app.get(formatRoute("agent"), AuthPublic, (req: Request, res: Response) => {
+  app.get(formatRoute("agent"), AuthPublic, Maintenance, (req: Request, res: Response) => {
     return res.render("agent.ejs", {
       title: "Agente Gemini",
       user: req.user,
       customer_key: config.environments.default["key-secrets"].customer,
     });
   });
+
+  app.get(
+    formatRoute("logs/view/:name"),
+    AuthPublic,
+    Maintenance,
+    async (req: Request, res: Response) => {
+      const userId = req.query.id as string;
+      if (!userId || !/^[a-fA-F0-9]{24}$/.test(userId)) {
+        return res.status(400).render("error.ejs", {
+          title: "Nebura - Bad Request",
+          user: req.user,
+          error: "User ID is malformed or missing",
+        });
+      }
+
+      const allowedRole = ["owner", "developer"];
+      const data = await main.prisma.userAPI.findUnique({
+        where: { id: userId },
+      });
+
+      if (!data || !allowedRole.includes(data.role)) {
+        return res.status(403).render("error.ejs", {
+          title: "Nebura - Access Denied",
+          user: req.user,
+          error: "You do not have permission to access this page",
+        });
+      }
+
+      const winston = new WinstonLogger();
+      const pathDir = join(winston.logDir, req.params.name);
+
+      const response = await axios({
+        url: `${hostURL()}/dashboard/utils/logs/${req.params.name}`,
+        method: "GET",
+      });
+
+      if (response.status !== 200) {
+        return res.status(500).render("error.ejs", {
+          title: "Nebura - Error",
+          user: req.user,
+          error: "Failed to retrieve log file",
+        });
+      }
+
+      const logLines = response.data;
+      return res.render("logs-view.ejs", {
+        logFile: pathDir,
+        logLines: logLines,
+        title: "Nebura - Logs Viewer",
+        user: req.user,
+        logName: req.params.name,
+        logSize: await statSync(pathDir).size,
+        logDate: new Date().toLocaleDateString(),
+        maxLogAgeDays: winston.maxLogAgeDays,
+      });
+    },
+  );
+
+  app.get(formatRoute("support"), AuthPublic, Maintenance, async (req: Request, res: Response) => {
+    return res.render("support.ejs", {
+      title: "Nebura - Support",
+      webURL: hostURL(),
+      user: req.user,
+    });
+  });
+
+  app.get(
+    formatRoute("maintenance"),
+    AuthPublic,
+    Maintenance,
+    async (req: Request, res: Response) => {
+      return res.render("maintenance.ejs", {
+        title: "Nebura - Maintenance",
+        user: req.user,
+      });
+    },
+  );
+
+  app.get(
+    formatRoute("administrator/tickets"),
+    AuthPublic,
+    Maintenance,
+    async (req: Request, res: Response) => {
+      const userId = req.query.id as string;
+      if (!userId) {
+        return res.status(400).render("error.ejs", {
+          title: "Nebura - Bad Request",
+          user: req.user,
+          error: "User ID is required",
+        });
+      }
+
+      const allowedRole = ["owner", "developer"];
+      const data = await main.prisma.userAPI.findUnique({
+        where: { id: userId },
+      });
+
+      if (!data || !allowedRole.includes(data.role)) {
+        return res.status(403).render("error.ejs", {
+          title: "Nebura - Access Denied",
+          user: req.user,
+          error: "You do not have permission to access this page",
+        });
+      }
+
+      return res.render("tickets.ejs", {
+        transcripts: await main.prisma.transcript.findMany(),
+        tickets: await main.prisma.ticketUser.findMany(),
+        title: "Nebura - Tickets",
+        webURL: hostURL(),
+        user: req.user,
+      });
+    },
+  );
 };

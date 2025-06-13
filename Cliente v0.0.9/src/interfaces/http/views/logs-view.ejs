@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visor de Logs - Nebura</title>
+  <meta name="description"
+    content="Visor avanzado de archivos de log de Nebura Works con funciones de búsqueda y filtrado">
+  <meta name="keywords" content="Nebura, Logs, Administrador, Dashboard, Visor de Logs, Monitorización">
+  <meta name="author" content="Nebura">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/logs-view.css">
+</head>
+
+<body>
+  <div id="app-container">
+    <!-- Sidebar debe estar fuera del main y ser fijo -->
+    <%- include('partials/sidebar', { user: user }) %>
+
+      <!-- CONTENIDO PRINCIPAL -->
+      <main class="flex-grow-1 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="section-title mb-1"><i class="fas fa-file-alt me-2"></i>Visor de Logs</h1>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/administrator">Administración</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Visor de Logs</li>
+              </ol>
+            </nav>
+          </div>
+          <a href="/dashboard/administrator" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Volver
+          </a>
+        </div>
+
+        <div class="admin-header d-flex align-items-center fade-in mb-4">
+          <div class="admin-avatar-container">
+            <img src="/images/logo.png" alt="Log File" class="admin-avatar">
+            <div class="avatar-badge bg-primary">
+              <i class="fas fa-file-alt"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1">
+            <div class="welcome-title">Archivo: <span class="text-info">
+                <%= logName %>
+              </span></div>
+            <div class="welcome-desc">
+              <span class="me-3"><i class="fas fa-database"></i> Ruta: <code><%= logFile %></code></span>
+              <span class="me-3"><i class="fas fa-clock"></i> Retención: <%= maxLogAgeDays %> días</span>
+              <span class="me-3"><i class="fas fa-download"></i> <a href="/logs/download/<%= logName %>"
+                  class="text-info">Descargar</a></span>
+              <span class="me-3"><i class="fas fa-sync-alt"></i> <a href="#" id="refresh-log"
+                  class="text-info">Actualizar</a></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="count-box">
+              <div class="section-title">Resumen del Log</div>
+              <h2 id="log-lines">-</h2>
+              <div class="text-muted">Líneas totales</div>
+              <div class="mt-2">
+                <span id="log-size" class="badge bg-secondary me-1">-</span>
+                <span id="log-date" class="badge bg-secondary">-</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex flex-column flex-md-row gap-3">
+              <div class="search-group flex-grow-1" id="log-search-group">
+                <input type="text" class="form-control" id="search-log-table" placeholder="Buscar en el log...">
+                <span class="search-icon"><i class="fas fa-search"></i></span>
+                <button class="clear-btn" id="clear-search-log-table" tabindex="-1" title="Limpiar búsqueda">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary" id="scroll-to-top" title="Ir al inicio">
+                  <i class="fas fa-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="scroll-to-bottom" title="Ir al final">
+                  <i class="fas fa-arrow-down"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div><i class="fas fa-list me-2"></i> Entradas del Log</div>
+            <div class="text-muted small" id="filtered-count">Mostrando <span id="visible-lines">0</span> de <span
+                id="total-lines">0</span> líneas</div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive log-container">
+              <table class="table table-hover mb-0" id="log-table">
+                <thead>
+                  <tr>
+                    <th style="width: 80px;">#</th>
+                    <th>Contenido</th>
+                    <th style="width: 120px;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="log-table-body">
+                  <!-- Las filas del log se insertarán por JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+              <span id="last-updated">Última actualización: <span class="text-info">-</span></span>
+            </div>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="copy-all-logs" title="Copiar todo">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="export-logs" title="Exportar">
+                <i class="fas fa-file-export"></i> Exportar
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+  </div>
+  </div>
+
+  <!-- Toast para notificaciones -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toast-title">Notificación</strong>
+        <small class="text-muted" id="toast-time">justo ahora</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toast-body">Mensaje de notificación</div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+
+      function limpiarLog(obj) {
+        return `[${obj.timestamp}] [${obj.level.toUpperCase()}] (${obj.origin}) v${obj.version} [pid:${obj.pid}] [host:${obj.hostname}] - ${obj.message.replace(/\u001b\[[0-9;]*m/g, '')}`;
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // Configuración inicial
+        const toastElement = document.getElementById('notificationToast');
+        const notificationToast = new bootstrap.Toast(toastElement, { autohide: true, delay: 5000 });
+        let logLines = [];
+        let lastUpdate = null;
+
+        // Mostrar notificación
+        const showToast = (title, body, type = 'success') => {
+          const toastTitle = document.getElementById('toast-title');
+          const toastBody = document.getElementById('toast-body');
+          const toastTime = document.getElementById('toast-time');
+
+          toastTitle.textContent = title;
+          toastBody.textContent = body;
+          toastTime.textContent = 'justo ahora';
+
+          // Actualizar la hora cada minuto
+          const updateTime = () => {
+            const now = new Date();
+            const diff = Math.floor((now - lastUpdate) / 1000);
+
+            if (diff < 60) {
+              toastTime.textContent = 'justo ahora';
+            } else if (diff < 3600) {
+              toastTime.textContent = `hace ${Math.floor(diff / 60)} min`;
+            } else {
+              toastTime.textContent = `hace ${Math.floor(diff / 3600)} h`;
+            }
+          };
+
+          lastUpdate = new Date();
+          setInterval(updateTime, 60000);
+
+          // Estilos según el tipo
+          toastElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white');
+          if (type === 'success') toastElement.classList.add('bg-success', 'text-white');
+          else if (type === 'danger' || type === 'error') toastElement.classList.add('bg-danger', 'text-white');
+          else if (type === 'warning') toastElement.classList.add('bg-warning', 'text-white');
+
+          notificationToast.show();
+        };
+
+        // Cargar logs desde el servidor
+        const loadLogs = async () => {
+          try {
+            const response = await fetch("/dashboard/utils/logs/<%= logName %>");
+            if (!response.ok) throw new Error('Error al cargar los logs');
+            const data = await response.json();
+            console.log('DATA RECIBIDA:', data);
+
+            // Usar entries del objeto recibido
+            if (Array.isArray(data.entries)) {
+              logLines = data.entries.map(line => line.replace(/\u001b\[[0-9;]*m/g, ''));
+            } else if (Array.isArray(data)) {
+              logLines = data.map(line => line.replace(/\u001b\[[0-9;]*m/g, ''));
+            } else {
+              logLines = [];
+            }
+
+            // Guardar info de size y lastModified para el resumen
+            window._logSize = data.size;
+            window._logDate = data.lastModified;
+
+            renderLogTable(logLines);
+            updateSummary();
+            showToast('Éxito', 'Logs cargados correctamente', 'success');
+          } catch (error) {
+            console.error('Error loading logs:', error);
+            showToast('Error', 'No se pudieron cargar las líneas del log.', 'error');
+            logLines = [];
+            renderLogTable([]);
+          }
+        };
+
+        // Renderizar la tabla de logs
+        const renderLogTable = (lines) => {
+          const logTableBody = document.getElementById('log-table-body');
+          logTableBody.innerHTML = '';
+
+          if (!lines.length) {
+            logTableBody.innerHTML = `
+            <tr class='no-results-row'>
+              <td colspan='3'>
+                <i class='fas fa-frown me-2'></i>No se encontraron resultados
+              </td>
+            </tr>`;
+          } else {
+            lines.forEach((line, idx) => {
+              const lineNumber = idx + 1;
+              logTableBody.innerHTML += `
+              <tr data-line="${lineNumber}">
+                <td class='text-muted'>${lineNumber}</td>
+                <td style='white-space: pre-line;'>${highlightLogLevel(line)}</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-outline-secondary copy-line" data-line="${lineNumber}" title="Copiar línea">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary highlight-line" data-line="${lineNumber}" title="Resaltar línea">
+                    <i class="fas fa-highlighter"></i>
+                  </button>
+                </td>
+              </tr>`;
+            });
+          }
+
+          // Actualizar contadores
+          document.getElementById('visible-lines').textContent = lines.length;
+          document.getElementById('total-lines').textContent = logLines.length;
+          document.getElementById('last-updated').innerHTML = `Última actualización: <span class="text-info">${new Date().toLocaleTimeString()}</span>`;
+        };
+
+        // Resaltar niveles de log con colores
+        const highlightLogLevel = (line) => {
+          if (typeof line !== 'string') line = String(line ?? '');
+
+          // Limpia códigos ANSI por si acaso
+          line = line.replace(/\u001b\[[0-9;]*m/g, '');
+
+          const levelColors = {
+            'error': 'log-level-error',
+            'warn': 'log-level-warn',
+            'info': 'log-level-info',
+            'debug': 'log-level-debug',
+            'http': 'log-level-http',
+            'verbose': 'log-level-verbose'
+          };
+
+          for (const [level, className] of Object.entries(levelColors)) {
+            if (line.toLowerCase().includes(level)) {
+              return `<span class="${className}">${line}</span>`;
+            }
+          }
+
+          return line;
+        };
+
+        // Filtrar logs según búsqueda
+        const filterLogTable = () => {
+          const term = searchInput.value.trim().toLowerCase();
+          clearBtn.style.display = term ? 'block' : 'none';
+
+          if (!term) {
+            renderLogTable(logLines);
+          } else {
+            const filtered = logLines.filter(l => l.toLowerCase().includes(term));
+            renderLogTable(filtered);
+
+            // Resaltar coincidencias
+            document.querySelectorAll('#log-table-body td:nth-child(2)').forEach(td => {
+              const text = td.textContent;
+              if (text.toLowerCase().includes(term)) {
+                const regex = new RegExp(term, 'gi');
+                td.innerHTML = text.replace(regex, match =>
+                  `<span class="bg-warning text-dark">${match}</span>`
+                );
+              }
+            });
+          }
+        };
+
+        // Actualizar resumen
+        const updateSummary = () => {
+          const linesCount = Array.isArray(logLines) ? logLines.length : 0;
+          document.getElementById('log-lines').textContent =
+            typeof linesCount === 'number' ? linesCount.toLocaleString() : '0';
+
+          // Mostrar tamaño y fecha real si están disponibles
+          let size = window._logSize;
+          let date = window._logDate;
+          if (typeof size === 'number') {
+            // Mostrar en KB o MB si es grande
+            if (size > 1024 * 1024) {
+              size = (size / (1024 * 1024)).toFixed(2) + ' MB';
+            } else if (size > 1024) {
+              size = (size / 1024).toFixed(2) + ' KB';
+            } else {
+              size = size + ' B';
+            }
+          } else {
+            size = '<%= logSize %>';
+          }
+          if (date) {
+            try {
+              const d = new Date(date);
+              date = d.toLocaleString();
+            } catch {
+              date = '<%= logDate %>';
+            }
+          } else {
+            date = '<%= logDate %>';
+          }
+          document.getElementById('log-size').textContent = size;
+          document.getElementById('log-date').textContent = date;
+        };
+
+        // Event listeners
+        const searchInput = document.getElementById('search-log-table');
+        const clearBtn = document.getElementById('clear-search-log-table');
+
+        searchInput.addEventListener('input', filterLogTable);
+        clearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          filterLogTable();
+          clearBtn.style.display = 'none';
+        });
+
+        // Botón de actualización
+        document.getElementById('refresh-log').addEventListener('click', async (e) => {
+          e.preventDefault();
+          await loadLogs();
+        });
+
+        // Scroll a top/bottom
+        document.getElementById('scroll-to-top').addEventListener('click', () => {
+          document.querySelector('.log-container').scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.getElementById('scroll-to-bottom').addEventListener('click', () => {
+          const container = document.querySelector('.log-container');
+          container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        });
+
+        // Copiar línea individual
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('.copy-line')) {
+            const lineNum = e.target.closest('.copy-line').dataset.line;
+            const lineText = logLines[lineNum - 1];
+            navigator.clipboard.writeText(lineText).then(() => {
+              showToast('Copiado', `Línea ${lineNum} copiada al portapapeles`, 'success');
+            });
+          }
+        });
+
+        // Resaltar línea
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('.highlight-line')) {
+            const lineNum = e.target.closest('.highlight-line').dataset.line;
+            const lineElement = document.querySelector(`tr[data-line="${lineNum}"]`);
+
+            // Quitar resaltado de todas las líneas
+            document.querySelectorAll('#log-table-body tr').forEach(tr => {
+              tr.classList.remove('log-line-highlight');
+            });
+
+            // Resaltar la línea seleccionada
+            lineElement.classList.add('log-line-highlight');
+
+            // Scroll a la línea
+            lineElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+
+        // Copiar todos los logs
+        document.getElementById('copy-all-logs').addEventListener('click', () => {
+          const visibleLines = Array.from(document.querySelectorAll('#log-table-body tr'))
+            .map(tr => tr.querySelector('td:nth-child(2)').textContent)
+            .join('\n');
+
+          navigator.clipboard.writeText(visibleLines).then(() => {
+            showToast('Copiado', 'Todos los logs visibles copiados al portapapeles', 'success');
+          });
+        });
+
+        // Exportar logs
+        document.getElementById('export-logs').addEventListener('click', () => {
+          const visibleLines = Array.from(document.querySelectorAll('#log-table-body tr'))
+            .map(tr => tr.querySelector('td:nth-child(2)').textContent)
+            .join('\n');
+
+          const blob = new Blob([visibleLines], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `<%= logName %>_${new Date().toISOString().slice(0, 10)}.log`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        // Inicialización
+        loadLogs();
+      });
+    </script>
+</body>
+
+</html>

@@ -82,7 +82,12 @@ export interface User {
    * The Discord username of the user.
    * This property is used to link the user's account with their Discord profile.
    */
-  discord: string;
+  discord: {
+    id: string;
+    avatar: string;
+    username: string,
+    global_name: string;
+  }
 
   /**
    * The hashed password of the user.

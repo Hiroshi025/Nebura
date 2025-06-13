@@ -1,42 +1,55 @@
+/// ------------------------------------------------------------
+/// GENERADORES Y FUENTES DE DATOS
+/// ------------------------------------------------------------
+/// [Prisma Generators](https://www.prisma.io/docs/concepts/components/prisma-schema/generators)
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["metrics"]
 }
 
+/// [Prisma Datasource](https://www.prisma.io/docs/concepts/components/prisma-schema/datasources)
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
-//******************* API MODELS ********************//
+/// ------------------------------------------------------------
+/// MODELOS PRINCIPALES DE LA API
+/// ------------------------------------------------------------
 
+/// Modelo principal de usuario de la API.
+/// [Documentación de modelos](https://www.prisma.io/docs/concepts/components/prisma-schema/models)
 model UserAPI {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId /// Identificador único del usuario.
+  name        String /// Nombre del usuario.
+  email       String       @unique /// Email único.
+  password    String /// Contraseña hasheada.
+  discord     DiscordData? /// Datos de Discord opcionales.
+  role        String       @default("user") /// Rol del usuario (por defecto "user").
+  transcripts Json? /// Transcripciones relacionadas.
+  createdAt   DateTime     @default(now()) /// Fecha de creación.
+  updatedAt   DateTime     @updatedAt /// Fecha de última actualización.
 
-  blockedIPs BlockedIP[] @relation("BlockedUserRelation")
-  bans       BanUser[]   @relation("UserBans")
-  tasks      Task[]      @relation("UserTasks")
+  blockedIPs BlockedIP[] @relation("BlockedUserRelation") /// IPs bloqueadas asociadas.
+  bans       BanUser[]   @relation("UserBans") /// Baneos asociados.
+  tasks      Task[]      @relation("UserTasks") /// Tareas asociadas.
 }
 
+/// Licencias asociadas a los usuarios.
+/// [Relaciones en Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/relations)
 model License {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  key          String
-  type         LicenseType
-  userId       String
-  adminId      String
-  hwid         String[]
-  requestLimit Int         @default(1000)
-  requestCount Int         @default(0)
-  validUntil   DateTime
-  lastUsedIp   String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId /// ID único.
+  key          String /// Clave de la licencia.
+  type         LicenseType /// Tipo de licencia (enum).
+  userId       String /// ID del usuario propietario.
+  adminId      String /// ID del administrador asignador.
+  hwid         String[] /// Lista de HWIDs asociados.
+  requestLimit Int         @default(1000) /// Límite de peticiones.
+  requestCount Int         @default(0) /// Peticiones realizadas.
+  validUntil   DateTime /// Fecha de expiración.
+  lastUsedIp   String? /// Última IP usada.
+  createdAt    DateTime    @default(now()) /// Fecha de creación.
+  updatedAt    DateTime    @updatedAt /// Fecha de actualización.
 }
 
 model BlockedIP {
@@ -71,10 +84,9 @@ model RateLimitViolation {
   @@index([violationTime])
 }
 
-//******************* END API MODELS ******************//
-
-//******************* TASK MODELS ********************//
-
+/// ------------------------------------------------------------
+/// MODELOS DE TAREAS
+/// ------------------------------------------------------------
 model Task {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   title       String
@@ -96,10 +108,9 @@ model Task {
   @@map("tasks")
 }
 
-//******************* END TASK MODELS ******************//
-
-//******************* WHATSAPP MODELS *****************//
-
+/// ------------------------------------------------------------
+/// MODELOS DE WHATSAPP
+/// ------------------------------------------------------------
 model WhatsApp {
   id        String   @id @default(cuid()) @map("_id") @db.ObjectId
   session   String   @unique
@@ -107,10 +118,9 @@ model WhatsApp {
   updatedAt DateTime @updatedAt
 }
 
-//******************* END WHATSAPP MODELS ************//
-
-//******************* DISCORD MODELS ****************//
-
+/// ------------------------------------------------------------
+/// MODELOS DE DISCORD
+/// ------------------------------------------------------------
 model MyDiscord {
   id           String   @id @default(cuid()) @map("_id") @db.ObjectId
   clientId     String   @unique
@@ -185,8 +195,8 @@ model UserWarn {
 }
 
 model ServerModlog {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  guildId   String  @unique @db.ObjectId
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId   String @unique @db.ObjectId
   channelId String
 
   @@map("serverModlogs")
@@ -205,8 +215,9 @@ model Reminder {
   @@index([remindAt])
 }
 
-//******************* ECONOMY MODELS ******************//
-
+/// ------------------------------------------------------------
+/// MODELOS DE ECONOMÍA
+/// ------------------------------------------------------------
 model Economy {
   id             String  @id @default(auto()) @map("_id") @db.ObjectId
   guildId        String  @unique @db.ObjectId
@@ -258,7 +269,7 @@ model UserEconomy {
   lastWorkDate DateTime?
   jobCooldown  DateTime?
 
-  // NEW FIELDS
+  // NUEVAS COLUMNAS
   jobRank    Int?  @default(1)
   skills     Json? // { jobName: level }
   reputation Int?  @default(0)
@@ -276,8 +287,9 @@ model UserLoan {
   paid     Boolean  @default(false)
 }
 
-//******************* END ECONOMY MODELS ******************//
-
+/// ------------------------------------------------------------
+/// MODELOS DE NIVELES DE DISCORD
+/// ------------------------------------------------------------
 model UserDiscord {
   id     String     @id @default(auto()) @map("_id") @db.ObjectId
   userId String     @unique
@@ -285,8 +297,6 @@ model UserDiscord {
   warns  UserWarn[]
   bans   BanUser[]
 }
-
-//******************* DISCORD LEVEL MODELS **************//
 
 model LevelConfig {
   id             String  @id @default(cuid()) @map("_id")
@@ -401,8 +411,9 @@ model LeaderboardReset {
   lastMonth Int
 }
 
-//******************* END DISCORD LEVEL MODELS **************//
-
+/// ------------------------------------------------------------
+/// OTROS MODELOS
+/// ------------------------------------------------------------
 model Captcha {
   id        String  @id @map("_id") @db.ObjectId
   isEnabled Boolean @default(false)
@@ -486,15 +497,51 @@ model sharedLinkCDN {
   password     String? // Puede ser null si no tiene contraseña
 }
 
-type EventLogs {
-  enabled   Boolean
-  channelId String?
-  events    String[]
+model TicketUser {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String
+  guildId       String? //para los sistemas de discord
+  channelId     String? //para los sistemas de discord
+  ticketId      String          @unique
+  messageId     String? //para los sistemas de discord
+  status        TicketStatus    @default(OPEN)
+  assignedTo    DiscordData?
+  messages      TicketMessage[]
+  userName      String?
+  userAvatar    String?
+  reason        String?
+  closedBy      String? // ID del usuario que cerró el ticket
+  closedAt      DateTime? // Fecha de cierre del ticket
+  notes         String[]        @default([]) // Array de notas del ticket
+  attachments   String[]        @default([]) // Array de URLs de archivos adjuntos
+  userDiscordId String? // ID del usuario de Discord asociado al ticket
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([userId])
 }
 
-//******************* END DISCORD MODELS **************//
+model TicketMessage {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  ticketId     String
+  senderId     String
+  senderName   String
+  senderAvatar String?
+  isAdmin      Boolean    @default(false)
+  content      String
+  timestamp    DateTime   @default(now())
+  ticket       TicketUser @relation(fields: [ticketId], references: [ticketId])
+}
 
-//******************* LICENSE ENUMS *******************//
+/// ------------------------------------------------------------
+/// ENUMS (TIPOS ENUMERADOS)
+/// ------------------------------------------------------------
+/// [Enums en Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/enums)
+enum TicketStatus {
+  OPEN
+  CLOSED
+  PENDING
+}
 
 enum LicenseType {
   FREE
@@ -511,4 +558,57 @@ enum LicenseStatus {
   REVOKED
 }
 
-//******************* END LICENSE ENUMS *****************//
+/// ------------------------------------------------------------
+/// TIPOS PERSONALIZADOS
+/// ------------------------------------------------------------
+/// [Tipos personalizados en Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/unsupported-and-custom-types)
+type DiscordData {
+  userId     String?
+  userAvatar String?
+  userName   String?
+}
+
+type EventLogs {
+  enabled   Boolean
+  channelId String?
+  events    String[]
+}
+
+/// ------------------------------------------------------------
+/// MODELOS DE TRANSCRIPCIONES Y MENSAJES GLOBALES
+/// ------------------------------------------------------------
+model Transcript {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  type         String // 'ticket' | 'chat'
+  referenceId  String // ticketId o chatId
+  participants String[]
+  content      Json // Mensajes serializados
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([participants])
+}
+
+model GlobalChatMessage {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String
+  username    String
+  avatar      String?
+  content     String
+  attachments String[] @default([])
+  createdAt   DateTime @default(now())
+}
+
+model OnlineUser {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String   @unique
+  username String
+  avatar   String?
+  lastSeen DateTime @default(now())
+}
+
+/// ------------------------------------------------------------
+/// FIN DEL ESQUEMA PRISMA
+/// ------------------------------------------------------------
+
+/// Más información y ejemplos en la [documentación oficial de Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema).

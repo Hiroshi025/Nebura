@@ -13,8 +13,8 @@ import { LogFile } from "@/typings/utils";
  */
 export class WinstonLogger {
   private logger: winston.Logger;
-  private logDir: string;
-  private maxLogAgeDays: number;
+  public logDir: string;
+  public maxLogAgeDays: number;
 
   /**
    * Creates an instance of WinstonLogger.
@@ -52,12 +52,8 @@ export class WinstonLogger {
         winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
         winston.format.colorize(),
         winston.format.printf(({ timestamp, level, message, category }) => {
-          return JSON.stringify({
-            timestamp,
-            level,
-            message,
-            category: category || undefined,
-          });
+          // Formato típico de log: [fecha] [nivel] [categoría] mensaje
+          return `[${timestamp}] [${level}]${category ? ` [${category}]` : ""} ${message}`;
         }),
       ),
       transports: [
@@ -67,7 +63,13 @@ export class WinstonLogger {
           zippedArchive: true,
           maxSize: "5m",
           maxFiles: "14d",
-          format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+          // Cambia el formato del archivo .log a texto plano
+          format: winston.format.combine(
+            winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
+            winston.format.printf(({ timestamp, level, message, category }) => {
+              return `[${timestamp}] [${level}]${category ? ` [${category}]` : ""} ${message}`;
+            }),
+          ),
         }),
       ],
     });

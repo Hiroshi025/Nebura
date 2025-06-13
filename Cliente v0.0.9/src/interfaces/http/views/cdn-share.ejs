@@ -18,49 +18,347 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  
   <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
-  <link rel="stylesheet" href="/css/cdn-share.css">
+  
+  <style>
+    :root {
+      --primary-color: #6a5af9;
+      --primary-hover: #5a4ae9;
+      --secondary-color: #00c9a7;
+      --dark-bg: #1a1e24;
+      --card-bg: #1e1e2d;
+      --text-color: #e0e0e0;
+      --text-muted: #a1a5b7;
+      --transition-speed: 0.3s;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar Moderna */
+    .navbar {
+      background: rgba(30, 30, 45, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(106, 90, 249, 0.2);
+      padding: 1rem 0;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand i {
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-brand:hover {
+      color: var(--primary-color);
+    }
+
+    .navbar-brand:hover i {
+      transform: rotate(15deg);
+    }
+
+    /* Contenedor Principal */
+    main {
+      flex: 1;
+      padding: 2rem 0;
+    }
+
+    /* Tarjeta de Archivo */
+    .file-card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      max-width: 1200px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .file-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Contenedor de Vista Previa */
+    .file-preview-container {
+      position: relative;
+      background: rgba(0, 0, 0, 0.2);
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border-bottom: 1px solid rgba(106, 90, 249, 0.1);
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .btn-close:hover {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.7);
+      transform: rotate(90deg);
+    }
+
+    /* Vista Previa del Archivo */
+    .file-preview {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 0.5rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+
+    .file-preview:hover {
+      transform: scale(1.02);
+    }
+
+    video.file-preview, audio {
+      width: 100%;
+      border-radius: 0.5rem;
+      background: #000;
+    }
+
+    .file-icon {
+      font-size: 5rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .file-icon:hover {
+      transform: scale(1.1);
+      color: var(--secondary-color);
+    }
+
+    /* Información del Archivo */
+    .file-info {
+      padding: 2rem;
+    }
+
+    .file-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-color);
+      word-break: break-word;
+    }
+
+    .file-meta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Botones */
+    .btn-download {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(106, 90, 249, 0.3);
+    }
+
+    .btn-download:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(106, 90, 249, 0.4);
+    }
+
+    .btn-download i {
+      transition: transform 0.3s ease;
+    }
+
+    .btn-download:hover i {
+      transform: translateY(-3px);
+    }
+
+    /* Toolbox */
+    .toolbox {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(106, 90, 249, 0.1);
+    }
+
+    .tool-btn {
+      background: rgba(106, 90, 249, 0.1);
+      color: var(--text-color);
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .tool-btn:hover {
+      background: rgba(106, 90, 249, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .tool-btn i {
+      margin-right: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .tool-btn:hover i {
+      transform: scale(1.2);
+    }
+
+    /* Notificaciones */
+    .toast-success {
+      background: rgba(40, 167, 69, 0.9);
+      color: white;
+      border-radius: 0.5rem;
+    }
+
+    .toast-error {
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      border-radius: 0.5rem;
+    }
+
+    /* Efectos de carga */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 0.25rem;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .file-preview-container {
+        min-height: 300px;
+        padding: 1rem;
+      }
+      
+      .file-title {
+        font-size: 1.4rem;
+      }
+      
+      .toolbox {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .tool-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Efecto de partículas decorativas */
+    .particle {
+      position: absolute;
+      background: rgba(106, 90, 249, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
 </head>
 
 <body>
+  <!-- Partículas decorativas -->
+  <div class="particle" style="width:5px; height:5px; top:20%; left:10%;"></div>
+  <div class="particle" style="width:8px; height:8px; top:70%; left:85%;"></div>
+  <div class="particle" style="width:6px; height:6px; top:40%; left:30%;"></div>
+  
   <header class="navbar navbar-expand-lg">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="#">
-        <i class="fas fa-server me-2" style="color: #6a5af9;"></i>Nebura CDN
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-server me-2" style="color: var(--primary-color);"></i>Nebura CDN
       </a>
     </div>
   </header>
 
   <main class="container py-5 flex-grow-1">
     <div class="d-flex justify-content-center">
-      <div class="file-card w-100">
+      <div class="file-card w-100 animate__animated animate__fadeIn">
         <div class="file-preview-container">
           <button type="button" class="btn-close" onclick="window.history.back()" aria-label="Close"></button>
           <div id="file-content">
-            <!-- El contenido del archivo se cargará aquí -->
+            <!-- Estado de carga -->
+            <div class="text-center">
+              <div class="file-icon skeleton" style="width: 80px; height: 80px; margin: 0 auto 1.5rem;"></div>
+              <div class="skeleton" style="width: 200px; height: 30px; margin: 0 auto;"></div>
+            </div>
           </div>
         </div>
 
         <div class="file-info">
-          <h1 class="file-title" id="file-title">Cargando archivo...</h1>
+          <h1 class="file-title" id="file-title">
+            <span class="skeleton" style="width: 70%; height: 32px; display: inline-block;"></span>
+          </h1>
           <div class="file-meta">
-            <span id="file-size"></span> •
-            <span id="file-type"></span> •
-            <span id="file-date"></span>
+            <span id="file-size" class="skeleton" style="width: 80px; display: inline-block;"></span>
+            <span class="skeleton" style="width: 10px; display: inline-block;"></span>
+            <span id="file-type" class="skeleton" style="width: 100px; display: inline-block;"></span>
+            <span class="skeleton" style="width: 10px; display: inline-block;"></span>
+            <span id="file-date" class="skeleton" style="width: 120px; display: inline-block;"></span>
           </div>
 
-          <a href="#" class="btn btn-download" id="download-btn">
+          <a href="#" class="btn btn-download" id="download-btn" style="opacity: 0;">
             <i class="fas fa-download me-2"></i> Descargar Archivo
           </a>
 
           <div class="toolbox mt-4">
-            <button class="tool-btn" id="copy-link-btn">
+            <button class="tool-btn" id="copy-link-btn" style="opacity: 0;">
               <i class="fas fa-link me-2"></i> Copiar enlace
             </button>
-            <button class="tool-btn" id="share-btn">
+            <button class="tool-btn" id="share-btn" style="opacity: 0;">
               <i class="fas fa-share-alt me-2"></i> Compartir
             </button>
-            <button class="tool-btn" id="view-original-btn">
+            <button class="tool-btn" id="view-original-btn" style="opacity: 0;">
               <i class="fas fa-expand me-2"></i> Ver original
             </button>
           </div>
@@ -72,206 +370,328 @@
   <!-- footer -->
   <%- include('partials/footer') %>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        // Obtener parámetros de la URL
-        const params = new URLSearchParams(window.location.search);
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Obtener parámetros de la URL
+      const params = new URLSearchParams(window.location.search);
 
-        // Elementos del DOM
-        const fileContent = document.getElementById('file-content');
-        const fileTitle = document.getElementById('file-title');
-        const fileSize = document.getElementById('file-size');
-        const fileType = document.getElementById('file-type');
-        const fileDate = document.getElementById('file-date');
-        const downloadBtn = document.getElementById('download-btn');
-        const copyLinkBtn = document.getElementById('copy-link-btn');
-        const shareBtn = document.getElementById('share-btn');
-        const viewOriginalBtn = document.getElementById('view-original-btn');
+      // Elementos del DOM
+      const fileContent = document.getElementById('file-content');
+      const fileTitle = document.getElementById('file-title');
+      const fileSize = document.getElementById('file-size');
+      const fileType = document.getElementById('file-type');
+      const fileDate = document.getElementById('file-date');
+      const downloadBtn = document.getElementById('download-btn');
+      const copyLinkBtn = document.getElementById('copy-link-btn');
+      const shareBtn = document.getElementById('share-btn');
+      const viewOriginalBtn = document.getElementById('view-original-btn');
 
-        // Mostrar notificación
-        function showToast(message, type = 'success') {
-          const toast = document.createElement('div');
-          toast.className = `position-fixed bottom-0 end-0 p-3 toast-${type}`;
-          toast.style.zIndex = '11';
-          toast.innerHTML = `
+      // Mostrar notificación mejorada
+      function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `position-fixed bottom-0 end-0 p-3 toast-${type} animate__animated animate__fadeInUp`;
+        toast.style.zIndex = '11';
+        toast.innerHTML = `
           <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-body">
-              ${message}
+            <div class="toast-body d-flex align-items-center">
+              <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+              <span>${message}</span>
             </div>
           </div>
         `;
-          document.body.appendChild(toast);
+        document.body.appendChild(toast);
 
-          setTimeout(() => {
-            toast.remove();
-          }, 3000);
-        }
+        setTimeout(() => {
+          toast.classList.add('animate__fadeOut');
+          setTimeout(() => toast.remove(), 500);
+        }, 3000);
+      }
 
-        // Formatear tamaño
-        function formatSize(bytes) {
-          if (bytes === 0) return '0 Bytes';
-          const k = 1024;
-          const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-          const i = Math.floor(Math.log(bytes) / Math.log(k));
-          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+      // Formatear tamaño
+      function formatSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
 
-        // Formatear fecha
-        function formatDate(dateString) {
-          const date = new Date(dateString);
-          return date.toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          });
-        }
+      // Formatear fecha
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
 
-        // Determinar tipo de archivo
-        function getFileType(mimeType) {
-          if (!mimeType) return 'Archivo';
+      // Determinar tipo de archivo
+      function getFileType(mimeType) {
+        if (!mimeType) return 'Archivo';
 
-          const typeMap = {
-            'image/': 'Imagen',
-            'video/': 'Video',
-            'audio/': 'Audio',
-            'application/pdf': 'PDF',
-            'text/': 'Documento de texto',
-            'application/msword': 'Documento Word',
-            'application/vnd.ms-excel': 'Documento Excel',
-            'application/vnd.ms-powerpoint': 'Presentación',
-            'application/zip': 'Archivo ZIP',
-            'application/x-rar-compressed': 'Archivo RAR'
-          };
+        const typeMap = {
+          'image/': 'Imagen',
+          'video/': 'Video',
+          'audio/': 'Audio',
+          'application/pdf': 'PDF',
+          'text/': 'Documento de texto',
+          'application/msword': 'Documento Word',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Documento Word',
+          'application/vnd.ms-excel': 'Documento Excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Documento Excel',
+          'application/vnd.ms-powerpoint': 'Presentación',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'Presentación',
+          'application/zip': 'Archivo ZIP',
+          'application/x-rar-compressed': 'Archivo RAR',
+          'application/json': 'Archivo JSON'
+        };
 
-          for (const [prefix, typeName] of Object.entries(typeMap)) {
-            if (mimeType.startsWith(prefix)) {
-              return typeName;
-            }
+        for (const [prefix, typeName] of Object.entries(typeMap)) {
+          if (mimeType.startsWith(prefix)) {
+            return typeName;
           }
-
-          return 'Archivo';
         }
 
-        // Obtener icono para el tipo de archivo
-        function getFileIcon(mimeType) {
-          const iconMap = {
-            'image/': 'fa-file-image',
-            'video/': 'fa-file-video',
-            'audio/': 'fa-file-audio',
-            'application/pdf': 'fa-file-pdf',
-            'text/': 'fa-file-lines',
-            'application/msword': 'fa-file-word',
-            'application/vnd.ms-excel': 'fa-file-excel',
-            'application/vnd.ms-powerpoint': 'fa-file-powerpoint',
-            'application/zip': 'fa-file-zipper',
-            'application/x-rar-compressed': 'fa-file-zipper'
-          };
+        return mimeType.split('/')[1] ? mimeType.split('/')[1].toUpperCase() : 'Archivo';
+      }
 
-          for (const [prefix, icon] of Object.entries(iconMap)) {
-            if (mimeType.startsWith(prefix)) {
-              return icon;
-            }
+      // Obtener icono para el tipo de archivo
+      function getFileIcon(mimeType) {
+        const iconMap = {
+          'image/': 'fa-file-image',
+          'video/': 'fa-file-video',
+          'audio/': 'fa-file-audio',
+          'application/pdf': 'fa-file-pdf',
+          'text/': 'fa-file-lines',
+          'application/msword': 'fa-file-word',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'fa-file-word',
+          'application/vnd.ms-excel': 'fa-file-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'fa-file-excel',
+          'application/vnd.ms-powerpoint': 'fa-file-powerpoint',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'fa-file-powerpoint',
+          'application/zip': 'fa-file-zipper',
+          'application/x-rar-compressed': 'fa-file-zipper',
+          'application/json': 'fa-file-code'
+        };
+
+        for (const [prefix, icon] of Object.entries(iconMap)) {
+          if (mimeType.startsWith(prefix)) {
+            return icon;
           }
-
-          return 'fa-file';
         }
 
-        // Renderizar vista previa del archivo
-        function renderFilePreview(url, mimeType) {
-          if (mimeType.startsWith('image/')) {
-            fileContent.innerHTML = `
-            <img src="${url}" alt="Vista previa" class="file-preview" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e1e1e/6a5af9?text=Imagen+no+disponible'">
+        return 'fa-file';
+      }
+
+      // Renderizar vista previa del archivo
+      function renderFilePreview(url, mimeType) {
+        if (mimeType.startsWith('image/')) {
+          fileContent.innerHTML = `
+            <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+              <img src="${url}" alt="Vista previa" class="file-preview img-fluid" 
+                   onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e1e2d/6a5af9?text=Imagen+no+disponible'">
+            </div>
           `;
-          } else if (mimeType.startsWith('video/')) {
-            fileContent.innerHTML = `
-            <video controls class="file-preview">
-              <source src="${url}" type="${mimeType}">
-              Tu navegador no soporta la reproducción de video.
-            </video>
+        } else if (mimeType.startsWith('video/')) {
+          fileContent.innerHTML = `
+            <div class="video-container w-100 h-100 d-flex justify-content-center align-items-center">
+              <video controls class="file-preview" style="max-height: 70vh;">
+                <source src="${url}" type="${mimeType}">
+                Tu navegador no soporta la reproducción de video.
+              </video>
+            </div>
           `;
-          } else if (mimeType.startsWith('audio/')) {
-            fileContent.innerHTML = `
-            <div class="text-center">
+        } else if (mimeType.startsWith('audio/')) {
+          fileContent.innerHTML = `
+            <div class="text-center py-4">
               <i class="fas ${getFileIcon(mimeType)} file-icon mb-3"></i>
-              <audio controls style="width: 100%;">
+              <audio controls style="width: 100%; max-width: 500px;">
                 <source src="${url}" type="${mimeType}">
                 Tu navegador no soporta la reproducción de audio.
               </audio>
             </div>
           `;
-          } else {
-            fileContent.innerHTML = `
-            <div class="text-center">
-              <i class="fas ${getFileIcon(mimeType)} file-icon"></i>
+        } else if (mimeType === 'application/pdf') {
+          fileContent.innerHTML = `
+            <div class="text-center py-4">
+              <i class="fas ${getFileIcon(mimeType)} file-icon mb-3"></i>
+              <p class="mb-4">Este archivo PDF no puede mostrarse en vista previa.</p>
+              <a href="${url}" target="_blank" class="btn btn-primary">
+                <i class="fas fa-external-link-alt me-2"></i> Abrir en nueva pestaña
+              </a>
             </div>
           `;
-          }
+        } else if (mimeType.startsWith('text/')) {
+          // Intentar mostrar contenido de texto
+          fetch(url)
+            .then(response => response.text())
+            .then(text => {
+              // Limitar a las primeras 1000 líneas para no saturar
+              const lines = text.split('\n').slice(0, 1000).join('\n');
+              fileContent.innerHTML = `
+                <div class="text-left p-3" style="max-height: 500px; overflow: auto; background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
+                  <pre style="color: var(--text-color); white-space: pre-wrap; word-break: break-word;">${lines}</pre>
+                </div>
+              `;
+            })
+            .catch(() => {
+              fileContent.innerHTML = `
+                <div class="text-center py-4">
+                  <i class="fas ${getFileIcon(mimeType)} file-icon mb-3"></i>
+                  <p>Contenido de texto no disponible para vista previa</p>
+                </div>
+              `;
+            });
+        } else {
+          fileContent.innerHTML = `
+            <div class="text-center py-4">
+              <i class="fas ${getFileIcon(mimeType)} file-icon mb-3"></i>
+              <p>Vista previa no disponible para este tipo de archivo</p>
+            </div>
+          `;
         }
+      }
 
-        // Cargar datos del archivo desde los parámetros de la URL
-        function loadFileData() {
-          if (!params.has('title') || !params.has('url')) {
-            fileContent.innerHTML = `
-            <div class="alert alert-danger text-center">
-              <h4>Error al cargar el archivo</h4>
+      // Animación de aparición gradual
+      function fadeInElements() {
+        const elements = [downloadBtn, copyLinkBtn, shareBtn, viewOriginalBtn];
+        elements.forEach((el, index) => {
+          setTimeout(() => {
+            el.style.opacity = '1';
+            el.classList.add('animate__animated', 'animate__fadeIn');
+          }, index * 100);
+        });
+      }
+
+      // Cargar datos del archivo desde los parámetros de la URL
+      function loadFileData() {
+        if (!params.has('title') || !params.has('url')) {
+          fileContent.innerHTML = `
+            <div class="alert alert-danger text-center animate__animated animate__fadeIn">
+              <h4><i class="fas fa-exclamation-triangle me-2"></i> Error al cargar el archivo</h4>
               <p>El enlace compartido es inválido o está incompleto.</p>
+              <a href="/" class="btn btn-outline-primary mt-2">
+                <i class="fas fa-home me-2"></i> Volver al inicio
+              </a>
             </div>
           `;
-            return;
-          }
-
-          const title = decodeURIComponent(params.get('title'));
-          const url = decodeURIComponent(params.get('url'));
-          const mimeType = params.has('mime') ? decodeURIComponent(params.get('mime')) : 'application/octet-stream';
-          const size = params.has('size') ? parseInt(params.get('size')) : 0;
-          const date = params.has('date') ? decodeURIComponent(params.get('date')) : new Date().toISOString();
-
-          // Actualizar la interfaz con los datos del archivo
-          fileTitle.textContent = title;
-          fileSize.textContent = formatSize(size);
-          fileType.textContent = getFileType(mimeType);
-          fileDate.textContent = formatDate(date);
-
-          // Configurar botón de descarga
-          downloadBtn.href = url;
-          downloadBtn.download = title;
-
-          // Renderizar vista previa
-          renderFilePreview(url, mimeType);
-
-          // Configurar botones de herramientas
-          copyLinkBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(window.location.href)
-              .then(() => showToast('Enlace copiado al portapapeles'))
-              .catch(() => showToast('Error al copiar el enlace', 'error'));
-          });
-
-          shareBtn.addEventListener('click', () => {
-            if (navigator.share) {
-              navigator.share({
-                title: title,
-                text: 'Mira este archivo compartido en Nebura CDN',
-                url: window.location.href
-              }).catch(() => showToast('Error al compartir', 'error'));
-            } else {
-              navigator.clipboard.writeText(window.location.href)
-                .then(() => showToast('Enlace copiado al portapapeles'))
-                .catch(() => showToast('Error al copiar el enlace', 'error'));
-            }
-          });
-
-          viewOriginalBtn.addEventListener('click', () => {
-            window.open(url, '_blank');
-          });
+          return;
         }
 
-        // Inicializar
-        loadFileData();
-      });
-    </script>
-</body>
+        const title = decodeURIComponent(params.get('title'));
+        const url = decodeURIComponent(params.get('url'));
+        const mimeType = params.has('mime') ? decodeURIComponent(params.get('mime')) : 'application/octet-stream';
+        const size = params.has('size') ? parseInt(params.get('size')) : 0;
+        const date = params.has('date') ? decodeURIComponent(params.get('date')) : new Date().toISOString();
 
+        // Actualizar la interfaz con los datos del archivo
+        fileTitle.textContent = title;
+        fileTitle.classList.remove('skeleton');
+        
+        fileSize.textContent = formatSize(size);
+        fileSize.classList.remove('skeleton');
+        
+        fileType.textContent = getFileType(mimeType);
+        fileType.classList.remove('skeleton');
+        
+        fileDate.textContent = formatDate(date);
+        fileDate.classList.remove('skeleton');
+
+        // Configurar botón de descarga
+        downloadBtn.href = url;
+        downloadBtn.download = title;
+
+        // Renderizar vista previa
+        renderFilePreview(url, mimeType);
+
+        // Configurar botones de herramientas
+        copyLinkBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(window.location.href)
+            .then(() => showToast('Enlace copiado al portapapeles', 'success'))
+            .catch(() => showToast('Error al copiar el enlace', 'error'));
+        });
+
+        shareBtn.addEventListener('click', () => {
+          if (navigator.share) {
+            navigator.share({
+              title: `${title} - Nebura CDN`,
+              text: 'Mira este archivo compartido en Nebura CDN',
+              url: window.location.href
+            }).catch(() => showToast('Compartir cancelado', 'error'));
+          } else {
+            navigator.clipboard.writeText(window.location.href)
+              .then(() => showToast('Enlace copiado al portapapeles', 'success'))
+              .catch(() => showToast('Error al copiar el enlace', 'error'));
+          }
+        });
+
+        viewOriginalBtn.addEventListener('click', () => {
+          window.open(url, '_blank');
+        });
+
+        // Animar elementos
+        fadeInElements();
+      }
+
+      // Inicializar
+      loadFileData();
+
+      // Animación de partículas
+      const particlesContainer = document.body;
+      const particleCount = 10;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // Tamaño aleatorio entre 2px y 8px
+        const size = Math.random() * 6 + 2;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Posición aleatoria
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        // Opacidad aleatoria
+        particle.style.opacity = Math.random() * 0.4 + 0.1;
+        
+        // Añadir al contenedor
+        particlesContainer.appendChild(particle);
+        
+        // Animación flotante
+        animateParticle(particle);
+      }
+      
+      function animateParticle(particle) {
+        let x = parseFloat(particle.style.left);
+        let y = parseFloat(particle.style.top);
+        let xSpeed = (Math.random() - 0.5) * 0.02;
+        let ySpeed = (Math.random() - 0.5) * 0.02;
+        
+        function move() {
+          x += xSpeed;
+          y += ySpeed;
+          
+          // Rebotar en los bordes
+          if (x < 0 || x > 100) xSpeed *= -1;
+          if (y < 0 || y > 100) ySpeed *= -1;
+          
+          particle.style.left = `${x}%`;
+          particle.style.top = `${y}%`;
+          
+          requestAnimationFrame(move);
+        }
+        
+        move();
+      }
+    });
+  </script>
+</body>
 </html>

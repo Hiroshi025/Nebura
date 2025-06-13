@@ -1,0 +1,79 @@
+/* Estilos adicionales específicos para admin */
+.admin-card {
+  border-left: 4px solid var(--primary-color);
+  transition: all var(--transition-speed);
+}
+
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(106, 90, 249, 0.2);
+}
+
+.stats-card {
+  background: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.stats-card h5 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-bottom: 1rem;
+}
+
+.admin-badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+  border-radius: 50px;
+}
+
+.badge-assigned {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: var(--success-color);
+}
+
+.badge-unassigned {
+  background-color: rgba(247, 180, 44, 0.1);
+  color: var(--warning-color);
+}
+
+.admin-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.5rem;
+}
+
+.priority-high {
+  border-left: 4px solid var(--danger-color);
+}
+
+.priority-medium {
+  border-left: 4px solid var(--warning-color);
+}
+
+.priority-low {
+  border-left: 4px solid var(--success-color);
+}
+
+.admin-tooltip {
+  --bs-tooltip-bg: var(--card-bg-dark);
+  --bs-tooltip-color: var(--text-color-dark);
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-actions .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}

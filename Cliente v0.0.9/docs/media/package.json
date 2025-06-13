@@ -1,6 +1,6 @@
 {
   "name": "nebura-works",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .ts .",
@@ -44,7 +44,7 @@
     ]
   },
   "prisma": {
-    "schema": "src/infrastructure/database/prisma/schema.prisma"
+    "schema": "src/adapters/database/prisma/schema.prisma"
   },
   "imports": {},
   "description": "Este proyecto es una API modular que integra múltiples servicios como Discord, WhatsApp, GitHub, Google AI, y más. A continuación, se detallan las funcionalidades, rutas, comandos y eventos disponibles en el proyecto.",
@@ -69,6 +69,7 @@
     "cheerio": "^1.0.0",
     "common-tags": "^1.8.2",
     "connect-sqlite3": "^0.9.15",
+    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "discord-arts": "^0.7.1",
     "discord.js": "^14.18.0",
@@ -84,10 +85,13 @@
     "i18next-http-middleware": "^3.7.4",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.6.1",
+    "mongodb": "^6.17.0",
     "multer": "^1.4.5-lts.2",
     "node-schedule": "^2.1.1",
     "nodemailer": "^7.0.3",
-    "pm2": "^6.0.5",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4",
+    "pdfkit": "^0.17.1",
     "qrcode-terminal": "^0.12.0",
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
@@ -105,7 +109,7 @@
   "devDependencies": {
     "@types/apicache": "^1.6.7",
     "@types/common-tags": "^1.8.4",
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.3",
     "@types/express-session": "^1.18.1",
     "@types/fs-extra": "^11.0.4",
     "@types/jsonwebtoken": "^9.0.9",
@@ -114,6 +118,10 @@
     "@types/node": "^22.13.14",
     "@types/node-schedule": "^2.1.7",
     "@types/nodemailer": "^6.4.17",
+    "@types/passport": "^1.0.17",
+    "@types/passport-discord": "^0.1.14",
+    "@types/passport-local": "^1.0.38",
+    "@types/pdfkit": "^0.13.9",
     "@types/qrcode-terminal": "^0.12.2",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-stats": "^0.95.4",

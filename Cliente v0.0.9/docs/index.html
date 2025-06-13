@@ -20,6 +20,7 @@
 <li><a href="#contributing">Contributing</a></li>
 <li><a href="#support--links">Support &amp; Links</a></li>
 <li><a href="#about-the-creator">About the Creator</a></li>
+<li><a href="#api-overview">API Overview</a></li>
 </ul>
 <hr>
 <h2 id="project-overview" class="tsd-anchor-link">Project Overview<a href="#project-overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Nebura Works is a TypeScript-based, modular API platform that enables seamless integration of various services. It leverages Express, <a href="http://Socket.IO">Socket.IO</a>, Prisma ORM, and other modern libraries to provide a scalable and maintainable backend for bots, automation, and real-time applications.</p>
@@ -45,94 +46,69 @@
 <h3 id="high-level-diagram" class="tsd-anchor-link">High-Level Diagram<a href="#high-level-diagram" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p><strong>Update:</strong> 24/05/2025</p>
 <pre><code class="mermaid">graph TD
 
-    28044["User<br>External Actor"]
-    28045["Main Orchestrator<br>Node.js"]
-    28046["WhatsApp Client<br>whatsapp-web.js"]
-    subgraph 28005["External Services & Actors"]
-        28020["End User<br>External Actor"]
-        28021["Discord Platform<br>Discord API"]
-        28022["WhatsApp Platform<br>WhatsApp API"]
-        28023["AI APIs<br>Google Gemini, etc."]
-        28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-        28025["Application Database<br>SQL/SQLite"]
+    14532["User<br>External Actor"]
+    subgraph 14519["External Systems"]
+        14533["Database Systems<br>SQL/NoSQL"]
+        14534["Version Control APIs<br>GitHub, etc."]
+        14535["AI APIs<br>Google Gemini, etc."]
+        14536["Authentication APIs<br>OAuth Providers, etc."]
+        14537["Discord Platform<br>Discord API"]
+        14538["WhatsApp Platform<br>WhatsApp Web"]
     end
-    subgraph 28006["Nebura Client Application"]
-        28007["Shared Infrastructure"]
-        28008["WhatsApp Integration"]
-        28009["Discord Bot"]
-        28010["API Server"]
-        28011["Main Orchestrator<br>Node.js"]
+    subgraph 14520["Cliente Application<br>Node.js/TypeScript"]
+        14521["Main Engine<br>TypeScript"]
+        14522["API Server<br>Express.js"]
+        14523["HTTP Routes<br>Express.js"]
+        14524["HTTP Controllers<br>TypeScript"]
+        14525["Application Logic<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"]
+        14528["Messaging Middleware<br>TypeScript"]
+        14529["Database Adapter<br>Prisma"]
+        14530["External Service Adapters<br>TypeScript"]
+        14531["Shared Code<br>TypeScript"]
         %% Edges at this level (grouped by source)
-        28008["WhatsApp Integration"] -->|uses| 28007["Shared Infrastructure"]
-        28009["Discord Bot"] -->|uses| 28007["Shared Infrastructure"]
-        28010["API Server"] -->|uses| 28007["Shared Infrastructure"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28010["API Server"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28009["Discord Bot"]
-        28011["Main Orchestrator<br>Node.js"] -->|initializes| 28008["WhatsApp Integration"]
-        28011["Main Orchestrator<br>Node.js"] -->|uses| 28007["Shared Infrastructure"]
-    end
-    subgraph 28026["External Systems"]
-        28039["Chat Platforms<br>Discord, WhatsApp APIs"]
-        28040["AI APIs<br>Google Gemini, etc."]
-        28041["Version Control APIs<br>GitHub API, etc."]
-        28042["Databases<br>Prisma, SQLite"]
-        28043["Process Management<br>PM2"]
-    end
-    subgraph 28027["Shared Libraries"]
-        28036["Shared Utilities &amp; Classes<br>TypeScript"]
-        28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-        28038["App Configuration<br>YAML/JSON"]
-        %% Edges at this level (grouped by source)
-        28036["Shared Utilities &amp; Classes<br>TypeScript"] -->|reads| 28038["App Configuration<br>YAML/JSON"]
-    end
-    subgraph 28028["Nebura Discord Bot<br>Discord.js"]
-        28033["Discord Client Entry<br>TypeScript"]
-        28034["Core Event &amp; Command Handlers<br>TypeScript"]
-        28035["Bot Features &amp; Addons<br>TypeScript"]
-        %% Edges at this level (grouped by source)
-        28033["Discord Client Entry<br>TypeScript"] -->|loads| 28034["Core Event &amp; Command Handlers<br>TypeScript"]
-        28034["Core Event &amp; Command Handlers<br>TypeScript"] -->|route to| 28035["Bot Features &amp; Addons<br>TypeScript"]
-    end
-    subgraph 28029["Nebura API Server<br>Node.js/Express"]
-        28030["API Server Entry<br>TypeScript"]
-        28031["HTTP Routes<br>TypeScript"]
-        28032["Domain Services<br>TypeScript"]
-        %% Edges at this level (grouped by source)
-        28030["API Server Entry<br>TypeScript"] -->|sets up| 28031["HTTP Routes<br>TypeScript"]
-        28031["HTTP Routes<br>TypeScript"] -->|invoke| 28032["Domain Services<br>TypeScript"]
+        14525["Application Logic<br>TypeScript"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14525["Application Logic<br>TypeScript"] -->|uses (utils, DTOs)| 14531["Shared Code<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|uses services for commands| 14525["Application Logic<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|uses (e.g., GitHub)| 14530["External Service Adapters<br>TypeScript"]
+        14526["Discord Bot Module<br>discord.js"] -->|uses (config, utils, embeds)| 14531["Shared Code<br>TypeScript"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|uses services| 14525["Application Logic<br>TypeScript"]
+        14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|uses (config, utils)| 14531["Shared Code<br>TypeScript"]
+        14528["Messaging Middleware<br>TypeScript"] -->|gets DB client via main| 14521["Main Engine<br>TypeScript"]
+        14528["Messaging Middleware<br>TypeScript"] -->|uses (config, logging)| 14531["Shared Code<br>TypeScript"]
+        14521["Main Engine<br>TypeScript"] -->|initializes & starts| 14522["API Server<br>Express.js"]
+        14521["Main Engine<br>TypeScript"] -->|uses services| 14525["Application Logic<br>TypeScript"]
+        14521["Main Engine<br>TypeScript"] -->|initializes| 14526["Discord Bot Module<br>discord.js"]
+        14521["Main Engine<br>TypeScript"] -->|initializes| 14527["WhatsApp Bot Module<br>whatsapp-web.js"]
+        14521["Main Engine<br>TypeScript"] -->|uses schema from| 14529["Database Adapter<br>Prisma"]
+        14521["Main Engine<br>TypeScript"] -->|uses config, logging| 14531["Shared Code<br>TypeScript"]
+        14522["API Server<br>Express.js"] -->|delegates to| 14523["HTTP Routes<br>Express.js"]
+        14522["API Server<br>Express.js"] -->|uses (IP Blocker, Rate Limiter)| 14528["Messaging Middleware<br>TypeScript"]
+        14522["API Server<br>Express.js"] -->|uses (Passport)| 14530["External Service Adapters<br>TypeScript"]
+        14522["API Server<br>Express.js"] -->|uses (config, logging, Swagger)| 14531["Shared Code<br>TypeScript"]
+        14523["HTTP Routes<br>Express.js"] -->|maps to| 14524["HTTP Controllers<br>TypeScript"]
+        14523["HTTP Routes<br>Express.js"] -->|uses (auth, rate limit)| 14528["Messaging Middleware<br>TypeScript"]
+        14523["HTTP Routes<br>Express.js"] -->|uses (Passport)| 14530["External Service Adapters<br>TypeScript"]
+        14524["HTTP Controllers<br>TypeScript"] -->|invokes| 14525["Application Logic<br>TypeScript"]
+        14524["HTTP Controllers<br>TypeScript"] -->|uses (response utils)| 14531["Shared Code<br>TypeScript"]
+        14531["Shared Code<br>TypeScript"] -->|uses (Swagger config)| 14530["External Service Adapters<br>TypeScript"]
     end
     %% Edges at this level (grouped by source)
-    28044["User<br>External Actor"] -->|interacts via API| 28029["Nebura API Server<br>Node.js/Express"]
-    28044["User<br>External Actor"] -->|interacts via Discord| 28028["Nebura Discord Bot<br>Discord.js"]
-    28044["User<br>External Actor"] -->|interacts via WhatsApp| 28046["WhatsApp Client<br>whatsapp-web.js"]
-    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28029["Nebura API Server<br>Node.js/Express"]
-    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28028["Nebura Discord Bot<br>Discord.js"]
-    28045["Main Orchestrator<br>Node.js"] -->|initializes| 28046["WhatsApp Client<br>whatsapp-web.js"]
-    28045["Main Orchestrator<br>Node.js"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28045["Main Orchestrator<br>Node.js"] -->|uses for backups| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-    28033["Discord Client Entry<br>TypeScript"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|interact with| 28039["Chat Platforms<br>Discord, WhatsApp APIs"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|use| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|access data via| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-    28035["Bot Features &amp; Addons<br>TypeScript"] -->|managed by| 28043["Process Management<br>PM2"]
-    28046["WhatsApp Client<br>whatsapp-web.js"] -->|uses| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28046["WhatsApp Client<br>whatsapp-web.js"] -->|interacts with| 28039["Chat Platforms<br>Discord, WhatsApp APIs"]
-    28037["Data Management &amp; Structure<br>TypeScript/Prisma"] -->|persists to| 28042["Databases<br>Prisma, SQLite"]
-    28008["WhatsApp Integration"] -->|connects to| 28022["WhatsApp Platform<br>WhatsApp API"]
-    28009["Discord Bot"] -->|connects to| 28021["Discord Platform<br>Discord API"]
-    28009["Discord Bot"] -->|manages processes via| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28010["API Server"] -->|calls| 28023["AI APIs<br>Google Gemini, etc."]
-    28010["API Server"] -->|integrates with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28020["End User<br>External Actor"] -->|interacts via HTTP| 28010["API Server"]
-    28020["End User<br>External Actor"] -->|interacts via Discord| 28009["Discord Bot"]
-    28020["End User<br>External Actor"] -->|interacts via WhatsApp| 28008["WhatsApp Integration"]
-    28007["Shared Infrastructure"] -->|persists to/reads from| 28025["Application Database<br>SQL/SQLite"]
-    28007["Shared Infrastructure"] -->|sends notifications to| 28021["Discord Platform<br>Discord API"]
-    28007["Shared Infrastructure"] -->|interacts with| 28024["Developer &amp; Ops APIs<br>GitHub, PM2, etc."]
-    28032["Domain Services<br>TypeScript"] -->|use| 28036["Shared Utilities &amp; Classes<br>TypeScript"]
-    28032["Domain Services<br>TypeScript"] -->|access data via| 28037["Data Management &amp; Structure<br>TypeScript/Prisma"]
-    28032["Domain Services<br>TypeScript"] -->|calls| 28040["AI APIs<br>Google Gemini, etc."]
-    28032["Domain Services<br>TypeScript"] -->|calls| 28041["Version Control APIs<br>GitHub API, etc."]
+    14525["Application Logic<br>TypeScript"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14525["Application Logic<br>TypeScript"] -->|calls| 14535["AI APIs<br>Google Gemini, etc."]
+    14526["Discord Bot Module<br>discord.js"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14526["Discord Bot Module<br>discord.js"] -->|interacts with| 14537["Discord Platform<br>Discord API"]
+    14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14527["WhatsApp Bot Module<br>whatsapp-web.js"] -->|interacts with| 14538["WhatsApp Platform<br>WhatsApp Web"]
+    14528["Messaging Middleware<br>TypeScript"] -->|accesses data in| 14533["Database Systems<br>SQL/NoSQL"]
+    14532["User<br>External Actor"] -->|sends HTTP requests| 14522["API Server<br>Express.js"]
+    14532["User<br>External Actor"] -->|interacts via Discord| 14526["Discord Bot Module<br>discord.js"]
+    14532["User<br>External Actor"] -->|interacts via WhatsApp| 14527["WhatsApp Bot Module<br>whatsapp-web.js"]
+    14530["External Service Adapters<br>TypeScript"] -->|calls| 14534["Version Control APIs<br>GitHub, etc."]
+    14530["External Service Adapters<br>TypeScript"] -->|integrates with| 14536["Authentication APIs<br>OAuth Providers, etc."]
 </code><button type="button">Copy</button></pre>
 
 <hr>
@@ -249,5 +225,85 @@
 <li><strong>Contact:</strong> <a href="https://github.com/Hiroshi025/Nebura-AI/issues">Open an Issue</a> or <a href="https://help.hiroshi-dev.me/">Help Center</a></li>
 </ul>
 <hr>
-<p><em>This project is licensed under the ISC License. See the <a href="./LICENSE">LICENSE</a> file for details.</em></p>
-</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#nebura-works"><span>Nebura <wbr/>Works</span></a><ul><li><a href="#table-of-contents"><span>Table of <wbr/>Contents</span></a></li><li><a href="#project-overview"><span>Project <wbr/>Overview</span></a></li><li><a href="#architecture"><span>Architecture</span></a></li><li><ul><li><a href="#high-level-diagram"><span>High-<wbr/>Level <wbr/>Diagram</span></a></li></ul></li><li><a href="#modules"><span>Modules</span></a></li><li><ul><li><a href="#api-server"><span>API <wbr/>Server</span></a></li><li><ul><li><a href="#example-starting-the-api-server"><span>Example: <wbr/>Starting the API <wbr/>Server</span></a></li></ul></li><li><a href="#discord-module"><span>Discord <wbr/>Module</span></a></li><li><ul><li><a href="#example-reloading-a-command"><span>Example: <wbr/>Reloading a <wbr/>Command</span></a></li><li><a href="#example-loading-all-commands"><span>Example: <wbr/>Loading <wbr/>All <wbr/>Commands</span></a></li></ul></li><li><a href="#whatsapp-module"><span>Whats<wbr/>App <wbr/>Module</span></a></li><li><ul><li><a href="#example-whatsapp-status-command"><span>Example: <wbr/>Whats<wbr/>App <wbr/>Status <wbr/>Command</span></a></li></ul></li></ul></li><li><a href="#configuration"><span>Configuration</span></a></li><li><a href="#usage-examples"><span>Usage <wbr/>Examples</span></a></li><li><ul><li><a href="#starting-the-application"><span>Starting the <wbr/>Application</span></a></li><li><a href="#development-mode"><span>Development <wbr/>Mode</span></a></li><li><a href="#linting-and-formatting"><span>Linting and <wbr/>Formatting</span></a></li><li><a href="#running-tests"><span>Running <wbr/>Tests</span></a></li></ul></li><li><a href="#development--scripts"><span>Development &amp; <wbr/>Scripts</span></a></li><li><a href="#contributing"><span>Contributing</span></a></li><li><a href="#support--links"><span>Support &amp; <wbr/>Links</span></a></li><li><a href="#about-the-creator"><span>About the <wbr/>Creator</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">Nebura AI</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>
+<h2 id="api-overview" class="tsd-anchor-link">API Overview<a href="#api-overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>La API de Nebura expone endpoints RESTful para gestión de tareas, recordatorios, licencias, bloqueo de IPs, integración con Discord, Google Gemini y más.</p>
+<h3 id="autenticación" class="tsd-anchor-link">Autenticación<a href="#autenticación" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>La mayoría de los endpoints requieren autenticación mediante un token Bearer JWT. Incluye el token en el header <code>Authorization</code>:</p>
+<pre><code><span class="hl-7">Authorization</span><span class="hl-1">: </span><span class="hl-2">Bearer</span><span class="hl-1"> </span><span class="hl-2">tu</span><span class="hl-1">.</span><span class="hl-2">jwt</span><span class="hl-1">.</span><span class="hl-2">token</span><span class="hl-1">.</span><span class="hl-2">aqui</span>
+</code><button>Copy</button></pre>
+
+<p>Algunos endpoints públicos (por ejemplo, <code>/public/github/users/{username}</code>) no requieren autenticación.</p>
+<hr>
+<h2 id="endpoints-principales" class="tsd-anchor-link">Endpoints Principales<a href="#endpoints-principales" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><h3 id="tareas-y-recordatorios" class="tsd-anchor-link">Tareas y Recordatorios<a href="#tareas-y-recordatorios" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><code>GET /service/tasks</code>: Lista todas las tareas, permite filtrar por estado, prioridad, creador o etiqueta.</li>
+<li><code>POST /service/tasks</code>: Crea una nueva tarea.</li>
+<li><code>GET /service/tasks/{id}</code>: Obtiene detalles de una tarea.</li>
+<li><code>PATCH /service/tasks/{id}</code>: Actualiza campos de una tarea.</li>
+<li><code>DELETE /service/tasks/{id}</code>: Elimina una tarea.</li>
+<li><code>GET /service/reminders</code>: Lista los recordatorios próximos a activarse.</li>
+</ul>
+<h3 id="licencias" class="tsd-anchor-link">Licencias<a href="#licencias" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><code>POST /license</code>: Crea una nueva licencia (requiere admin).</li>
+<li><code>GET /license</code>: Lista todas las licencias.</li>
+<li><code>GET /license/{id}</code>: Detalles de una licencia.</li>
+<li><code>PUT /license/{id}</code>: Actualiza una licencia.</li>
+<li><code>DELETE /license/{id}</code>: Elimina una licencia.</li>
+<li><code>POST /license/validate/{key}</code>: Valida una licencia contra un HWID.</li>
+<li><code>GET /license/info/{licenseKey}</code>: Información detallada de una licencia, IPs bloqueadas y estadísticas de uso.</li>
+</ul>
+<h3 id="seguridad-y-administración" class="tsd-anchor-link">Seguridad y Administración<a href="#seguridad-y-administración" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><code>POST /admin/block-ip</code>: Bloquea una IP.</li>
+<li><code>DELETE /admin/unblock-ip/{ipAddress}</code>: Desbloquea una IP.</li>
+<li><code>GET /admin/blocked-ips</code>: Lista IPs bloqueadas.</li>
+<li><code>GET /admin/ip-info/{ipAddress}</code>: Información de seguridad de una IP.</li>
+<li><code>GET /admin/cache-performance</code>: Métricas de caché (solo desarrollo).</li>
+<li><code>GET /admin/prisma-metrics</code>: Métricas recientes de Prisma (solo admin).</li>
+</ul>
+<h3 id="integraciones" class="tsd-anchor-link">Integraciones<a href="#integraciones" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><h4 id="github" class="tsd-anchor-link">GitHub<a href="#github" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
+<li><code>GET /public/github/users/{username}</code>: Info básica de usuario.</li>
+<li><code>GET /public/github/users/{username}/all</code>: Info completa (repos, eventos, orgs).</li>
+<li><code>GET /public/github/users/{username}/repos</code>: Repositorios públicos.</li>
+<li><code>GET /public/github/repos/{owner}/{repo}</code>: Info de un repositorio.</li>
+</ul>
+<h4 id="discord" class="tsd-anchor-link">Discord<a href="#discord" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
+<li><code>GET /public/discord/status</code>: Estado actual de Discord.</li>
+<li><code>GET /public/discord/updates</code>: Últimas novedades de Discord.</li>
+<li><code>GET /public/discord/incidents</code>: Incidentes activos.</li>
+<li><code>GET /publicdiscord/recent</code>: Estado, novedades e incidentes recientes.</li>
+</ul>
+<h4 id="google-gemini" class="tsd-anchor-link">Google Gemini<a href="#google-gemini" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><ul>
+<li><code>POST /service/google/model-ai/text</code>: Procesa texto con Gemini.</li>
+<li><code>POST /service/google/model-ai/file</code>: Procesa archivo con Gemini.</li>
+<li><code>POST /service/google/model-ai/combined</code>: Procesa texto y archivo juntos.</li>
+</ul>
+<h3 id="autenticación-de-usuarios" class="tsd-anchor-link">Autenticación de Usuarios<a href="#autenticación-de-usuarios" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><code>POST /auth/register</code>: Registro de usuario y generación de JWT.</li>
+<li><code>POST /auth/login</code>: Login y obtención de JWT.</li>
+<li><code>GET /auth/{id}</code>: Datos del usuario autenticado.</li>
+</ul>
+<hr>
+<h2 id="ejemplo-de-uso-de-la-api" class="tsd-anchor-link">Ejemplo de Uso de la API<a href="#ejemplo-de-uso-de-la-api" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><h3 id="crear-una-tarea" class="tsd-anchor-link">Crear una Tarea<a href="#crear-una-tarea" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="bash"><span class="hl-6">curl</span><span class="hl-1"> </span><span class="hl-4">-X</span><span class="hl-1"> </span><span class="hl-3">POST</span><span class="hl-1"> </span><span class="hl-3">https://host.hiroshi-dev.me/api/v1/service/tasks</span><span class="hl-1"> </span><span class="hl-8">\</span><br/><span class="hl-1">  </span><span class="hl-4">-H</span><span class="hl-1"> </span><span class="hl-3">&quot;Authorization: Bearer tu.jwt.token.aqui&quot;</span><span class="hl-1"> </span><span class="hl-8">\</span><br/><span class="hl-1">  </span><span class="hl-4">-H</span><span class="hl-1"> </span><span class="hl-3">&quot;Content-Type: application/json&quot;</span><span class="hl-1"> </span><span class="hl-8">\</span><br/><span class="hl-1">  </span><span class="hl-4">-d</span><span class="hl-1"> </span><span class="hl-3">&#39;{&quot;title&quot;:&quot;Reunión mensual&quot;,&quot;createdBy&quot;:&quot;usuario123&quot;}&#39;</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="validar-una-licencia" class="tsd-anchor-link">Validar una Licencia<a href="#validar-una-licencia" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="bash"><span class="hl-6">curl</span><span class="hl-1"> </span><span class="hl-4">-X</span><span class="hl-1"> </span><span class="hl-3">POST</span><span class="hl-1"> </span><span class="hl-3">https://host.hiroshi-dev.me/api/v1/license/validate/CLAVE-LICENCIA</span><span class="hl-1"> </span><span class="hl-8">\</span><br/><span class="hl-1">  </span><span class="hl-4">-d</span><span class="hl-1"> </span><span class="hl-3">&quot;hwid=HWID12345&quot;</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="obtener-estado-del-sistema" class="tsd-anchor-link">Obtener Estado del Sistema<a href="#obtener-estado-del-sistema" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="bash"><span class="hl-6">curl</span><span class="hl-1"> </span><span class="hl-3">https://host.hiroshi-dev.me/api/v1/public/status</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<h2 id="esquemas-de-respuesta" class="tsd-anchor-link">Esquemas de Respuesta<a href="#esquemas-de-respuesta" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Las respuestas siguen los esquemas definidos en la documentación Swagger. Por ejemplo, una tarea (<code>TaskResponse</code>) incluye:</p>
+<pre><code class="json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;id&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;507f1f77bcf86cd799439011&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;title&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;Reunión mensual&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;description&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;Discutir presupuesto&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;createdBy&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;usuario123&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;createdAt&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;2024-01-20T10:00:00Z&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;status&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;pending&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;priority&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;high&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;tags&quot;</span><span class="hl-1">: [</span><span class="hl-3">&quot;trabajo&quot;</span><span class="hl-1">, </span><span class="hl-3">&quot;finanzas&quot;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;reminder&quot;</span><span class="hl-1">: { </span><span class="hl-9">&quot;enabled&quot;</span><span class="hl-1">: </span><span class="hl-4">true</span><span class="hl-1">, </span><span class="hl-9">&quot;timeBefore&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;30 minutes&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;notified&quot;</span><span class="hl-1">: </span><span class="hl-4">false</span><span class="hl-1"> },</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;recurrence&quot;</span><span class="hl-1">: { </span><span class="hl-9">&quot;type&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;monthly&quot;</span><span class="hl-1">, </span><span class="hl-9">&quot;interval&quot;</span><span class="hl-1">: </span><span class="hl-10">1</span><span class="hl-1"> },</span><br/><span class="hl-1">  </span><span class="hl-9">&quot;autoDelete&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;2024-12-31T23:59:59Z&quot;</span><br/><span class="hl-1">}</span>
+</code><button type="button">Copy</button></pre>
+
+<hr>
+<h2 id="documentación-interactiva" class="tsd-anchor-link">Documentación Interactiva<a href="#documentación-interactiva" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>
+<p>Accede a la documentación Swagger UI en:<br>
+<a href="http://localhost:PORT/docs">http://localhost:PORT/docs</a> (después de iniciar el servidor)</p>
+</li>
+<li>
+<p>Consulta la <a href="https://docs.hiroshi-dev.me">documentación oficial</a> para guías y ejemplos detallados.</p>
+</li>
+</ul>
+<hr>
+<h2 id="license" class="tsd-anchor-link">License<a href="#license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p><em>This project is licensed under the ISC License. See the <a href="./LICENSE">LICENSE</a> file for details.</em></p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#nebura-works"><span>Nebura <wbr/>Works</span></a><ul><li><a href="#table-of-contents"><span>Table of <wbr/>Contents</span></a></li><li><a href="#project-overview"><span>Project <wbr/>Overview</span></a></li><li><a href="#architecture"><span>Architecture</span></a></li><li><ul><li><a href="#high-level-diagram"><span>High-<wbr/>Level <wbr/>Diagram</span></a></li></ul></li><li><a href="#modules"><span>Modules</span></a></li><li><ul><li><a href="#api-server"><span>API <wbr/>Server</span></a></li><li><ul><li><a href="#example-starting-the-api-server"><span>Example: <wbr/>Starting the API <wbr/>Server</span></a></li></ul></li><li><a href="#discord-module"><span>Discord <wbr/>Module</span></a></li><li><ul><li><a href="#example-reloading-a-command"><span>Example: <wbr/>Reloading a <wbr/>Command</span></a></li><li><a href="#example-loading-all-commands"><span>Example: <wbr/>Loading <wbr/>All <wbr/>Commands</span></a></li></ul></li><li><a href="#whatsapp-module"><span>Whats<wbr/>App <wbr/>Module</span></a></li><li><ul><li><a href="#example-whatsapp-status-command"><span>Example: <wbr/>Whats<wbr/>App <wbr/>Status <wbr/>Command</span></a></li></ul></li></ul></li><li><a href="#configuration"><span>Configuration</span></a></li><li><a href="#usage-examples"><span>Usage <wbr/>Examples</span></a></li><li><ul><li><a href="#starting-the-application"><span>Starting the <wbr/>Application</span></a></li><li><a href="#development-mode"><span>Development <wbr/>Mode</span></a></li><li><a href="#linting-and-formatting"><span>Linting and <wbr/>Formatting</span></a></li><li><a href="#running-tests"><span>Running <wbr/>Tests</span></a></li></ul></li><li><a href="#development--scripts"><span>Development &amp; <wbr/>Scripts</span></a></li><li><a href="#contributing"><span>Contributing</span></a></li><li><a href="#support--links"><span>Support &amp; <wbr/>Links</span></a></li><li><a href="#about-the-creator"><span>About the <wbr/>Creator</span></a></li><li><a href="#api-overview"><span>API <wbr/>Overview</span></a></li><li><ul><li><a href="#autenticación"><span>Autenticación</span></a></li></ul></li><li><a href="#endpoints-principales"><span>Endpoints <wbr/>Principales</span></a></li><li><ul><li><a href="#tareas-y-recordatorios"><span>Tareas y <wbr/>Recordatorios</span></a></li><li><a href="#licencias"><span>Licencias</span></a></li><li><a href="#seguridad-y-administración"><span>Seguridad y <wbr/>Administración</span></a></li><li><a href="#integraciones"><span>Integraciones</span></a></li><li><ul><li><a href="#github"><span>Git<wbr/>Hub</span></a></li><li><a href="#discord"><span>Discord</span></a></li><li><a href="#google-gemini"><span>Google <wbr/>Gemini</span></a></li></ul></li><li><a href="#autenticación-de-usuarios"><span>Autenticación de <wbr/>Usuarios</span></a></li></ul></li><li><a href="#ejemplo-de-uso-de-la-api"><span>Ejemplo de <wbr/>Uso de la API</span></a></li><li><ul><li><a href="#crear-una-tarea"><span>Crear una <wbr/>Tarea</span></a></li><li><a href="#validar-una-licencia"><span>Validar una <wbr/>Licencia</span></a></li><li><a href="#obtener-estado-del-sistema"><span>Obtener <wbr/>Estado del <wbr/>Sistema</span></a></li></ul></li><li><a href="#esquemas-de-respuesta"><span>Esquemas de <wbr/>Respuesta</span></a></li><li><a href="#documentación-interactiva"><span>Documentación <wbr/>Interactiva</span></a></li><li><a href="#license"><span>License</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">Nebura AI</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>

@@ -191,6 +191,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const user = JSON.parse('<%- JSON.stringify(user) %>')
       // --- DICCIONARIO DE TRADUCCIONES ---
       const translations = {
         en: {
@@ -698,7 +699,13 @@
               body: JSON.stringify({
                 name: registerName.value.trim(),
                 email: registerEmail.value.trim(),
-                password: registerPassword.value
+                password: registerPassword.value,
+                discord: {
+                  id: user.id,
+                  avatar: user.avatar,
+                  global_name: user.global_name || "",
+                  username: user.username || ""
+                }
               })
             });
 

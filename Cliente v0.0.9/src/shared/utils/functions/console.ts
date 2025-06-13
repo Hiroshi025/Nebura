@@ -117,19 +117,7 @@ export async function logWithLabel(
   }
 
   // Winston logging
-  logger.info(
-    JSON.stringify({
-      message,
-      level: level === "custom" ? "info" : level,
-      origin,
-      timestamp: time,
-      hostname,
-      pid,
-      version: appVersion,
-      ...options?.context,
-      ...(options?.error && { stack: options.error.stack }),
-    }),
-  );
+  logger.info(message, level === "custom" ? options!.customLabel! : labelName);
 
   // Sentry integration for errors
   if (level === "error") {

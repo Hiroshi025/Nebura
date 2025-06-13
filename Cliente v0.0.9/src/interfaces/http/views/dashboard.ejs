@@ -26,85 +26,96 @@
 <body>
   <div id="app-container">
     <div class="d-flex" style="min-height: 100vh;">
-      <!-- SIDEBAR MEJORADO -->
-      <!-- SIDEBAR MEJORADO -->
+      <!-- SIDEBAR SOLO NAVEGACIÓN GENERAL -->
       <%- include('partials/sidebar', { user: user, panelSection: ` <div class="sidebar-section-title">Panel
     </div>
-    <ul class="nav flex-column sidebar-nav" id="dashboardTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile-tab-pane"
-          type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="true">
-          <i class="fas fa-user"></i> <span data-key="profileTab">Perfil</span>
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="servers-tab" data-bs-toggle="pill" data-bs-target="#servers-tab-pane" type="button"
-          role="tab" aria-controls="servers-tab-pane" aria-selected="false">
-          <i class="fas fa-server"></i> <span data-key="serversTab">Servidores</span>
-        </button>
-      </li>
+    <ul class="nav flex-column sidebar-nav">
+      <li class="nav-item"><a class="nav-link active" href="/dashboard"><i class="fas fa-home"></i>
+          <span>Dashboard</span></a></li>
     </ul>
     <div class="sidebar-divider"></div>
     ` }) %>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-grow-1 p-4">
-      <!-- PERFIL DE USUARIO -->
-      <div id="user-profile-section" class="user-profile animate__animated animate__fadeIn d-flex align-items-center">
-        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=256" alt="User Avatar"
-          class="user-avatar">
-        <div class="user-info">
-          <h3 class="mb-0">
-            <%= user.global_name || user.username %>
-          </h3>
-          <p class="mb-0 opacity-75">@<%= user.username %>
-          </p>
-          <div class="user-badges mt-2">
-            <% if (user.premium_type===2) { %>
-              <span class="badge bg-primary"><i class="fas fa-crown me-1"></i> Nitro</span>
-              <% } %>
-                <span class="badge bg-secondary"><i class="fas fa-users me-1"></i>
-                  <%= Array.isArray(user.guilds) ? user.guilds.length : 0 %>
-                    Servidores
-                </span>
-          </div>
-        </div>
-        <div class="ms-auto d-none d-md-block" style="max-width: 350px;">
-          <% if (user.banner) { %>
-            <img src="https://cdn.discordapp.com/banners/<%= user.id %>/<%= user.banner %>.png?size=512" alt="Banner"
-              class="user-banner w-100">
-            <% } else { %>
-              <div class="user-banner w-100 bg-secondary text-center text-white py-5">Sin banner</div>
-              <% } %>
-        </div>
-      </div>
-      <div class="user-stats">
-        <div class="stat-item">
-          <div class="stat-value">
-            <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> g.owner).length : 0 %>
-          </div>
-          <div class="stat-label" data-key="ownedServers">Servidores Propios</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">
-            <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> !g.owner).length : 0 %>
-          </div>
-          <div class="stat-label" data-key="memberServers">Servidores Miembro</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">
-            <%= user.created_at ? user.created_at.getFullYear() : '—' %>
-          </div>
-          <div class="stat-label" data-key="memberSince">Miembro desde</div>
-        </div>
-      </div>
-      <!-- TABS CONTENT -->
-      <div class="tab-content mt-4" id="dashboardTabsContent">
+      <!-- TABS PRINCIPALES -->
+      <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane"
+            type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="true">
+            <i class="fas fa-user"></i> <span data-key="profileTab">Perfil</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="servers-tab" data-bs-toggle="tab" data-bs-target="#servers-tab-pane"
+            type="button" role="tab" aria-controls="servers-tab-pane" aria-selected="false">
+            <i class="fas fa-server"></i> <span data-key="serversTab">Servidores</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="licenses-tab" data-bs-toggle="tab" data-bs-target="#licenses-tab-pane"
+            type="button" role="tab" aria-controls="licenses-tab-pane" aria-selected="false">
+            <i class="fa-solid fa-key"></i> <span>Licencias</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="dashboardTabsContent">
         <!-- PERFIL -->
         <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab"
           tabindex="0">
+          <!-- PERFIL DE USUARIO -->
+          <div id="user-profile-section"
+            class="user-profile animate__animated animate__fadeIn d-flex align-items-center">
+            <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=256"
+              alt="User Avatar" class="user-avatar">
+            <div class="user-info">
+              <h3 class="mb-0">
+                <%= user.global_name || user.username %>
+              </h3>
+              <p class="mb-0 opacity-75">@<%= user.username %>
+              </p>
+              <div class="user-badges mt-2">
+                <% if (user.premium_type===2) { %>
+                  <span class="badge bg-primary"><i class="fas fa-crown me-1"></i> Nitro</span>
+                  <% } %>
+                    <span class="badge bg-secondary"><i class="fas fa-users me-1"></i>
+                      <%= Array.isArray(user.guilds) ? user.guilds.length : 0 %>
+                        Servidores
+                    </span>
+              </div>
+            </div>
+            <div class="ms-auto d-none d-md-block" style="max-width: 350px;">
+              <% if (user.banner) { %>
+                <img src="https://cdn.discordapp.com/banners/<%= user.id %>/<%= user.banner %>.png?size=512"
+                  alt="Banner" class="user-banner w-100">
+                <% } else { %>
+                  <div class="user-banner w-100 bg-secondary text-center text-white py-5">Sin banner</div>
+                  <% } %>
+            </div>
+          </div>
+          <div class="user-stats">
+            <div class="stat-item">
+              <div class="stat-value">
+                <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> g.owner).length : 0 %>
+              </div>
+              <div class="stat-label" data-key="ownedServers">Servidores Propios</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">
+                <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> !g.owner).length : 0 %>
+              </div>
+              <div class="stat-label" data-key="memberServers">Servidores Miembro</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">
+                <%= user.created_at ? user.created_at.getFullYear() : '—' %>
+              </div>
+              <div class="stat-label" data-key="memberSince">Miembro desde</div>
+            </div>
+          </div>
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" style="margin-top: 20px">
               <div class="card mb-4" style="background: var(--card-bg-dark);">
                 <div class="card-header">
                   <h5 class="mb-0 fw-bold" data-key="personalInfo">Información Personal</h5>
@@ -131,7 +142,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" style="margin-top: 20px">
               <div class="card mb-4" style="background: var(--card-bg-dark);">
                 <div class="card-header">
                   <h5 class="mb-0 fw-bold" data-key="accountInfo">Información de la cuenta</h5>
@@ -214,86 +225,79 @@
           </div>
           <!-- Pagination -->
           <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1" aria-disabled="true" data-key="previous">Anterior</a>
-              </li>
-              <li class="page-item active"><a class="page-link" href="#">1</a></li>
-              <li class="page-item"><a class="page-link" href="#">2</a></li>
-              <li class="page-item"><a class="page-link" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link" href="#" data-key="next">Siguiente</a>
-              </li>
-            </ul>
+            <ul class="pagination justify-content-center"></ul>
           </nav>
         </div>
-      </div>
-      <!-- TABLA DE LICENCIAS DEL USUARIO -->
-      <section class="card mb-4 fade-in" id="userLicensesSection"
-        style="background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
-        <div class="card-header d-flex align-items-center justify-content-between"
-          style="background: transparent; border-bottom: 1px solid var(--input-border);">
-          <span class="section-title"><i class="fa-solid fa-key me-2"></i>Licencias de usuario</span>
-          <button class="btn btn-outline-secondary btn-sm" id="refreshUserLicensesBtn" title="Recargar licencias">
-            <i class="fas fa-sync-alt"></i>
-          </button>
-        </div>
-        <div class="card-body">
-          <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-            <input type="text" id="licenseSearch" class="form-control form-control-sm" style="max-width:200px;"
-              placeholder="Buscar licencia...">
-            <select id="licenseTypeFilter" class="form-select form-select-sm" style="max-width:150px;">
-              <option value="">Todos los tipos</option>
-            </select>
-            <select id="licenseStatusFilter" class="form-select form-select-sm" style="max-width:130px;">
-              <option value="">Todos los estados</option>
-              <option value="ACTIVA">Activa</option>
-              <option value="EXPIRADA">Expirada</option>
-            </select>
-            <button id="exportLicensesBtn" class="btn btn-outline-success btn-sm" title="Exportar a CSV">
-              <i class="fa fa-file-csv"></i> Exportar CSV
-            </button>
-            <span class="ms-auto small">
-              <span id="activeLicCount" class="badge bg-success">0 Activas</span>
-              <span id="expiredLicCount" class="badge bg-danger">0 Expiradas</span>
-            </span>
-          </div>
-          <div class="table-responsive position-relative">
-            <table class="table table-hover align-middle mb-0" id="userLicensesTable">
-              <thead>
-                <tr>
-                  <th style="cursor:pointer" data-sort="key">Clave <i class="fa fa-sort"></i></th>
-                  <th style="cursor:pointer" data-sort="type">Tipo <i class="fa fa-sort"></i></th>
-                  <th style="cursor:pointer" data-sort="estado">Estado <i class="fa fa-sort"></i></th>
-                  <th style="cursor:pointer" data-sort="validUntil">Válida hasta <i class="fa fa-sort"></i></th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Licencias se insertan aquí -->
-              </tbody>
-            </table>
-            <div id="userLicensesEmpty" class="text-center text-muted my-3" style="display:none;">
-              No tienes licencias registradas.
+        <!-- LICENCIAS -->
+        <div class="tab-pane fade" id="licenses-tab-pane" role="tabpanel" aria-labelledby="licenses-tab" tabindex="0">
+          <!-- TABLA DE LICENCIAS DEL USUARIO -->
+          <section class="card mb-4 fade-in" id="userLicensesSection"
+            style="background: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+            <div class="card-header d-flex align-items-center justify-content-between"
+              style="background: transparent; border-bottom: 1px solid var(--input-border);">
+              <span class="section-title"><i class="fa-solid fa-key me-2"></i>Licencias de usuario</span>
+              <button class="btn btn-outline-secondary btn-sm" id="refreshUserLicensesBtn" title="Recargar licencias">
+                <i class="fas fa-sync-alt"></i>
+              </button>
             </div>
-          </div>
-          <nav>
-            <ul class="pagination justify-content-center my-2" id="licensesPagination"></ul>
-          </nav>
-        </div>
-      </section>
+            <div class="card-body">
+              <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                <input type="text" id="licenseSearch" class="form-control form-control-sm" style="max-width:200px;"
+                  placeholder="Buscar licencia...">
+                <select id="licenseTypeFilter" class="form-select form-select-sm" style="max-width:150px;">
+                  <option value="">Todos los tipos</option>
+                </select>
+                <select id="licenseStatusFilter" class="form-select form-select-sm" style="max-width:130px;">
+                  <option value="">Todos los estados</option>
+                  <option value="ACTIVA">Activa</option>
+                  <option value="EXPIRADA">Expirada</option>
+                </select>
+                <button id="exportLicensesBtn" class="btn btn-outline-success btn-sm" title="Exportar a CSV">
+                  <i class="fa fa-file-csv"></i> Exportar CSV
+                </button>
+                <span class="ms-auto small">
+                  <span id="activeLicCount" class="badge bg-success">0 Activas</span>
+                  <span id="expiredLicCount" class="badge bg-danger">0 Expiradas</span>
+                </span>
+              </div>
+              <div class="table-responsive position-relative">
+                <table class="table table-hover align-middle mb-0" id="userLicensesTable">
+                  <thead>
+                    <tr>
+                      <th style="cursor:pointer" data-sort="key">Clave <i class="fa fa-sort"></i></th>
+                      <th style="cursor:pointer" data-sort="type">Tipo <i class="fa fa-sort"></i></th>
+                      <th style="cursor:pointer" data-sort="estado">Estado <i class="fa fa-sort"></i></th>
+                      <th style="cursor:pointer" data-sort="validUntil">Válida hasta <i class="fa fa-sort"></i></th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Licencias se insertan aquí -->
+                  </tbody>
+                </table>
+                <div id="userLicensesEmpty" class="text-center text-muted my-3" style="display:none;">
+                  No tienes licencias registradas.
+                </div>
+              </div>
+              <nav>
+                <ul class="pagination justify-content-center my-2" id="licensesPagination"></ul>
+              </nav>
+            </div>
+          </section>
 
-      <!-- Modal Detalles Licencia -->
-      <div class="modal fade" id="licenseDetailModal" tabindex="-1" aria-labelledby="licenseDetailModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="licenseDetailModalLabel">Detalles de la Licencia</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body" id="licenseDetailBody">
-              <!-- Detalles dinámicos -->
+          <!-- Modal Detalles Licencia -->
+          <div class="modal fade" id="licenseDetailModal" tabindex="-1" aria-labelledby="licenseDetailModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="licenseDetailModalLabel">Detalles de la Licencia</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="licenseDetailBody">
+                  <!-- Detalles dinámicos -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -339,29 +343,29 @@
                 ? '<i class="fa fa-check-circle text-success" title="Activa"></i>'
                 : '<i class="fa fa-times-circle text-danger" title="Expirada"></i>';
               tableBody.innerHTML += `
-                <tr>
-                  <td>
-                    <span class="badge bg-primary" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip" title="Click para ver detalles" onclick="showLicenseDetail('${lic.key || lic.id || '-'}')">
-                      ${lic.key || lic.id || '-'}
-                    </span>
-                  </td>
-                  <td>${lic.type || '-'}</td>
-                  <td>
-                    <span class="badge badge-status ${estado} ${estado === 'ACTIVA' ? 'bg-success' : 'bg-danger'}" style="cursor:pointer;" data-bs-toggle="tooltip" title="${estado === 'ACTIVA' ? 'Licencia activa y válida' : 'Licencia expirada'}">
-                      ${estadoIcon} ${estado}
-                    </span>
-                  </td>
-                  <td>
-                    <span data-bs-toggle="tooltip" title="${lic.validUntil ? new Date(lic.validUntil).toLocaleString() : '-'}">
-                      ${lic.validUntil ? new Date(lic.validUntil).toLocaleDateString() : '-'}
-                    </span>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-secondary" title="Copiar clave" onclick="navigator.clipboard.writeText('${lic.key || lic.id || '-'}')"><i class="fa fa-copy"></i></button>
-                    <button class="btn btn-sm btn-outline-info ms-1" title="Ver detalles" onclick="showLicenseDetail('${lic.key || lic.id || '-'}')"><i class="fa fa-eye"></i></button>
-                  </td>
-                </tr>
-              `;
+                  <tr>
+                    <td>
+                      <span class="badge bg-primary" style="font-size:0.95em;cursor:pointer;" data-bs-toggle="tooltip" title="Click para ver detalles" onclick="showLicenseDetail('${lic.key || lic.id || '-'}')">
+                        ${lic.key || lic.id || '-'}
+                      </span>
+                    </td>
+                    <td>${lic.type || '-'}</td>
+                    <td>
+                      <span class="badge badge-status ${estado} ${estado === 'ACTIVA' ? 'bg-success' : 'bg-danger'}" style="cursor:pointer;" data-bs-toggle="tooltip" title="${estado === 'ACTIVA' ? 'Licencia activa y válida' : 'Licencia expirada'}">
+                        ${estadoIcon} ${estado}
+                      </span>
+                    </td>
+                    <td>
+                      <span data-bs-toggle="tooltip" title="${lic.validUntil ? new Date(lic.validUntil).toLocaleString() : '-'}">
+                        ${lic.validUntil ? new Date(lic.validUntil).toLocaleDateString() : '-'}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-secondary" title="Copiar clave" onclick="navigator.clipboard.writeText('${lic.key || lic.id || '-'}')"><i class="fa fa-copy"></i></button>
+                      <button class="btn btn-sm btn-outline-info ms-1" title="Ver detalles" onclick="showLicenseDetail('${lic.key || lic.id || '-'}')"><i class="fa fa-eye"></i></button>
+                    </td>
+                  </tr>
+                `;
             });
             // Inicializar tooltips
             setTimeout(() => {
@@ -378,18 +382,18 @@
             if (totalPages <= 1) return;
             // Prev
             pagination.innerHTML += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}">
-              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
-            </li>`;
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">&laquo;</a>
+              </li>`;
             // Pages
             for (let i = 1; i <= totalPages; i++) {
               pagination.innerHTML += `<li class="page-item${i === currentPage ? ' active' : ''}">
-                <a class="page-link" href="#">${i}</a>
-              </li>`;
+                  <a class="page-link" href="#">${i}</a>
+                </li>`;
             }
             // Next
             pagination.innerHTML += `<li class="page-item${currentPage === totalPages ? ' disabled' : ''}">
-              <a class="page-link" href="#">&raquo;</a>
-            </li>`;
+                <a class="page-link" href="#">&raquo;</a>
+              </li>`;
             // Eventos
             Array.from(pagination.querySelectorAll('.page-link')).forEach((el, idx) => {
               el.onclick = (e) => {
@@ -487,14 +491,14 @@
             if (!lic) return;
             const estado = getEstado(lic);
             document.getElementById('licenseDetailBody').innerHTML = `
-              <ul class="list-group">
-                <li class="list-group-item"><b>Clave:</b> ${lic.key || lic.id || '-'}</li>
-                <li class="list-group-item"><b>Tipo:</b> ${lic.type || '-'}</li>
-                <li class="list-group-item"><b>Estado:</b> <span class="badge ${estado === 'ACTIVA' ? 'bg-success' : 'bg-danger'}">${estado}</span></li>
-                <li class="list-group-item"><b>Válida hasta:</b> ${lic.validUntil ? new Date(lic.validUntil).toLocaleString() : '-'}</li>
-                <li class="list-group-item"><b>Detalles:</b> <pre style="white-space:pre-wrap;">${JSON.stringify(lic, null, 2)}</pre></li>
-              </ul>
-            `;
+                <ul class="list-group">
+                  <li class="list-group-item"><b>Clave:</b> ${lic.key || lic.id || '-'}</li>
+                  <li class="list-group-item"><b>Tipo:</b> ${lic.type || '-'}</li>
+                  <li class="list-group-item"><b>Estado:</b> <span class="badge ${estado === 'ACTIVA' ? 'bg-success' : 'bg-danger'}">${estado}</span></li>
+                  <li class="list-group-item"><b>Válida hasta:</b> ${lic.validUntil ? new Date(lic.validUntil).toLocaleString() : '-'}</li>
+                  <li class="list-group-item"><b>Detalles:</b> <pre style="white-space:pre-wrap;">${JSON.stringify(lic, null, 2)}</pre></li>
+                </ul>
+              `;
             new bootstrap.Modal(document.getElementById('licenseDetailModal')).show();
           };
 
@@ -543,6 +547,7 @@
       </script>
     </main>
   </div>
+  </div>
   <!-- Toast para notificaciones -->
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -556,7 +561,6 @@
 
   <!-- footer -->
   <%- include('partials/footer') %>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script>
@@ -616,7 +620,7 @@
             },
             filterAll: "All",
             filterOwner: "Owned",
-            filterMember: "Member",
+            filterMember: "Miembro",
             filterFeatureAll: "All",
             filterCommunity: "Community",
             filterVerified: "Verified",
@@ -986,7 +990,6 @@
         document.body.classList.add('loaded');
       });
     </script>
-    </div>
 </body>
 
 </html>
