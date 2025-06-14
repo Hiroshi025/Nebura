@@ -986,7 +986,7 @@ export default ({ app }: TRoutesInput) => {
       });
 
       if (main.api.io) {
-        main.api.io.to(ticket.ticketId).emit('ticket:message', {
+        main.api.io.to(ticket.ticketId).emit("ticket:message", {
           ticketId: ticket.ticketId,
           message: newMessage,
         });
@@ -1892,4 +1892,32 @@ export default ({ app }: TRoutesInput) => {
       });
     }
   });
+
+  /**
+   * Ruta para compartir archivo por link público.
+   * Renderiza la vista con los datos del archivo compartido.
+   * @route GET /dashboard/cdn/share/:userId/:fileName
+   */
+/*   app.get("/dashboard/cdn/share/:userId/:fileName", async (req: Request, res: Response) => {
+    const { userId, fileName } = req.params;
+    try {
+      const sharedFile = await main.prisma.fileMetadata.findFirst({
+        where: { userId, fileName },
+      });
+      if (!sharedFile) {
+        return res
+          .status(404)
+          .render("cdn.ejs", { title: "Archivo no encontrado", sharedFile: null, user: req.user });
+      }
+      return res.render("cdn.ejs", {
+        title: sharedFile.title,
+        sharedFile,
+        user: req.user,
+      });
+    } catch (error) {
+      return res
+        .status(500)
+        .render("cdn.ejs", { title: "Error", sharedFile: null, user: req.user });
+    }
+  }); */
 };

@@ -337,7 +337,218 @@ body.loaded #app-container {
   border-color: var(--input-border-light);
 }
 
-/* --- Responsive --- */
+/* --- Tarjeta de Identificación API --- */
+.id-card {
+  background: linear-gradient(120deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+  color: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 6px 24px rgba(106, 90, 249, 0.13);
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  margin-top: 1.2rem;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--primary-color);
+  min-width: 260px;
+  max-width: 420px;
+  animation: fadeIn 0.7s;
+}
+
+.id-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.stats-card.chart-card {
+  min-width: 260px;
+  max-width: 100%;
+  min-height: 340px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-card.chart-card .stats-card-body {
+  flex: 1 1 auto;
+  min-height: 320px;
+  height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.stats-card.chart-card canvas {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 260px;
+  max-height: 340px;
+  display: block;
+}
+
+.id-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.id-card-role {
+  font-size: 0.95rem;
+  padding: 0.3em 0.8em;
+  border-radius: 0.7em;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.id-card-body {
+  display: flex;
+  align-items: center;
+}
+
+.id-card-avatar {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #fff;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.id-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.id-card-info {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.id-card-info .id-card-value {
+  font-weight: 500;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 0.4em;
+  padding: 0.1em 0.5em;
+  margin-left: 0.2em;
+}
+
+@media (max-width: 768px) {
+  .id-card {
+    max-width: 100%;
+    padding: 1rem 0.7rem;
+  }
+  .id-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+  .id-card-avatar {
+    margin-bottom: 0.7rem;
+  }
+}
+
+/* --- Tarjeta de Estadísticas --- */
+.stats-card {
+  background: linear-gradient(120deg, var(--card-bg-dark) 70%, var(--primary-color) 100%);
+  color: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 6px 24px rgba(106, 90, 249, 0.1);
+  padding: 1.2rem 1.2rem 1rem 1.2rem;
+  margin-top: 1.2rem;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--primary-color);
+  min-width: 260px;
+  max-width: 420px;
+  animation: fadeIn 0.7s;
+}
+
+.stats-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 1.1rem;
+}
+
+.stats-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.stats-card-body {
+  font-size: 1rem;
+}
+
+.stats-table {
+  background: transparent;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.stats-table th,
+.stats-table td {
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 0.97em;
+  vertical-align: middle;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  padding: 0.35em 0.6em;
+}
+.stats-table th {
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color);
+}
+.stats-table tr:last-child td {
+  border-bottom: none;
+}
+
+.id-card,
+.stats-card {
+  min-width: 220px;
+  max-width: 340px;
+  margin-top: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .id-card,
+  .stats-card {
+    min-height: 340px;
+  }
+  .id-card {
+    margin-right: 0;
+  }
+  .stats-card {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .id-card,
+  .stats-card {
+    max-width: 100%;
+    min-width: 0;
+    min-height: unset;
+  }
+  .d-flex.flex-md-row > .id-card,
+  .d-flex.flex-md-row > .stats-card {
+    margin-bottom: 1rem !important;
+  }
+}
+
 @media (max-width: 992px) {
   .user-profile {
     padding: 1.5rem 1rem;
@@ -395,6 +606,11 @@ body.loaded #app-container {
 
   .server-card {
     margin-bottom: 1.5rem;
+  }
+
+  .stats-card {
+    max-width: 100%;
+    padding: 1rem 0.7rem;
   }
 }
 

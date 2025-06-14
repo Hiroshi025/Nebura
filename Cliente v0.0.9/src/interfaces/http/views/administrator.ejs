@@ -24,6 +24,16 @@
         <main class="flex-grow-1 p-4">
           <!-- HEADER DE ACCIONES (tema e idioma) -->
           <div class="d-flex justify-content-end align-items-center mb-3 gap-3">
+            <!-- Buscador global -->
+            <div class="search-group" id="global-search-group" style="width:320px;">
+              <i class="fas fa-search search-icon"></i>
+              <input type="text" id="global-search" class="form-control form-control-sm" autocomplete="off"
+                placeholder="Buscar en todo el panel..." />
+              <button type="button" class="clear-btn" id="clear-global-search" tabindex="-1"
+                aria-label="Limpiar búsqueda">
+                <i class="fas fa-times-circle"></i>
+              </button>
+            </div>
             <!-- Cambiar idioma -->
             <div class="language-switcher">
               <a href="#" class="lang-link active" data-lang="es">ES</a> |
@@ -146,6 +156,26 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <span class="section-title mb-0"><i class="fas fa-users"></i> Usuarios</span>
                   <div class="d-flex align-items-center gap-2">
+                    <!-- Botón modo compacto/expandido -->
+                    <button class="btn btn-outline-secondary btn-sm" id="users-compact-toggle"
+                      title="Modo compacto/expandido">
+                      <i class="fas fa-compress-arrows-alt"></i>
+                    </button>
+                    <!-- Botón columnas configurables -->
+                    <button class="btn btn-outline-secondary btn-sm" id="users-columns-toggle" title="Columnas">
+                      <i class="fas fa-table-columns"></i>
+                    </button>
+                    <!-- Botón exportar -->
+                    <div class="dropdown">
+                      <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-export"></i> Exportar
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" id="export-users-csv">CSV</a></li>
+                        <li><a class="dropdown-item" href="#" id="export-users-xlsx">Excel</a></li>
+                      </ul>
+                    </div>
                     <div class="search-group search-group-animate-in" id="users-search-group">
                       <i class="fas fa-search search-icon"></i>
                       <input type="text" id="search-users" class="form-control form-control-sm" autocomplete="off"
@@ -166,6 +196,24 @@
                   </div>
                 </div>
                 <div class="card-body table-responsive">
+                  <!-- Filtros avanzados -->
+                  <div class="row mb-2">
+                    <div class="col-md-4">
+                      <input type="date" class="form-control form-control-sm" id="users-filter-date-from"
+                        placeholder="Desde">
+                    </div>
+                    <div class="col-md-4">
+                      <input type="date" class="form-control form-control-sm" id="users-filter-date-to"
+                        placeholder="Hasta">
+                    </div>
+                    <div class="col-md-4">
+                      <select class="form-select form-select-sm" id="users-filter-status">
+                        <option value="">Todos los estados</option>
+                        <option value="inactive">Inactivo</option>
+                        <option value="active">Activo</option>
+                      </select>
+                    </div>
+                  </div>
                   <table class="table table-hover align-middle mb-0" id="users-table">
                     <thead>
                       <tr>
@@ -234,6 +282,23 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <span class="section-title mb-0"><i class="fas fa-key"></i> Licencias</span>
                   <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="licenses-compact-toggle"
+                      title="Modo compacto/expandido">
+                      <i class="fas fa-compress-arrows-alt"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="licenses-columns-toggle" title="Columnas">
+                      <i class="fas fa-table-columns"></i>
+                    </button>
+                    <div class="dropdown">
+                      <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-export"></i> Exportar
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" id="export-licenses-csv">CSV</a></li>
+                        <li><a class="dropdown-item" href="#" id="export-licenses-xlsx">Excel</a></li>
+                      </ul>
+                    </div>
                     <div class="search-group search-group-animate-in" id="licenses-search-group">
                       <i class="fas fa-search search-icon"></i>
                       <input type="text" id="search-licenses" class="form-control form-control-sm" autocomplete="off"
@@ -256,6 +321,25 @@
                   </div>
                 </div>
                 <div class="card-body table-responsive">
+                  <div class="row mb-2">
+                    <div class="col-md-4">
+                      <input type="date" class="form-control form-control-sm" id="licenses-filter-date-from"
+                        placeholder="Desde">
+                    </div>
+                    <div class="col-md-4">
+                      <input type="date" class="form-control form-control-sm" id="licenses-filter-date-to"
+                        placeholder="Hasta">
+                    </div>
+                    <div class="col-md-4">
+                      <select class="form-select form-select-sm" id="licenses-filter-status">
+                        <option value="">Todos los estados</option>
+                        <option value="ACTIVE">Activa</option>
+                        <option value="EXPIRED">Expirada</option>
+                        <option value="BANNED">Baneada</option>
+                        <option value="REVOKED">Revocada</option>
+                      </select>
+                    </div>
+                  </div>
                   <table class="table table-hover align-middle mb-0" id="licenses-table">
                     <thead>
                       <tr>
@@ -452,6 +536,23 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <span class="section-title mb-0"><i class="fas fa-file-alt"></i> Logs recientes</span>
                   <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="logs-compact-toggle"
+                      title="Modo compacto/expandido">
+                      <i class="fas fa-compress-arrows-alt"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="logs-columns-toggle" title="Columnas">
+                      <i class="fas fa-table-columns"></i>
+                    </button>
+                    <div class="dropdown">
+                      <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-export"></i> Exportar
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" id="export-logs-csv">CSV</a></li>
+                        <li><a class="dropdown-item" href="#" id="export-logs-xlsx">Excel</a></li>
+                      </ul>
+                    </div>
                     <div class="search-group search-group-animate-in" id="logs-search-group">
                       <i class="fas fa-search search-icon"></i>
                       <input type="text" id="search-logs" class="form-control form-control-sm" autocomplete="off"
@@ -471,6 +572,16 @@
                   </div>
                 </div>
                 <div class="card-body table-responsive">
+                  <div class="row mb-2">
+                    <div class="col-md-6">
+                      <input type="date" class="form-control form-control-sm" id="logs-filter-date-from"
+                        placeholder="Desde">
+                    </div>
+                    <div class="col-md-6">
+                      <input type="date" class="form-control form-control-sm" id="logs-filter-date-to"
+                        placeholder="Hasta">
+                    </div>
+                  </div>
                   <table class="table table-hover align-middle mb-0" id="logs-table">
                     <thead>
                       <tr>
@@ -628,6 +739,7 @@
   </div>
   <%- include('partials/footer') %>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
       // --- SISTEMA DE TRADUCCIÓN Y CAMBIO DE TEMA ---
       document.addEventListener('DOMContentLoaded', function () {
@@ -992,7 +1104,7 @@
       function renderLogRow(log) {
         return `<tr>
           <td>${log.filename}</td>
-          <td>${log.lastModified ? new Date(log.lastModified).toLocaleString() : '-'}</td>
+          <td>${log.lastModified ? formatDate(log.lastModified) : '-'}</td>
           <td>${log.size}</td>
           <td><span class="badge ${log.isCompressed ? 'bg-info' : 'bg-secondary'}">${log.isCompressed ? 'Sí' : 'No'}</span></td>
           <td>
@@ -1083,6 +1195,197 @@
           });
         }
       });
+
+      // --- BUSCADOR GLOBAL ---
+      document.addEventListener('DOMContentLoaded', function () {
+        const globalInput = document.getElementById('global-search');
+        const clearBtn = document.getElementById('clear-global-search');
+        if (!globalInput) return;
+        globalInput.addEventListener('input', function () {
+          const val = this.value.toLowerCase();
+          // Filtra todas las tablas visibles
+          ['users-table', 'licenses-table', 'logs-table'].forEach(tableId => {
+            const tableBody = document.getElementById(tableId + '-body');
+            if (!tableBody) return;
+            Array.from(tableBody.rows).forEach(row => {
+              const text = row.textContent.toLowerCase();
+              row.style.display = val.length === 0 || text.includes(val) ? '' : 'none';
+            });
+          });
+        });
+        if (clearBtn) {
+          clearBtn.onclick = function () {
+            globalInput.value = '';
+            globalInput.dispatchEvent(new Event('input'));
+            globalInput.focus();
+          };
+        }
+      });
+
+      // --- EXPORTAR DATOS (CSV/Excel) ---
+      function exportTableToCSV(tableId, filename) {
+        const rows = Array.from(document.querySelectorAll(`#${tableId} tr`));
+        const csv = rows.map(row =>
+          Array.from(row.querySelectorAll('th,td')).map(cell =>
+            `"${cell.innerText.replace(/"/g, '""')}"`
+          ).join(',')
+        ).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+      }
+      function exportTableToExcel(tableId, filename) {
+        const table = document.getElementById(tableId);
+        const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
+        XLSX.writeFile(wb, filename);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('export-users-csv').onclick = e => { e.preventDefault(); exportTableToCSV('users-table', 'usuarios.csv'); };
+        document.getElementById('export-users-xlsx').onclick = e => { e.preventDefault(); exportTableToExcel('users-table', 'usuarios.xlsx'); };
+        document.getElementById('export-licenses-csv').onclick = e => { e.preventDefault(); exportTableToCSV('licenses-table', 'licencias.csv'); };
+        document.getElementById('export-licenses-xlsx').onclick = e => { e.preventDefault(); exportTableToExcel('licenses-table', 'licencias.xlsx'); };
+        document.getElementById('export-logs-csv').onclick = e => { e.preventDefault(); exportTableToCSV('logs-table', 'logs.csv'); };
+        document.getElementById('export-logs-xlsx').onclick = e => { e.preventDefault(); exportTableToExcel('logs-table', 'logs.xlsx'); };
+      });
+
+      // --- COLUMNAS CONFIGURABLES Y MODO COMPACTO ---
+      function setupColumnConfig(tableId, columns) {
+        let visibleCols = JSON.parse(localStorage.getItem(tableId + '-cols')) || columns.map(c => true);
+        function applyCols() {
+          const table = document.getElementById(tableId);
+          if (!table) return;
+          Array.from(table.rows).forEach(row => {
+            Array.from(row.cells).forEach((cell, idx) => {
+              cell.style.display = visibleCols[idx] ? '' : 'none';
+            });
+          });
+        }
+        document.getElementById(tableId.replace('-table', '') + '-columns-toggle').onclick = function () {
+          const modal = new bootstrap.Modal(document.getElementById('columnsModal'));
+          const body = document.getElementById('columnsModalBody');
+          body.innerHTML = columns.map(function (col, idx) {
+            return '<div class="form-check">' +
+              '<input class="form-check-input" type="checkbox" value="' + idx + '" id="colchk-' + tableId + '-' + idx + '" ' + (visibleCols[idx] ? 'checked' : '') + '>' +
+              '<label class="form-check-label" for="colchk-' + tableId + '-' + idx + '">' + col + '</label>' +
+              '</div>';
+          }).join('');
+          document.getElementById('columnsModalApply').onclick = function () {
+            visibleCols = columns.map(function (_, idx) { return document.getElementById('colchk-' + tableId + '-' + idx).checked; });
+            localStorage.setItem(tableId + '-cols', JSON.stringify(visibleCols));
+            applyCols();
+            modal.hide();
+          };
+          modal.show();
+        };
+        applyCols();
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        setupColumnConfig('users-table', ['Nombre', 'Email', 'Rol', 'Registrado', 'Licencias', 'Última actualización']);
+        setupColumnConfig('licenses-table', ['ID', 'Tipo', 'Usuario', 'Admin', 'HWID', 'Estado', 'Válida hasta', 'Solicitudes', 'Última IP']);
+        setupColumnConfig('logs-table', ['Archivo', 'Última modificación', 'Tamaño', 'Comprimido', 'Acciones']);
+      });
+
+      function setupCompactToggle(tableId) {
+        let compact = localStorage.getItem(tableId + '-compact') === '1';
+        function applyCompact() {
+          const table = document.getElementById(tableId);
+          if (!table) return;
+          table.classList.toggle('table-compact', compact);
+        }
+        document.getElementById(tableId.replace('-table', '') + '-compact-toggle').onclick = function () {
+          compact = !compact;
+          localStorage.setItem(tableId + '-compact', compact ? '1' : '0');
+          applyCompact();
+        };
+        applyCompact();
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        setupCompactToggle('users-table');
+        setupCompactToggle('licenses-table');
+        setupCompactToggle('logs-table');
+      });
+
+      // --- FILTROS AVANZADOS (fecha, estado) ---
+      function setupAdvancedFilters(tableId, data, renderRow, searchFields, dateField, statusField) {
+        const dateFrom = document.getElementById(tableId.replace('-table', '') + '-filter-date-from');
+        const dateTo = document.getElementById(tableId.replace('-table', '') + '-filter-date-to');
+        const statusSel = document.getElementById(tableId.replace('-table', '') + '-filter-status');
+        let filtered = [...data];
+        function filterData() {
+          let from = dateFrom && dateFrom.value ? new Date(dateFrom.value) : null;
+          let to = dateTo && dateTo.value ? new Date(dateTo.value) : null;
+          let status = statusSel && statusSel.value ? statusSel.value : null;
+          filtered = data.filter(row => {
+            let ok = true;
+            if (from && row[dateField]) ok = ok && new Date(row[dateField]) >= from;
+            if (to && row[dateField]) ok = ok && new Date(row[dateField]) <= to;
+            if (status && row[statusField]) ok = ok && row[statusField] === status;
+            return ok;
+          });
+          // Actualiza tabla
+          setupTableFeatures(tableId, filtered, renderRow, searchFields);
+        }
+        if (dateFrom) dateFrom.addEventListener('change', filterData);
+        if (dateTo) dateTo.addEventListener('change', filterData);
+        if (statusSel) statusSel.addEventListener('change', filterData);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        setupAdvancedFilters('users-table', usersData, renderUserRow, ['name', 'email', 'role'], 'createdAt', 'status');
+        setupAdvancedFilters('licenses-table', licensesData, renderLicenseRow, ['id', 'type', 'user', 'admin', 'status'], 'validUntil', 'status');
+        setupAdvancedFilters('logs-table', logsData, renderLogRow, ['filename', 'isCompressed'], 'lastModified', null);
+      });
+
+      // --- BADGES VISUALES PARA ESTADOS CRÍTICOS ---
+      function isUserInactive(u) {
+        // Ejemplo: si no ha actualizado en 90 días
+        if (!u.updatedAt) return false;
+        return (Date.now() - new Date(u.updatedAt).getTime()) > 90 * 24 * 60 * 60 * 1000;
+      }
+      function isLicenseExpiringSoon(l) {
+        if (!l.validUntil) return false;
+        const days = (new Date(l.validUntil) - Date.now()) / (1000 * 60 * 60 * 24);
+        return days > 0 && days < 7;
+      }
+      // Modifica renderUserRow y renderLicenseRow para incluir badges visuales:
+      function renderUserRow(u) {
+        let badge = isUserInactive(u) ? '<span class="badge bg-warning ms-1">Inactivo</span>' : '';
+        return `<tr>
+          <td>${u.name} ${badge}</td>
+          <td>${u.email}</td>
+          <td><span class="badge badge-role ${u.role} text-uppercase">${u.role}</span></td>
+          <td>${formatDate(u.createdAt)}</td>
+          <td>${u.licenses}</td>
+          <td>${formatDate(u.updatedAt)}</td>
+        </tr>`;
+      }
+      function renderLicenseRow(l) {
+        let icon = l.status === 'ACTIVE' ? 'fa-check-circle' : l.status === 'EXPIRED' ? 'fa-clock' : 'fa-ban';
+        let badge = isLicenseExpiringSoon(l) ? '<span class="badge bg-warning ms-1">Próx. a expirar</span>' : '';
+        return `<tr>
+          <td>${l.id}</td>
+          <td><span class="badge bg-primary">${l.type}</span></td>
+          <td>${usersMap[l.user] || l.user}</td>
+          <td>${usersMap[l.admin] || l.admin}</td>
+          <td>${l.hwid}</td>
+          <td><span class="badge badge-status ${l.status}">
+            <i class="fas ${icon}"></i> ${l.status}
+          </span> ${badge}</td>
+          <td>${formatDate(l.validUntil)}</td>
+          <td>${l.requestCount} / ${l.requestLimit}</td>
+          <td>${l.lastUsedIp || '-'}</td>
+        </tr>`;
+      }
+
+      // --- SOPORTE MULTI-IDIOMA COMPLETO (fechas, números) ---
+      function formatDate(date) {
+        if (!date) return '-';
+        try {
+          const lang = localStorage.getItem('language') || (navigator.language.startsWith('es') ? 'es' : 'en');
+          return new Date(date).toLocaleDateString(lang, { year: 'numeric', month: 'short', day: 'numeric' });
+        } catch { return '-'; }
+      }
     </script>
     <!-- Modal de confirmación -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
@@ -1099,6 +1402,26 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             <button type="button" class="btn btn-danger" id="confirmModalOk">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal columnas configurables -->
+    <div class="modal fade" id="columnsModal" tabindex="-1" aria-labelledby="columnsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="columnsModalLabel"><i class="fas fa-table-columns"></i> Seleccionar columnas
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body" id="columnsModalBody">
+            <!-- Se rellena dinámicamente -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="columnsModalApply">Aplicar</button>
           </div>
         </div>
       </div>

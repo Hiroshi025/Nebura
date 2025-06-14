@@ -40,7 +40,7 @@ export default new Event("interactionCreate", async (interaction) => {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
 
-        const now = Date.now();
+/*         const now = Date.now();
         const userCooldowns = cooldowns.get(interaction.user.id) || new Map();
         const cooldownAmount = (command.cooldown || 10) * 1000; // Convertir a milisegundos
 
@@ -60,7 +60,7 @@ export default new Event("interactionCreate", async (interaction) => {
               flags: MessageFlags.Ephemeral,
             });
           }
-        }
+        } */
 
         if (!clientData)
           return interaction.reply({
@@ -77,8 +77,8 @@ export default new Event("interactionCreate", async (interaction) => {
             flags: MessageFlags.Ephemeral,
           });
 
-        userCooldowns.set(interaction.commandName, now + cooldownAmount);
-        cooldowns.set(interaction.user.id, userCooldowns);
+        //userCooldowns.set(interaction.commandName, now + cooldownAmount);
+        //cooldowns.set(interaction.user.id, userCooldowns);
 
         if (command.options?.owner && !clientData.owners.includes(interaction.user.id))
           return interaction.reply({

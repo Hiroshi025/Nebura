@@ -22,10 +22,68 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
   <link rel="stylesheet" href="/css/error.css">
+  <style>
+    /* Loader animación */
+    #loader {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(30, 30, 30, 0.7);
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loader .spinner {
+      border: 6px solid #eee;
+      border-top: 6px solid var(--primary-color);
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Mascota SVG anime gótica dark */
+    .mascot-svg {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 1.5rem auto;
+      display: block;
+      filter: drop-shadow(0 8px 24px #000a);
+      transition: transform 0.4s cubic-bezier(.4, 2, .6, 1), filter 0.3s;
+      cursor: pointer;
+      animation: mascot-bounce 2s infinite;
+    }
+
+    .mascot-svg:hover,
+    .mascot-svg:focus {
+      transform: scale(1.08) rotate(-4deg);
+      filter: drop-shadow(0 16px 40px #6a5af9cc) brightness(1.1);
+    }
+
+    /* Easter egg */
+    #easter-egg {
+      display: none;
+      color: var(--primary-color);
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 
 <body>
-  <header class="navbar navbar-expand-lg position-relative">
+  <div id="loader" aria-label="Cargando" role="status">
+    <div class="spinner"></div>
+  </div>
+  <header class="navbar navbar-expand-lg position-relative" role="banner">
     <div class="container">
       <a class="navbar-brand fw-bold" href="#">
         <i class="fas fa-server me-2" style="color: #6a5af9;"></i>Nebura
@@ -45,27 +103,75 @@
     </div>
   </header>
 
-  <main class="container py-5 flex-grow-1">
+  <main class="container py-5 flex-grow-1" role="main">
     <div class="error-container">
-      <div class="error-card">
-        <i class="fas fa-exclamation-triangle error-icon"></i>
-        <h1 class="error-title" id="error-title">Error 404</h1>
-        <div class="error-code" id="error-code">ERR_FILE_NOT_FOUND</div>
-        <p class="error-description" id="error-description">
+      <div class="error-card" tabindex="0" aria-live="polite">
+        <!-- Quitar SVG ilustrativo -->
+        <div id="error-illustration" aria-hidden="true" style="display:none"></div>
+        <span id="mascot-img" tabindex="0" aria-label="Mascota Nebura" style="display:block;">
+          <!-- Mascota anime gótica dark SVG -->
+          <svg class="mascot-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="bodyDark" cx="60" cy="70" r="50" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#23213a" />
+                <stop offset="100%" stop-color="#111018" />
+              </radialGradient>
+              <linearGradient id="hairGrad" x1="0" y1="0" x2="120" y2="0" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6a5af9" />
+                <stop offset="1" stop-color="#f72585" />
+              </linearGradient>
+              <radialGradient id="eyeRed" cx="2" cy="2" r="6" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#f72585" />
+                <stop offset="100%" stop-color="#2a102a" />
+              </radialGradient>
+            </defs>
+            <!-- Cabello largo gótico -->
+            <ellipse cx="60" cy="60" rx="44" ry="48" fill="url(#hairGrad)" opacity="0.7" />
+            <ellipse cx="60" cy="90" rx="36" ry="18" fill="#18162a" opacity="0.7" />
+            <!-- Cuerpo -->
+            <ellipse cx="60" cy="70" rx="30" ry="32" fill="url(#bodyDark)" stroke="#6a5af9" stroke-width="2" />
+            <!-- Cara pálida -->
+            <ellipse cx="60" cy="65" rx="22" ry="20" fill="#f3f3fa" stroke="#23213a" stroke-width="1.5" />
+            <!-- Ojos grandes rojos -->
+            <ellipse cx="50" cy="70" rx="5" ry="8" fill="url(#eyeRed)" stroke="#23213a" stroke-width="1" />
+            <ellipse cx="70" cy="70" rx="5" ry="8" fill="url(#eyeRed)" stroke="#23213a" stroke-width="1" />
+            <!-- Pupilas -->
+            <ellipse cx="50" cy="72" rx="2" ry="3" fill="#fff" opacity="0.7" />
+            <ellipse cx="70" cy="72" rx="2" ry="3" fill="#fff" opacity="0.7" />
+            <!-- Sombras bajo ojos -->
+            <ellipse cx="50" cy="78" rx="3" ry="1.2" fill="#6a5af9" opacity="0.3" />
+            <ellipse cx="70" cy="78" rx="3" ry="1.2" fill="#6a5af9" opacity="0.3" />
+            <!-- Boca pequeña triste -->
+            <path d="M56 82 Q60 85 64 82" stroke="#f72585" stroke-width="1.5" fill="none" stroke-linecap="round" />
+            <!-- Collar choker -->
+            <rect x="48" y="84" width="24" height="5" rx="2.5" fill="#23213a" stroke="#f72585" stroke-width="1" />
+            <circle cx="60" cy="86.5" r="2" fill="#f72585" stroke="#fff" stroke-width="0.7" />
+            <!-- Orejas puntiagudas -->
+            <polygon points="38,60 32,40 44,54" fill="#f3f3fa" stroke="#23213a" stroke-width="1" />
+            <polygon points="82,54 88,40 82,60" fill="#f3f3fa" stroke="#23213a" stroke-width="1" />
+            <!-- Detalle lágrima -->
+            <ellipse cx="52" cy="80" rx="1.1" ry="2.2" fill="#f72585" opacity="0.5" />
+          </svg>
+        </span>
+        <h1 class="error-title" id="error-title" tabindex="0">Error 404</h1>
+        <div class="error-code" id="error-code" tabindex="0">ERR_FILE_NOT_FOUND</div>
+        <p class="error-description" id="error-description" tabindex="0">
           El archivo que estás buscando no existe o ha sido eliminado.
         </p>
-        <a href="/dashboard" class="btn-home" id="btn-home">
+        <a href="/dashboard" class="btn-home" id="btn-home" tabindex="0" aria-label="Volver al inicio">
           <i class="fas fa-home me-2"></i> <span data-key="homeBtn">Volver al inicio</span>
         </a>
         <div class="error-details" id="error-details" style="display: none;">
           <h3 class="error-details-title" data-key="techDetailsTitle">Detalles técnicos</h3>
           <div class="error-details-content" id="error-details-content"></div>
         </div>
+        <!-- Easter egg -->
+        <div id="easter-egg">🐰 ¡Encontraste el huevo de pascua! <span style="font-size:1.2em;">🎉</span></div>
       </div>
     </div>
   </main>
 
-  <footer class="text-center py-4 text-muted">
+  <footer class="text-center py-4 text-muted" role="contentinfo">
     <small>© 2025 Nebura. Todos los derechos reservados.</small>
   </footer>
 
@@ -110,57 +216,73 @@
     const htmlElement = document.documentElement;
     const langLinks = document.querySelectorAll('.lang-link');
 
+    // Loader helpers (¡esto soluciona el error!)
+    function showLoader() {
+      document.getElementById('loader').style.display = 'flex';
+    }
+
+    function hideLoader() {
+      document.getElementById('loader').style.display = 'none';
+    }
+
+    // SVGs ilustrativos por tipo de error
+    // Elimina la inserción del SVG en error-illustration
+    const illustrations = {}; // vacío
+
     function setLanguage(lang) {
-      const t = translations[lang];
-      // Detectar tipo de error
-      const params = new URLSearchParams(window.location.search);
-      const type = params.get('type') || '404';
-      const message = params.get('message');
-      const code = params.get('code') || `ERR_${type.toUpperCase()}`;
+      showLoader();
+      setTimeout(() => {
+        const t = translations[lang];
+        // Detectar tipo de error
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get('type') || '404';
+        const message = params.get('message');
+        const code = params.get('code') || `ERR_${type.toUpperCase()}`;
 
-      // Elementos
-      const errorTitle = document.getElementById('error-title');
-      const errorCode = document.getElementById('error-code');
-      const errorDescription = document.getElementById('error-description');
-      const btnHome = document.getElementById('btn-home');
-      const techDetailsTitle = document.querySelector('.error-details-title');
+        // Elementos
+        const errorTitle = document.getElementById('error-title');
+        const errorCode = document.getElementById('error-code');
+        const errorDescription = document.getElementById('error-description');
+        const btnHome = document.getElementById('btn-home');
+        const techDetailsTitle = document.querySelector('.error-details-title');
 
-      // Traducción de título y descripción
-      switch (type) {
-        case '404':
-          errorTitle.textContent = t.error404;
-          errorDescription.textContent = message ? decodeURIComponent(message) : t.error404Desc;
-          break;
-        case '403':
-          errorTitle.textContent = t.error403;
-          errorDescription.textContent = message ? decodeURIComponent(message) : t.error403Desc;
-          break;
-        case '500':
-          errorTitle.textContent = t.error500;
-          errorDescription.textContent = message ? decodeURIComponent(message) : t.error500Desc;
-          break;
-        case '400':
-          errorTitle.textContent = t.error400;
-          errorDescription.textContent = message ? decodeURIComponent(message) : t.error400Desc;
-          break;
-        case 'timeout':
-          errorTitle.textContent = t.timeout;
-          errorDescription.textContent = message ? decodeURIComponent(message) : t.timeoutDesc;
-          break;
-        default:
-          errorTitle.textContent = t.error404;
-          errorDescription.textContent = message ? decodeURIComponent(message) : t.error404Desc;
-      }
-      errorCode.textContent = code;
-      btnHome.querySelector('span[data-key="homeBtn"]').textContent = t.homeBtn;
-      if (techDetailsTitle) techDetailsTitle.textContent = t.techDetailsTitle;
+        // Traducción de título y descripción
+        switch (type) {
+          case '404':
+            errorTitle.textContent = t.error404;
+            errorDescription.textContent = message ? decodeURIComponent(message) : t.error404Desc;
+            break;
+          case '403':
+            errorTitle.textContent = t.error403;
+            errorDescription.textContent = message ? decodeURIComponent(message) : t.error403Desc;
+            break;
+          case '500':
+            errorTitle.textContent = t.error500;
+            errorDescription.textContent = message ? decodeURIComponent(message) : t.error500Desc;
+            break;
+          case '400':
+            errorTitle.textContent = t.error400;
+            errorDescription.textContent = message ? decodeURIComponent(message) : t.error400Desc;
+            break;
+          case 'timeout':
+            errorTitle.textContent = t.timeout;
+            errorDescription.textContent = message ? decodeURIComponent(message) : t.timeoutDesc;
+            break;
+          default:
+            errorTitle.textContent = t.error404;
+            errorDescription.textContent = message ? decodeURIComponent(message) : t.error404Desc;
+        }
+        errorCode.textContent = code;
+        btnHome.querySelector('span[data-key="homeBtn"]').textContent = t.homeBtn;
+        if (techDetailsTitle) techDetailsTitle.textContent = t.techDetailsTitle;
 
-      // Actualizar idioma activo
-      langLinks.forEach(link => {
-        link.classList.toggle('active', link.getAttribute('data-lang') === lang);
-      });
-      document.documentElement.lang = lang;
-      localStorage.setItem('language', lang);
+        // Ilustración y mascota
+        const illu = illustrations[type] || illustrations['404'];
+        // document.getElementById('error-illustration').innerHTML = illu;
+        // Mascota SVG ya está embebida, pero podrías cambiar colores aquí si lo deseas
+        // ...existing code...
+        hideLoader();
+      }, 400); // Simula carga
     }
 
     function updateThemeIcon(theme) {
@@ -183,8 +305,12 @@
     });
 
     themeSwitch.addEventListener('change', () => {
-      const newTheme = themeSwitch.checked ? 'dark' : 'light';
-      applyTheme(newTheme);
+      showLoader();
+      setTimeout(() => {
+        const newTheme = themeSwitch.checked ? 'dark' : 'light';
+        applyTheme(newTheme);
+        hideLoader();
+      }, 400);
     });
 
     // --- Lógica de error (adaptada para idioma) ---
@@ -221,6 +347,19 @@
         showTechnicalDetails();
       }
     });
+
+    // Easter egg: presiona secuencia "N-E-B-U-R-A"
+    let eggSeq = [],
+      eggCode = [78, 69, 66, 85, 82, 65];
+    document.addEventListener('keydown', e => {
+      eggSeq.push(e.keyCode);
+      if (eggSeq.slice(-6).toString() === eggCode.toString()) {
+        document.getElementById('easter-egg').style.display = 'block';
+      }
+    });
+
+    // Accesibilidad: enfocar elementos clave con Tab
+    // ...existing code...
   </script>
 </body>
 

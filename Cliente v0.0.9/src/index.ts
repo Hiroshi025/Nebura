@@ -118,7 +118,7 @@ export class API {
        * @property {string} path - The path for Socket.IO connections.
        * @property {object} cors - CORS configuration for Socket.IO.
        */
-      path: "/support/socket.io",
+      //path: "/support/socket.io",
       cors: {
         origin: hostURL(),
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
@@ -577,7 +577,7 @@ export class API {
      */
     this.app.set("views", path.join(__dirname, "interfaces", "http", "views"));
     const publicDir = path.join(__dirname, "interfaces", "http", "views", "public");
-    const staticDirs = ["css", "js", "assets", "vendor", "fonts", "images", "scss"];
+    const staticDirs = ["css", "scripts", "assets", "vendor", "fonts", "images", "scss"];
     staticDirs.forEach((dir): void => {
       const staticPath = path.join(publicDir, dir);
       this.app.use(

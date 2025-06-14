@@ -20,6 +20,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition:
+    background 0.5s,
+    color 0.5s;
 }
 
 .navbar {
@@ -53,12 +56,17 @@ body {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: var(--error-color);
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  letter-spacing: -1px;
 }
 
 .error-description {
   font-size: 1.1rem;
   margin-bottom: 2rem;
   opacity: 0.9;
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
 }
 
 .error-code {
@@ -69,6 +77,7 @@ body {
   display: inline-block;
   margin-bottom: 2rem;
   font-family: monospace;
+  font-weight: 600;
 }
 
 .btn-home {
@@ -82,6 +91,11 @@ body {
   text-decoration: none;
   color: white;
   display: inline-block;
+  box-shadow: 0 2px 8px rgba(106, 90, 249, 0.15);
+  outline: none;
+  transition:
+    all 0.3s cubic-bezier(0.4, 2, 0.6, 1),
+    box-shadow 0.2s;
 }
 
 .btn-home:hover {
@@ -89,6 +103,13 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(106, 90, 249, 0.4);
   color: white;
+}
+
+.btn-home:focus,
+.btn-home:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(106, 90, 249, 0.2);
 }
 
 .error-details {
@@ -140,6 +161,16 @@ body {
   text-decoration: none;
   font-weight: 500;
   opacity: 0.6;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
+}
+
+.language-switcher a:hover,
+.language-switcher a:focus {
+  color: var(--primary-color);
+  opacity: 1;
+  text-decoration: underline;
 }
 
 .language-switcher a.active {
@@ -158,11 +189,36 @@ body {
 
 .form-check-label i {
   color: var(--primary-color);
-  transition: color 0.3s;
+  transition:
+    color 0.3s,
+    transform 0.3s;
 }
 
-[data-bs-theme="light"] .form-check-label i {
-  color: #333;
+.form-check-input:focus + .form-check-label i {
+  transform: scale(1.2) rotate(-10deg);
+}
+
+[data-bs-theme="light"] {
+  --background-color-dark: #f8f9fa;
+  --card-bg-dark: #fff;
+  --text-color-dark: #222;
+  --input-bg-dark: #f1f1f1;
+  --input-border-dark: #ccc;
+}
+
+[data-bs-theme="light"] body {
+  background-color: var(--background-color-dark);
+  color: var(--text-color-dark);
+}
+
+[data-bs-theme="light"] .navbar,
+[data-bs-theme="light"] .error-card {
+  background-color: var(--card-bg-dark);
+  color: var(--text-color-dark);
+}
+
+[data-bs-theme="light"] .error-details {
+  background-color: var(--input-bg-dark);
 }
 
 @keyframes pulse {
@@ -179,16 +235,103 @@ body {
   }
 }
 
-@media (max-width: 768px) {
+@keyframes mascot-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (max-width: 600px) {
+  .error-card {
+    padding: 2rem 0.5rem;
+  }
+
   .error-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
-  .error-description {
-    font-size: 1rem;
+  .error-icon,
+  .mascot {
+    font-size: 2.5rem;
+    width: 80px !important;
+    height: 80px !important;
   }
 
-  .error-icon {
-    font-size: 4rem;
+  .error-container {
+    padding: 1rem 0.2rem;
   }
+}
+
+@media (min-width: 1200px) {
+  .error-card {
+    padding: 4rem 5rem;
+  }
+}
+
+/* Focus visible para accesibilidad */
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Loader overlay */
+#loader {
+  /* ver inline style en EJS */
+}
+
+/* Mascota animada */
+.mascot {
+  /* ver inline style en EJS */
+}
+
+/* Mascota SVG anime dark */
+.mascot-svg {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem auto;
+  display: block;
+  filter: drop-shadow(0 8px 24px #000a);
+  transition: transform 0.4s cubic-bezier(.4,2,.6,1), filter 0.3s;
+  cursor: pointer;
+  animation: mascot-bounce 2s infinite;
+}
+
+.mascot-svg:hover,
+.mascot-svg:focus {
+  transform: scale(1.08) rotate(-4deg);
+  filter: drop-shadow(0 16px 40px #6a5af9cc) brightness(1.1);
+  outline: none;
+}
+
+/* Eliminar minijuego */
+#minigame,
+#minigame-canvas {
+  display: none !important;
+}
+
+/* Easter egg */
+#easter-egg {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  animation: pulse 1.5s infinite;
+}
+  transition: border 0.2s;
+}
+
+#minigame-canvas:focus {
+  border: 2px solid var(--primary-color);
+}
+
+/* Easter egg */
+#easter-egg {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  animation: pulse 1.5s infinite;
 }

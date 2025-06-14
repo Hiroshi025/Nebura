@@ -134,7 +134,7 @@ export default new Event("messageCreate", async (message) => {
       });
     }
 
-    if (command.cooldown) {
+ /*    if (command.cooldown) {
       const cooldown =
         (client.cooldown.get(command.name) as Map<string, number>) || new Map<string, number>();
       const now = Date.now();
@@ -159,7 +159,7 @@ export default new Event("messageCreate", async (message) => {
 
       cooldown.set(message.author.id, now);
       client.cooldown.set(command.name, cooldown);
-    }
+    } */
 
     await command.execute(client, message, args, prefix, language, config);
   } catch (error: any) {

@@ -793,3 +793,39 @@ body {
 .notification.warning {
   border-left-color: var(--warning-color);
 }
+
+/* --- Vista previa de archivos en chat --- */
+#global-chat-preview,
+#ticket-chat-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+#global-chat-preview img,
+#ticket-chat-preview img {
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--input-border-dark);
+}
+#global-chat-preview .btn,
+#ticket-chat-preview .btn {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* --- Resaltar menciones en chat global --- */
+.chat-message-content .bg-warning {
+  font-weight: bold;
+  background: var(--warning-color) !important;
+  color: #000 !important;
+}
+
+/* --- Barra de respuestas rápidas --- */
+#ticket-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}

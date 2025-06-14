@@ -353,7 +353,7 @@ process.on("SIGTERM", () => {
  */
 main.start().catch((err) => {
   console.error(err);
-  logWithLabel("error", `Failed to start the application: ${err}`, {
+  logWithLabel("custom", `Failed to start the application: ${err}`, {
     customLabel: "Startup",
   });
   process.exit(1); // Exit the process with a failure code

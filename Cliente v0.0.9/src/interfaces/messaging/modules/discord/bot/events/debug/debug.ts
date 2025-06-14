@@ -7,5 +7,7 @@ export default new Event("debug", async (info) => {
   const data = await main.prisma.myDiscord.findUnique({ where: { clientId: client.user.id } });
   if (!data || data.logconsole === false) return;
 
-  logWithLabel("debug", info);
+  logWithLabel("custom", info, {
+    customLabel: "Discord"
+  });
 });

@@ -624,7 +624,7 @@
         function initSocketConnection() {
           // Se conecta usando el path personalizado para soporte.
           socket = io({
-            path: '/support/socket.io',
+            //path: '/support/socket.io',
             transports: ['websocket'],
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
@@ -1764,6 +1764,10 @@
         }
 
         /**
+        
+        
+
+        
          * Cambia el tema visual del chat (oscuro/claro).
          */
         function toggleChatTheme() {
@@ -2109,12 +2113,128 @@
           showNotification('Error al subir archivo: ' + err.message, 'error');
         }
       });
-    </script>
-    <script>
-      /**
- * Script para la mecánica de insertar código en el chat de tickets
- */
 
+      // --- EMOJIS EN CHAT GLOBAL Y CHAT DE TICKETS ---
+      const emojiList = [
+        "😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", "😋", "😎", "😍", "😘", "🥰", "😗", "😙", "😚", "🙂", "🤗", "🤩", "🤔", "🤨", "😐", "😑", "😶", "🙄", "😏", "😣", "😥", "😮", "🤐", "😯", "😪", "😫", "🥱", "😴", "😌", "😛", "😜", "😝", "🤤", "😒", "😓", "😔", "😕", "🙃", "🤑", "😲", "☹️", "🙁", "😖", "😞", "😟", "😤", "😢", "😭", "😦", "😧", "😨", "😩", "🤯", "😬", "😰", "😱", "🥵", "🥶", "😳", "🤪", "😵", "😡", "😠", "🤬", "😷", "🤒", "🤕", "🤢", "🤮", "🥴", "😇", "🥳", "🥺", "🤠", "🤡", "🤥", "🤫", "🤭", "🧐", "🤓"
+      ];
+
+      function createEmojiPanel(targetInput) {
+        let panel = document.getElementById('emoji-panel');
+        if (panel) {
+          panel.targetInput = targetInput;
+          return panel;
+        }
+        panel = document.createElement('div');
+        panel.id = 'emoji-panel';
+        panel.style.position = 'absolute';
+        panel.style.zIndex = '9999';
+        panel.style.background = '#222';
+        panel.style.border = '1px solid #444';
+        panel.style.borderRadius = '8px';
+        panel.style.padding = '8px';
+        panel.style.display = 'none';
+        panel.style.maxWidth = '280px';
+        panel.style.maxHeight = '200px';
+        panel.style.overflowY = 'auto';
+        panel.style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)';
+        panel.style.fontSize = '22px';
+        panel.targetInput = targetInput;
+
+        emojiList.forEach(emoji => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn btn-link p-1 m-1';
+          btn.style.fontSize = '22px';
+          btn.style.lineHeight = '1';
+          btn.style.background = 'none';
+          btn.style.border = 'none';
+          btn.style.outline = 'none';
+          btn.textContent = emoji;
+          btn.addEventListener('click', () => {
+            insertEmojiToInput(panel.targetInput, emoji);
+            panel.style.display = 'none';
+          });
+          panel.appendChild(btn);
+        });
+
+        document.body.appendChild(panel);
+        return panel;
+      }
+
+      function insertEmojiToInput(input, emoji) {
+        if (!input) return;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const text = input.value;
+        input.value = text.substring(0, start) + emoji + text.substring(end);
+        input.focus();
+        input.setSelectionRange(start + emoji.length, start + emoji.length);
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        // Chat global
+        const emojiBtnGlobal = document.querySelector('#chat-tab-pane .fa-smile')?.parentElement;
+        const chatInputGlobal = document.getElementById('global-chat-input');
+        let panel = null;
+
+        if (emojiBtnGlobal) {
+          emojiBtnGlobal.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (!panel) panel = createEmojiPanel(chatInputGlobal);
+            else panel.targetInput = chatInputGlobal;
+            const rect = emojiBtnGlobal.getBoundingClientRect();
+            panel.style.left = `${rect.left + window.scrollX}px`;
+            panel.style.top = `${rect.bottom + window.scrollY + 4}px`;
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+          });
+        }
+
+        // Chat de tickets
+        const emojiBtnTicket = document.querySelector('#ticketChatModal .fa-smile')?.parentElement;
+        const chatInputTicket = document.getElementById('ticket-chat-input');
+
+        if (emojiBtnTicket) {
+          emojiBtnTicket.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (!panel) panel = createEmojiPanel(chatInputTicket);
+            else panel.targetInput = chatInputTicket;
+            const rect = emojiBtnTicket.getBoundingClientRect();
+            panel.style.left = `${rect.left + window.scrollX}px`;
+            panel.style.top = `${rect.bottom + window.scrollY + 4}px`;
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+          });
+        }
+
+        // Ocultar el panel si se hace clic fuera
+        document.addEventListener('mousedown', function (e) {
+          if (panel && panel.style.display === 'block') {
+            if (!panel.contains(e.target) &&
+              (!emojiBtnGlobal || !emojiBtnGlobal.contains(e.target)) &&
+              (!emojiBtnTicket || !emojiBtnTicket.contains(e.target))) {
+              panel.style.display = 'none';
+            }
+          }
+        });
+
+        // Opcional: ocultar el panel si el input pierde foco
+        if (chatInputGlobal) {
+          chatInputGlobal.addEventListener('blur', function () {
+            setTimeout(() => {
+              if (panel && panel.targetInput === chatInputGlobal) panel.style.display = 'none';
+            }, 200);
+          });
+        }
+        if (chatInputTicket) {
+          chatInputTicket.addEventListener('blur', function () {
+            setTimeout(() => {
+              if (panel && panel.targetInput === chatInputTicket) panel.style.display = 'none';
+            }, 200);
+          });
+        }
+      });
+
+      // --- INSERTAR CÓDIGO EN CHAT DE TICKETS ---
       document.addEventListener('DOMContentLoaded', function () {
         // Selector del botón de insertar código en el modal de ticket
         const insertCodeBtn = document.querySelector('ticket-chat-tools .btn-outline-secondary[title="Insertar código"]');

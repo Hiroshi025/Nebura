@@ -60,6 +60,7 @@ export default ({ app }: TRoutesInput) => {
   app.get(formatRoute("cdn/share"), (req: Request, res: Response) => {
     // Lee los parámetros de la URL
     const { title, url, mime, size, date, description } = req.query;
+
     // Si faltan datos mínimos, puedes mostrar un error o una vista genérica
     if (!title || !url || !mime) {
       return res.render("error.ejs", {
@@ -67,6 +68,7 @@ export default ({ app }: TRoutesInput) => {
         user: req.user,
       });
     }
+
     // Pasa los datos del archivo compartido a la vista
     res.render("cdn-share.ejs", {
       title: title as string,
@@ -93,10 +95,30 @@ export default ({ app }: TRoutesInput) => {
     const data = await main.prisma.userAPI.findMany();
     const userData = data.find((user) => user.discord?.userId === req.user?.id);
 
+    const licenseData = await main.prisma.license.findMany({
+      where: { userId: req.user?.id },
+    });
+
+    const fileData = await main.prisma.fileMetadata.findMany({
+      where: { userId: req.user?.id },
+    });
+
+    const ticketData = await main.prisma.ticketUser.findMany({
+      where: { userId: req.user?.id },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    });
+
+    // del array de datos de fileData remueve el parametro path de cada uno
+    const fileDataFilter = fileData.map(({ path, ...rest }) => rest);
+
     return res.render("dashboard.ejs", {
-      title: "Nebura",
+      title: "Nebura Dashboard",
       user: req.user,
       userAPI: userData || null,
+      fileData: fileDataFilter || null,
+      ticketData: ticketData || null,
+      licenseData: licenseData || null,
       //recentLogs: recentLogger,
     });
   });
@@ -104,7 +126,6 @@ export default ({ app }: TRoutesInput) => {
   app.get(
     formatRoute("administrator"),
     AuthPublic,
-    Maintenance,
     async (req: Request, res: Response) => {
       //la redireccion a este endpoint lo hace con '/dashboard/administrator?id=' + data.user.id;
       const userId = req.query.id as string;

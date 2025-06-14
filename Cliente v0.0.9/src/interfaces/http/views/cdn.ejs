@@ -30,7 +30,7 @@
 
       <!-- Link Utils -->
       <%- include('partials/link', { user: user }) %>
-      <link rel="stylesheet" href="/css/cdn.css">
+        <link rel="stylesheet" href="/css/cdn.css">
 </head>
 
 <body>
@@ -102,6 +102,9 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 fw-bold" data-key="mainTitle">Mis Archivos</h1>
             <div>
+              <button class="btn btn-secondary me-2" id="toggle-view-btn" title="Cambiar vista">
+                <i class="fas fa-th"></i>
+              </button>
               <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#uploadModal">
                 <i class="fas fa-upload me-2"></i><span data-key="uploadBtn">Subir Archivo</span>
               </button>
@@ -109,6 +112,20 @@
                 <i class="fas fa-sync-alt"></i>
               </button>
             </div>
+          </div>
+
+          <!-- Barra de progreso global -->
+          <div id="global-progress-container" class="upload-progress mb-3" style="display:none;">
+            <div id="global-progress-bar" class="upload-progress-bar"></div>
+          </div>
+
+          <!-- Acciones en lote -->
+          <div id="batch-actions" class="mb-3 d-none">
+            <button class="btn btn-outline-danger btn-sm" id="batch-delete-btn"><i class="fas fa-trash"></i> Eliminar
+              seleccionados</button>
+            <button class="btn btn-outline-primary btn-sm" id="batch-download-btn"><i class="fas fa-download"></i>
+              Descargar seleccionados</button>
+            <span id="selected-count" class="ms-2"></span>
           </div>
 
           <!-- Search and Filter Section -->
@@ -127,9 +144,39 @@
             <button class="filter-btn" data-filter="other" data-key="filterOther">Otros</button>
           </div>
 
+          <!-- Vista GRID -->
           <div id="file-grid" class="row g-4">
             <!-- Las tarjetas de archivos se insertarán aquí -->
           </div>
+          <!-- Vista LISTA -->
+          <div id="file-list" class="table-responsive d-none">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="select-all-files"></th>
+                  <th data-key="fileType">Tipo</th>
+                  <th data-key="fileTitleLabel">Título</th>
+                  <th data-key="fileDescriptionLabel">Descripción</th>
+                  <th data-key="uploadDate">Subido el</th>
+                  <th data-key="fileSize">Tamaño</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="file-list-body">
+                <!-- Filas de archivos -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Paginación -->
+          <nav id="pagination-nav" class="mt-3 d-flex justify-content-center d-none">
+            <ul class="pagination mb-0">
+              <li class="page-item"><button class="page-link" id="prev-page-btn">&laquo;</button></li>
+              <li class="page-item disabled"><span class="page-link" id="page-info"></span></li>
+              <li class="page-item"><button class="page-link" id="next-page-btn">&raquo;</button></li>
+            </ul>
+          </nav>
+
           <div id="loading-spinner" class="text-center my-5">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Cargando...</span>
@@ -189,7 +236,7 @@
                   <div class="upload-progress-bar"></div>
                 </div>
               </div>
-              <input type="file" id="fileInput" class="d-none" required>
+              <input type="file" id="fileInput" class="d-none" required name="file">
             </div>
             <div class="d-grid">
               <button type="submit" class="btn btn-primary" id="submit-upload-btn">
@@ -211,6 +258,41 @@
         <div class="modal-body p-0">
           <div id="file-preview-content" class="w-100 h-100 d-flex justify-content-center align-items-center">
             <!-- Preview content will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Compartir Archivo -->
+  <div class="modal fade" id="shareFileModal" tabindex="-1" aria-labelledby="shareFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold" id="shareFileModalLabel" data-key="shareModalTitle">Compartir Archivo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="share-file-preview" class="mb-3"></div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold" data-key="shareFileNameLabel">Archivo:</label>
+            <span id="share-file-title"></span>
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold" data-key="shareFileDescLabel">Descripción:</label>
+            <span id="share-file-desc"></span>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" data-key="shareLinkLabel">Enlace para compartir:</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="share-file-link" readonly>
+              <button class="btn btn-outline-primary" type="button" id="copy-share-link-btn" data-key="copyLinkBtn">
+                Copiar
+              </button>
+            </div>
+            <div id="share-link-copied" class="text-success mt-2 d-none" data-key="copiedSuccess">
+              ¡Enlace copiado al portapapeles!
+            </div>
           </div>
         </div>
       </div>
@@ -246,10 +328,21 @@
         const USER_DATA = JSON.parse('<%- JSON.stringify(user) %>');
         let currentLanguage = 'es';
         let currentFiles = [];
+        let currentPage = 1;
+        const PAGE_SIZE = 12;
+        let currentView = 'grid'; // 'grid' o 'list'
+        let selectedFiles = new Set();
         const toastElement = document.getElementById('notificationToast');
         const notificationToast = new bootstrap.Toast(toastElement);
         const filePreviewModal = new bootstrap.Modal(document.getElementById('filePreviewModal'));
         const userAvatar = document.querySelector('.user-avatar');
+        const shareFileModal = new bootstrap.Modal(document.getElementById('shareFileModal'));
+        const shareFilePreview = document.getElementById('share-file-preview');
+        const shareFileTitle = document.getElementById('share-file-title');
+        const shareFileDesc = document.getElementById('share-file-desc');
+        const shareFileLink = document.getElementById('share-file-link');
+        const copyShareLinkBtn = document.getElementById('copy-share-link-btn');
+        const shareLinkCopied = document.getElementById('share-link-copied');
 
         // --- DICCIONARIO DE TRADUCCIONES ---
         const translations = {
@@ -266,7 +359,12 @@
             searchPlaceholder: "Search files...", filterAll: "All", filterImages: "Images", filterVideos: "Videos",
             filterAudio: "Audio", filterDocuments: "Documents", filterOther: "Other", totalFiles: "Total Files",
             totalSize: "Total Size", lastUpload: "Last Upload", previewBtn: "Preview", fileType: "Type",
-            image: "Image", video: "Video", audio: "Audio", pdf: "PDF", document: "Document", archive: "Archive", other: "Other"
+            image: "Image", video: "Video", audio: "Audio", pdf: "PDF", document: "Document", archive: "Archive", other: "Other",
+            shareModalTitle: "Share File",
+            shareFileNameLabel: "File:",
+            shareFileDescLabel: "Description:",
+            shareLinkLabel: "Share Link:",
+            copyLinkBtn: "Copy",
           },
           es: {
             mainTitle: "Mis Archivos", uploadBtn: "Subir Archivo", modalTitle: "Subir Nuevo Archivo",
@@ -281,7 +379,12 @@
             searchPlaceholder: "Buscar archivos...", filterAll: "Todos", filterImages: "Imágenes", filterVideos: "Videos",
             filterAudio: "Audio", filterDocuments: "Documentos", filterOther: "Otros", totalFiles: "Archivos Totales",
             totalSize: "Tamaño Total", lastUpload: "Última Subida", previewBtn: "Vista Previa", fileType: "Tipo",
-            image: "Imagen", video: "Video", audio: "Audio", pdf: "PDF", document: "Documento", archive: "Archivo", other: "Otro"
+            image: "Imagen", video: "Video", audio: "Audio", pdf: "PDF", document: "Documento", archive: "Archivo", other: "Otro",
+            shareModalTitle: "Compartir Archivo",
+            shareFileNameLabel: "Archivo:",
+            shareFileDescLabel: "Descripción:",
+            shareLinkLabel: "Enlace para compartir:",
+            copyLinkBtn: "Copiar",
           }
         };
 
@@ -292,10 +395,20 @@
         const mainView = document.getElementById('main-view');
         const sharedFileView = document.getElementById('shared-file-view');
         const fileGrid = document.getElementById('file-grid');
-        const uploadForm = document.getElementById('uploadForm');
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('fileInput');
-        const fileNameDisplay = document.getElementById('file-name-display');
+        const fileList = document.getElementById('file-list');
+        const fileListBody = document.getElementById('file-list-body');
+        const toggleViewBtn = document.getElementById('toggle-view-btn');
+        const batchActions = document.getElementById('batch-actions');
+        const batchDeleteBtn = document.getElementById('batch-delete-btn');
+        const batchDownloadBtn = document.getElementById('batch-download-btn');
+        const selectedCount = document.getElementById('selected-count');
+        const selectAllFiles = document.getElementById('select-all-files');
+        const globalProgressContainer = document.getElementById('global-progress-container');
+        const globalProgressBar = document.getElementById('global-progress-bar');
+        const paginationNav = document.getElementById('pagination-nav');
+        const prevPageBtn = document.getElementById('prev-page-btn');
+        const nextPageBtn = document.getElementById('next-page-btn');
+        const pageInfo = document.getElementById('page-info');
         const loadingSpinner = document.getElementById('loading-spinner');
         const noFilesMessage = document.getElementById('no-files-message');
         const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
@@ -307,6 +420,10 @@
         const totalFilesElement = document.getElementById('total-files');
         const totalSizeElement = document.getElementById('total-size');
         const lastUploadElement = document.getElementById('last-upload');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const uploadForm = document.getElementById('uploadForm');
 
         // --- FUNCIONES DE AYUDA ---
         const showToast = (title, body, type = 'success') => {
@@ -388,6 +505,62 @@
           lastUploadElement.textContent = formatDate(sortedFiles[0].uploadedAt);
         };
 
+        // --- TRADUCCIÓN DE INTERFAZ ---
+        function updateTranslations() {
+          document.querySelectorAll('[data-key]').forEach(element => {
+            const key = element.dataset.key;
+            if (translations[currentLanguage][key]) {
+              if (element.tagName === 'INPUT' && element.placeholder) {
+                element.placeholder = translations[currentLanguage][key];
+              } else {
+                element.textContent = translations[currentLanguage][key];
+              }
+            }
+          });
+          // Traducir modal de compartir
+          if (document.getElementById('shareFileModalLabel')) document.getElementById('shareFileModalLabel').textContent = translations[currentLanguage].shareModalTitle;
+          if (document.querySelector('[data-key="shareFileNameLabel"]')) document.querySelector('[data-key="shareFileNameLabel"]').textContent = translations[currentLanguage].shareFileNameLabel;
+          if (document.querySelector('[data-key="shareFileDescLabel"]')) document.querySelector('[data-key="shareFileDescLabel"]').textContent = translations[currentLanguage].shareFileDescLabel;
+          if (document.querySelector('[data-key="shareLinkLabel"]')) document.querySelector('[data-key="shareLinkLabel"]').textContent = translations[currentLanguage].shareLinkLabel;
+          if (copyShareLinkBtn) copyShareLinkBtn.textContent = translations[currentLanguage].copyLinkBtn;
+          if (shareLinkCopied) shareLinkCopied.textContent = translations[currentLanguage].copiedSuccess;
+        }
+
+        // --- ELIMINAR ARCHIVO INDIVIDUAL ---
+        async function handleDelete(fileName, cardElement) {
+          if (!confirm(translations[currentLanguage].deleteConfirm)) return;
+
+          try {
+            const result = await api.deleteFile(USER_ID, fileName);
+            if (result.success) {
+              showToast(
+                translations[currentLanguage].deleteSuccess,
+                translations[currentLanguage].deleteSuccess,
+                'success'
+              );
+              if (cardElement && cardElement.parentElement) {
+                cardElement.parentElement.remove();
+              }
+              updateUserStats(currentFiles.filter(f => f.fileName !== fileName));
+              // Recargar archivos después de eliminar
+              await fetchAndRenderFiles();
+            } else {
+              showToast(
+                translations[currentLanguage].errorDelete,
+                result.message || translations[currentLanguage].errorDelete,
+                'danger'
+              );
+            }
+          } catch (error) {
+            console.error("Delete error:", error);
+            showToast(
+              translations[currentLanguage].errorDelete,
+              error.message || translations[currentLanguage].errorDelete,
+              'danger'
+            );
+          }
+        }
+
         // --- LÓGICA DE LA APLICACIÓN ---
         const api = {
           getFiles: async (userId) => {
@@ -460,7 +633,8 @@
           }
         };
 
-        const renderFileGrid = (files) => {
+        // --- VISTA GRID Y LISTA ---
+        function renderFileGrid(files) {
           fileGrid.innerHTML = '';
           currentFiles = files || [];
           updateUserStats(currentFiles);
@@ -471,7 +645,12 @@
           }
           noFilesMessage.classList.add('d-none');
 
-          files.forEach((file, index) => {
+          // Paginación
+          const start = (currentPage - 1) * PAGE_SIZE;
+          const end = start + PAGE_SIZE;
+          const paginatedFiles = files.slice(start, end);
+
+          paginatedFiles.forEach((file, index) => {
             const fileType = getFileType(file.mimeType);
             const preview = file.mimeType.startsWith('image/')
               ? `<img src="${file.downloadUrl}" alt="${file.title}" onerror="this.onerror=null;this.src='https://placehold.co/400/cccccc/ffffff?text=Error';">`
@@ -483,6 +662,7 @@
             card.innerHTML = `
         <div class="card file-card h-100" data-type="${fileType}" data-title="${file.title.toLowerCase()}" data-description="${(file.description || '').toLowerCase()}">
           <div class="file-preview position-relative">
+            <input type="checkbox" class="file-checkbox position-absolute top-0 start-0 m-2" data-filename="${file.fileName}" ${selectedFiles.has(file.fileName) ? 'checked' : ''}>
             ${preview}
             <span class="file-type-badge">${getFileTypeName(file.mimeType)}</span>
           </div>
@@ -520,105 +700,241 @@
             card.querySelector('.preview-btn').addEventListener('click', () => handlePreview(file));
             card.querySelector('.share-btn').addEventListener('click', () => handleShare(file));
             card.querySelector('.delete-btn').addEventListener('click', () => handleDelete(file.fileName, card));
+            card.querySelector('.file-checkbox').addEventListener('change', (e) => handleSelectFile(e, file.fileName));
             fileGrid.appendChild(card);
           });
 
-          // Initialize SortableJS for drag and drop reordering
+          // Drag & drop para subir archivos
+          fileGrid.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileGrid.classList.add('dragover');
+          });
+          fileGrid.addEventListener('dragleave', () => fileGrid.classList.remove('dragover'));
+          fileGrid.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileGrid.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+              handleDroppedFiles(e.dataTransfer.files);
+            }
+          });
+
+          // SortableJS para reordenar (solo visual)
           new Sortable(fileGrid, {
             animation: 150,
-            ghostClass: 'sortable-ghost',
-            onEnd: function () {
-              // You could save the new order to the server here
-            }
+            ghostClass: 'sortable-ghost'
           });
-        };
 
-        const filterFiles = () => {
-          const searchTerm = searchInput.value.toLowerCase();
-          const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+          updatePagination(files.length);
+        }
 
-          document.querySelectorAll('.file-card').forEach(card => {
-            const title = (card.dataset.title || "");
-            const description = (card.dataset.description || "");
-            const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
-            const matchesFilter = activeFilter === 'all' || card.dataset.type === activeFilter;
+        function renderFileList(files) {
+          fileListBody.innerHTML = '';
+          currentFiles = files || [];
+          updateUserStats(currentFiles);
 
-            card.parentElement.style.display = (matchesSearch && matchesFilter) ? 'block' : 'none';
-          });
-        };
-
-        const fetchAndRenderFiles = async () => {
-          loadingSpinner.classList.remove('d-none');
-          fileGrid.innerHTML = '';
+          if (!files || files.length === 0) {
+            noFilesMessage.classList.remove('d-none');
+            return;
+          }
           noFilesMessage.classList.add('d-none');
 
-          try {
-            // Forzar un pequeño retraso para asegurar que el DOM esté listo
-            await new Promise(resolve => setTimeout(resolve, 50));
+          // Paginación
+          const start = (currentPage - 1) * PAGE_SIZE;
+          const end = start + PAGE_SIZE;
+          const paginatedFiles = files.slice(start, end);
 
-            const result = await api.getFiles(USER_ID);
-            if (result.success) {
-              renderFileGrid(result.data);
+          paginatedFiles.forEach(file => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><input type="checkbox" class="file-checkbox" data-filename="${file.fileName}" ${selectedFiles.has(file.fileName) ? 'checked' : ''}></td>
+              <td><span class="file-type-badge">${getFileTypeName(file.mimeType)}</span></td>
+              <td>${file.title}</td>
+              <td>${file.description || file.originalName}</td>
+              <td>${formatDate(file.uploadedAt)}</td>
+              <td>${formatSize(file.size)}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-secondary preview-btn" title="${translations[currentLanguage].previewBtn}">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <a href="/dashboard/utils/cdn/${USER_ID}/${file.fileName}" download="${file.originalName}" class="btn btn-sm btn-outline-secondary" title="${translations[currentLanguage].downloadBtn}">
+                  <i class="fas fa-download"></i>
+                </a>
+                <button class="btn btn-sm btn-outline-secondary share-btn" title="${translations[currentLanguage].shareBtn}">
+                  <i class="fas fa-share-alt"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger delete-btn" title="${translations[currentLanguage].deleteBtn}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            `;
+            tr.querySelector('.preview-btn').addEventListener('click', () => handlePreview(file));
+            tr.querySelector('.share-btn').addEventListener('click', () => handleShare(file));
+            tr.querySelector('.delete-btn').addEventListener('click', () => handleDelete(file.fileName, tr));
+            tr.querySelector('.file-checkbox').addEventListener('change', (e) => handleSelectFile(e, file.fileName));
+            fileListBody.appendChild(tr);
+          });
 
-              // Agregar un pequeño retraso adicional para asegurar el renderizado
-              setTimeout(() => {
-                loadingSpinner.classList.add('d-none');
-              }, 100);
-            } else {
-              showToast("Error", translations[currentLanguage].errorFetch, 'danger');
-              loadingSpinner.classList.add('d-none');
-              noFilesMessage.classList.remove('d-none');
-            }
-          } catch (error) {
-            console.error("Error loading files:", error);
-            loadingSpinner.classList.add('d-none');
-            noFilesMessage.classList.remove('d-none');
-            showToast("Error", translations[currentLanguage].errorFetch, 'danger');
+          updatePagination(files.length);
+        }
+
+        function updatePagination(totalFiles) {
+          const totalPages = Math.ceil(totalFiles / PAGE_SIZE);
+          if (totalPages <= 1) {
+            paginationNav.classList.add('d-none');
+            return;
           }
-        };
+          paginationNav.classList.remove('d-none');
+          pageInfo.textContent = `${currentPage} / ${totalPages}`;
+          prevPageBtn.disabled = currentPage === 1;
+          nextPageBtn.disabled = currentPage === totalPages;
+        }
 
-        const renderSharedFileView = (params) => {
-          try {
-            if (!params || !params.get('title') || !params.get('url')) {
-              throw new Error('Missing required parameters');
-            }
-
-            const title = decodeURIComponent(params.get('title'));
-            const downloadUrl = decodeURIComponent(params.get('url'));
-            const mimeType = decodeURIComponent(params.get('mime'));
-            const size = params.get('size');
-            const uploadedAt = decodeURIComponent(params.get('date'));
-
-            const preview = mimeType.startsWith('image/')
-              ? `<img src="${downloadUrl}" alt="${title}" class="img-fluid rounded-top" onerror="this.onerror=null;this.src='https://placehold.co/400/cccccc/ffffff?text=Error';">`
-              : `<div class="file-preview" style="height:250px;"><i class="${getFileIcon(mimeType)} fa-5x"></i></div>`;
-
-            const content = `
-        ${preview}
-        <div class="card-body text-center">
-          <h3 class="card-title">${title}</h3>
-          <p class="text-muted"><strong data-key="uploadDate">${translations[currentLanguage].uploadDate}</strong>: ${formatDate(uploadedAt)} | <strong data-key="fileSize">${translations[currentLanguage].fileSize}</strong>: ${formatSize(size)}</p>
-          <a href="${downloadUrl}" class="btn btn-primary btn-lg mt-3" download>
-            <i class="fas fa-download me-2"></i> <span data-key="downloadBtn">${translations[currentLanguage].downloadBtn}</span>
-          </a>
-        </div>
-      `;
-            document.getElementById('shared-file-content').innerHTML = content;
-          } catch (error) {
-            console.error("Error rendering shared file:", error);
-            document.getElementById('shared-file-content').innerHTML = `
-        <div class="alert alert-danger text-center">
-          <h4>Error loading shared file</h4>
-          <p>The shared link is invalid or incomplete.</p>
-          <a href="/dashboard/cdn" class="btn btn-primary">Go to My Files</a>
-        </div>
-      `;
+        prevPageBtn.addEventListener('click', () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderCurrentView();
           }
-        };
+        });
+        nextPageBtn.addEventListener('click', () => {
+          const totalPages = Math.ceil(currentFiles.length / PAGE_SIZE);
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderCurrentView();
+          }
+        });
 
+        function renderCurrentView() {
+          if (currentView === 'grid') {
+            fileGrid.classList.remove('d-none');
+            fileList.classList.add('d-none');
+            renderFileGrid(currentFiles);
+          } else {
+            fileGrid.classList.add('d-none');
+            fileList.classList.remove('d-none');
+            renderFileList(currentFiles);
+          }
+          updateBatchActions();
+        }
+
+        // Alternar vista grid/lista
+        toggleViewBtn.addEventListener('click', () => {
+          currentView = currentView === 'grid' ? 'list' : 'grid';
+          toggleViewBtn.querySelector('i').className = currentView === 'grid' ? 'fas fa-th' : 'fas fa-list';
+          renderCurrentView();
+        });
+
+        // --- SELECCIÓN MÚLTIPLE Y ACCIONES EN LOTE ---
+        function handleSelectFile(e, fileName) {
+          if (e.target.checked) {
+            selectedFiles.add(fileName);
+          } else {
+            selectedFiles.delete(fileName);
+          }
+          updateBatchActions();
+        }
+
+        function updateBatchActions() {
+          if (selectedFiles.size > 0) {
+            batchActions.classList.remove('d-none');
+            selectedCount.textContent = `${selectedFiles.size} seleccionados`;
+          } else {
+            batchActions.classList.add('d-none');
+            selectedCount.textContent = '';
+          }
+          // Actualizar checkboxes
+          document.querySelectorAll('.file-checkbox').forEach(cb => {
+            cb.checked = selectedFiles.has(cb.dataset.filename);
+          });
+          // Actualizar select-all
+          if (selectAllFiles) {
+            const visibleCheckboxes = Array.from(document.querySelectorAll('#file-list .file-checkbox'));
+            selectAllFiles.checked = visibleCheckboxes.length > 0 && visibleCheckboxes.every(cb => cb.checked);
+          }
+        }
+
+        if (selectAllFiles) {
+          selectAllFiles.addEventListener('change', (e) => {
+            const check = e.target.checked;
+            document.querySelectorAll('#file-list .file-checkbox').forEach(cb => {
+              cb.checked = check;
+              if (check) selectedFiles.add(cb.dataset.filename);
+              else selectedFiles.delete(cb.dataset.filename);
+            });
+            updateBatchActions();
+          });
+        }
+
+        batchDeleteBtn.addEventListener('click', async () => {
+          if (!selectedFiles.size) return;
+          if (!confirm(translations[currentLanguage].deleteConfirm)) return;
+          globalProgressContainer.style.display = 'block';
+          let done = 0;
+          for (const fileName of Array.from(selectedFiles)) {
+            await handleDelete(fileName);
+            done++;
+            globalProgressBar.style.width = `${(done / selectedFiles.size) * 100}%`;
+          }
+          globalProgressContainer.style.display = 'none';
+          globalProgressBar.style.width = '0%';
+          selectedFiles.clear();
+          updateBatchActions();
+          await fetchAndRenderFiles();
+        });
+
+        batchDownloadBtn.addEventListener('click', async () => {
+          if (!selectedFiles.size) return;
+          globalProgressContainer.style.display = 'block';
+          let done = 0;
+          for (const fileName of Array.from(selectedFiles)) {
+            const file = currentFiles.find(f => f.fileName === fileName);
+            if (file) {
+              const a = document.createElement('a');
+              a.href = `/dashboard/utils/cdn/${USER_ID}/${file.fileName}`;
+              a.download = file.originalName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+            done++;
+            globalProgressBar.style.width = `${(done / selectedFiles.size) * 100}%`;
+          }
+          globalProgressContainer.style.display = 'none';
+          globalProgressBar.style.width = '0%';
+        });
+
+        // --- DRAG & DROP PARA SUBIDA ---
+        function handleDroppedFiles(files) {
+          if (!files.length) return;
+          // Solo subir el primer archivo (puedes adaptar para múltiples)
+          fileInput.files = files;
+          if (fileNameDisplay) fileNameDisplay.textContent = files[0].name;
+          uploadModal.show();
+        }
+
+        // --- VALIDACIÓN AVANZADA DE ARCHIVOS ---
+        function validateFile(file) {
+          const maxSize = 100 * 1024 * 1024; // 100MB
+          const allowedTypes = [
+            'image/', 'video/', 'audio/', 'application/pdf',
+            'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'text/plain', 'application/zip', 'application/x-7z-compressed', 'application/x-rar-compressed'
+          ];
+          if (file.size > maxSize) {
+            showToast("Error", "El archivo excede el tamaño máximo permitido (100MB).", 'danger');
+            return false;
+          }
+          if (!allowedTypes.some(type => file.type.startsWith(type))) {
+            showToast("Error", "Tipo de archivo no permitido.", 'danger');
+            return false;
+          }
+          return true;
+        }
+
+        // --- MEJOR PREVISUALIZACIÓN ---
         const handlePreview = (file) => {
           const previewContent = document.getElementById('file-preview-content');
-
           if (file.mimeType.startsWith('image/')) {
             previewContent.innerHTML = `
         <img src="/dashboard/utils/cdn/view/${USER_ID}/${file.fileName}" class="img-fluid" style="max-height: 70vh; max-width: 100%; object-fit: contain;">
@@ -645,6 +961,12 @@
             previewContent.innerHTML = `
         <iframe src="/dashboard/utils/cdn/view/${USER_ID}/${file.fileName}" style="width: 100%; height: 70vh;" frameborder="0"></iframe>
       `;
+          } else if (file.mimeType.startsWith('text/')) {
+            fetch(`/dashboard/utils/cdn/view/${USER_ID}/${file.fileName}`)
+              .then(res => res.text())
+              .then(text => {
+                previewContent.innerHTML = `<pre style="max-height:70vh;overflow:auto;">${text.replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]))}</pre>`;
+              });
           } else {
             previewContent.innerHTML = `
         <div class="text-center">
@@ -658,10 +980,10 @@
         </div>
       `;
           }
-
           filePreviewModal.show();
         };
 
+        // --- VALIDACIÓN EN SUBIDA ---
         const handleUpload = async (e) => {
           e.preventDefault();
           const submitBtn = document.getElementById('submit-upload-btn');
@@ -675,10 +997,12 @@
             showToast("Error", "Title and file are required.", 'danger');
             return;
           }
+          if (!validateFile(file)) return;
 
           submitBtn.disabled = true;
           spinner.classList.remove('d-none');
           uploadProgress.style.display = 'block';
+          globalProgressContainer.style.display = 'block';
 
           try {
             const formData = new FormData();
@@ -689,6 +1013,7 @@
 
             const result = await api.uploadFile(formData, (progress) => {
               uploadProgressBar.style.width = `${progress}%`;
+              globalProgressBar.style.width = `${progress}%`;
             });
 
             if (result.success) {
@@ -704,7 +1029,6 @@
                 'success'
               );
               uploadModal.hide();
-              // Limpiar la caché para forzar recarga de archivos
               sessionStorage.removeItem(`files-${USER_ID}`);
               await fetchAndRenderFiles();
             } else {
@@ -726,12 +1050,15 @@
             spinner.classList.add('d-none');
             uploadProgress.style.display = 'none';
             uploadProgressBar.style.width = '0%';
+            globalProgressContainer.style.display = 'none';
+            globalProgressBar.style.width = '0%';
             uploadForm.reset();
             fileNameDisplay.textContent = '';
           }
         };
 
-        const handleShare = (file) => {
+        // --- FUNCIÓN PARA COMPARTIR ARCHIVO ---
+        function handleShare(file) {
           const shareUrl = `${window.location.origin}/dashboard/cdn/share?title=${encodeURIComponent(file.title)}&url=${encodeURIComponent(file.downloadUrl)}&mime=${encodeURIComponent(file.mimeType)}&size=${file.size}&date=${encodeURIComponent(file.uploadedAt)}`;
 
           navigator.clipboard.writeText(shareUrl).then(() => {
@@ -748,50 +1075,61 @@
               'danger'
             );
           });
-        };
+        }
 
-        const handleDelete = async (fileName, cardElement) => {
-          if (!confirm(translations[currentLanguage].deleteConfirm)) return;
 
+        // --- FILTRO Y BÚSQUEDA ---
+        function filterFiles() {
+          const searchTerm = searchInput.value.toLowerCase();
+          const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+          const filtered = currentFiles.filter(file => {
+            const title = (file.title || '').toLowerCase();
+            const description = (file.description || '').toLowerCase();
+            const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+            const matchesFilter = activeFilter === 'all' || getFileType(file.mimeType) === activeFilter;
+            return matchesSearch && matchesFilter;
+          });
+          currentPage = 1;
+          if (currentView === 'grid') renderFileGrid(filtered);
+          else renderFileList(filtered);
+        }
+
+        // --- FETCH Y RENDER PRINCIPAL ---
+        async function fetchAndRenderFiles() {
+          loadingSpinner.classList.remove('d-none');
+          fileGrid.innerHTML = '';
+          fileListBody.innerHTML = '';
+          noFilesMessage.classList.add('d-none');
           try {
-            const result = await api.deleteFile(USER_ID, fileName);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            const result = await api.getFiles(USER_ID);
             if (result.success) {
-              showToast(
-                translations[currentLanguage].deleteSuccess,
-                translations[currentLanguage].deleteSuccess,
-                'success'
-              );
-              cardElement.parentElement.remove();
-              updateUserStats(currentFiles.filter(f => f.fileName !== fileName));
+              currentFiles = result.data;
+              currentPage = 1;
+              renderCurrentView();
+              setTimeout(() => {
+                loadingSpinner.classList.add('d-none');
+              }, 100);
             } else {
-              showToast(
-                translations[currentLanguage].errorDelete,
-                result.message || translations[currentLanguage].errorDelete,
-                'danger'
-              );
+              showToast("Error", translations[currentLanguage].errorFetch, 'danger');
+              loadingSpinner.classList.add('d-none');
+              noFilesMessage.classList.remove('d-none');
             }
           } catch (error) {
-            console.error("Delete error:", error);
-            showToast(
-              translations[currentLanguage].errorDelete,
-              error.message || translations[currentLanguage].errorDelete,
-              'danger'
-            );
+            console.error("Error loading files:", error);
+            loadingSpinner.classList.add('d-none');
+            noFilesMessage.classList.remove('d-none');
+            showToast("Error", translations[currentLanguage].errorFetch, 'danger');
           }
-        };
+        }
 
-        const updateTranslations = () => {
-          document.querySelectorAll('[data-key]').forEach(element => {
-            const key = element.dataset.key;
-            if (translations[currentLanguage][key]) {
-              if (element.tagName === 'INPUT' && element.placeholder) {
-                element.placeholder = translations[currentLanguage][key];
-              } else {
-                element.textContent = translations[currentLanguage][key];
-              }
-            }
-          });
-        };
+        // --- NOTIFICACIONES PUSH (PLACEHOLDER) ---
+        function setupPushNotifications() {
+          if (!('Notification' in window)) return;
+          // Placeholder: aquí iría la lógica real con backend/service worker
+          // Notification.requestPermission().then(permission => { ... });
+        }
+        setupPushNotifications();
 
         // --- MANEJADORES DE EVENTOS ---
 
@@ -829,6 +1167,7 @@
             e.preventDefault();
             dropZone.classList.remove('dragover');
             if (e.dataTransfer.files.length && fileInput) {
+              if (!validateFile(e.dataTransfer.files[0])) return;
               fileInput.files = e.dataTransfer.files;
               if (fileNameDisplay) fileNameDisplay.textContent = fileInput.files[0].name;
             }
@@ -896,7 +1235,6 @@
           updateTranslations();
         };
 
-        // Iniciar después de un pequeño retraso para asegurar que el DOM esté completamente cargado
         setTimeout(init, 50);
       });
     </script>

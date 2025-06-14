@@ -494,32 +494,97 @@ body.loaded #app-container {
   justify-content: center;
 }
 
-@media (max-width: 992px) {
-  .sidebar-inner,
-  .sidebar-footer {
-    padding-left: 0.7rem;
-    padding-right: 0.7rem;
-  }
-
-  .sidebar {
-    min-width: 70px;
-    max-width: 100vw;
-  }
+/* Vista de lista (tabla) */
+#file-list .table {
+  background: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    border-radius: 0;
-    min-width: 100vw;
-    max-width: 100vw;
-    flex-direction: row;
-    height: auto;
-  }
+[data-bs-theme="light"] #file-list .table {
+  background: var(--card-bg-light);
+}
 
-  .sidebar-inner,
-  .sidebar-footer {
-    padding: 1rem 0.5rem;
-  }
+#file-list .file-type-badge {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  margin: 0;
+  box-shadow: none;
+}
+
+#file-list .table th,
+#file-list .table td {
+  vertical-align: middle;
+}
+
+#file-list .table thead {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+#file-list .table-hover tbody tr:hover {
+  background: rgba(106, 90, 249, 0.07);
+}
+
+/* Paginación */
+#pagination-nav .pagination .page-link {
+  border-radius: 50px;
+  color: var(--primary-color);
+}
+
+#pagination-nav .pagination .page-item.active .page-link,
+#pagination-nav .pagination .page-link:focus {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+
+/* Barra de progreso global */
+#global-progress-container {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--input-bg-dark);
+  overflow: hidden;
+}
+
+[data-bs-theme="light"] #global-progress-container {
+  background-color: #e9ecef;
+}
+
+#global-progress-bar {
+  height: 100%;
+  background-color: var(--primary-color);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* Acciones en lote */
+#batch-actions {
+  background: rgba(106, 90, 249, 0.07);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Drag & drop en grid/lista */
+#main-view.dragover {
+  border: 2px dashed var(--primary-color);
+  background: rgba(106, 90, 249, 0.08);
+  transition:
+    background 0.2s,
+    border 0.2s;
+}
+
+/* Checkbox en grid */
+.file-card .file-preview .file-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color);
+  background: #fff;
+  border: 1px solid var(--input-border-dark);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
 }
 
 /* Custom scrollbar */

@@ -437,3 +437,32 @@ body {
   padding: 2em 0;
   background: none;
 }
+
+/* Modo compacto para tablas */
+.table.table-compact th,
+.table.table-compact td {
+  padding: 0.3em 0.5em !important;
+  font-size: 0.92em;
+}
+
+/* Badges visuales para estados críticos */
+.badge.bg-warning {
+  background: #ffc107 !important;
+  color: #222 !important;
+}
+.badge.bg-danger {
+  background: #dc3545 !important;
+  color: #fff !important;
+}
+
+/* Botones de columnas/configuración */
+.btn-outline-secondary .fa-table-columns,
+.btn-outline-secondary .fa-compress-arrows-alt {
+  color: #6a5af9;
+}
+
+/* Buscador global */
+#global-search-group {
+  min-width: 260px;
+  max-width: 350px;
+}
