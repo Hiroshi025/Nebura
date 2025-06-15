@@ -12,8 +12,8 @@ const logChannelClient: Menus = {
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel || !interaction.member) return;
     const channelId = interaction.values[0];
-    await main.prisma.myDiscord.update({
-      where: { clientId: client.user?.id },
+    await main.prisma.discord.update({
+      where: { clientId: client.user?.id as string },
       data: { logchannel: channelId },
     });
     await interaction.reply({

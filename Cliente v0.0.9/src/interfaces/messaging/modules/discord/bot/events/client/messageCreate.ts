@@ -30,11 +30,7 @@ export default new Event("messageCreate", async (message) => {
     },
   });
 
-  const clientData = await main.prisma.myDiscord.findFirst({
-    where: {
-      clientId: client.user.id,
-    },
-  });
+  const clientData = await main.DB.findDiscord(client.user.id);
 
   if (!clientData)
     return message.channel.send({
@@ -134,7 +130,7 @@ export default new Event("messageCreate", async (message) => {
       });
     }
 
- /*    if (command.cooldown) {
+    /*    if (command.cooldown) {
       const cooldown =
         (client.cooldown.get(command.name) as Map<string, number>) || new Map<string, number>();
       const now = Date.now();

@@ -59,6 +59,28 @@ document.addEventListener("DOMContentLoaded", function () {
       dragInfo: "Drag to reorder servers",
       toastSuccess: "Success",
       toastError: "Error",
+      ownedServers: "Owned Servers",
+      memberServers: "Member Servers",
+      memberSince: "Member since",
+      apiTab: "API",
+      licenseSectionTitle: "User Licenses",
+      refreshLicenses: "Reload licenses",
+      licenseSearchPlaceholder: "Search license...",
+      licenseTypeAll: "All types",
+      licenseStatusAll: "All statuses",
+      licenseStatusActive: "Active",
+      licenseStatusExpired: "Expired",
+      exportCSV: "Export CSV",
+      activeLicenses: "Active",
+      expiredLicenses: "Expired",
+      licenseKey: "Key",
+      licenseType: "Type",
+      licenseState: "State",
+      licenseValidUntil: "Valid until",
+      licenseActions: "Actions",
+      noLicenses: "You have no registered licenses.",
+      licenseDetails: "License Details",
+      close: "Close",
     },
     es: {
       profileTab: "Perfil",
@@ -100,6 +122,28 @@ document.addEventListener("DOMContentLoaded", function () {
       dragInfo: "Arrastra para reordenar servidores",
       toastSuccess: "Éxito",
       toastError: "Error",
+      ownedServers: "Servidores Propios",
+      memberServers: "Servidores Miembro",
+      memberSince: "Miembro desde",
+      apiTab: "API",
+      licenseSectionTitle: "Licencias de Usuario",
+      refreshLicenses: "Recargar licencias",
+      licenseSearchPlaceholder: "Buscar licencia...",
+      licenseTypeAll: "Todos los tipos",
+      licenseStatusAll: "Todos los estados",
+      licenseStatusActive: "Activa",
+      licenseStatusExpired: "Expirada",
+      exportCSV: "Exportar CSV",
+      activeLicenses: "Activas",
+      expiredLicenses: "Expiradas",
+      licenseKey: "Clave",
+      licenseType: "Tipo",
+      licenseState: "Estado",
+      licenseValidUntil: "Válida hasta",
+      licenseActions: "Acciones",
+      noLicenses: "No tienes licencias registradas.",
+      licenseDetails: "Detalles de la Licencia",
+      close: "Cerrar",
     },
   };
 
@@ -157,296 +201,85 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     });
+
+    // Traducción de pestañas y secciones que no usan data-key
+    // Licenses tab
+    const licensesTab = document.querySelector("#licenses-tab");
+    if (licensesTab) {
+      licensesTab.querySelector("span").textContent = translations[currentLanguage].licensesTab;
+    }
+    // Licenses section title
+    const licenseSectionTitle = document.querySelector("#userLicensesSection .section-title");
+    if (licenseSectionTitle) {
+      licenseSectionTitle.innerHTML = `<i class="fa-solid fa-key me-2"></i>${translations[currentLanguage].licenseSectionTitle}`;
+    }
+    // Refresh button
+    const refreshBtn = document.getElementById("refreshUserLicensesBtn");
+    if (refreshBtn) {
+      refreshBtn.title = translations[currentLanguage].refreshLicenses;
+    }
+    // License search
+    const licenseSearch = document.getElementById("licenseSearch");
+    if (licenseSearch) {
+      licenseSearch.placeholder = translations[currentLanguage].licenseSearchPlaceholder;
+    }
+    // License type filter
+    const licenseTypeFilter = document.getElementById("licenseTypeFilter");
+    if (licenseTypeFilter) {
+      licenseTypeFilter.options[0].text = translations[currentLanguage].licenseTypeAll;
+    }
+    // License status filter
+    const licenseStatusFilter = document.getElementById("licenseStatusFilter");
+    if (licenseStatusFilter) {
+      licenseStatusFilter.options[0].text = translations[currentLanguage].licenseStatusAll;
+      if (licenseStatusFilter.options.length > 1)
+        licenseStatusFilter.options[1].text = translations[currentLanguage].licenseStatusActive;
+      if (licenseStatusFilter.options.length > 2)
+        licenseStatusFilter.options[2].text = translations[currentLanguage].licenseStatusExpired;
+    }
+    // Export CSV
+    const exportBtn = document.getElementById("exportLicensesBtn");
+    if (exportBtn) {
+      exportBtn.innerHTML = `<i class="fa fa-file-csv"></i> ${translations[currentLanguage].exportCSV}`;
+    }
+    // Licenses count badges
+    const activeLicCount = document.getElementById("activeLicCount");
+    if (activeLicCount) {
+      activeLicCount.innerHTML = `0 ${translations[currentLanguage].activeLicenses}`;
+    }
+    const expiredLicCount = document.getElementById("expiredLicCount");
+    if (expiredLicCount) {
+      expiredLicCount.innerHTML = `0 ${translations[currentLanguage].expiredLicenses}`;
+    }
+    // License table headers
+    const userLicensesTable = document.getElementById("userLicensesTable");
+    if (userLicensesTable) {
+      const ths = userLicensesTable.querySelectorAll("thead th");
+      if (ths.length >= 5) {
+        ths[0].innerHTML = `${translations[currentLanguage].licenseKey} <i class="fa fa-sort"></i>`;
+        ths[1].innerHTML = `${translations[currentLanguage].licenseType} <i class="fa fa-sort"></i>`;
+        ths[2].innerHTML = `${translations[currentLanguage].licenseState} <i class="fa fa-sort"></i>`;
+        ths[3].innerHTML = `${translations[currentLanguage].licenseValidUntil} <i class="fa fa-sort"></i>`;
+        ths[4].textContent = translations[currentLanguage].licenseActions;
+      }
+    }
+    // Empty licenses message
+    const userLicensesEmpty = document.getElementById("userLicensesEmpty");
+    if (userLicensesEmpty) {
+      userLicensesEmpty.textContent = translations[currentLanguage].noLicenses;
+    }
+    // License modal
+    const licenseDetailModalLabel = document.getElementById("licenseDetailModalLabel");
+    if (licenseDetailModalLabel) {
+      licenseDetailModalLabel.textContent = translations[currentLanguage].licenseDetails;
+    }
+    // Modal close button
+    const licenseDetailModal = document.getElementById("licenseDetailModal");
+    if (licenseDetailModal) {
+      const closeBtn = licenseDetailModal.querySelector(".btn-close");
+      if (closeBtn) closeBtn.setAttribute("aria-label", translations[currentLanguage].close);
+    }
   };
-
-  if (
-    (fileData && fileData.length > 0) ||
-    (ticketData && ticketData.length > 0) ||
-    (licenseData && licenseData.length > 0)
-  ) {
-    (function () {
-      let chartInstance = null;
-      let lastStats = { archivos: 0, tickets: 0, licencias: 0 };
-      const darkMode =
-        window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-      // Paleta de colores profesional
-      const colors = {
-        background: darkMode ? "#1a1a2e" : "#ffffff",
-        text: darkMode ? "#e6e6e6" : "#333333",
-        border: darkMode ? "#2a2a3a" : "#e0e0e0",
-        gradients: {
-          archivos: darkMode ? ["#4cc9f0", "#4361ee"] : ["#36D1DC", "#5B86E5"],
-          tickets: darkMode ? ["#f72585", "#b5179e"] : ["#FF416C", "#FF4B2B"],
-          licencias: darkMode ? ["#f7c873", "#f7b42c"] : ["#FFD700", "#FFA500"],
-        },
-        shadow: darkMode ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.2)",
-      };
-
-      function getStatsData() {
-        return {
-          archivos: fileData?.length || 0,
-          tickets: ticketData?.length || 0,
-          licencias: licenseData?.length || 0,
-        };
-      }
-
-      function createGradient(ctx, area, colors) {
-        const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
-        gradient.addColorStop(0, colors[0]);
-        gradient.addColorStop(1, colors[1]);
-        return gradient;
-      }
-
-      function renderChart(stats) {
-        const ctx = document.getElementById("userStatsChart");
-        if (!ctx) return;
-
-        if (chartInstance) {
-          chartInstance.destroy();
-        }
-
-        const chartArea = {
-          top: 0,
-          right: 0,
-          bottom: ctx.offsetHeight,
-          left: 0,
-        };
-
-        chartInstance = new Chart(ctx, {
-          type: "doughnut",
-          data: {
-            labels: [
-              `Archivos subidos (${stats.archivos})`,
-              `Tickets recientes (${stats.tickets})`,
-              `Licencias activas (${stats.licencias})`,
-            ],
-            datasets: [
-              {
-                data: [stats.archivos, stats.tickets, stats.licencias],
-                backgroundColor: [
-                  createGradient(ctx.getContext("2d"), chartArea, colors.gradients.archivos),
-                  createGradient(ctx.getContext("2d"), chartArea, colors.gradients.tickets),
-                  createGradient(ctx.getContext("2d"), chartArea, colors.gradients.licencias),
-                ],
-                borderColor: colors.background,
-                borderWidth: 3,
-                hoverOffset: 20,
-                borderRadius: 12,
-                spacing: 4,
-                weight: 0.5,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            //aspectRatio: 1.5,
-            cutout: "72%",
-            plugins: {
-              legend: {
-                display: true,
-                position: "bottom",
-                align: "center",
-                labels: {
-                  color: colors.text,
-                  font: {
-                    size: 14,
-                    weight: "600",
-                    family:
-                      "'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', sans-serif",
-                  },
-                  padding: 20,
-                  boxWidth: 18,
-                  boxHeight: 18,
-                  usePointStyle: true,
-                  pointStyle: "circle",
-                },
-                onHover: (e) => {
-                  e.native.target.style.cursor = "pointer";
-                },
-                onLeave: (e) => {
-                  e.native.target.style.cursor = "default";
-                },
-              },
-              tooltip: {
-                enabled: true,
-                backgroundColor: darkMode ? "rgba(30,30,40,0.97)" : "rgba(255,255,255,0.97)",
-                borderColor: colors.gradients.archivos[1],
-                borderWidth: 1,
-                titleColor: colors.text,
-                bodyColor: colors.text,
-                titleFont: { size: 14, weight: "bold" },
-                bodyFont: { size: 13, weight: "500" },
-                footerFont: { size: 12 },
-                padding: 12,
-                cornerRadius: 8,
-                caretSize: 8,
-                displayColors: true,
-                boxPadding: 6,
-                callbacks: {
-                  label: function (context) {
-                    const label = context.label.split(" (")[0] || "";
-                    const value = context.parsed;
-                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    const percent = total ? ((value / total) * 100).toFixed(1) : 0;
-                    let extra = "";
-
-                    if (context.dataIndex === 0 && value > 0 && fileData?.length) {
-                      const avgSize = (
-                        fileData.reduce((a, b) => a + b.size, 0) /
-                        fileData.length /
-                        1024
-                      ).toFixed(1);
-                      extra = `\nTamaño promedio: ${avgSize} KB`;
-                    }
-
-                    return `${label}: ${value} (${percent}%)${extra}`;
-                  },
-                  afterLabel: function (context) {
-                    if (context.dataIndex === 1 && ticketData?.length) {
-                      const openTickets = ticketData.filter((t) => t.status === "open").length;
-                      return `Abiertos: ${openTickets}`;
-                    }
-                    return null;
-                  },
-                },
-              },
-              title: {
-                display: true,
-                text: "Resumen de Actividad del Usuario",
-                color: colors.text,
-                font: {
-                  size: 18,
-                  weight: "600",
-                  family: "'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', sans-serif",
-                },
-                padding: { top: 10, bottom: 15 },
-              },
-              subtitle: {
-                display: true,
-                text: "Datos actualizados en tiempo real",
-                color: darkMode ? "#a0a0a0" : "#666666",
-                font: {
-                  size: 12,
-                  weight: "normal",
-                  style: "italic",
-                },
-                padding: { bottom: 20 },
-              },
-            },
-            animation: {
-              animateRotate: true,
-              animateScale: true,
-              duration: 1500,
-              easing: "easeOutQuart",
-            },
-            transitions: {
-              show: {
-                animations: {
-                  x: { from: 0 },
-                  y: { from: 0 },
-                },
-              },
-              hide: {
-                animations: {
-                  x: { to: 0 },
-                  y: { to: 0 },
-                },
-              },
-            },
-            layout: {
-              padding: {
-                top: 10,
-                bottom: 20,
-                left: 15,
-                right: 15,
-              },
-            },
-            onHover: (event, chartElements) => {
-              if (chartElements.length) {
-                event.native.target.style.cursor = "pointer";
-              } else {
-                event.native.target.style.cursor = "default";
-              }
-            },
-          },
-          plugins: [
-            {
-              id: "custom_shadow",
-              beforeDraw: (chart, args, options) => {
-                const { ctx } = chart;
-                ctx.save();
-                ctx.shadowColor = colors.shadow;
-                ctx.shadowBlur = 20;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 5;
-              },
-              afterDraw: (chart) => {
-                chart.ctx.restore();
-              },
-            },
-            {
-              id: "center_text",
-              afterDraw: (chart) => {
-                if (chart.config.options.cutoutPercentage || chart.config.options.cutout) {
-                  const {
-                    ctx,
-                    chartArea: { left, right, top, bottom, width, height },
-                  } = chart;
-                  const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-
-                  ctx.save();
-                  ctx.textAlign = "center";
-                  ctx.textBaseline = "middle";
-
-                  // Texto principal (total)
-                  const centerX = (left + right) / 2;
-                  const centerY = (top + bottom) / 2;
-
-                  ctx.font = `bold 24px 'Segoe UI', 'Roboto', sans-serif`;
-                  ctx.fillStyle = colors.text;
-                  ctx.fillText(total, centerX, centerY - 10);
-
-                  // Texto secundario
-                  ctx.font = `12px 'Segoe UI', 'Roboto', sans-serif`;
-                  ctx.fillStyle = darkMode ? "#a0a0a0" : "#666666";
-                  ctx.fillText("Total actividades", centerX, centerY + 20);
-
-                  ctx.restore();
-                }
-              },
-            },
-          ],
-        });
-      }
-
-      function updateChartIfNeeded() {
-        const stats = getStatsData();
-        if (
-          stats.archivos !== lastStats.archivos ||
-          stats.tickets !== lastStats.tickets ||
-          stats.licencias !== lastStats.licencias
-        ) {
-          renderChart(stats);
-          lastStats = { ...stats };
-        }
-      }
-
-      // Inicializa la gráfica con animación suave
-      setTimeout(() => {
-        updateChartIfNeeded();
-      }, 800);
-
-      // Actualiza automáticamente cada 30 segundos
-      setInterval(updateChartIfNeeded, 30000);
-
-      // Escucha cambios en el tema oscuro/claro
-      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-        updateChartIfNeeded();
-      });
-    })();
-  }
 
   // --- FILTRO Y BÚSQUEDA ---
   function applyFilters() {

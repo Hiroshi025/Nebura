@@ -165,7 +165,7 @@ export default ({ app }: TRoutesInput) => {
         metrics: await main.prisma.metrics.findMany(),
         users: await main.prisma.userAPI.findMany(),
         licenses: await main.prisma.license.findMany(),
-        myclientDiscord: await main.prisma.myDiscord.findMany(),
+        myclientDiscord: await main.prisma.client.findMany(),
         userIdFromUrl: req.query.id,
         recentLogs: recentLogger,
       });

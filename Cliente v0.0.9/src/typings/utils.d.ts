@@ -82,7 +82,7 @@ export interface User {
    * The Discord username of the user.
    * This property is used to link the user's account with their Discord profile.
    */
-  discord: {
+  discordId: {
     id: string;
     avatar: string;
     username: string,

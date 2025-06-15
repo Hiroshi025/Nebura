@@ -4,7 +4,7 @@
     --card-bg-dark: #1e1e2d;
     --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     --primary-color: #6a5af9;
-    --primary-color-hover: #5a4ae9;
+    --primary-color-hover: #1e1e2d;
     --primary-color-rgb: 106, 90, 249;
     --text-color-dark: #a1a5b7;
     --input-border-dark: rgba(255, 255, 255, 0.1);
@@ -15,21 +15,25 @@
     --notification-color: #ff5e5e;
   }
 
-  /* Sidebar Moderno */
+  /* Sidebar flexible */
   .sidebar {
-    background: var(--card-bg-dark);
+    background: #1e1e2d;
     box-shadow: var(--box-shadow);
     border-radius: 1rem 0 0 1rem;
     width: var(--sidebar-width);
-    height: fit-content; /**/
     display: flex;
     flex-direction: column;
     padding: 0;
-    overflow: hidden;
-    position: sticky; /**/
-    top: 20%; /**/
-    transition: all var(--transition-speed) ease;
+    overflow-y: auto;
+    top: 0;
+    max-height: 100vh;
+    height: auto;
+    overflow-y: auto;
+    position: sticky;
+    transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
+    backdrop-filter: blur(10px);
   }
 
   /* Efecto de vidrio para modo claro */
@@ -37,6 +41,24 @@
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* El contenedor principal es una columna y ocupa toda la pantalla */
+  #app-container {
+    flex-direction: column;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* El contenido principal crece y ocupa el resto del espacio */
+  .main-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    /* ...otros estilos... */
+  }
+
+  .d-flex {
+    height: auto;
   }
 
   .sidebar-inner {
@@ -184,7 +206,7 @@
   }
 
   .sidebar-nav .nav-link::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 0;
     top: 0;
@@ -206,7 +228,9 @@
 
   .sidebar-nav .nav-link.active,
   .sidebar-nav .nav-link:focus {
-    background: linear-gradient(90deg, rgba(var(--primary-color-rgb), 0.15), transparent);
+    background: linear-gradient(90deg,
+        rgba(var(--primary-color-rgb), 0.15),
+        transparent);
     color: var(--primary-color);
     font-weight: 600;
     transform: translateX(5px);
@@ -317,7 +341,7 @@
   }
 
   .sidebar-divider::after {
-    content: '';
+    content: "";
     position: absolute;
     left: 50%;
     top: -3px;
@@ -340,7 +364,7 @@
   }
 
   .sidebar-footer::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -10px;
     left: 0;
@@ -557,7 +581,7 @@
   /* Responsive Design Mejorado */
   @media (max-width: 1200px) {
     .sidebar {
-      position: sticky; /**/
+      position: fixed;
       left: 0;
       top: 0;
       z-index: 1000;
@@ -657,21 +681,25 @@
       <span>Panel Principal</span>
     </div>
     <ul class="nav flex-column sidebar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="#" data-tooltip="Configuración">
-          <i class="fas fa-cog"></i> <span>Configuracion</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link active" href="/dashboard" data-tooltip="Dashboard">
-          <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/dashboard/support" data-tooltip="Soporte">
-          <i class="fas fa-headset"></i> <span>Soporte</span>
-        </a>
-      </li>
+      <% if (typeof panelPrincipalHtml !=='undefined' && panelPrincipalHtml) { %>
+        <%- panelPrincipalHtml %>
+          <% } else { %>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-tooltip="Configuración">
+                <i class="fas fa-cog"></i> <span>Configuracion</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/dashboard" data-tooltip="Dashboard">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard/support" data-tooltip="Soporte">
+                <i class="fas fa-headset"></i> <span>Soporte</span>
+              </a>
+            </li>
+            <% } %>
     </ul>
 
     <div class="sidebar-divider"></div>

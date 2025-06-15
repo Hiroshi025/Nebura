@@ -12,11 +12,7 @@ const modalWebhook: Modals = {
     const input = interaction.fields.getTextInputValue("input-webhook-url");
     if (!interaction.guild || !interaction.channel || !client.user) return;
 
-    const data = await main.prisma.myDiscord.findUnique({
-      where: {
-        clientId: client.user.id,
-      },
-    });
+    const data = await main.DB.findDiscord(client.user.id);
 
     if (!data)
       return interaction.reply({
@@ -33,9 +29,9 @@ const modalWebhook: Modals = {
         flags: "Ephemeral",
       });
 
-    await main.prisma.myDiscord.update({
+    await main.prisma.discord.update({
       where: {
-        clientId: client.user.id,
+        clientId: client.user?.id as string,
       },
       data: {
         webhookURL: input,

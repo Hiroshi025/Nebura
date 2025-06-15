@@ -136,7 +136,7 @@ body {
 /* --- Chat Global --- */
 .chat-container {
   display: flex;
-  height: 500px;
+  height: 1000px;
   border-radius: var(--border-radius);
   overflow: hidden;
   background: var(--chat-bg-dark);

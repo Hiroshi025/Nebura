@@ -40,8 +40,8 @@ const menuName: Menus = {
       name: "Error Logs",
       avatar: client.user?.displayAvatarURL(),
     });
-    await main.prisma.myDiscord.update({
-      where: { clientId: client.user?.id },
+    await main.prisma.discord.update({
+      where: { clientId: client.user?.id as string },
       data: { webhookURL: webhook.url },
     });
     await new Promise((res) => setTimeout(res, 1000));

@@ -7,7 +7,6 @@
  * @packageDocumentation
  */
 
-import { ObjectId } from "bson"; // BSON library for working with ObjectId: https://www.npmjs.com/package/bson
 import chalk from "chalk"; // Chalk library for terminal string styling: https://www.npmjs.com/package/chalk
 
 import { ProyectError } from "@/shared/infrastructure/extends/error.extend"; // Custom error handling class
@@ -20,6 +19,7 @@ import { API } from "./";
 import { MyClient } from "./interfaces/messaging/modules/discord/client"; // Custom Discord client implementation
 import { ErrorConsole } from "./interfaces/messaging/modules/discord/structure/handlers/errors"; // Error handling for Discord
 import { MyApp } from "./interfaces/messaging/modules/whatsapp"; // WhatsApp module
+import { DBPrisma } from "./shared/DB";
 import { BackupService } from "./shared/infrastructure/backups"; // Backup service
 import { config } from "./shared/utils/config"; // Application configuration
 import { logWithLabel } from "./shared/utils/functions/console"; // Logging utility
@@ -86,6 +86,11 @@ export class Engine {
    * @readonly
    */
   public readonly utils: Utils;
+  /**
+   * Database operations instance using Prisma.
+   * @readonly
+   */
+  public readonly DB: DBPrisma;
 
   /**
    * Initializes the core module instances.
@@ -101,6 +106,7 @@ export class Engine {
     prisma: PrismaClient = Engine.createDefaultPrismaClient(),
     config: ProyectConfig = defaultConfig,
     utils: Utils = new Utils(),
+    DB: DBPrisma = new DBPrisma(),
     discord: MyClient = new MyClient(),
     whatsapp: MyApp = new MyApp(),
     api: API = new API(),
@@ -111,6 +117,7 @@ export class Engine {
     this.api = api;
     this.config = config;
     this.utils = utils;
+    this.DB = DB;
   }
 
   /**
@@ -274,24 +281,7 @@ export class Engine {
    */
   private async clientCreate(): Promise<void> {
     try {
-      const data = config.modules.discord;
-      const validId = new ObjectId().toHexString();
-
-      await this.prisma.myDiscord.upsert({
-        where: { token: data.token },
-        update: {
-          token: data.token,
-          clientId: data.clientId,
-          clientSecret: data.clientSecret,
-        },
-        create: {
-          id: validId,
-          token: data.token,
-          clientId: data.clientId,
-          clientSecret: data.clientSecret,
-          owners: config.modules.discord.owners,
-        },
-      });
+      await this.DB.createClient(client, "");
     } catch (err) {
       console.error(err);
       throw new ProyectError(`Failed to Discord client configuration: ${err}`);

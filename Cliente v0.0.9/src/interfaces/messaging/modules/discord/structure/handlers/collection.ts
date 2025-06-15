@@ -178,11 +178,7 @@ export class DiscordHandler {
    */
   public async deploy() {
     const startTime = performance.now();
-    const rest = new REST({ version: "10" }).setToken(
-      config.modules.discord.token
-        ? config.modules.discord.token
-        : (process.env.TOKEN_DISCORD as string),
-    );
+    const rest = new REST({ version: "10" }).setToken(process.env.TOKEN_DISCORD as string);
     const commands = [...this.client.commands.values()];
     await rest.put(Routes.applicationCommands(config.modules.discord.clientId), {
       body: commands.map((s) => s.structure),

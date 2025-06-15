@@ -28,11 +28,7 @@ export default new Event("interactionCreate", async (interaction) => {
   const { guild } = interaction;
   if (!guild) return;
 
-  const clientData = await main.prisma.myDiscord.findFirst({
-    where: {
-      clientId: client.user.id,
-    },
-  });
+  const clientData = await main.DB.findDiscord(client.user.id);
 
   switch (true) {
     case interaction.isChatInputCommand():
@@ -40,7 +36,7 @@ export default new Event("interactionCreate", async (interaction) => {
         const command = client.commands.get(interaction.commandName);
         if (!command) return;
 
-/*         const now = Date.now();
+        /*         const now = Date.now();
         const userCooldowns = cooldowns.get(interaction.user.id) || new Map();
         const cooldownAmount = (command.cooldown || 10) * 1000; // Convertir a milisegundos
 
@@ -184,11 +180,7 @@ async function InteractionOptions(
   const { guild, member } = interaction;
   if (!guild || !member || !client.user) return;
 
-  const clientData = await main.prisma.myDiscord.findFirst({
-    where: {
-      clientId: client.user.id,
-    },
-  });
+  const clientData = await main.DB.findDiscord(client.user.id);
 
   if (!clientData)
     return interaction.reply({

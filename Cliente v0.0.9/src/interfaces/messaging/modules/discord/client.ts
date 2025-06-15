@@ -217,7 +217,7 @@ export class MyClient extends Client {
     logWithLabel("debug", "Starting Discord API...");
 
     // Check if the token is provided in the configuration
-    if (!this.settings.token) {
+    if (!process.env.TOKEN_DISCORD) {
       logWithLabel(
         "info",
         [
@@ -234,7 +234,7 @@ export class MyClient extends Client {
      * The token is expected to be a string that authenticates the client with the Discord API.
      * This method is asynchronous and returns a promise that resolves when the login is successful.
      */
-    await this.login(this.settings.token);
+    await this.login(process.env.TOKEN_DISCORD);
     logWithLabel(
       "debug",
       [
@@ -283,7 +283,8 @@ export class MyClient extends Client {
    * @returns {Promise<void>} Resolves when the command is reloaded or rejects on error
    */
   public async reloadCommand(commandName: string): Promise<void> {
-    const commandPath = config.modules.discord.configs.default + config.modules.discord.configs.precommands;
+    const commandPath =
+      config.modules.discord.configs.default + config.modules.discord.configs.precommands;
     logWithLabel("debug", `Starting reload for command: ${commandName}`);
 
     try {
@@ -375,7 +376,8 @@ export class MyClient extends Client {
    * @returns {Promise<void>} Resolves when all commands are reloaded
    */
   public async loadCommands(): Promise<void> {
-    const commandPath = config.modules.discord.configs.default + config.modules.discord.configs.precommands;
+    const commandPath =
+      config.modules.discord.configs.default + config.modules.discord.configs.precommands;
     logWithLabel("debug", `Starting reload of all commands from ${commandPath}`);
 
     try {

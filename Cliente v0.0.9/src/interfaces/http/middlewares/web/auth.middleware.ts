@@ -2,6 +2,9 @@ import "passport"; // <-- Esto importa las extensiones de tipos de passport
 
 import { NextFunction, Request, Response } from "express";
 
+import { main } from "@/main";
+import { clientID } from "@/shared/DB";
+
 // Extiende la interfaz Request para incluir isAuthenticated
 //declare global {
 //  namespace Express {
@@ -16,10 +19,11 @@ export const AuthPublic = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-export const Maintenance = (req: Request, res: Response, next: NextFunction) => {
-  if (process.env.MAINTENANCE_MODE === "true") {
+export const Maintenance = async (req: Request, res: Response, next: NextFunction) => {
+  const data = await main.DB.findClient(clientID);
+  if (!data || data.maintenance) {
     return res.render("maintenance.ejs", {
-      title: "Nebura - Maintenance",
+      title: "Nebura - Mantenimiento",
       user: req.user,
     });
   }

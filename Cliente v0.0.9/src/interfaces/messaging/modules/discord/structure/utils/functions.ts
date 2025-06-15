@@ -22,6 +22,7 @@ import { MyClient } from "../../client";
 const sleep = promisify(setTimeout);
 const MAX_OUTPUT_LENGTH = 1000;
 const MAX_DEBUG_INFO_LENGTH = 1500;
+
 /**
  * Creates a new Discord button.
  *
@@ -362,13 +363,7 @@ export async function createGuild(guildId: string, client: MyClient) {
     },
   });
 
-  const data = await main.prisma.myDiscord.findFirst({
-    where: {
-      clientId: config.modules.discord.clientId,
-      token: config.modules.discord.token,
-    },
-  });
-
+  const data = await main.DB.findDiscord(client.user?.id as string);
   if (!data) return;
 
   if (!guild) {
@@ -376,7 +371,7 @@ export async function createGuild(guildId: string, client: MyClient) {
       data: {
         prefix: config.modules.discord.prefix,
         guildId: guildId,
-        discordId: data.clientId,
+        discordId: data.clientId as string,
       },
     });
   }

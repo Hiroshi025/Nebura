@@ -85,7 +85,7 @@ export class Notification {
       ) {
         throw new Error("Webhook configuration is missing or incomplete");
       }
-      if (!config.modules?.discord?.token) {
+      if (!process.env.TOKEN_DISCORD) {
         throw new Error("Discord bot token is missing in configuration");
       }
 
@@ -125,7 +125,7 @@ export class Notification {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bot ${config.modules.discord.token}`,
+          Authorization: `Bot ${process.env.TOKEN_DISCORD}`,
         },
         data: {
           content: mergedOptions.content,

@@ -149,109 +149,107 @@
     </div>
   </div>
 
-  <%- include('partials/footer') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-      crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
+    function limpiarLog(obj) {
+      return `[${obj.timestamp}] [${obj.level.toUpperCase()}] (${obj.origin}) v${obj.version} [pid:${obj.pid}] [host:${obj.hostname}] - ${obj.message.replace(/\u001b\[[0-9;]*m/g, '')}`;
+    }
 
-      function limpiarLog(obj) {
-        return `[${obj.timestamp}] [${obj.level.toUpperCase()}] (${obj.origin}) v${obj.version} [pid:${obj.pid}] [host:${obj.hostname}] - ${obj.message.replace(/\u001b\[[0-9;]*m/g, '')}`;
-      }
+    document.addEventListener('DOMContentLoaded', function () {
+      // Configuración inicial
+      const toastElement = document.getElementById('notificationToast');
+      const notificationToast = new bootstrap.Toast(toastElement, { autohide: true, delay: 5000 });
+      let logLines = [];
+      let lastUpdate = null;
 
-      document.addEventListener('DOMContentLoaded', function () {
-        // Configuración inicial
-        const toastElement = document.getElementById('notificationToast');
-        const notificationToast = new bootstrap.Toast(toastElement, { autohide: true, delay: 5000 });
-        let logLines = [];
-        let lastUpdate = null;
+      // Mostrar notificación
+      const showToast = (title, body, type = 'success') => {
+        const toastTitle = document.getElementById('toast-title');
+        const toastBody = document.getElementById('toast-body');
+        const toastTime = document.getElementById('toast-time');
 
-        // Mostrar notificación
-        const showToast = (title, body, type = 'success') => {
-          const toastTitle = document.getElementById('toast-title');
-          const toastBody = document.getElementById('toast-body');
-          const toastTime = document.getElementById('toast-time');
+        toastTitle.textContent = title;
+        toastBody.textContent = body;
+        toastTime.textContent = 'justo ahora';
 
-          toastTitle.textContent = title;
-          toastBody.textContent = body;
-          toastTime.textContent = 'justo ahora';
+        // Actualizar la hora cada minuto
+        const updateTime = () => {
+          const now = new Date();
+          const diff = Math.floor((now - lastUpdate) / 1000);
 
-          // Actualizar la hora cada minuto
-          const updateTime = () => {
-            const now = new Date();
-            const diff = Math.floor((now - lastUpdate) / 1000);
-
-            if (diff < 60) {
-              toastTime.textContent = 'justo ahora';
-            } else if (diff < 3600) {
-              toastTime.textContent = `hace ${Math.floor(diff / 60)} min`;
-            } else {
-              toastTime.textContent = `hace ${Math.floor(diff / 3600)} h`;
-            }
-          };
-
-          lastUpdate = new Date();
-          setInterval(updateTime, 60000);
-
-          // Estilos según el tipo
-          toastElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white');
-          if (type === 'success') toastElement.classList.add('bg-success', 'text-white');
-          else if (type === 'danger' || type === 'error') toastElement.classList.add('bg-danger', 'text-white');
-          else if (type === 'warning') toastElement.classList.add('bg-warning', 'text-white');
-
-          notificationToast.show();
-        };
-
-        // Cargar logs desde el servidor
-        const loadLogs = async () => {
-          try {
-            const response = await fetch("/dashboard/utils/logs/<%= logName %>");
-            if (!response.ok) throw new Error('Error al cargar los logs');
-            const data = await response.json();
-            console.log('DATA RECIBIDA:', data);
-
-            // Usar entries del objeto recibido
-            if (Array.isArray(data.entries)) {
-              logLines = data.entries.map(line => line.replace(/\u001b\[[0-9;]*m/g, ''));
-            } else if (Array.isArray(data)) {
-              logLines = data.map(line => line.replace(/\u001b\[[0-9;]*m/g, ''));
-            } else {
-              logLines = [];
-            }
-
-            // Guardar info de size y lastModified para el resumen
-            window._logSize = data.size;
-            window._logDate = data.lastModified;
-
-            renderLogTable(logLines);
-            updateSummary();
-            showToast('Éxito', 'Logs cargados correctamente', 'success');
-          } catch (error) {
-            console.error('Error loading logs:', error);
-            showToast('Error', 'No se pudieron cargar las líneas del log.', 'error');
-            logLines = [];
-            renderLogTable([]);
+          if (diff < 60) {
+            toastTime.textContent = 'justo ahora';
+          } else if (diff < 3600) {
+            toastTime.textContent = `hace ${Math.floor(diff / 60)} min`;
+          } else {
+            toastTime.textContent = `hace ${Math.floor(diff / 3600)} h`;
           }
         };
 
-        // Renderizar la tabla de logs
-        const renderLogTable = (lines) => {
-          const logTableBody = document.getElementById('log-table-body');
-          logTableBody.innerHTML = '';
+        lastUpdate = new Date();
+        setInterval(updateTime, 60000);
 
-          if (!lines.length) {
-            logTableBody.innerHTML = `
+        // Estilos según el tipo
+        toastElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white');
+        if (type === 'success') toastElement.classList.add('bg-success', 'text-white');
+        else if (type === 'danger' || type === 'error') toastElement.classList.add('bg-danger', 'text-white');
+        else if (type === 'warning') toastElement.classList.add('bg-warning', 'text-white');
+
+        notificationToast.show();
+      };
+
+      // Cargar logs desde el servidor
+      const loadLogs = async () => {
+        try {
+          const response = await fetch("/dashboard/utils/logs/<%= logName %>");
+          if (!response.ok) throw new Error('Error al cargar los logs');
+          const data = await response.json();
+          console.log('DATA RECIBIDA:', data);
+
+          // Usar entries del objeto recibido
+          if (Array.isArray(data.entries)) {
+            logLines = data.entries.map(line => line.replace(/\u001b\[[0-9;]*m/g, ''));
+          } else if (Array.isArray(data)) {
+            logLines = data.map(line => line.replace(/\u001b\[[0-9;]*m/g, ''));
+          } else {
+            logLines = [];
+          }
+
+          // Guardar info de size y lastModified para el resumen
+          window._logSize = data.size;
+          window._logDate = data.lastModified;
+
+          renderLogTable(logLines);
+          updateSummary();
+          showToast('Éxito', 'Logs cargados correctamente', 'success');
+        } catch (error) {
+          console.error('Error loading logs:', error);
+          showToast('Error', 'No se pudieron cargar las líneas del log.', 'error');
+          logLines = [];
+          renderLogTable([]);
+        }
+      };
+
+      // Renderizar la tabla de logs
+      const renderLogTable = (lines) => {
+        const logTableBody = document.getElementById('log-table-body');
+        logTableBody.innerHTML = '';
+
+        if (!lines.length) {
+          logTableBody.innerHTML = `
             <tr class='no-results-row'>
               <td colspan='3'>
                 <i class='fas fa-frown me-2'></i>No se encontraron resultados
               </td>
             </tr>`;
-          } else {
-            lines.forEach((line, idx) => {
-              const lineNumber = idx + 1;
-              logTableBody.innerHTML += `
+        } else {
+          lines.forEach((line, idx) => {
+            const lineNumber = idx + 1;
+            logTableBody.innerHTML += `
               <tr data-line="${lineNumber}">
                 <td class='text-muted'>${lineNumber}</td>
                 <td style='white-space: pre-line;'>${highlightLogLevel(line)}</td>
@@ -264,186 +262,186 @@
                   </button>
                 </td>
               </tr>`;
-            });
-          }
+          });
+        }
 
-          // Actualizar contadores
-          document.getElementById('visible-lines').textContent = lines.length;
-          document.getElementById('total-lines').textContent = logLines.length;
-          document.getElementById('last-updated').innerHTML = `Última actualización: <span class="text-info">${new Date().toLocaleTimeString()}</span>`;
+        // Actualizar contadores
+        document.getElementById('visible-lines').textContent = lines.length;
+        document.getElementById('total-lines').textContent = logLines.length;
+        document.getElementById('last-updated').innerHTML = `Última actualización: <span class="text-info">${new Date().toLocaleTimeString()}</span>`;
+      };
+
+      // Resaltar niveles de log con colores
+      const highlightLogLevel = (line) => {
+        if (typeof line !== 'string') line = String(line ?? '');
+
+        // Limpia códigos ANSI por si acaso
+        line = line.replace(/\u001b\[[0-9;]*m/g, '');
+
+        const levelColors = {
+          'error': 'log-level-error',
+          'warn': 'log-level-warn',
+          'info': 'log-level-info',
+          'debug': 'log-level-debug',
+          'http': 'log-level-http',
+          'verbose': 'log-level-verbose'
         };
 
-        // Resaltar niveles de log con colores
-        const highlightLogLevel = (line) => {
-          if (typeof line !== 'string') line = String(line ?? '');
-
-          // Limpia códigos ANSI por si acaso
-          line = line.replace(/\u001b\[[0-9;]*m/g, '');
-
-          const levelColors = {
-            'error': 'log-level-error',
-            'warn': 'log-level-warn',
-            'info': 'log-level-info',
-            'debug': 'log-level-debug',
-            'http': 'log-level-http',
-            'verbose': 'log-level-verbose'
-          };
-
-          for (const [level, className] of Object.entries(levelColors)) {
-            if (line.toLowerCase().includes(level)) {
-              return `<span class="${className}">${line}</span>`;
-            }
+        for (const [level, className] of Object.entries(levelColors)) {
+          if (line.toLowerCase().includes(level)) {
+            return `<span class="${className}">${line}</span>`;
           }
+        }
 
-          return line;
-        };
+        return line;
+      };
 
-        // Filtrar logs según búsqueda
-        const filterLogTable = () => {
-          const term = searchInput.value.trim().toLowerCase();
-          clearBtn.style.display = term ? 'block' : 'none';
+      // Filtrar logs según búsqueda
+      const filterLogTable = () => {
+        const term = searchInput.value.trim().toLowerCase();
+        clearBtn.style.display = term ? 'block' : 'none';
 
-          if (!term) {
-            renderLogTable(logLines);
-          } else {
-            const filtered = logLines.filter(l => l.toLowerCase().includes(term));
-            renderLogTable(filtered);
+        if (!term) {
+          renderLogTable(logLines);
+        } else {
+          const filtered = logLines.filter(l => l.toLowerCase().includes(term));
+          renderLogTable(filtered);
 
-            // Resaltar coincidencias
-            document.querySelectorAll('#log-table-body td:nth-child(2)').forEach(td => {
-              const text = td.textContent;
-              if (text.toLowerCase().includes(term)) {
-                const regex = new RegExp(term, 'gi');
-                td.innerHTML = text.replace(regex, match =>
-                  `<span class="bg-warning text-dark">${match}</span>`
-                );
-              }
-            });
-          }
-        };
-
-        // Actualizar resumen
-        const updateSummary = () => {
-          const linesCount = Array.isArray(logLines) ? logLines.length : 0;
-          document.getElementById('log-lines').textContent =
-            typeof linesCount === 'number' ? linesCount.toLocaleString() : '0';
-
-          // Mostrar tamaño y fecha real si están disponibles
-          let size = window._logSize;
-          let date = window._logDate;
-          if (typeof size === 'number') {
-            // Mostrar en KB o MB si es grande
-            if (size > 1024 * 1024) {
-              size = (size / (1024 * 1024)).toFixed(2) + ' MB';
-            } else if (size > 1024) {
-              size = (size / 1024).toFixed(2) + ' KB';
-            } else {
-              size = size + ' B';
+          // Resaltar coincidencias
+          document.querySelectorAll('#log-table-body td:nth-child(2)').forEach(td => {
+            const text = td.textContent;
+            if (text.toLowerCase().includes(term)) {
+              const regex = new RegExp(term, 'gi');
+              td.innerHTML = text.replace(regex, match =>
+                `<span class="bg-warning text-dark">${match}</span>`
+              );
             }
+          });
+        }
+      };
+
+      // Actualizar resumen
+      const updateSummary = () => {
+        const linesCount = Array.isArray(logLines) ? logLines.length : 0;
+        document.getElementById('log-lines').textContent =
+          typeof linesCount === 'number' ? linesCount.toLocaleString() : '0';
+
+        // Mostrar tamaño y fecha real si están disponibles
+        let size = window._logSize;
+        let date = window._logDate;
+        if (typeof size === 'number') {
+          // Mostrar en KB o MB si es grande
+          if (size > 1024 * 1024) {
+            size = (size / (1024 * 1024)).toFixed(2) + ' MB';
+          } else if (size > 1024) {
+            size = (size / 1024).toFixed(2) + ' KB';
           } else {
-            size = '<%= logSize %>';
+            size = size + ' B';
           }
-          if (date) {
-            try {
-              const d = new Date(date);
-              date = d.toLocaleString();
-            } catch {
-              date = '<%= logDate %>';
-            }
-          } else {
+        } else {
+          size = '<%= logSize %>';
+        }
+        if (date) {
+          try {
+            const d = new Date(date);
+            date = d.toLocaleString();
+          } catch {
             date = '<%= logDate %>';
           }
-          document.getElementById('log-size').textContent = size;
-          document.getElementById('log-date').textContent = date;
-        };
+        } else {
+          date = '<%= logDate %>';
+        }
+        document.getElementById('log-size').textContent = size;
+        document.getElementById('log-date').textContent = date;
+      };
 
-        // Event listeners
-        const searchInput = document.getElementById('search-log-table');
-        const clearBtn = document.getElementById('clear-search-log-table');
+      // Event listeners
+      const searchInput = document.getElementById('search-log-table');
+      const clearBtn = document.getElementById('clear-search-log-table');
 
-        searchInput.addEventListener('input', filterLogTable);
-        clearBtn.addEventListener('click', () => {
-          searchInput.value = '';
-          filterLogTable();
-          clearBtn.style.display = 'none';
-        });
-
-        // Botón de actualización
-        document.getElementById('refresh-log').addEventListener('click', async (e) => {
-          e.preventDefault();
-          await loadLogs();
-        });
-
-        // Scroll a top/bottom
-        document.getElementById('scroll-to-top').addEventListener('click', () => {
-          document.querySelector('.log-container').scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        document.getElementById('scroll-to-bottom').addEventListener('click', () => {
-          const container = document.querySelector('.log-container');
-          container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-        });
-
-        // Copiar línea individual
-        document.addEventListener('click', (e) => {
-          if (e.target.closest('.copy-line')) {
-            const lineNum = e.target.closest('.copy-line').dataset.line;
-            const lineText = logLines[lineNum - 1];
-            navigator.clipboard.writeText(lineText).then(() => {
-              showToast('Copiado', `Línea ${lineNum} copiada al portapapeles`, 'success');
-            });
-          }
-        });
-
-        // Resaltar línea
-        document.addEventListener('click', (e) => {
-          if (e.target.closest('.highlight-line')) {
-            const lineNum = e.target.closest('.highlight-line').dataset.line;
-            const lineElement = document.querySelector(`tr[data-line="${lineNum}"]`);
-
-            // Quitar resaltado de todas las líneas
-            document.querySelectorAll('#log-table-body tr').forEach(tr => {
-              tr.classList.remove('log-line-highlight');
-            });
-
-            // Resaltar la línea seleccionada
-            lineElement.classList.add('log-line-highlight');
-
-            // Scroll a la línea
-            lineElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        });
-
-        // Copiar todos los logs
-        document.getElementById('copy-all-logs').addEventListener('click', () => {
-          const visibleLines = Array.from(document.querySelectorAll('#log-table-body tr'))
-            .map(tr => tr.querySelector('td:nth-child(2)').textContent)
-            .join('\n');
-
-          navigator.clipboard.writeText(visibleLines).then(() => {
-            showToast('Copiado', 'Todos los logs visibles copiados al portapapeles', 'success');
-          });
-        });
-
-        // Exportar logs
-        document.getElementById('export-logs').addEventListener('click', () => {
-          const visibleLines = Array.from(document.querySelectorAll('#log-table-body tr'))
-            .map(tr => tr.querySelector('td:nth-child(2)').textContent)
-            .join('\n');
-
-          const blob = new Blob([visibleLines], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `<%= logName %>_${new Date().toISOString().slice(0, 10)}.log`;
-          a.click();
-          URL.revokeObjectURL(url);
-        });
-
-        // Inicialización
-        loadLogs();
+      searchInput.addEventListener('input', filterLogTable);
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        filterLogTable();
+        clearBtn.style.display = 'none';
       });
-    </script>
+
+      // Botón de actualización
+      document.getElementById('refresh-log').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await loadLogs();
+      });
+
+      // Scroll a top/bottom
+      document.getElementById('scroll-to-top').addEventListener('click', () => {
+        document.querySelector('.log-container').scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      document.getElementById('scroll-to-bottom').addEventListener('click', () => {
+        const container = document.querySelector('.log-container');
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      });
+
+      // Copiar línea individual
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.copy-line')) {
+          const lineNum = e.target.closest('.copy-line').dataset.line;
+          const lineText = logLines[lineNum - 1];
+          navigator.clipboard.writeText(lineText).then(() => {
+            showToast('Copiado', `Línea ${lineNum} copiada al portapapeles`, 'success');
+          });
+        }
+      });
+
+      // Resaltar línea
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.highlight-line')) {
+          const lineNum = e.target.closest('.highlight-line').dataset.line;
+          const lineElement = document.querySelector(`tr[data-line="${lineNum}"]`);
+
+          // Quitar resaltado de todas las líneas
+          document.querySelectorAll('#log-table-body tr').forEach(tr => {
+            tr.classList.remove('log-line-highlight');
+          });
+
+          // Resaltar la línea seleccionada
+          lineElement.classList.add('log-line-highlight');
+
+          // Scroll a la línea
+          lineElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+
+      // Copiar todos los logs
+      document.getElementById('copy-all-logs').addEventListener('click', () => {
+        const visibleLines = Array.from(document.querySelectorAll('#log-table-body tr'))
+          .map(tr => tr.querySelector('td:nth-child(2)').textContent)
+          .join('\n');
+
+        navigator.clipboard.writeText(visibleLines).then(() => {
+          showToast('Copiado', 'Todos los logs visibles copiados al portapapeles', 'success');
+        });
+      });
+
+      // Exportar logs
+      document.getElementById('export-logs').addEventListener('click', () => {
+        const visibleLines = Array.from(document.querySelectorAll('#log-table-body tr'))
+          .map(tr => tr.querySelector('td:nth-child(2)').textContent)
+          .join('\n');
+
+        const blob = new Blob([visibleLines], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `<%= logName %>_${new Date().toISOString().slice(0, 10)}.log`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // Inicialización
+      loadLogs();
+    });
+  </script>
 </body>
 
 </html>

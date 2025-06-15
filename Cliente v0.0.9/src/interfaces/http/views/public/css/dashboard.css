@@ -50,6 +50,35 @@ body.loaded #app-container {
     visibility 0.3s;
 }
 
+#userLicensesTable {
+  background: transparent;
+  color: #fff;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+#userLicensesTable th,
+#userLicensesTable td {
+  background: transparent !important;
+  color: #fff !important;
+  border-color: #23233a !important;
+}
+
+#userLicensesTable th {
+  font-weight: 700;
+  background: #1e1e2d;
+  color: #1e1e2d;
+  border-bottom: 2px solid #1e1e2d;
+}
+
+#userLicensesTable tr {
+  transition: background 0.2s;
+}
+
+#userLicensesTable tbody tr:hover {
+  background: rgba(76, 201, 240, 0.08) !important;
+}
+
 .navbar {
   background: var(--card-bg-dark);
   box-shadow: var(--box-shadow);
@@ -155,7 +184,7 @@ body.loaded #app-container {
 
 .stat-item {
   text-align: center;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(36, 45, 62, 0.08);
   border-radius: 0.7rem;
   padding: 1rem 1.5rem;
   min-width: 120px;
@@ -203,7 +232,7 @@ body.loaded #app-container {
 
 /* --- Cards --- */
 .card {
-  background: var(--card-bg-dark);
+  background: rgba(36, 45, 62, 0.08);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   border: 1px solid var(--input-border-dark);
@@ -231,7 +260,7 @@ body.loaded #app-container {
 
 /* --- Server Cards --- */
 .server-card {
-  background: var(--card-bg-dark);
+  background: rgba(36, 45, 62, 0.08);
   border: 1px solid var(--input-border-dark);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
@@ -339,7 +368,7 @@ body.loaded #app-container {
 
 /* --- Tarjeta de Identificación API --- */
 .id-card {
-  background: linear-gradient(120deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+  background: rgba(36, 45, 62, 0.08);
   color: #fff;
   border-radius: 1.2rem;
   box-shadow: 0 6px 24px rgba(106, 90, 249, 0.13);
@@ -460,15 +489,14 @@ body.loaded #app-container {
 
 /* --- Tarjeta de Estadísticas --- */
 .stats-card {
-  background: linear-gradient(120deg, var(--card-bg-dark) 70%, var(--primary-color) 100%);
+  background: rgba(36, 45, 62, 0.08);
   color: #fff;
+  border: 1px solid var(--input-border-dark);
   border-radius: 1.2rem;
-  box-shadow: 0 6px 24px rgba(106, 90, 249, 0.1);
   padding: 1.2rem 1.2rem 1rem 1.2rem;
   margin-top: 1.2rem;
   position: relative;
   overflow: hidden;
-  border: 2px solid var(--primary-color);
   min-width: 260px;
   max-width: 420px;
   animation: fadeIn 0.7s;
@@ -504,7 +532,7 @@ body.loaded #app-container {
   color: #fff !important;
   font-size: 0.97em;
   vertical-align: middle;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(36, 45, 62, 0.08);
   border-bottom: none;
   padding: 0.35em 0.6em;
 }

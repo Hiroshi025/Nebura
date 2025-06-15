@@ -1,4 +1,4 @@
-import { ActivityType, Guild } from "discord.js";
+import { Guild } from "discord.js";
 
 import { LogClass } from "@/interfaces/messaging/modules/discord/structure/handlers/eventlistener";
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
@@ -50,10 +50,4 @@ export default new Event("ready", async () => {
    */
   const logger = await new LogClass(client, guilds);
   await logger.enabled(true);
-  client.user.setActivity({
-    name: "Nebura AI Client",
-    state: "idle",
-    url: "https://help.hiroshi-dev.me",
-    type: ActivityType.Streaming,
-  });
 });

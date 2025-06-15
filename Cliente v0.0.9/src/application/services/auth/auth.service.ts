@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import { main } from "@/main";
 import { AuthLogin } from "@/shared/infrastructure/constants/user";
 import { logWithLabel } from "@/shared/utils/functions/console";
@@ -42,7 +44,7 @@ export class AuthService {
    */
   async createAuth(body: Partial<User>) {
     try {
-      const { email, password, name, discord } = body;
+      const { email, password, name, discordId } = body;
 
       // Validar campos requeridos
       if (!email || !password || !name) {
@@ -71,7 +73,15 @@ export class AuthService {
         return { error: "ENCRYPTION_ERROR", message: "Failed to encrypt password" };
       }
 
-      if (discord) {
+      if (discordId) {
+
+        const response = await axios.get(`https://discord.com/api/v10/users/${discordId}`, {
+          headers: {
+            Authorization: `Bot ${process.env.TOKEN_DISCORD}`,
+          },
+        });
+
+        const discord = response.data;
         // Crear usuario
         const newUser = await main.prisma.userAPI.create({
           data: {

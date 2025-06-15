@@ -24,11 +24,7 @@ const OwnerAddCommand: Precommand = {
       !client.user
     )
       return;
-
-    const data = await main.prisma.myDiscord.findFirst({
-      where: { clientId: client.user.id },
-    });
-
+    const data = await main.DB.findDiscord(client.user.id);
     if (!data)
       return message.reply({
         embeds: [
@@ -99,9 +95,11 @@ const OwnerAddCommand: Precommand = {
           const selectedUsers = i.values;
           const newOwners = selectedUsers.filter((userId: string) => !owners.includes(userId));
           if (newOwners.length > 0) {
-            await main.prisma.myDiscord.update({
+            await main.prisma.discord.update({
               where: { clientId: client.user.id },
-              data: { owners: [...owners, ...newOwners] },
+              data: {
+                    owners: [...owners, ...newOwners],
+              },
             });
             await i.reply({
               embeds: [

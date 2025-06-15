@@ -47,10 +47,6 @@ export interface ProyectConfig {
      */
     discord: {
       /**
-       * Discord bot token.
-       */
-      token: string;
-      /**
        * Discord client ID.
        */
       clientId: string;
@@ -75,29 +71,6 @@ export interface ProyectConfig {
        * Presence configuration for the Discord bot.
        */
       callback: string;
-      presence: {
-        /**
-         * Presence status (e.g., online, idle).
-         */
-        status: string;
-        /**
-         * Activity details for the bot's presence.
-         */
-        activity: {
-          /**
-           * Name of the activity.
-           */
-          name: string;
-          /**
-           * Type of activity (0-3).
-           */
-          type: number;
-          /**
-           * URL associated with the activity (optional).
-           */
-          url?: string;
-        };
-      };
       /**
        * Additional configuration for Discord commands and events.
        */

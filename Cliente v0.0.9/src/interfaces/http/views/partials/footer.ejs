@@ -1,653 +1,169 @@
 <style>
-  /* Variables CSS mejoradas */
-  :root {
-    --footer-bg-gradient: linear-gradient(135deg, var(--card-bg-dark) 0%, #1a1e24 100%);
-    --footer-accent-color: #6c5ce7;
-    --footer-text-color: #a1a5b7;
-    --footer-link-hover: var(--primary-color);
-    --footer-divider-color: rgba(var(--primary-color-rgb), 0.2);
-    --social-icon-size: 40px;
-    --footer-title-underline: 2px;
-    --card-bg-dark: #1e1e2d;
-  }
+  .admin-footer {
+    --footer-bg: var(--card-bg-dark);
+    --footer-text: var(--text-color-dark);
+    --footer-border: var(--input-border-dark);
+    --footer-accent: #6366f1;
+    --footer-hover: #818cf8;
+    --footer-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Footer Moderno */
-  .footer-section {
-    font-size: 0.95rem;
-    border-top: 1px solid var(--footer-divider-color);
-    background: var(--card-bg-dark);
-    color: var(--footer-text-color);
-    padding: 4rem 0 2rem;
     position: relative;
-    overflow: hidden;
-    margin-top: 15px;
-    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Efecto de vidrio para modo claro */
-  [data-bs-theme="light"] .footer-section {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 245, 245, 0.9) 100%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-
-  /* Barra superior decorativa */
-  .footer-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--footer-accent-color));
-    z-index: 1;
-  }
-
-  /* Patrón de fondo sutil */
-  .footer-section::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
-    background-size: 20px 20px;
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  /* Contenedor principal */
-  .footer-container {
-    position: relative;
-    z-index: 2;
-  }
-
-  /* Logo y marca */
-  .footer-brand {
+    z-index: 1000;
+    background: rgba(30, 30, 45, 0.85);
+    /* translúcido y oscuro */
+    color: var(--text-color-dark);
+    border-top: none;
+    box-shadow: 0 -2px 16px 0 rgba(0, 0, 0, 0.06);
+    padding: 1rem 2rem;
+    margin: 0 auto;
     display: flex;
     align-items: center;
-    margin-bottom: 1.5rem;
-    transition: transform 0.3s ease;
+    justify-content: space-between;
+    min-height: 56px;
+    font-size: 0.95rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    margin-top: 20px;
   }
 
-  .footer-brand:hover {
-    transform: translateY(-3px);
+  .admin-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--footer-accent), transparent);
+    opacity: 0.3;
   }
 
-  .footer-logo {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    margin-right: 15px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
-    transition: transform 0.3s ease;
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
   }
 
-  .footer-brand:hover .footer-logo {
+  .footer-left img {
+    height: 36px;
+    width: 36px;
+    border-radius: 10px;
+    margin-right: 0.8rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: var(--footer-transition);
+  }
+
+  .footer-left img:hover {
     transform: rotate(5deg) scale(1.05);
   }
 
-  .footer-brand-name {
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--primary-color);
-    line-height: 1.2;
-    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+  .footer-left .divider {
+    width: 1px;
+    height: 24px;
+    background: var(--footer-border);
+    margin: 0 0.5rem;
+    opacity: 0.5;
   }
 
-  .footer-brand-tagline {
-    font-size: 0.8rem;
-    color: var(--footer-text-color);
-    opacity: 0.8;
-    margin-top: 0.2rem;
-  }
-
-  .footer-description {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 2rem;
-    line-height: 1.6;
-  }
-
-  /* Títulos de sección */
-  .footer-title {
-    color: var(--primary-color);
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-bottom: 1.5rem;
-    position: relative;
-    display: inline-block;
-    text-transform: uppercase;
-  }
-
-  .footer-title::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -8px;
-    width: 50px;
-    height: var(--footer-title-underline);
-    background: linear-gradient(90deg, var(--primary-color), var(--footer-accent-color));
-    border-radius: 2px;
-    transition: width 0.3s ease;
-  }
-
-  .footer-title:hover::after {
-    width: 70px;
-  }
-
-  /* Lista de enlaces */
   .footer-links {
-    list-style: none;
-    padding: 0;
-  }
-
-  .footer-links li {
-    margin-bottom: 0.8rem;
-    position: relative;
-    padding-left: 15px;
-    transition: all 0.3s ease;
-  }
-
-  .footer-links li::before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    color: var(--primary-color);
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .footer-links li:hover {
-    transform: translateX(5px);
-  }
-
-  .footer-links li:hover::before {
-    opacity: 1;
-  }
-
-  .footer-link {
-    color: var(--footer-text-color);
-    text-decoration: none;
-    opacity: 0.8;
-    transition: all 0.3s ease;
-    display: inline-block;
-    position: relative;
-  }
-
-  .footer-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--footer-link-hover);
-    transition: width 0.3s ease;
-  }
-
-  .footer-link:hover {
-    color: var(--footer-link-hover);
-    opacity: 1;
-    text-decoration: none;
-  }
-
-  .footer-link:hover::after {
-    width: 100%;
-  }
-
-  /* Iconos sociales */
-  .social-links {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-
-  .social-icon {
-    width: var(--social-icon-size);
-    height: var(--social-icon-size);
-    border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: rgba(var(--primary-color-rgb), 0.1);
-    color: var(--footer-text-color);
-    font-size: 1rem;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
+    gap: 1.5rem;
   }
 
-  .social-icon::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: 0.5s;
-  }
-
-  .social-icon:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-5px) rotate(5deg);
-    box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.3);
-  }
-
-  .social-icon:hover::before {
-    left: 100%;
-  }
-
-  /* Sección de contacto */
-  .footer-contact {
-    list-style: none;
-    padding: 0;
-  }
-
-  .footer-contact li {
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: flex-start;
-    transition: transform 0.3s ease;
-  }
-
-  .footer-contact li:hover {
-    transform: translateX(5px);
-  }
-
-  .footer-contact-icon {
-    width: 20px;
-    margin-right: 12px;
-    color: var(--primary-color);
-    font-size: 0.9rem;
-    margin-top: 3px;
-  }
-
-  /* Newsletter */
-  .newsletter {
-    margin-top: 2rem;
-  }
-
-  .newsletter-input-group {
-    position: relative;
-  }
-
-  .newsletter-input {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid var(--footer-divider-color) !important;
-    color: var(--footer-text-color) !important;
-    border-radius: 50px !important;
-    padding: 0.5rem 1.2rem !important;
-    transition: all 0.3s ease;
-  }
-
-  .newsletter-input:focus {
-    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25) !important;
-    border-color: var(--primary-color) !important;
-    background: rgba(255, 255, 255, 0.15) !important;
-  }
-
-  .newsletter-btn {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    height: calc(100% - 10px);
-    border-radius: 50px !important;
-    padding: 0 1.2rem !important;
-    font-size: 0.8rem !important;
-    transition: all 0.3s ease;
-  }
-
-  .newsletter-btn:hover {
-    transform: translateY(-50%) scale(1.05);
-  }
-
-  /* Divider */
-  .footer-divider {
-    border: none;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--footer-divider-color), transparent);
-    margin: 3rem 0;
-    position: relative;
-  }
-
-  .footer-divider::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: -3px;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary-color), var(--footer-accent-color));
-    border-radius: 3px;
-  }
-
-  /* Copyright */
-  .footer-copyright {
-    font-size: 0.85rem;
-    opacity: 0.7;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .footer-legal-links {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .footer-legal-link {
-    color: var(--footer-text-color);
+  .footer-links a {
+    color: var(--footer-text);
     text-decoration: none;
     opacity: 0.7;
-    transition: all 0.3s ease;
+    font-weight: 500;
     position: relative;
+    transition: opacity 0.2s;
+    padding: 0.3rem 0;
   }
 
-  .footer-legal-link::after {
+  .footer-links a::after {
     content: '';
     position: absolute;
-    bottom: -2px;
+    bottom: 0;
     left: 0;
     width: 0;
-    height: 1px;
-    background: var(--footer-link-hover);
-    transition: width 0.3s ease;
+    height: 2px;
+    background: var(--footer-accent);
+    transition: var(--footer-transition);
   }
 
-  .footer-legal-link:hover {
-    color: var(--footer-link-hover);
+  .footer-links a:hover {
     opacity: 1;
+    color: var(--footer-hover);
   }
 
-  .footer-legal-link:hover::after {
+  .footer-links a:hover::after {
     width: 100%;
   }
 
   .version-badge {
-    background: var(--primary-color) !important;
-    font-size: 0.7rem !important;
-    padding: 0.25rem 0.6rem !important;
-    border-radius: 50px !important;
-    margin-left: 1rem;
-    transition: all 0.3s ease;
+    background: linear-gradient(135deg, var(--footer-accent), #7c3aed);
+    color: white;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+    transition: var(--footer-transition);
   }
 
   .version-badge:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.3);
-  }
-
-  /* Efecto de partículas decorativas */
-  .footer-particle {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 992px) {
-    .footer-section {
-      padding: 3rem 0 1.5rem;
-    }
-
-    .footer-brand {
-      justify-content: center;
-      text-align: center;
-      flex-direction: column;
-    }
-
-    .footer-logo {
-      margin-right: 0;
-      margin-bottom: 1rem;
-    }
-
-    .footer-title {
-      margin-top: 1.5rem;
-    }
-
-    .footer-title::after {
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .footer-links li {
-      padding-left: 0;
-      text-align: center;
-    }
-
-    .footer-links li::before {
-      display: none;
-    }
-
-    .social-links {
-      justify-content: center;
-    }
-
-    .footer-contact li {
-      justify-content: center;
-    }
-
-    .footer-copyright {
-      flex-direction: column;
-      gap: 1rem;
-      text-align: center;
-    }
-
-    .footer-legal-links {
-      justify-content: center;
-    }
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
   }
 
   @media (max-width: 768px) {
-    .social-icon {
-      width: 35px;
-      height: 35px;
+    .admin-footer {
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem;
       font-size: 0.9rem;
+      text-align: center;
     }
 
-    .footer-divider {
-      margin: 2rem 0;
+    .footer-left {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-left .divider {
+      display: none;
+    }
+
+    .footer-links {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
     }
   }
 
-  /* Animaciones */
-  @keyframes float {
-
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  .floating-logo {
-    animation: float 4s ease-in-out infinite;
+  [data-bs-theme="light"] .admin-footer {
+    background: rgba(255, 255, 255, 0.85);
+    color: #555;
   }
 </style>
 
-<footer class="footer-section">
-  <!-- Partículas decorativas -->
-  <div class="footer-particle" style="width:5px; height:5px; top:20%; left:10%;"></div>
-  <div class="footer-particle" style="width:3px; height:3px; top:70%; left:30%;"></div>
-  <div class="footer-particle" style="width:4px; height:4px; top:40%; left:80%;"></div>
-  <div class="footer-particle" style="width:6px; height:6px; top:80%; left:60%;"></div>
-
-  <div class="container footer-container">
-    <div class="row gy-5">
-      <!-- Brand Column -->
-      <div class="col-lg-4 col-md-6">
-        <div class="footer-brand">
-          <img src="/images/logo.png" alt="Nebura Logo" class="footer-logo floating-logo">
-          <div>
-            <div class="footer-brand-name">Nebura</div>
-            <div class="footer-brand-tagline">AI Solutions</div>
-          </div>
-        </div>
-        <p class="footer-description">
-          Plataforma avanzada para gestión de archivos, servidores y comunidad. Seguridad, velocidad y control en la
-          nube.
-        </p>
-        <div class="social-links">
-          <a href="https://twitter.com/" target="_blank" class="social-icon" title="Twitter">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a href="https://discord.gg/" target="_blank" class="social-icon" title="Discord">
-            <i class="fab fa-discord"></i>
-          </a>
-          <a href="https://github.com/" target="_blank" class="social-icon" title="GitHub">
-            <i class="fab fa-github"></i>
-          </a>
-          <a href="https://linkedin.com/" target="_blank" class="social-icon" title="LinkedIn">
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Links Columns -->
-      <div class="col-lg-2 col-md-3 col-sm-6">
-        <h6 class="footer-title">Navegación</h6>
-        <ul class="footer-links">
-          <li><a href="/dashboard" class="footer-link">Dashboard</a></li>
-          <li><a href="/dashboard/cdn" class="footer-link">CDN</a></li>
-          <li><a href="#" class="footer-link">Servidores</a></li>
-          <li><a href="#" class="footer-link">Perfil</a></li>
-          <li><a href="https://www.hiroshi-dev.me/nebura" class="footer-link">Planes</a></li>
-        </ul>
-      </div>
-
-      <div class="col-lg-2 col-md-3 col-sm-6">
-        <h6 class="footer-title">Recursos</h6>
-        <ul class="footer-links">
-          <li><a href="https://www.hiroshi-dev.me/docs" class="footer-link">Documentación</a></li>
-          <li><a href="#" class="footer-link">Blog</a></li>
-          <li><a href="/dashboard/status" class="footer-link">Estado</a></li>
-          <li><a href="#" class="footer-link">FAQ</a></li>
-          <li><a href="https://www.hiroshi-dev.me/docs" class="footer-link">Changelog</a></li>
-        </ul>
-      </div>
-
-      <!-- Contact Column -->
-      <div class="col-lg-4 col-md-6">
-        <h6 class="footer-title">Contacto</h6>
-        <ul class="footer-contact">
-          <li>
-            <i class="fas fa-envelope footer-contact-icon"></i>
-            <a href="mailto:soporte@nebura.works" class="footer-link">soporte@nebura.works</a>
-          </li>
-          <li>
-            <i class="fas fa-phone footer-contact-icon"></i>
-            <a href="tel:+34999999999" class="footer-link">+34 999 999 999</a>
-          </li>
-          <li>
-            <i class="fas fa-map-marker-alt footer-contact-icon"></i>
-            <span>España / LATAM</span>
-          </li>
-        </ul>
-
-        <div class="newsletter">
-          <h6 class="footer-title">Newsletter</h6>
-          <div class="newsletter-input-group">
-            <input type="email" class="form-control newsletter-input" placeholder="Tu email">
-            <button class="btn btn-primary newsletter-btn" type="button">
-              <i class="fas fa-paper-plane me-1"></i> Suscribir
-            </button>
-          </div>
-        </div>
-      </div>
+<footer class="admin-footer w-100 mt-auto">
+  <div class="footer-left">
+    <div class="d-flex align-items-center">
+      <img src="/images/logo.png" alt="Nebura Logo">
+      <span class="fw-semibold" style="letter-spacing: 0.5px;">Nebura Plataforma</span>
     </div>
+    <div class="divider"></div>
+    <span class="text-muted" style="opacity: 0.7;">&copy; <%= new Date().getFullYear() %> All rights reserved</span>
+  </div>
 
-    <!-- Divider -->
-    <div class="footer-divider"></div>
-
-    <!-- Copyright -->
-    <div class="footer-copyright">
-      <div>
-        &copy; <%= new Date().getFullYear() %> Nebura. Todos los derechos reservados.
-      </div>
-      <div class="footer-legal-links">
-        <a href="https://help.hiroshi-dev.me" class="footer-legal-link">Privacidad</a>
-        <a href="#" class="footer-legal-link">Términos</a>
-        <a href="#" class="footer-legal-link">Cookies</a>
-        <span class="version-badge">v0.0.9</span>
-      </div>
-    </div>
+  <div class="footer-links">
+    <a href="/dashboard/support">Soporte</a>
+    <a href="https://help.hiroshi-dev.me/" target="_blank">Documentación</a>
+    <a href="#">Términos</a>
+    <a href="#">Privacidad</a>
+    <span class="version-badge ms-2">v0.0.9</span>
   </div>
 </footer>
-
-<script>
-  // Animación de partículas
-  document.addEventListener('DOMContentLoaded', function () {
-    const footer = document.querySelector('.footer-section');
-    const particleCount = 8;
-
-    for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'footer-particle';
-
-      // Tamaño aleatorio entre 2px y 6px
-      const size = Math.random() * 4 + 2;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-
-      // Posición aleatoria en el footer
-      particle.style.left = `${Math.random() * 100}%`;
-      particle.style.top = `${Math.random() * 100}%`;
-
-      // Opacidad aleatoria
-      particle.style.opacity = Math.random() * 0.3 + 0.1;
-
-      // Añadir al footer
-      footer.appendChild(particle);
-
-      // Animación flotante
-      animateParticle(particle);
-    }
-
-    function animateParticle(particle) {
-      let x = parseFloat(particle.style.left);
-      let y = parseFloat(particle.style.top);
-      let xSpeed = (Math.random() - 0.5) * 0.02;
-      let ySpeed = (Math.random() - 0.5) * 0.02;
-
-      function move() {
-        x += xSpeed;
-        y += ySpeed;
-
-        // Rebotar en los bordes
-        if (x < 0 || x > 100) xSpeed *= -1;
-        if (y < 0 || y > 100) ySpeed *= -1;
-
-        particle.style.left = `${x}%`;
-        particle.style.top = `${y}%`;
-
-        requestAnimationFrame(move);
-      }
-
-      move();
-    }
-
-    // Efecto hover para el logo
-    const logo = document.querySelector('.footer-logo');
-    logo.addEventListener('mouseenter', () => {
-      logo.style.transform = 'scale(1.1) rotate(10deg)';
-    });
-    logo.addEventListener('mouseleave', () => {
-      logo.style.transform = '';
-    });
-  });
-</script>

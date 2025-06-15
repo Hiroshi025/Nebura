@@ -2,7 +2,6 @@ import { EmbedBuilder, WebhookClient } from "discord.js";
 import { inspect } from "util";
 
 import { main } from "@/main";
-import { config } from "@/shared/utils/config";
 
 import { MyClient } from "../../client";
 
@@ -16,12 +15,11 @@ import { MyClient } from "../../client";
  */
 export async function ErrorConsole(client: MyClient) {
   // Fetch Discord-specific configuration from the database.
-  const data = await main.prisma.myDiscord.findUnique({
-    where: { clientId: config.modules.discord.clientId },
-  });
+  const data = await main.DB.findDiscord(client.user?.id as string);
 
   // Exit if error logging is disabled or webhook URL is not provided.
-  if (!data || data.errorlog === false || data.webhookURL === null) return;
+  if (!data || data.errorlog === false || data.webhookURL === null)
+    return;
 
   const webhook = new WebhookClient({
     url: data.webhookURL,

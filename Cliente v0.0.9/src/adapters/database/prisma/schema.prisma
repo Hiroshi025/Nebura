@@ -14,6 +14,22 @@ datasource db {
 }
 
 /// ------------------------------------------------------------
+/// MODELO PRINCIPAL MANAGER
+/// ------------------------------------------------------------
+model Client {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId /// Identificador único del cliente.
+  clientId    String   @unique /// ID único del cliente.
+  name        String /// Nombre del cliente.
+  version     String
+  maintenance Boolean  @default(false) /// Indica si el cliente está en mantenimiento.
+  webhookUrl  String? /// URL del webhook para notificaciones.
+  modules     Modules? @relation(fields: [modulesId], references: [id]) /// Módulos opcionales del cliente.
+  createdAt   DateTime @default(now()) /// Fecha de creación del cliente.
+  updatedAt   DateTime @updatedAt /// Fecha de última actualización del cliente.
+  modulesId   String?  @db.ObjectId
+}
+
+/// ------------------------------------------------------------
 /// MODELOS PRINCIPALES DE LA API
 /// ------------------------------------------------------------
 
@@ -109,31 +125,8 @@ model Task {
 }
 
 /// ------------------------------------------------------------
-/// MODELOS DE WHATSAPP
-/// ------------------------------------------------------------
-model WhatsApp {
-  id        String   @id @default(cuid()) @map("_id") @db.ObjectId
-  session   String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-/// ------------------------------------------------------------
 /// MODELOS DE DISCORD
 /// ------------------------------------------------------------
-model MyDiscord {
-  id           String   @id @default(cuid()) @map("_id") @db.ObjectId
-  clientId     String   @unique
-  clientSecret String
-  token        String   @unique
-  logconsole   Boolean  @default(false)
-  errorlog     Boolean  @default(false)
-  webhookURL   String?
-  logchannel   String?
-  owners       String[] @default([])
-  createdAt    DateTime @default(now())
-}
-
 model MyGuild {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   guildId   String  @unique
@@ -414,6 +407,40 @@ model LeaderboardReset {
 /// ------------------------------------------------------------
 /// OTROS MODELOS
 /// ------------------------------------------------------------
+model Modules {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  whatsapp   WhatsApp? @relation(fields: [whatsappId], references: [id])
+  whatsappId String?   @unique @db.ObjectId
+  discord    Discord?  @relation(fields: [discordId], references: [id])
+  discordId  String?   @unique @db.ObjectId
+  Client     Client[]
+}
+
+model WhatsApp {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  session   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  Modules   Modules?
+}
+
+model Discord {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  avatar       String?
+  username     String   @default("Nebura")
+  activity     Activity?
+  clientId     String    @unique
+  clientSecret String
+  token        String
+  logconsole   Boolean   @default(false)
+  errorlog     Boolean   @default(false)
+  webhookURL   String?
+  logchannel   String?
+  owners       String[]  @default([])
+  createdAt    DateTime  @default(now())
+  modules      Modules?
+}
+
 model Captcha {
   id        String  @id @map("_id") @db.ObjectId
   isEnabled Boolean @default(false)
@@ -572,6 +599,12 @@ type EventLogs {
   enabled   Boolean
   channelId String?
   events    String[]
+}
+
+type Activity {
+  status String @default("idle") /// Estado del bot (ej. "online", "idle", "dnd")
+  name   String @default("Nebura AI Client")
+  url    String @default("https://www.hiroshi-dev.me")
 }
 
 /// ------------------------------------------------------------

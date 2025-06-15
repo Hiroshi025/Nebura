@@ -27,8 +27,7 @@ export default new Command(
       const guild = await main.prisma.myGuild.findUnique({
         where: { guildId: interaction.guild.id },
       });
-      const data = await main.prisma.myDiscord.findUnique({ where: { clientId: client.user.id } });
-
+      const data = await main.DB.findDiscord(client.user.id);
       if (!data || !guild) {
         return interaction.reply({
           embeds: [
@@ -138,9 +137,11 @@ export default new Command(
                 ) {
                   case "log-errors": {
                     const newValue = !data.errorlog;
-                    await main.prisma.myDiscord.update({
-                      where: { clientId: client.user?.id },
-                      data: { errorlog: newValue },
+                    await main.prisma.discord.update({
+                      where: { clientId: client.user?.id as string },
+                      data: {
+                        errorlog: newValue,
+                      },
                     });
                     setTimeout(async () => {
                       await i.update({
@@ -159,9 +160,11 @@ export default new Command(
                   }
                   case "log-debug": {
                     const newValue = !data.logconsole;
-                    await main.prisma.myDiscord.update({
-                      where: { clientId: client.user?.id },
-                      data: { logconsole: newValue },
+                    await main.prisma.discord.update({
+                      where: { clientId: client.user?.id as string },
+                      data: {
+                        logconsole: newValue,
+                      },
                     });
                     setTimeout(async () => {
                       await i.update({

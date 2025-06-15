@@ -9,7 +9,7 @@
   --input-bg-light: #fdfdfd;
   --input-border-light: #e0e0e0;
   --background-color-dark: #121212;
-  --card-bg-dark: #1e1e1e;
+  --card-bg-dark: rgba(36, 45, 62, 0.08);
   --text-color-dark: #e0e0e0;
   --input-bg-dark: #2a2a2a;
   --input-border-dark: #333;
@@ -90,7 +90,7 @@ body.loaded #app-container {
 .card {
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
-  background: var(--card-bg-dark);
+  background: rgba(36, 45, 62, 0.08);
   margin-bottom: 2rem;
   border: none;
   transition:
@@ -152,7 +152,7 @@ body.loaded #app-container {
 }
 
 .doc-section {
-  background: var(--card-bg-dark);
+  background: rgba(36, 45, 62, 0.08);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   padding: 2rem;
@@ -174,7 +174,7 @@ body.loaded #app-container {
 }
 
 .response-box {
-  background: var(--card-bg-dark);
+  background: rgba(36, 45, 62, 0.08);
   color: var(--text-color-dark);
   border-radius: var(--border-radius);
   padding: 1.5rem;

@@ -24,6 +24,16 @@ body {
   min-height: 100vh;
 }
 
+#tsparticles {
+  position: fixed;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
 .admin-header {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   border-radius: var(--border-radius);
@@ -73,7 +83,7 @@ body {
 }
 
 .card {
-  background: var(--card-bg-dark);
+  background: rgba(36, 45, 62, 0.08);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   border: 1px solid var(--input-border-dark);
@@ -93,7 +103,7 @@ body {
 }
 
 .count-box {
-  background: var(--count-box-bg);
+  background: rgba(36, 45, 62, 0.08);
   color: var(--count-box-color);
   border-radius: var(--border-radius);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
