@@ -1,7 +1,7 @@
 {
-  "name": "nebura-works",
-  "version": "0.0.10",
-  "main": "index.js",
+  "name": "nebura-assistent",
+  "version": "0.0.11",
+  "main": "src/main.js",
   "scripts": {
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --fix --ext .ts .",
@@ -31,18 +31,21 @@
     "postbuild": "npm run copy-env",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org nebura --project nebura-client ./build && sentry-cli sourcemaps upload --org nebura --project nebura-client ./build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "api",
+    "modular",
+    "discord",
+    "whatsapp",
+    "github",
+    "google-ai",
+    "typescript",
+    "nodejs",
+    "express",
+    "socket.io",
+    "swagger"
+  ],
+  "author": "Hiroshi025",
   "license": "ISC",
-  "lint-staged": {
-    "*.{ts,tsx,js}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
-  },
   "prisma": {
     "schema": "src/adapters/database/prisma/schema.prisma"
   },
@@ -135,7 +138,6 @@
     "eslint-plugin-prettier": "^5.2.5",
     "eslint-plugin-sonarjs": "^3.0.2",
     "eslint-plugin-unicorn": "^58.0.0",
-    "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
     "prisma": "^6.5.0",
@@ -150,11 +152,11 @@
   },
   "bugs": {
     "url": "https://github.com/Hiroshi025/Nebura-AI/issues",
-    "email": "tu-email@dominio.com"
+    "email": "alchemistdevs@gmail.com"
   },
   "homepage": "https://help.hiroshi-dev.me/",
   "markdown": "github",
-  "readme": "# Nebura Works",
+  "readme": "# Nebura",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Hiroshi025/Nebura-AI.git"

@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/Hiroshi025/Nebura-AI/compare/v0.0.16...v0.0.11) (2025-06-17)
+
 ### [0.0.10](https://github.com/Hiroshi025/Nebura-AI/compare/v0.0.16...v0.0.10) (2025-06-06)
 
 ### [0.0.16](https://github.com/Hiroshi025/Nebura-AI/compare/v0.0.15...v0.0.16) (2025-05-02)
