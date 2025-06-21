@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
 import { safeCompare } from "@/shared/functions";
-import { config } from "@/shared/utils/config";
 import { getToken } from "@utils/token";
 
 const ERROR_MESSAGES = {
@@ -58,8 +57,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
 
 export const isAdminToken = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const secretAdmin = config.environments.default["key-secrets"].administrator;
-
+    const secretAdmin = process.env.ADMIN_SECRET as string;
     const FORBIDDEN_ERROR = {
       message: "Forbidden: Insufficient privileges",
       timestamp: new Date().toISOString(),
@@ -103,7 +101,7 @@ export const isAdminToken = (req: Request, res: Response, next: NextFunction) =>
 
 export const isCustomerToken = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const secretCustomer = config.environments.default["key-secrets"].customer;
+    const secretCustomer = process.env.CUSTOMER_SECRET as string;
     const FORBIDDEN_ERROR = {
       message: "Forbidden: Insufficient privileges",
       timestamp: new Date().toISOString(),

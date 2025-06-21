@@ -18,6 +18,9 @@ import { MyClient } from "@modules/discord/client";
  * @see https://www.npmjs.com/package/cron
  */
 export const YouTube = (client: MyClient) => {
+  console.info(
+    `[YOUTUBE][INIT] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Initializing YouTube notification system for Discord.`,
+  );
   /**
    * Cron job to check YouTube channels for new videos at specific intervals.
    * Uses Europe/Berlin timezone.
@@ -26,23 +29,39 @@ export const YouTube = (client: MyClient) => {
     "0 1,9,17,23,29,35,41,47,53,59 * * * *",
     async function () {
       console.debug(
-        `[YOUTUBE][DEBUG] | ${moment().format("dddd DD-MM-YYYY HH:mm:ss")} :: Checking YouTube accounts - ${moment().format(`LLLL`)}`,
+        `[YOUTUBE][CRON][START] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Checking YouTube accounts.`,
       );
       let guilds = await main.prisma.youtube.findMany({
         include: {
           youtubers: true,
         },
       });
-
-      if (!guilds) return;
-
+      console.debug(
+        `[YOUTUBE][CRON][DB] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Found ${guilds.length} guilds with YouTube configuration.`,
+      );
+      if (!guilds) {
+        console.warn(
+          `[YOUTUBE][CRON][DB] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: No guilds found in database.`,
+        );
+        return;
+      }
       for await (const g of guilds) {
         let guild = client.guilds.cache.get(g.serverId as string);
-        if (!guild) continue;
-
+        if (!guild) {
+          console.warn(
+            `[YOUTUBE][CRON][GUILD] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Guild not found in cache: ${g.serverId}`,
+          );
+          continue;
+        }
+        console.debug(
+          `[YOUTUBE][CRON][GUILD] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Processing guild: ${guild.name} (${guild.id})`,
+        );
         // Wait 2 seconds before checking videos for each guild
         await setTimeout(() => getVideos(guild), ms("2s"));
       }
+      console.debug(
+        `[YOUTUBE][CRON][END] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Finished checking all guilds.`,
+      );
       // Do not return any value to satisfy CronJob's expected signature
     },
     null,
@@ -55,10 +74,9 @@ export const YouTube = (client: MyClient) => {
    * Starts the YouTube cron job.
    */
   client.on("ready", async () => {
-    console.debug(
-      `[YOUTUBE][DEBUG] | ${moment().format("dddd DD-MM-YYYY HH:mm:ss")} :: YouTube system started`,
+    console.info(
+      `[YOUTUBE][READY] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: YouTube system started. Starting cron job.`,
     );
-
     client.Youtubelog.start();
   });
 
@@ -69,39 +87,57 @@ export const YouTube = (client: MyClient) => {
    * @param guild - The Discord guild to check for YouTube updates
    */
   async function getVideos(guild: Guild) {
+    console.debug(
+      `[YOUTUBE][GUILD][START] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Checking YouTube channels for guild: ${guild.name} (${guild.id})`,
+    );
     let tempData = await main.prisma.youtuber.findMany({ where: { guildId: guild.id } });
-    if (!tempData || !tempData.length) return;
-
+    console.debug(
+      `[YOUTUBE][GUILD][DB] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Found ${tempData.length} YouTube channels for guild: ${guild.name} (${guild.id})`,
+    );
+    if (!tempData || !tempData.length) {
+      console.warn(
+        `[YOUTUBE][GUILD][DB] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: No YouTube channels configured for guild: ${guild.name} (${guild.id})`,
+      );
+      return;
+    }
     tempData.map(async function (chan, i) {
-      if (!chan.userId || !chan.channelId) return;
-      if (chan.channelId === undefined || chan.channelId.length < 18) return;
-
+      console.debug(
+        `[YOUTUBE][CHANNEL][START] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Processing channel config: ${JSON.stringify(chan)}`,
+      );
+      if (!chan.userId || !chan.channelId) {
+        console.warn(
+          `[YOUTUBE][CHANNEL][SKIP] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Missing userId or channelId for config: ${JSON.stringify(chan)}`,
+        );
+        return;
+      }
+      if (chan.channelId === undefined || chan.channelId.length < 18) {
+        console.warn(
+          `[YOUTUBE][CHANNEL][SKIP] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Invalid channelId: ${chan.channelId}`,
+        );
+        return;
+      }
       const payload1 = {
-        channelId: `${chan.userId}`, // Required
+        channelId: `${chan.userId}`,
         channelIdType: 0,
       };
-
       const payload2 = {
-        channelId: `${chan.userId}`, // Required
+        channelId: `${chan.userId}`,
         sortBy: "newest" as "newest",
         channelIdType: 0,
       };
-
       await ytch
         .getChannelInfo(payload1)
         .then(async (response) => {
           let thumbnail = response.authorThumbnails?.[2]?.url ?? null;
-
           try {
             const response = await ytch.getChannelVideos(payload2);
-
             let YoutubeData = response.items[0];
-
             if (!YoutubeData) {
-              // No YouTube data found for this channel
+              console.warn(
+                `[YOUTUBE][CHANNEL][NO_VIDEO] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: No videos found for channel: ${chan.userId}`,
+              );
               return;
             }
-
             const authorName = YoutubeData.author;
             const userUrl = `https://www.youtube.com/channel/${YoutubeData.authorId}`;
             const lastVideoId = YoutubeData.videoId;
@@ -112,7 +148,9 @@ export const YouTube = (client: MyClient) => {
               YoutubeData.videoThumbnails && YoutubeData.videoThumbnails[3]
                 ? YoutubeData.videoThumbnails[3].url
                 : null;
-
+            console.debug(
+              `[YOUTUBE][CHANNEL][VIDEO] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Latest video for ${authorName}: ${title} (${lastVideoId}) | Duration: ${duration}`,
+            );
             // Embed structure for the notification
             let embed = new EmbedCorrect()
               .setAuthor({ name: `${authorName}`, iconURL: `${thumbnail}`, url: `${lastVideoUrl}` })
@@ -140,7 +178,6 @@ export const YouTube = (client: MyClient) => {
               .setFooter({ text: `YouTube`, iconURL: `https://i.imgur.com/ThXFUPL.png` })
               .setImage(`${image}`)
               .setTimestamp();
-
             // Fetch the Discord channel for notifications
             await client.channels
               .fetch(chan.channelId as string)
@@ -160,35 +197,55 @@ export const YouTube = (client: MyClient) => {
                           lastVideo: lastVideoId,
                         },
                       });
-                      console.debug(
-                        `[YOUTUBE][DEBUG] | ${moment().format("dddd DD-MM-YYYY HH:mm:ss")} | ${guild.name} :: Notification sent: ${lastVideoUrl}`,
+                      console.info(
+                        `[YOUTUBE][NOTIFY][SUCCESS] | ${moment().format("YYYY-MM-DD HH:mm:ss")} | Guild: ${guild.name} (${guild.id}) | Channel: ${chan.channelId} | Video: ${lastVideoUrl} | Notification sent successfully.`,
                       );
                     })
                     .catch((e) => {
-                      console.debug(
-                        `[YOUTUBE][DEBUG] | ${moment().format("dddd DD-MM-YYYY HH:mm:ss")} | ${guild.name} :: Error sending notification`,
+                      console.error(
+                        `[YOUTUBE][NOTIFY][ERROR] | ${moment().format("YYYY-MM-DD HH:mm:ss")} | Guild: ${guild.name} (${guild.id}) | Channel: ${chan.channelId} | Error sending notification:`,
                         e,
                       );
                     });
                 } else {
-                  // No new videos found
+                  console.debug(
+                    `[YOUTUBE][NOTIFY][SKIP] | ${moment().format("YYYY-MM-DD HH:mm:ss")} | Guild: ${guild.name} (${guild.id}) | Channel: ${chan.channelId} | No new video to notify.`,
+                  );
                   return;
                 }
               })
-              .catch(() => null);
+              .catch((e) => {
+                console.error(
+                  `[YOUTUBE][CHANNEL][FETCH_ERROR] | ${moment().format("YYYY-MM-DD HH:mm:ss")} | Guild: ${guild.name} (${guild.id}) | Channel: ${chan.channelId} | Error fetching Discord channel:`,
+                  e,
+                );
+                return null;
+              });
           } catch (error) {
             if (error) {
-              // Error fetching latest video
+              console.error(
+                `[YOUTUBE][CHANNEL][VIDEO_ERROR] | ${moment().format("YYYY-MM-DD HH:mm:ss")} | Channel: ${chan.userId} | Error fetching latest video:`,
+                error,
+              );
               return;
             }
           }
         })
         .catch((error) => {
           if (error) {
-            // Error fetching channel info
+            console.error(
+              `[YOUTUBE][CHANNEL][INFO_ERROR] | ${moment().format("YYYY-MM-DD HH:mm:ss")} | Channel: ${chan.userId} | Error fetching channel info:`,
+              error,
+            );
             return;
           }
         });
+      console.debug(
+        `[YOUTUBE][CHANNEL][END] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Finished processing channel config: ${JSON.stringify(chan)}`,
+      );
     });
+    console.debug(
+      `[YOUTUBE][GUILD][END] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Finished checking YouTube channels for guild: ${guild.name} (${guild.id})`,
+    );
   }
 };

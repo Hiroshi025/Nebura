@@ -16,7 +16,6 @@ import { AuthPublic, Maintenance } from "@/interfaces/http/middlewares/web/auth.
 import { client, main } from "@/main";
 import { hostURL } from "@/shared/functions";
 import { TRoutesInput, User } from "@/typings/utils";
-import { config } from "@utils/config";
 import { WinstonLogger } from "@utils/winston";
 
 /**
@@ -255,7 +254,7 @@ export default ({ app }: TRoutesInput) => {
     return res.render("agent.ejs", {
       title: "Agente Gemini",
       user: req.user,
-      customer_key: config.environments.default["key-secrets"].customer,
+      customer_key: process.env.CUSTOMER_SECRET as string
     });
   });
 

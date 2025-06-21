@@ -1,13 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 
-import {
-  GitHubEvent,
-  GitHubFollower,
-  GitHubGist,
-  GitHubOrganization,
-  GitHubRepo,
-  GitHubUser,
-} from "@/typings/utils";
+import { GithubMessage } from "@typings/modules/discord";
 
 /**
  * A service class for interacting with the GitHub API.
@@ -39,9 +32,9 @@ export class GitHubService {
    * @returns A promise that resolves to a `GitHubUser` object containing user details.
    * @throws An error if the request fails.
    */
-  async getUser(username: string): Promise<GitHubUser> {
+  async getUser(username: string): Promise<GithubMessage.User> {
     try {
-      const response: AxiosResponse<GitHubUser> = await this.api.get(`/users/${username}`);
+      const response: AxiosResponse<GithubMessage.User> = await this.api.get(`/users/${username}`);
       return response.data;
     } catch (error) {
       throw new Error(
@@ -65,7 +58,7 @@ export class GitHubService {
       sort?: "created" | "updated" | "pushed" | "full_name";
       direction?: "asc" | "desc";
     },
-  ): Promise<GitHubRepo[]> {
+  ): Promise<GithubMessage.Repo[]> {
     try {
       const params = new URLSearchParams();
       if (options?.per_page) params.append("per_page", options.per_page.toString());
@@ -73,7 +66,7 @@ export class GitHubService {
       if (options?.sort) params.append("sort", options.sort);
       if (options?.direction) params.append("direction", options.direction);
 
-      const response: AxiosResponse<GitHubRepo[]> = await this.api.get(
+      const response: AxiosResponse<GithubMessage.Repo[]> = await this.api.get(
         `/users/${username}/repos?${params.toString()}`,
       );
       return response.data;
@@ -90,9 +83,9 @@ export class GitHubService {
    * @returns A promise that resolves to an array of `GitHubEvent` objects.
    * @throws An error if the request fails.
    */
-  async getUserEvents(username: string): Promise<GitHubEvent[]> {
+  async getUserEvents(username: string): Promise<GithubMessage.Event[]> {
     try {
-      const response: AxiosResponse<GitHubEvent[]> = await this.api.get(
+      const response: AxiosResponse<GithubMessage.Event[]> = await this.api.get(
         `/users/${username}/events`,
       );
       return response.data;
@@ -109,9 +102,9 @@ export class GitHubService {
    * @returns A promise that resolves to an array of `GitHubOrganization` objects.
    * @throws An error if the request fails.
    */
-  async getUserOrganizations(username: string): Promise<GitHubOrganization[]> {
+  async getUserOrganizations(username: string): Promise<GithubMessage.Organization[]> {
     try {
-      const response: AxiosResponse<GitHubOrganization[]> = await this.api.get(
+      const response: AxiosResponse<GithubMessage.Organization[]> = await this.api.get(
         `/users/${username}/orgs`,
       );
       return response.data;
@@ -128,9 +121,9 @@ export class GitHubService {
    * @returns A promise that resolves to an array of `GitHubFollower` objects.
    * @throws An error if the request fails.
    */
-  async getUserFollowers(username: string): Promise<GitHubFollower[]> {
+  async getUserFollowers(username: string): Promise<GithubMessage.Follower[]> {
     try {
-      const response: AxiosResponse<GitHubFollower[]> = await this.api.get(
+      const response: AxiosResponse<GithubMessage.Follower[]> = await this.api.get(
         `/users/${username}/followers`,
       );
       return response.data;
@@ -147,9 +140,9 @@ export class GitHubService {
    * @returns A promise that resolves to an array of `GitHubFollower` objects.
    * @throws An error if the request fails.
    */
-  async getUserFollowing(username: string): Promise<GitHubFollower[]> {
+  async getUserFollowing(username: string): Promise<GithubMessage.Follower[]> {
     try {
-      const response: AxiosResponse<GitHubFollower[]> = await this.api.get(
+      const response: AxiosResponse<GithubMessage.Follower[]> = await this.api.get(
         `/users/${username}/following`,
       );
       return response.data;
@@ -166,9 +159,9 @@ export class GitHubService {
    * @returns A promise that resolves to an array of `GitHubGist` objects.
    * @throws An error if the request fails.
    */
-  async getUserGists(username: string): Promise<GitHubGist[]> {
+  async getUserGists(username: string): Promise<GithubMessage.Gist[]> {
     try {
-      const response: AxiosResponse<GitHubGist[]> = await this.api.get(`/users/${username}/gists`);
+      const response: AxiosResponse<GithubMessage.Gist[]> = await this.api.get(`/users/${username}/gists`);
       return response.data;
     } catch (error) {
       throw new Error(
@@ -184,9 +177,9 @@ export class GitHubService {
    * @returns A promise that resolves to a `GitHubRepo` object.
    * @throws An error if the request fails.
    */
-  async getRepo(owner: string, repo: string): Promise<GitHubRepo> {
+  async getRepo(owner: string, repo: string): Promise<GithubMessage.Repo> {
     try {
-      const response: AxiosResponse<GitHubRepo> = await this.api.get(`/repos/${owner}/${repo}`);
+      const response: AxiosResponse<GithubMessage.Repo> = await this.api.get(`/repos/${owner}/${repo}`);
       return response.data;
     } catch (error) {
       throw new Error(
@@ -202,13 +195,13 @@ export class GitHubService {
    * @throws An error if any of the requests fail.
    */
   async getAllUserData(username: string): Promise<{
-    user: GitHubUser;
-    repos: GitHubRepo[];
-    events: GitHubEvent[];
-    organizations: GitHubOrganization[];
-    followers: GitHubFollower[];
-    following: GitHubFollower[];
-    gists: GitHubGist[];
+    user: GithubMessage.User;
+    repos: GithubMessage.Repo[];
+    events: GithubMessage.Event[];
+    organizations: GithubMessage.Organization[];
+    followers: GithubMessage.Follower[];
+    following: GithubMessage.Follower[];
+    gists: GithubMessage.Gist[];
   }> {
     try {
       const [user, repos, events, organizations, followers, following, gists] = await Promise.all([

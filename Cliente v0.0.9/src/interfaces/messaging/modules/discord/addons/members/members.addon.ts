@@ -111,8 +111,9 @@ export default new Addons(
   async (client) => {
     // Función principal para actualizar todos los guilds
     async function updateAllGuilds() {
+      logWithLabel("debug", "[MemberCount] Starting update of all guilds...");
       try {
-        // Consulta optimizada: solo trae los campos necesarios
+        // Optimized query: only fetch necessary fields
         const setups = await main.prisma.myGuild.findMany({
           select: {
             guildId: true,
@@ -134,65 +135,106 @@ export default new Addons(
           },
         });
 
+        logWithLabel("debug", `[MemberCount] Found setups: ${JSON.stringify(setups)}`);
         const guilds = setups.map((setup) => setup.guildId);
-        logWithLabel("debug", `${JSON.stringify(guilds)} MEMBERCOUNTER ALL GUILDS`);
+        logWithLabel("debug", `[MemberCount] Guilds to process: ${JSON.stringify(guilds)}`);
 
         await processGuildsInBatches(guilds, memberCount, 3);
+        logWithLabel("debug", "[MemberCount] Finished updating all guilds.");
       } catch (error: any) {
-        logWithLabel("error", `${error.message}`);
+        logWithLabel("error", `[MemberCount] ${error.message}`);
       }
     }
 
     // Ejecuta al iniciar el bot
-    client.on("ready", updateAllGuilds);
+    client.on("ready", () => {
+      logWithLabel("debug", "[MemberCount] Ready event: running updateAllGuilds");
+      updateAllGuilds();
+    });
 
     // Ejecuta cada hora
-    client.Jobmembercount = schedule.scheduleJob("0 * * * *", updateAllGuilds);
+    client.Jobmembercount = schedule.scheduleJob("0 * * * *", () => {
+      logWithLabel("debug", "[MemberCount] Scheduled task: running updateAllGuilds");
+      updateAllGuilds();
+    });
 
     // Función para actualizar los canales de un guild
     async function memberCount(guildId: string) {
+      logWithLabel("debug", `[MemberCount] Processing guild: ${guildId}`);
       try {
         const guild = client.guilds.cache.get(guildId);
         if (!guild) {
-          logWithLabel("warn", `Guild not found: ${guildId}`);
+          logWithLabel("warn", `[MemberCount] Guild not found: ${guildId}`);
           return;
         }
 
+        logWithLabel("debug", `[MemberCount] Fetching members for guild: ${guildId}`);
         await guild.members.fetch().catch((err) => {
-          logWithLabel("error", `Failed to fetch members for guild ${guildId}: ${err.message}`);
+          logWithLabel(
+            "error",
+            `[MemberCount] Failed to fetch members for guild ${guildId}: ${err.message}`,
+          );
         });
 
         const settings = await main.prisma.myGuild.findFirst({
           where: { guildId },
         });
 
+        logWithLabel(
+          "debug",
+          `[MemberCount] Settings for guild ${guildId}: ${JSON.stringify(settings)}`,
+        );
+
         if (!settings) {
-          logWithLabel("warn", `No settings found for guild ${guildId}`);
+          logWithLabel("warn", `[MemberCount] No settings found for guild ${guildId}`);
           return;
         }
 
-        // Procesa cada canal configurado (1-5)
+        // Process each configured channel (1-5)
         for (let i = 1; i <= 5; i++) {
           const channelId = settings[`membercount_channel${i}` as keyof typeof settings];
           const message = settings[`membercount_message${i}` as keyof typeof settings];
 
-          // Validación de ID de canal (debe ser string y tener longitud típica de un ID de Discord)
+          logWithLabel(
+            "debug",
+            `[MemberCount] Slot ${i}: channelId=${channelId}, message=${message}`,
+          );
+
+          // Channel ID validation (must be string and typical Discord ID length)
           if (typeof channelId === "string" && /^\d{17,20}$/.test(channelId)) {
             try {
               if (typeof message === "string") {
+                logWithLabel(
+                  "debug",
+                  `[MemberCount] Updating channel ${channelId} in guild ${guildId} with message: ${message}`,
+                );
                 await updateChannel(guild, channelId, message);
-                await delay(500); // Delay pequeño entre canales para evitar rate limit
+                await delay(500); // Small delay between channels to avoid rate limit
+              } else {
+                logWithLabel(
+                  "warn",
+                  `[MemberCount] Invalid message for channel ${channelId} in guild ${guildId}`,
+                );
               }
             } catch (err: any) {
               logWithLabel(
                 "error",
-                `Error updating channel ${channelId} in guild ${guildId}: ${err.message}`,
+                `[MemberCount] Error updating channel ${channelId} in guild ${guildId}: ${err.message}`,
               );
             }
+          } else {
+            logWithLabel(
+              "warn",
+              `[MemberCount] Invalid or unconfigured channel in slot ${i} for guild ${guildId}`,
+            );
           }
         }
+        logWithLabel("debug", `[MemberCount] Finished processing guild: ${guildId}`);
       } catch (error: any) {
-        logWithLabel("error", `Error in memberCount for guild ${guildId}: ${error.message}`);
+        logWithLabel(
+          "error",
+          `[MemberCount] Error in memberCount for guild ${guildId}: ${error.message}`,
+        );
       }
     }
 
@@ -202,13 +244,16 @@ export default new Addons(
       channelId: string,
       channelName: string,
     ): Promise<boolean> {
-      logWithLabel("debug", `MemberCount - Channel - ${guild.name} - ${channelId}, ${channelName}`);
+      logWithLabel(
+        "debug",
+        `[MemberCount] updateChannel - Guild: ${guild.name} (${guild.id}) - Channel: ${channelId}, Name: ${channelName}`,
+      );
 
       try {
         const channel = await guild.channels.fetch(channelId).catch((err) => {
           logWithLabel(
             "error",
-            `Failed to fetch channel ${channelId} in guild ${guild.id}: ${err.message}`,
+            `[MemberCount] Failed to fetch channel ${channelId} in guild ${guild.id}: ${err.message}`,
           );
           return null;
         });
@@ -216,27 +261,37 @@ export default new Addons(
         if (!channel || !channel.isVoiceBased()) {
           logWithLabel(
             "warn",
-            `Channel ${channelId} is not voice-based or does not exist in guild ${guild.id}`,
+            `[MemberCount] Channel ${channelId} is not voice-based or does not exist in guild ${guild.id}`,
           );
           return false;
         }
 
         const newname = replacePlaceholders(guild, channelName);
+        logWithLabel("debug", `[MemberCount] Current name: ${channel.name} | New name: ${newname}`);
 
         if (channel.name !== newname) {
           await channel.setName(newname).catch((err) => {
             logWithLabel(
               "error",
-              `Failed to set name for channel ${channelId} in guild ${guild.id}: ${err.message}`,
+              `[MemberCount] Failed to set name for channel ${channelId} in guild ${guild.id}: ${err.message}`,
             );
           });
+          logWithLabel(
+            "debug",
+            `[MemberCount] Channel name ${channelId} updated successfully in guild ${guild.id}`,
+          );
           return true;
+        } else {
+          logWithLabel(
+            "debug",
+            `[MemberCount] Channel name ${channelId} is already up to date in guild ${guild.id}`,
+          );
         }
         return false;
       } catch (error: any) {
         logWithLabel(
           "error",
-          `Error in updateChannel for guild ${guild.id}, channel ${channelId}: ${error.message}`,
+          `[MemberCount] Error in updateChannel for guild ${guild.id}, channel ${channelId}: ${error.message}`,
         );
         return false;
       }

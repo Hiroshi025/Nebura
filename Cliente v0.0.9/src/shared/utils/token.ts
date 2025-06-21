@@ -2,9 +2,6 @@ import { compare, hash } from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
 
 import { DomainError } from "@/shared/infrastructure/extends/error.extend";
-import { config } from "@/shared/utils/config";
-
-const sessions = config.environments.default.api.sessions;
 
 /**
  * Generates a JSON Web Token (JWT) for the given user ID (email).
@@ -18,9 +15,9 @@ const sessions = config.environments.default.api.sessions;
  * console.log(token);
  */
 const signToken = (id: string): string => {
-  if (!sessions.jwtsecret) throw new DomainError("No JWT secret provided");
+  if (!process.env.JWT_SECRET) throw new DomainError("No JWT secret provided");
 
-  const jwt = sign({ id }, sessions.jwtsecret, {
+  const jwt = sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
 
@@ -42,10 +39,10 @@ const signToken = (id: string): string => {
  * }
  */
 const getToken = async (jwt: string): Promise<string | object> => {
-  if (!sessions.jwtsecret) throw new DomainError("No JWT secret provided");
+  if (!process.env.JWT_SECRET) throw new DomainError("No JWT secret provided");
   if (!jwt) return "not_auth";
 
-  const isOK = verify(jwt, sessions.jwtsecret);
+  const isOK = verify(jwt, process.env.JWT_SECRET);
   if (!isOK) return "not_auth";
 
   return isOK;

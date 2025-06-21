@@ -7,45 +7,10 @@ import {
 import { GiveawayManager, main } from "@/main"; // Ajusta la ruta según tu estructura
 import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { MyClient } from "@modules/discord/client";
-import { Precommand } from "@typings/modules/discord";
+import { GiveawayInterface, Precommand } from "@typings/modules/discord";
 
 //TODO: No crea el sorteo configurado y cambia los ephemerañ: true por los flags
 
-interface GiveawayData {
-  prize?: string;
-  duration?: number;
-  channelId?: string;
-  winners?: number;
-  requirements?: {
-    roles?: string[];
-    accountAge?: number;
-    messageCount?: number;
-  };
-}
-
-/* interface GiveawayOptions {
-    prize: string;
-    winnerCount: number;
-    duration: number;
-    hostedBy: string;
-    messages: {
-        giveaway: string;
-        giveawayEnded: string;
-        inviteToParticipate: string;
-        timeRemaining: string;
-        winMessage: string;
-        noWinner: string;
-        hostedBy: string;
-        winners: string;
-        endedAt: string;
-    };
-    requirements?: {
-        roles?: string[];
-        accountAge?: number;
-        messageCount?: number;
-    };
-}
- */
 const GiveawayCreate: Precommand = {
   name: "giveaway-create",
   description: "Create a new interactive giveaway with custom settings",
@@ -109,7 +74,7 @@ const GiveawayCreate: Precommand = {
       flags: "SuppressNotifications",
     });
 
-    const giveawayData: GiveawayData = {};
+    const giveawayData: GiveawayInterface.Data = {};
 
     // Helper function to update the setup embed
     const updateStatusEmbed = async () => {
@@ -195,7 +160,7 @@ const GiveawayCreate: Precommand = {
             embeds: [
               new ErrorEmbed().setDescription("An error occurred while processing your request."),
             ],
-            flags: "Ephemeral"
+            flags: "Ephemeral",
           });
         }
       }
@@ -232,7 +197,7 @@ const GiveawayCreate: Precommand = {
         console.error("Error processing modal:", error);
         await modalInteraction.reply({
           embeds: [new ErrorEmbed().setDescription("Failed to process your input.")],
-          flags: "Ephemeral"
+          flags: "Ephemeral",
         });
       }
     });
@@ -241,7 +206,7 @@ const GiveawayCreate: Precommand = {
 
 // ========== Helper Functions ==========
 
-async function handlePrizeSetup(interaction: any, _giveawayData: GiveawayData) {
+async function handlePrizeSetup(interaction: any, _giveawayData: GiveawayInterface.Data) {
   const modal = new ModalBuilder()
     .setCustomId("giveaway_prize_modal")
     .setTitle("Giveaway Prize Configuration");
@@ -271,7 +236,7 @@ async function handlePrizeSetup(interaction: any, _giveawayData: GiveawayData) {
   await interaction.showModal(modal);
 }
 
-async function handleDurationSetup(interaction: any, _giveawayData: GiveawayData) {
+async function handleDurationSetup(interaction: any, _giveawayData: GiveawayInterface.Data) {
   const modal = new ModalBuilder()
     .setCustomId("giveaway_duration_modal")
     .setTitle("Giveaway Duration Configuration");
@@ -288,7 +253,7 @@ async function handleDurationSetup(interaction: any, _giveawayData: GiveawayData
   await interaction.showModal(modal);
 }
 
-async function handleChannelSelect(interaction: any, giveawayData: GiveawayData) {
+async function handleChannelSelect(interaction: any, giveawayData: GiveawayInterface.Data) {
   const channelSelectRow = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
     new ChannelSelectMenuBuilder()
       .setCustomId("giveaway_channel_select")
@@ -346,7 +311,7 @@ async function handleChannelSelect(interaction: any, giveawayData: GiveawayData)
   });
 }
 
-async function handleRequirementsSetup(interaction: any, _giveawayData: GiveawayData) {
+async function handleRequirementsSetup(interaction: any, _giveawayData: GiveawayInterface.Data) {
   const modal = new ModalBuilder()
     .setCustomId("giveaway_requirements_modal")
     .setTitle("Giveaway Requirements Configuration");
@@ -383,7 +348,7 @@ async function handleRequirementsSetup(interaction: any, _giveawayData: Giveaway
 
 async function handleGiveawayCreation(
   interaction: any,
-  giveawayData: GiveawayData,
+  giveawayData: GiveawayInterface.Data,
   _client: MyClient,
 ) {
   // Validate all required fields
@@ -499,7 +464,7 @@ async function handleGiveawayCreation(
   }
 }
 
-async function processPrizeModal(interaction: any, giveawayData: GiveawayData) {
+async function processPrizeModal(interaction: any, giveawayData: GiveawayInterface.Data) {
   const prize = interaction.fields.getTextInputValue("prize_input").trim();
   const winnersInput = interaction.fields.getTextInputValue("winners_input").trim();
   const winners = Math.min(Math.max(parseInt(winnersInput) || 1, 1), 20);
@@ -523,7 +488,7 @@ async function processPrizeModal(interaction: any, giveawayData: GiveawayData) {
   });
 }
 
-async function processDurationModal(interaction: any, giveawayData: GiveawayData) {
+async function processDurationModal(interaction: any, giveawayData: GiveawayInterface.Data) {
   const durationInput = interaction.fields.getTextInputValue("duration_input").trim();
   const duration = parseDuration(durationInput);
 
@@ -571,7 +536,7 @@ async function processDurationModal(interaction: any, giveawayData: GiveawayData
   });
 }
 
-async function processRequirementsModal(interaction: any, giveawayData: GiveawayData) {
+async function processRequirementsModal(interaction: any, giveawayData: GiveawayInterface.Data) {
   const rolesInput = interaction.fields.getTextInputValue("roles_input").trim();
   const accountAgeInput = interaction.fields.getTextInputValue("account_age_input").trim();
   const messageCountInput = interaction.fields.getTextInputValue("message_count_input").trim();

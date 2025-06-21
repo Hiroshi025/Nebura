@@ -27,7 +27,27 @@ export default new Command(
     // Step 1: Select which channel configuration to edit
     const embed = new EmbedBuilder()
       .setTitle("📊 Member Count Configuration")
-      .setDescription("Select which configuration slot you want to edit.")
+      .setDescription(
+        "Select which configuration slot you want to edit.\n\n" +
+          "**Available placeholders for custom messages:**\n" +
+          "- {user}, {users}: Total de miembros (incluye bots)\n" +
+          "- {member}, {members}: Miembros humanos\n" +
+          "- {bot}, {bots}: Bots\n" +
+          "- {online}, {idle}, {dnd}, {offline}: Miembros por estado\n" +
+          "- {onlinemember}, {idlemember}, {dndmember}, {offlinemember}: Humanos por estado\n" +
+          "- {allonline}, {allonlinemember}: Miembros/humanos con presencia visible\n" +
+          "- {role}, {roles}: Número de roles\n" +
+          "- {channel}, {channels}: Total de canales\n" +
+          "- {text}, {texts}: Canales de texto\n" +
+          "- {voice}, {voices}: Canales de voz\n" +
+          "- {stage}, {stages}: Escenarios\n" +
+          "- {thread}, {threads}: Hilos\n" +
+          "- {news}: Canales de anuncios\n" +
+          "- {category}, {parent}: Categorías\n" +
+          "- {openthread}, {openthreads}: Hilos abiertos\n" +
+          "- {archivedthread}, {archivedthreads}: Hilos archivados\n\n" +
+          "Ejemplo: `{members} miembros | {online} en línea`",
+      )
       .setColor("Blue");
 
     const configSlots = Array.from({ length: 5 }, (_, i) => ({
@@ -239,7 +259,7 @@ export default new Command(
             },
             create: {
               guildId,
-              discordId: config.modules.discord.clientId,
+              discordId: config.modules.discord.id,
               [selectedConfigSlot!]: selectedVoiceChannelId,
               [selectedConfigSlot!.replace("channel", "message")]: customMessage,
             },

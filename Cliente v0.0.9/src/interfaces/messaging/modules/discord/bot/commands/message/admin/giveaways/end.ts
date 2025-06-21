@@ -30,8 +30,7 @@ const GiveawayEnd: Precommand = {
         return endSpecificGiveaway(message, targetGiveawayId);
       }
 
-      const activeGiveaways = await GiveawayManager
-        .getManager()
+      const activeGiveaways = await GiveawayManager.getManager()
         .giveaways.filter((g) => g.guildId === message.guild?.id && !g.ended)
         .sort((a, b) => a.endAt - b.endAt); // Sort by soonest to end
 
@@ -120,9 +119,9 @@ const GiveawayEnd: Precommand = {
  */
 async function endSpecificGiveaway(message: Message, giveawayId: string) {
   try {
-    const giveaway = await GiveawayManager
-      .getManager()
-      .giveaways.find((g) => g.messageId === giveawayId && g.guildId === message.guild?.id);
+    const giveaway = await GiveawayManager.getManager().giveaways.find(
+      (g) => g.messageId === giveawayId && g.guildId === message.guild?.id,
+    );
 
     if (!giveaway) {
       return message.reply({

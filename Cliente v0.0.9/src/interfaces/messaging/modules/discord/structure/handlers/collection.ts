@@ -225,7 +225,7 @@ export class DiscordHandler {
     const startTime = performance.now();
     const rest = new REST({ version: "10" }).setToken(process.env.TOKEN_DISCORD as string);
     const commands = [...this.client.commands.values()];
-    await rest.put(Routes.applicationCommands(config.modules.discord.clientId), {
+    await rest.put(Routes.applicationCommands(config.modules.discord.id), {
       body: commands.map((s) => s.structure),
     });
 

@@ -563,6 +563,10 @@ model sharedLinkCDN {
   password     String? // Puede ser null si no tiene contraseña
 }
 
+// ------------------------------------------------------------
+// MODELOS DE TICKETS WEB
+// ------------------------------------------------------------
+
 model TicketUser {
   id            String          @id @default(auto()) @map("_id") @db.ObjectId
   userId        String
@@ -598,6 +602,10 @@ model TicketMessage {
   timestamp    DateTime   @default(now())
   ticket       TicketUser @relation(fields: [ticketId], references: [ticketId])
 }
+
+//-------------------------------------------------------------
+// MODELOS DE TICKETS DEL SISTEMA
+//-------------------------------------------------------------
 
 model TicketSystem {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId

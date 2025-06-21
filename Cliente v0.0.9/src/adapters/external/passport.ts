@@ -51,11 +51,11 @@ passport.use(
       /**
        * The Discord application's client ID.
        */
-      clientID: config.modules.discord.clientId,
+      clientID: config.modules.discord.id,
       /**
        * The Discord application's client secret.
        */
-      clientSecret: config.modules.discord.clientSecret,
+      clientSecret: config.modules.discord.secret,
       /**
        * The callback URL to which Discord will redirect after authentication.
        */

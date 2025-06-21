@@ -50,13 +50,13 @@ export class DBPrisma {
       where: { clientId: discordClient.user?.id as string },
       update: {
         token: TOKEN_DISCORD as string,
-        clientId: data.clientId,
-        clientSecret: data.clientSecret,
+        clientId: data.id,
+        clientSecret: data.secret,
       },
       create: {
         token: TOKEN_DISCORD as string,
-        clientId: data.clientId,
-        clientSecret: data.clientSecret,
+        clientId: data.id,
+        clientSecret: data.secret,
         owners: data.owners,
       },
     });

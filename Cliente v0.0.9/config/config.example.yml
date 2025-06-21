@@ -25,9 +25,6 @@ environments:
     api:
       port: # (number) Port where the API will run, e.g., 3000
       host: "" # (string) Host address for the API, e.g., "localhost"
-      sessions:
-        websecret: "" # (string) Secret key for web sessions (change in production)
-        jwtsecret: "" # (string) Secret key for JWT
       swagger:
         local: "" # (string) Path to Swagger config file
         name: "" # (string) API name for Swagger documentation
@@ -37,19 +34,13 @@ environments:
         auth:
           name: "" # (string) Username for Swagger authentication
           password: "" # (string) Password for Swagger authentication
+      # Optional: Only for production
+      sessions:
+        websecret: "" # (string) Secret key for web sessions (change in production)
     database:
       sessions:
         url: "" # (string) Path to session database
         name: "" # (string) Session database name
-    artificial:
-      services:
-        gemini:
-          model: "" # (string) Model used by Gemini service
-          configsystem: "" # (string) System configuration for Gemini
-          api-key: "" # (string) API key for Gemini service
-    key-secrets:
-      administrator: "" # (string) Secret key for administrator
-      customer: "" # (string) Secret key for customer
     website:
       role: "" # (string) Website role, e.g., "admin"
 
@@ -68,9 +59,9 @@ environments:
 modules:
   # Discord module configuration
   discord:
-    clientId: "" # (string) Discord client ID
+    id: "" # (string) Discord client ID
     callback: "" # (string) OAuth callback path for Discord authentication
-    clientSecret: "" # (string) Discord client secret
+    secret: "" # (string) Discord client secret
     channel: "" # (string) Default Discord channel ID
     guildId: "" # (string) Discord guild/server ID
     owners: # (array of strings) List of bot owner user IDs

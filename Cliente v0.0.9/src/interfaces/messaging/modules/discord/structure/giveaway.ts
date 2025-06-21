@@ -1,32 +1,10 @@
-import { GiveawaysManager, GiveawayStartOptions } from "discord-giveaways";
+import { GiveawaysManager } from "discord-giveaways";
 import { ChannelType, NewsChannel, TextChannel, ThreadChannel, User } from "discord.js";
 
 import { client, main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Prisma } from "@prisma/client";
-
-/**
- * Represents the requirements for entering a giveaway.
- *
- * @property requiredRoles - Array of role IDs required to participate.
- * @property minAccountAge - Minimum account age (in days) required to participate.
- * @property minMessages - Minimum number of messages required to participate.
- */
-interface GiveawayRequirements {
-  requiredRoles?: string[];
-  minAccountAge?: number;
-  minMessages?: number;
-}
-
-/**
- * Extended options for starting a giveaway, including custom requirements.
- *
- * @see {@link https://github.com/Androz2091/discord-giveaways#start-a-giveaway discord-giveaways documentation}
- * @property requirements - Optional requirements for participants.
- */
-interface ExtendedGiveawayOptions extends GiveawayStartOptions<GiveawayRequirements> {
-  requirements?: GiveawayRequirements;
-}
+import { GiveawayInterface } from "@typings/modules/discord";
 
 /**
  * Service class for managing Discord giveaways using the [discord-giveaways](https://github.com/Androz2091/discord-giveaways) library.
@@ -122,7 +100,7 @@ export class GiveawayService {
           return;
         }
 
-        const options: ExtendedGiveawayOptions = {
+        const options: GiveawayInterface.Options = {
           duration: giveaway.endsAt.getTime() - Date.now(),
           prize: giveaway.prize,
           winnerCount: giveaway.winnerCount,
@@ -341,7 +319,7 @@ export class GiveawayService {
           include: { requirements: true },
         });
 
-        const requirements = dbGiveaway?.requirements as GiveawayRequirements | undefined;
+        const requirements = dbGiveaway?.requirements as GiveawayInterface.Requirements | undefined;
         if (requirements) {
           const guildMember = await member.guild.members.fetch(member.id);
 
@@ -562,7 +540,7 @@ export class GiveawayService {
    */
   public async startGiveaway(
     channel: TextChannel | NewsChannel | ThreadChannel,
-    options: ExtendedGiveawayOptions,
+    options: GiveawayInterface.Options,
   ): Promise<any> {
     try {
       // Validate channel permissions

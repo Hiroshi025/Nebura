@@ -26,7 +26,7 @@ export async function Asistent(message: Message, client: MyClient) {
     url: "/api/v1/service/google/model-ai/text",
     headers: {
       "Content-Type": "application/json",
-      "x-secret-customer": config.environments.default["key-secrets"].customer,
+      "x-secret-customer": process.env.CUSTOMER_SECRET,
       "x-gemini-api-key": process.env.GEMINI_KEY,
       "x-gemini-model": process.env.GEMINI_MODEL
     },

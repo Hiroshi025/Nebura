@@ -114,9 +114,10 @@ export class API {
     this.server = createServer(this.app);
     this.io = new Server(this.server, {
       transports: ["websocket", "polling"],
-      connectTimeout: 50000, // Esto hace que el cliente espere 5 segundos para conectarse
-      pingInterval: 40000,
-      pingTimeout: 75000
+      connectTimeout: 25000, 
+      //--- SOCKET.IO OPTIONS ---//
+      pingInterval: 20000,
+      pingTimeout: 15000
     });
     this.routes();
     this.middleware();
@@ -291,7 +292,7 @@ export class API {
      */
     this.app.use(
       session({
-        secret: environments.api.sessions.websecret,
+        secret: process.env.WEB_SECRET as string,
         resave: false,
         saveUninitialized: false,
         cookie: { maxAge: 3600000 / 2 },

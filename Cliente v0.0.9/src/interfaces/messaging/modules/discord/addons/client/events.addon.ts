@@ -14,7 +14,7 @@ export default new Addons(
   },
   async (client, c) => {
     client.on("guildCreate", async (guild) => {
-      const data = await main.DB.findDiscord(c.modules.discord?.clientId);
+      const data = await main.DB.findDiscord(c.modules.discord?.id);
       if (!data) return;
 
       const logEmbed = new EmbedCorrect()
@@ -56,7 +56,7 @@ export default new Addons(
     });
 
     client.on("guildDelete", async (guild) => {
-      const data = await main.DB.findDiscord(c.modules.discord?.clientId);
+      const data = await main.DB.findDiscord(c.modules.discord?.id);
       if (!data) return;
 
       const logEmbed = new EmbedCorrect()

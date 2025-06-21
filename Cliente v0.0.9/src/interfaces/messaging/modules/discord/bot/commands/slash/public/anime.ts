@@ -5,7 +5,7 @@ import moment from "moment";
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import translate from "@iamtraction/google-translate";
-import { AnimeData, GenreData } from "@typings/modules/discord";
+import { Entretenment } from "@typings/modules/discord";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -32,7 +32,7 @@ export default new Command(
         ],
       });
 
-      const animeResponse = await axios.get<AnimeData>("https://kitsu.io/api/edge/anime", {
+      const animeResponse = await axios.get<Entretenment.Anime>("https://kitsu.io/api/edge/anime", {
         params: { "filter[text]": searchQuery },
       });
 
@@ -66,7 +66,7 @@ export default new Command(
         });
       }
 
-      const genreResponse = await axios.get<GenreData>(relatedGenresUrl);
+      const genreResponse = await axios.get<Entretenment.Genre>(relatedGenresUrl);
       const genres = genreResponse.data.data.map((genre) => genre.attributes.name).join(", ");
 
       const [translatedSynopsis] = await Promise.all([
