@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 
 import { Precommand, RoleAssignmentConfig } from "@/typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 //TODO: Arreglar los errores de respuesta, el codigo ya esta completo solo falta arreglar los errores de las interacciones
 const AddRoleCommand: Precommand = {
@@ -160,7 +160,7 @@ const AddRoleCommand: Precommand = {
                 "Only the command author can interact with this menu.",
               ),
             ],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
 
@@ -187,7 +187,7 @@ const AddRoleCommand: Precommand = {
               await interaction.followUp({
                 content: "Select the roles you want to assign:",
                 components: [roleSelectRow],
-                ephemeral: true,
+                flags: "Ephemeral",
               });
               return;
             case "cancel":
@@ -221,7 +221,7 @@ const AddRoleCommand: Precommand = {
               await interaction.followUp({
                 content:
                   "Please mention or provide the ID of the channel where you want to log the results:",
-                ephemeral: true,
+                flags: "Ephemeral",
               });
 
               // Collect channel message
@@ -266,7 +266,7 @@ const AddRoleCommand: Precommand = {
               } catch (error) {
                 await interaction.followUp({
                   content: "Channel selection timed out or was cancelled.",
-                  ephemeral: true,
+                  flags: "Ephemeral",
                 });
               }
             }
@@ -327,7 +327,7 @@ const AddRoleCommand: Precommand = {
                 .setTitle("Interaction Error")
                 .setDescription("An error occurred while processing your interaction."),
             ],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         } else {
           await interaction.followUp({
@@ -336,7 +336,7 @@ const AddRoleCommand: Precommand = {
                 .setTitle("Interaction Error")
                 .setDescription("An error occurred while processing your interaction."),
             ],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
       }
@@ -491,7 +491,7 @@ const AddRoleCommand: Precommand = {
                     "Only the command author can confirm this action.",
                   ),
                 ],
-                ephemeral: true,
+                flags: "Ephemeral",
               });
               return;
             }
@@ -694,7 +694,7 @@ const AddRoleCommand: Precommand = {
                   .setTitle("Unexpected Error")
                   .setDescription("An error occurred during role assignment."),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
         });

@@ -3,7 +3,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -140,7 +140,7 @@ export async function RouletteCommand(interaction: ChatInputCommandInteraction, 
       bet = userBalance.balance;
       await i.reply({
         content: `You have bet all your money: $${bet}. The roulette continues spinning!`,
-        ephemeral: true,
+        flags: "Ephemeral",
       });
       return;
     }
@@ -160,7 +160,7 @@ export async function RouletteCommand(interaction: ChatInputCommandInteraction, 
             )
             .setColor("Green"),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
 
       accumulatedWinnings = 0;

@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
 
-import { CreateTaskDto } from "@/application/entitys/tasks/create-task.dto";
-import { TaskResponseDto } from "@/application/entitys/tasks/task-response.dto";
-import { UpdateTaskDto } from "@/application/entitys/tasks/update-task.dto";
+import { CreateTaskDto } from "@/application/entities/tasks/create-task.dto";
+import { TaskResponseDto } from "@/application/entities/tasks/task-response.dto";
+import { UpdateTaskDto } from "@/application/entities/tasks/update-task.dto";
 import { TaskService } from "@/application/services/utilities/task.service";
-
-const taskService = new TaskService();
 
 /**
  * Controller for handling task-related HTTP requests.
@@ -21,7 +19,7 @@ const taskService = new TaskService();
  * app.put('/api/tasks/:id', taskController.updateTask);
  * app.delete('/api/tasks/:id', taskController.deleteTask);
  */
-export class TaskController {
+export class TaskController extends TaskService {
   /**
    * Creates a new task.
    *
@@ -41,7 +39,7 @@ export class TaskController {
   async createTask(req: Request, res: Response) {
     try {
       const createTaskDto: CreateTaskDto = req.body;
-      const task = await taskService.createTask(createTaskDto);
+      const task = await this.create(createTaskDto);
       res.status(201).json(new TaskResponseDto(task));
     } catch (error) {
       res.status(500).json({ message: req.t("errors:failed_to_create_task") });
@@ -66,7 +64,7 @@ export class TaskController {
   async getTask(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const task = await taskService.getTaskById(id);
+      const task = await this.getById(id);
       if (!task) {
         return res.status(404).json({ message: req.t("errors:task_not_found") });
       }
@@ -93,16 +91,17 @@ export class TaskController {
    */
   async getAllTasks(req: Request, res: Response) {
     try {
-      const { status, priority, createdBy, tag } = req.query;
-      const tasks = await taskService.getAllTasks({
-        status: status as string,
-        priority: priority as string,
-        createdBy: createdBy as string,
-        tag: tag as string,
+      // Cambia 'tags' por 'tag' para que coincida con el tipo Task
+      const { status, priority, createdBy, tag } = req.query as any;
+      const tasks = await this.get({
+        status: status,
+        priority: priority,
+        createdBy: createdBy,
+        tag: tag,
       });
-      res.json(tasks.map((task) => new TaskResponseDto(task)));
+      return res.json(tasks.map((task) => new TaskResponseDto(task)));
     } catch (error) {
-      res.status(500).json({ message: req.t("errors:failed_to_fetch_tasks") });
+      return res.status(500).json({ message: req.t("errors:failed_to_fetch_tasks") });
     }
   }
 
@@ -127,7 +126,7 @@ export class TaskController {
     try {
       const { id } = req.params;
       const updateTaskDto: UpdateTaskDto = req.body;
-      const task = await taskService.updateTask(id, updateTaskDto);
+      const task = await this.update(id, updateTaskDto);
       res.json(new TaskResponseDto(task));
     } catch (error) {
       res.status(500).json({ message: req.t("errors:failed_to_update_task") });
@@ -151,7 +150,7 @@ export class TaskController {
   async deleteTask(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await taskService.deleteTask(id);
+      await this.delete(id);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: req.t("errors:failed_to_delete_task") });

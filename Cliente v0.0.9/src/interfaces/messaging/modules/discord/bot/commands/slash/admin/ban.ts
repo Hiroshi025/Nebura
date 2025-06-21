@@ -5,7 +5,7 @@ import {
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { ErrorEmbed } from "@extenders/embeds.extend";
 import { logWithLabel } from "@utils/functions/console";
 
 export default new Command(

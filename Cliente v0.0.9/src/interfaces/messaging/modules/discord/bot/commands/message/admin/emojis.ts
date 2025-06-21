@@ -3,7 +3,7 @@ import {
 	Message, MessageComponentInteraction, TextChannel
 } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 // Dummy logger para evitar error de símbolo no encontrado
@@ -569,7 +569,7 @@ async function handleEmojiDelete(message: Message, args: string[]) {
         inline: true,
       },
     )
-    .setThumbnail(emoji.url);
+    .setThumbnail(emoji.imageURL());
 
   const confirmationMessage = await message.channel.send({
     embeds: [confirmationEmbed],
@@ -716,7 +716,7 @@ async function handleEmojiRename(message: Message, args: string[]) {
             { name: "New Name", value: newName, inline: true },
             { name: "Emoji", value: emoji.toString(), inline: true },
           )
-          .setThumbnail(emoji.url),
+          .setThumbnail(emoji.imageURL()),
       ],
     });
   } catch (error) {

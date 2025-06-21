@@ -26,15 +26,15 @@
   <link rel="stylesheet" href="/css/cdn-share.css">
 </head>
 
-<body>
+<body style="background: var(--background-color-dark); color: var(--text-color-dark);">
   <!-- Partículas decorativas -->
   <div class="particle" style="width:5px; height:5px; top:20%; left:10%;"></div>
   <div class="particle" style="width:8px; height:8px; top:70%; left:85%;"></div>
   <div class="particle" style="width:6px; height:6px; top:40%; left:30%;"></div>
 
-  <header class="navbar navbar-expand-lg">
+  <header class="navbar navbar-expand-lg" style="background: var(--card-bg-dark); box-shadow: var(--box-shadow);">
     <div class="container">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand" href="#" style="color: var(--text-color-dark);">
         <i class="fas fa-server me-2" style="color: var(--primary-color);"></i>Nebura CDN
       </a>
     </div>
@@ -42,8 +42,10 @@
 
   <main class="container py-5 flex-grow-1">
     <div class="d-flex justify-content-center">
-      <div class="file-card w-100 animate__animated animate__fadeIn">
-        <div class="file-preview-container">
+      <div class="file-card w-100 animate__animated animate__fadeIn"
+        style="background: var(--card-bg-dark); box-shadow: var(--box-shadow);">
+        <div class="file-preview-container"
+          style="background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--input-border-dark);">
           <button type="button" class="btn-close" onclick="window.history.back()" aria-label="Close"></button>
           <div id="file-content">
             <!-- Estado de carga -->
@@ -54,11 +56,11 @@
           </div>
         </div>
 
-        <div class="file-info">
+        <div class="file-info" style="color: var(--text-color-dark);">
           <h1 class="file-title" id="file-title">
             <span class="skeleton" style="width: 70%; height: 32px; display: inline-block;"></span>
           </h1>
-          <div class="file-meta">
+          <div class="file-meta" style="color: var(--text-muted-dark);">
             <span id="file-size" class="skeleton" style="width: 80px; display: inline-block;"></span>
             <span class="skeleton" style="width: 10px; display: inline-block;"></span>
             <span id="file-type" class="skeleton" style="width: 100px; display: inline-block;"></span>
@@ -66,18 +68,22 @@
             <span id="file-date" class="skeleton" style="width: 120px; display: inline-block;"></span>
           </div>
 
-          <a href="#" class="btn btn-download" id="download-btn" style="opacity: 0;">
+          <a href="#" class="btn btn-download" id="download-btn"
+            style="opacity: 0; background: var(--primary-gradient); color: #fff;">
             <i class="fas fa-download me-2"></i> Descargar Archivo
           </a>
 
           <div class="toolbox mt-4">
-            <button class="tool-btn" id="copy-link-btn" style="opacity: 0;">
+            <button class="tool-btn" id="copy-link-btn"
+              style="opacity: 0; background: var(--input-bg-dark); color: var(--text-color-dark);">
               <i class="fas fa-link me-2"></i> Copiar enlace
             </button>
-            <button class="tool-btn" id="share-btn" style="opacity: 0;">
+            <button class="tool-btn" id="share-btn"
+              style="opacity: 0; background: var(--input-bg-dark); color: var(--text-color-dark);">
               <i class="fas fa-share-alt me-2"></i> Compartir
             </button>
-            <button class="tool-btn" id="view-original-btn" style="opacity: 0;">
+            <button class="tool-btn" id="view-original-btn"
+              style="opacity: 0; background: var(--input-bg-dark); color: var(--text-color-dark);">
               <i class="fas fa-expand me-2"></i> Ver original
             </button>
           </div>

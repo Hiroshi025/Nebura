@@ -5,13 +5,18 @@
  * including Discord, WhatsApp, API, and database operations.
  *
  * @packageDocumentation
+ * @module Main
+ * @see {@link https://www.prisma.io/ | Prisma}
+ * @see {@link https://www.npmjs.com/package/chalk | Chalk}
+ * @see {@link https://docs.sentry.io/platforms/node/ | Sentry}
  */
 
-import chalk from "chalk"; // Chalk library for terminal string styling: https://www.npmjs.com/package/chalk
+import chalk from "chalk";
 
+import { Utils } from "@/shared/class/utils";
 import { ProyectError } from "@/shared/infrastructure/extends/error.extend"; // Custom error handling class
-import emojis from "@config/json/emojis.json"; // JSON file containing emoji configurations
-import { Utils } from "@modules/discord/structure/extends/utils.extend";
+import emojis from "@config/json/emojis.json";
+import { GiveawayService } from "@modules/discord/structure/giveaway";
 import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
 import { loadPendingReminders } from "@utils/functions/reminders"; // Function to load pending reminders
 
@@ -19,8 +24,8 @@ import { API } from "./";
 import { MyClient } from "./interfaces/messaging/modules/discord/client"; // Custom Discord client implementation
 import { ErrorConsole } from "./interfaces/messaging/modules/discord/structure/handlers/errors"; // Error handling for Discord
 import { MyApp } from "./interfaces/messaging/modules/whatsapp"; // WhatsApp module
-import { DBPrisma } from "./shared/DB";
-import { BackupService } from "./shared/infrastructure/backups"; // Backup service
+import { Backups } from "./shared/class/backups";
+import { DBPrisma } from "./shared/class/DB";
 import { config } from "./shared/utils/config"; // Application configuration
 import { logWithLabel } from "./shared/utils/functions/console"; // Logging utility
 import { ProyectConfig } from "./typings/config"; // TypeScript type for configuration
@@ -34,6 +39,18 @@ process.loadEnvFile(); // Load environment variables from a file
 const defaultConfig = config as ProyectConfig;
 
 const { CRON_BACKUPS_TIME } = process.env;
+
+/**
+ * Utility for detailed debug logging using environment variables.
+ *
+ * @param label - The label for the debug log.
+ * @param args - Additional arguments to log.
+ */
+function debugLog(label: string, ...args: any[]) {
+  if (process.env.DEBUG === "true") {
+    console.debug(`[DEBUG][${label}]`, ...args);
+  }
+}
 
 /**
  * Main class responsible for initializing and managing the core modules of the application.
@@ -98,6 +115,7 @@ export class Engine {
    * @param prisma - Instance of PrismaClient for database operations. Defaults to a new instance.
    * @param config - Configuration object for the application. Defaults to the loaded configuration.
    * @param utils - Utility functions for Discord. Defaults to a new Utils instance.
+   * @param DB - Database operations instance. Defaults to a new DBPrisma instance.
    * @param discord - Instance of the Discord client. Defaults to a new MyClient instance.
    * @param whatsapp - Instance of the WhatsApp module. Defaults to a new MyApp instance.
    * @param api - Instance of the API server. Defaults to a new API instance.
@@ -105,18 +123,18 @@ export class Engine {
   constructor(
     prisma: PrismaClient = Engine.createDefaultPrismaClient(),
     config: ProyectConfig = defaultConfig,
-    utils: Utils = new Utils(),
-    DB: DBPrisma = new DBPrisma(),
     discord: MyClient = new MyClient(),
+    DB: DBPrisma = new DBPrisma(),
     whatsapp: MyApp = new MyApp(),
+    utils: Utils = new Utils(),
     api: API = new API(),
   ) {
     this.whatsapp = whatsapp;
     this.discord = discord;
     this.prisma = prisma;
-    this.api = api;
     this.config = config;
     this.utils = utils;
+    this.api = api;
     this.DB = DB;
   }
 
@@ -151,6 +169,7 @@ export class Engine {
    * includes the DSN, environment, and debug settings.
    *
    * @see {@link https://docs.sentry.io/platforms/node/ | Sentry Node.js Documentation}
+   * @returns {Promise<void>} A promise that resolves when monitoring is configured.
    */
   private async configureMonitoring(): Promise<void> {
     /*     await Sentry.init({
@@ -172,11 +191,11 @@ export class Engine {
    * is retrieved from the environment variables.
    *
    * @see {@link https://www.npmjs.com/package/node-cron | Node-Cron Documentation}
+   * @returns {Promise<void>} A promise that resolves when the backup service is set up.
    */
   private async setupBackupService(): Promise<void> {
-    const backupClient = new BackupService();
-    await backupClient.scheduleBackups(CRON_BACKUPS_TIME);
-
+    if (process.env.BACKUPS_ENABLED !== "true") return;
+    await new Backups().scheduleBackups(CRON_BACKUPS_TIME);
     logWithLabel("custom", `Backup scheduled with cron expression: ${CRON_BACKUPS_TIME}`, {
       customLabel: "Backups",
     });
@@ -190,38 +209,28 @@ export class Engine {
    * the module has not started.
    *
    * @throws {ProyectError} If the WhatsApp module fails to start.
+   * @returns {Promise<void>} A promise that resolves when the WhatsApp module is processed.
    */
   private async conditionallyStartWhatsApp(): Promise<void> {
     try {
       if (this.config.modules.whatsapp.enabled) {
         await this.whatsapp.start();
       } else {
-        this.logWhatsAppDisabled();
+        logWithLabel(
+          "custom",
+          [
+            "Client is not ready!",
+            `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
+          ].join("\n"),
+          {
+            customLabel: "whatsapp",
+          },
+        );
       }
     } catch (err) {
       console.error(err);
       throw new ProyectError(`WhatsApp module failed to start: ${err}`);
     }
-  }
-
-  /**
-   * Logs a message indicating that the WhatsApp module is disabled.
-   *
-   * @remarks
-   * This method uses the `logWithLabel` utility to log a custom message with a timestamp
-   * and module context.
-   */
-  private logWhatsAppDisabled(): void {
-    logWithLabel(
-      "custom",
-      [
-        "Client is not ready!",
-        `  ${emojis.loading}  ${chalk.grey("The WhatsApp API module has not started.")}`,
-      ].join("\n"),
-      {
-        customLabel: "whatsapp",
-      },
-    );
   }
 
   /**
@@ -231,7 +240,7 @@ export class Engine {
    * This method initializes the Discord module, the API server module, and optionally
    * the WhatsApp module. It ensures that all modules are started asynchronously.
    *
-   * @returns A promise that resolves when all modules have been successfully started.
+   * @returns {Promise<void>} A promise that resolves when all modules have been successfully started.
    * @throws {ProyectError} If any module fails to start.
    */
   public async start(): Promise<void> {
@@ -249,23 +258,26 @@ export class Engine {
   }
 
   /**
-   * Initializes the core modules of the application.
+   * Initializes the core modules of the application in parallel and measures load times.
    *
-   * @remarks
-   * This method starts the Discord and API modules. If the WhatsApp module is enabled
-   * in the configuration, it will also start the WhatsApp module. Otherwise, it logs
-   * a message indicating that the WhatsApp module is not started.
-   *
+   * @returns {Promise<void>} A promise that resolves when all modules are initialized.
    * @throws {ProyectError} If any module fails to initialize.
    */
   private async initializeModules(): Promise<void> {
     try {
+      // Arranca Discord y API en paralelo
       await Promise.all([this.discord.start(), this.api.start()]);
-      await this.conditionallyStartWhatsApp();
-      await this.configureMonitoring();
-      await this.setupBackupService();
+
+      // WhatsApp y backups después (si dependen de los anteriores)
+      await Promise.all([
+        this.conditionallyStartWhatsApp(),
+        this.configureMonitoring(),
+        this.setupBackupService(),
+      ]);
+
+      console.timeEnd("Total modules");
     } catch (err) {
-      console.error(err);
+      console.trace("Error in initializeModules:", err);
       throw new ProyectError(`Failed to initialize modules: ${err}`);
     }
   }
@@ -273,17 +285,17 @@ export class Engine {
   /**
    * Creates or updates the Discord client configuration in the database.
    *
-   * @remarks
-   * This method uses the Prisma client to upsert the Discord client configuration
-   * based on the token. If the configuration does not exist, it creates a new entry.
-   *
-   * @throws {ProyectError} If the upsert operation fails.
+   * @returns {Promise<void>} A promise that resolves when the client is created or updated.
+   * @throws {ProyectError} If the client configuration fails to be created or updated.
    */
   private async clientCreate(): Promise<void> {
     try {
+      console.time("DB:CreateClient");
       await this.DB.createClient(client, "");
+      console.timeEnd("DB:CreateClient");
+      debugLog("DB", "Discord client registered in the database");
     } catch (err) {
-      console.error(err);
+      console.trace("Error in clientCreate:", err);
       throw new ProyectError(`Failed to Discord client configuration: ${err}`);
     }
   }
@@ -293,46 +305,14 @@ export class Engine {
  * Main application engine instance.
  * @type {Engine}
  */
-const main = new Engine();
+const main: Engine = new Engine();
 
 /**
  * Discord client instance exported for external usage.
  * @type {MyClient}
  */
-const client = main.discord;
-
-/**
- * Handles the SIGINFO signal for process information.
- * @param reason - The reason or message for the signal.
- */
-process.on("SIGINFO", (reason) => {
-  console.log("SIGINFO received:", reason);
-  logWithLabel("custom", `SIGINFO received: ${reason}`, {
-    customLabel: "Signal",
-  });
-});
-
-/**
- * Handles the SIGINT signal for graceful shutdown.
- */
-process.on("SIGINT", () => {
-  console.log("SIGINT received. Exiting gracefully...");
-  logWithLabel("custom", "SIGINT received. Exiting gracefully...", {
-    customLabel: "Signal",
-  });
-  process.exit(0); // Exit the process gracefully
-});
-
-/**
- * Handles the SIGTERM signal for graceful shutdown.
- */
-process.on("SIGTERM", () => {
-  console.log("SIGTERM received. Exiting gracefully...");
-  logWithLabel("custom", "SIGTERM received. Exiting gracefully...", {
-    customLabel: "Signal",
-  });
-  process.exit(0); // Exit the process gracefully
-});
+const client: MyClient = main.discord;
+const GiveawayManager = new GiveawayService();
 
 /**
  * Starts the application and handles any errors during the startup process.
@@ -342,11 +322,15 @@ process.on("SIGTERM", () => {
  * with a failure code.
  */
 main.start().catch((err) => {
-  console.error(err);
   logWithLabel("custom", `Failed to start the application: ${err}`, {
     customLabel: "Startup",
   });
   process.exit(1); // Exit the process with a failure code
 });
 
-export { client, main };
+/**
+ * Exports the Discord client and main engine instance for external usage.
+ * @see {@link MyClient}
+ * @see {@link Engine}
+ */
+export { client, GiveawayManager, main };

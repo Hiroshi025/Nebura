@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Panel de Administración</title>
+  <meta name="description" content="Panel avanzado de administración de servidor Discord - Nebura AI">
+  <meta name="keywords" content="Nebura, Discord, Servidor, Dashboard, Estadísticas, Moderación">
+  <meta name="author" content="Nebura">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.45.0/dist/apexcharts.min.css">
+  <link rel="stylesheet" href="/css/server.css">
+  <script>
+    window.serverData = JSON.parse('<%- JSON.stringify(serverData) %>');
+    window.user = JSON.parse('<%- JSON.stringify(user) %>');
+  </script>
+</head>
+
+<body>
+  <div id="app-container">
+    <div class="d-flex" style="min-height: 100vh; min-width: 100vw;">
+      <!-- SIDEBAR MEJORADO -->
+      <%- include('partials/sidebar', { user: user }) %>
+
+      <!-- CONTENIDO PRINCIPAL -->
+      <main class="flex-grow-1 p-4">
+        <!-- HEADER MEJORADO CON MÁS INFORMACIÓN -->
+        <div class="admin-header d-flex align-items-center fade-in mb-4">
+          <div class="d-flex align-items-center">
+            <% if (serverData.icon) { %>
+            <img src="https://cdn.discordapp.com/icons/<%= serverData.id %>/<%= serverData.icon %>.webp?size=256" alt="Icono Servidor" class="admin-avatar me-3">
+            <% } else { %>
+            <div class="admin-avatar d-flex align-items-center justify-content-center bg-gradient-primary me-3" style="font-size:2.5rem;">
+              <i class="fas fa-server"></i>
+            </div>
+            <% } %>
+            <div>
+              <h1 class="welcome-title mb-1">Servidor: <strong><%= serverData.name %></strong></h1>
+              <div class="d-flex align-items-center flex-wrap">
+                <div class="me-3">
+                  <span class="badge bg-dark text-light me-1">
+                    <i class="fas fa-hashtag me-1"></i>ID: <%= serverData.id %>
+                  </span>
+                  <span class="badge bg-primary me-1">
+                    <i class="fas fa-users me-1"></i>Miembros: 1,245
+                  </span>
+                  <span class="badge bg-secondary me-1">
+                    <i class="fas fa-calendar-alt me-1"></i>Registrado: 05/06/2025
+                  </span>
+                </div>
+              </div>
+              <div class="admin-badges mt-2">
+                <% if (serverData.levelConfig) { %>
+                <span class="badge bg-success-gradient me-2">
+                  <i class="fas fa-signal me-1"></i>Sistema de Niveles
+                </span>
+                <% } %>
+                <% if (serverData.modLog) { %>
+                <span class="badge bg-warning-gradient me-2">
+                  <i class="fas fa-clipboard-list me-1"></i>ModLog Activo
+                </span>
+                <% } else { %>
+                <span class="badge bg-danger-gradient me-2">
+                  <i class="fas fa-exclamation-circle me-1"></i>ModLog No Configurado
+                </span>
+                <% } %>
+                <span class="badge bg-info-gradient">
+                  <i class="fab fa-discord me-1"></i>Discord
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="ms-auto d-flex">
+            <button class="btn btn-primary-gradient me-2" data-bs-toggle="modal" data-bs-target="#quickActionsModal">
+              <i class="fas fa-bolt me-1"></i>Acciones Rápidas
+            </button>
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="serverActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-cog me-1"></i>Configuración
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="serverActionsDropdown">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-sliders-h me-2"></i>Ajustes Generales</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-signal me-2"></i>Sistema de Niveles</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-gavel me-2"></i>Moderación</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>Salir del Servidor</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL DE ESTADÍSTICAS MEJORADO -->
+        <div class="row mb-4">
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card bg-primary-gradient">
+              <div class="card-body">
+                <div class="stat-title">Miembros</div>
+                <div class="stat-value"><%= totalMembers %></div>
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card bg-success-gradient">
+              <div class="card-body">
+                <div class="stat-title">Mensajes Totales</div>
+                <div class="stat-value"><%= totalMessages %></div>
+                <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card bg-warning-gradient">
+              <div class="card-body">
+                <div class="stat-title">Economía Total</div>
+                <div class="stat-value">$<%= totalEconomy %></div>
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card bg-danger-gradient">
+              <div class="card-body">
+                <div class="stat-title">Nivel Promedio</div>
+                <div class="stat-value"><%= avgLevel %></div>
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRÁFICAS AVANZADAS -->
+        <div class="row mb-4">
+          <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div><i class="fas fa-bolt me-2"></i>Comandos más usados</div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Comando</th>
+                        <th>Usos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% topCommands.forEach(cmd => { %>
+                      <tr>
+                        <td><%= cmd.name %></td>
+                        <td><%= cmd.count %></td>
+                      </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+              <div class="card-header"><i class="fas fa-hashtag me-2"></i>Canales más usados</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>ID Canal</th>
+                        <th>Mensajes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% topChannels.forEach(ch => { %>
+                      <tr>
+                        <td>#<%= ch.id %></td>
+                        <td><%= ch.count %></td>
+                      </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLA DE CONFIGURACIÓN MEJORADA -->
+        <div class="card mb-4 fade-in">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-cogs me-2"></i> Configuración del Servidor
+            </div>
+            <div>
+              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editConfigModal">
+                Editar
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-config">
+                <tbody>
+                  <tr>
+                    <th>Prefix</th>
+                    <td><%= serverData.data?.prefix || '!' %></td>
+                  </tr>
+                  <tr>
+                    <th>Idioma</th>
+                    <td><%= serverData.data?.lenguage || 'es' %></td>
+                  </tr>
+                  <tr>
+                    <th>Canal de Sugerencias</th>
+                    <td><%= serverData.data?.suggestChannel || '-' %></td>
+                  </tr>
+                  <tr>
+                    <th>Color Embed</th>
+                    <td><%= serverData.data?.embedColor || '-' %></td>
+                  </tr>
+                  <tr>
+                    <th>Footer</th>
+                    <td><%= serverData.data?.footerText || '-' %></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN DE MIEMBROS DESTACADOS -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <i class="fas fa-users me-2"></i> Miembros Destacados
+            </div>
+            <div>
+              <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Top 10 por nivel">
+                <i class="fas fa-trophy"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-members">
+                <thead>
+                  <tr>
+                    <th>UserID</th>
+                    <th>Nivel</th>
+                    <th>XP</th>
+                    <th>Mensajes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% userLevels.forEach(u => { %>
+                  <tr>
+                    <td><%= u.userId %></td>
+                    <td><%= u.level %></td>
+                    <td><%= u.xp %></td>
+                    <td><%= u.totalMessages %></td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="text-muted small">
+                Mostrando top <%= userLevels.length %> miembros destacados
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN DE CANALES DESTACADOS (puedes reutilizar la tabla de canales más usados) -->
+        <div class="row mb-4">
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header"><i class="fas fa-hashtag me-2"></i>Canales más usados</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>ID Canal</th>
+                        <th>Mensajes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% topChannels.forEach(ch => { %>
+                      <tr>
+                        <td>#<%= ch.id %></td>
+                        <td><%= ch.count %></td>
+                      </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-4">
+            <div class="card h-100">
+              <div class="card-header"><i class="fas fa-bolt me-2"></i>Comandos más usados</div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Comando</th>
+                        <th>Usos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% topCommands.forEach(cmd => { %>
+                      <tr>
+                        <td><%= cmd.name %></td>
+                        <td><%= cmd.count %></td>
+                      </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL DE ACCIONES RÁPIDAS -->
+  <div class="modal fade" id="quickActionsModal" tabindex="-1" aria-labelledby="quickActionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="quickActionsModalLabel">
+            <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <button class="btn btn-action-card w-100 h-100">
+                <div class="action-icon bg-primary-gradient">
+                  <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="action-title">Enviar Anuncio</div>
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button class="btn btn-action-card w-100 h-100">
+                <div class="action-icon bg-success-gradient">
+                  <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="action-title">Invitar Usuarios</div>
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button class="btn btn-action-card w-100 h-100">
+                <div class="action-icon bg-warning-gradient">
+                  <i class="fas fa-sliders-h"></i>
+                </div>
+                <div class="action-title">Ajustes Rápidos</div>
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button class="btn btn-action-card w-100 h-100">
+                <div class="action-icon bg-danger-gradient">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="action-title">Moderación</div>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDICIÓN DE CONFIGURACIÓN -->
+  <div class="modal fade" id="editConfigModal" tabindex="-1" aria-labelledby="editConfigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editConfigModalLabel">
+            <i class="fas fa-cogs me-2"></i>Editar Configuración del Servidor
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general-tab-pane" type="button" role="tab">
+                <i class="fas fa-cog me-1"></i>General
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="levels-tab" data-bs-toggle="tab" data-bs-target="#levels-tab-pane" type="button" role="tab">
+                <i class="fas fa-signal me-1"></i>Sistema de Niveles
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="moderation-tab" data-bs-toggle="tab" data-bs-target="#moderation-tab-pane" type="button" role="tab">
+                <i class="fas fa-gavel me-1"></i>Moderación
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced-tab-pane" type="button" role="tab">
+                <i class="fas fa-code me-1"></i>Avanzado
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content" id="configTabsContent">
+            <div class="tab-pane fade show active" id="general-tab-pane" role="tabpanel">
+              <div class="mb-3">
+                <label for="serverPrefix" class="form-label">Prefijo de Comandos</label>
+                <input type="text" class="form-control" id="serverPrefix" value="<%= serverData.data.prefix || '!' %>">
+              </div>
+              <div class="mb-3">
+                <label for="welcomeChannel" class="form-label">Canal de Bienvenida</label>
+                <select class="form-select" id="welcomeChannel">
+                  <option selected disabled>Seleccionar canal...</option>
+                  <option value="1234567890">#general</option>
+                  <option value="2345678901">#bienvenidas</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="suggestChannel" class="form-label">Canal de Sugerencias</label>
+                <select class="form-select" id="suggestChannel">
+                  <option selected disabled>Seleccionar canal...</option>
+                  <option value="3456789012">#sugerencias</option>
+                  <option value="4567890123">#feedback</option>
+                </select>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="levels-tab-pane" role="tabpanel">
+              <div class="mb-3 form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableLevels" <%= serverData.levelConfig ? 'checked' : '' %>>
+                <label class="form-check-label" for="enableLevels">Activar Sistema de Niveles</label>
+              </div>
+              <div id="levelsConfigSection" <%= !serverData.levelConfig ? 'style="display: none;"' : '' %>>
+                <div class="mb-3">
+                  <label for="levelsChannel" class="form-label">Canal de Notificaciones</label>
+                  <select class="form-select" id="levelsChannel">
+                    <option selected disabled>Seleccionar canal...</option>
+                    <option value="5678901234" <%= serverData.levelConfig && serverData.levelConfig.channelId === '5678901234' ? 'selected' : '' %>>#niveles</option>
+                    <option value="6789012345" <%= serverData.levelConfig && serverData.levelConfig.channelId === '6789012345' ? 'selected' : '' %>>#general</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="maxLevel" class="form-label">Nivel Máximo</label>
+                  <input type="number" class="form-control" id="maxLevel" value="<%= serverData.levelConfig ? serverData.levelConfig.maxLevel : '100' %>">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Recompensas por Nivel</label>
+                  <div class="levels-rewards-container">
+                    <div class="levels-rewards-editor" id="levelsRewardsEditor"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="moderation-tab-pane" role="tabpanel">
+              <div class="mb-3 form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enableModLog" <%= serverData.modLog ? 'checked' : '' %>>
+                <label class="form-check-label" for="enableModLog">Activar ModLog</label>
+              </div>
+              <div id="modLogConfigSection" <%= !serverData.modLog ? 'style="display: none;"' : '' %>>
+                <div class="mb-3">
+                  <label for="modLogChannel" class="form-label">Canal de ModLog</label>
+                  <select class="form-select" id="modLogChannel">
+                    <option selected disabled>Seleccionar canal...</option>
+                    <option value="7890123456" <%= serverData.modLog && serverData.modLog.channelId === '7890123456' ? 'selected' : '' %>>#moderación</option>
+                    <option value="8901234567" <%= serverData.modLog && serverData.modLog.channelId === '8901234567' ? 'selected' : '' %>>#registros</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Eventos a Registrar</label>
+                  <div class="modlog-events-container">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="logBans" checked>
+                      <label class="form-check-label" for="logBans">Baneos</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="logKicks" checked>
+                      <label class="form-check-label" for="logKicks">Expulsiones</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="logWarns" checked>
+                      <label class="form-check-label" for="logWarns">Advertencias</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="logMutes" checked>
+                      <label class="form-check-label" for="logMutes">Silencios</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="advanced-tab-pane" role="tabpanel">
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Advertencia:</strong> Los cambios en esta sección pueden afectar el funcionamiento del bot.
+              </div>
+              <div class="mb-3">
+                <label for="advancedConfig" class="form-label">Configuración Avanzada (JSON)</label>
+                <textarea class="form-control font-monospace" id="advancedConfig" rows="10"><%= JSON.stringify(serverData, null, 2) %></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICACIONES MEJORADO -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="notificationToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto" id="toast-title">Notificación</strong>
+        <small class="text-muted" id="toast-time">justo ahora</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="toast-body">
+        Mensaje de notificación
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.0/dist/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+  <script>
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+
+      // Inicializar copiado al portapapeles
+      new ClipboardJS('.btn-copy');
+
+      // Mostrar notificación al copiar
+      document.querySelectorAll('.btn-copy').forEach(btn => {
+        btn.addEventListener('click', function() {
+          showToast('Copiado', 'El texto ha sido copiado al portapapeles', 'success');
+        });
+      });
+
+      // Configurar gráficas
+      if (typeof ApexCharts !== 'undefined') {
+        // Gráfica de actividad
+        const activityChart = new ApexCharts(document.querySelector("#activityChart"), {
+          series: [{
+            name: "Mensajes",
+            data: [30, 40, 45, 50, 49, 60, 70, 91, 125, 110, 95, 120, 145, 160, 180, 200, 185, 170, 165, 155, 145, 140, 135, 130, 125, 120, 115, 110, 105, 100]
+          }],
+          chart: {
+            height: 350,
+            type: 'area',
+            toolbar: {
+              show: true,
+              tools: {
+                download: true,
+                selection: true,
+                zoom: true,
+                zoomin: true,
+                zoomout: true,
+                pan: false,
+                reset: true
+              }
+            },
+            zoom: {
+              enabled: true
+            }
+          },
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 2
+          },
+          colors: ['#6a5af9'],
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.7,
+              opacityTo: 0.3,
+              stops: [0, 90, 100]
+            }
+          },
+          xaxis: {
+            type: 'datetime',
+            categories: Array.from({
+              length: 30
+            }, (_, i) => {
+              const date = new Date();
+              date.setDate(date.getDate() - (29 - i));
+              return date.toISOString().split('T')[0];
+            })
+          },
+          tooltip: {
+            x: {
+              format: 'dd MMM yyyy'
+            },
+          }
+        });
+        activityChart.render();
+
+        // Gráfica de niveles (pie)
+        const levelsPieChart = new ApexCharts(document.querySelector("#levelsPieChart"), {
+          series: [25, 20, 15, 10, 8, 7, 6, 5, 4],
+          chart: {
+            type: 'donut',
+            height: 350
+          },
+          labels: ['1-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81+'],
+          colors: ['#6a5af9', '#4cc9f0', '#f72585', '#7209b7', '#3a0ca3', '#4361ee', '#4cc9f0', '#4895ef', '#560bad'],
+          legend: {
+            position: 'bottom'
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                labels: {
+                  show: true,
+                  total: {
+                    show: true,
+                    label: 'Total Usuarios',
+                    color: '#fff',
+                    formatter: function(w) {
+                      return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responsive: [{
+            breakpoint: 480,
+            options: {
+              chart: {
+                width: 200
+              },
+              legend: {
+                position: 'bottom'
+              }
+            }
+          }]
+        });
+        levelsPieChart.render();
+
+        // Gráfica de comandos más usados
+        const commandsChart = new ApexCharts(document.querySelector("#commandsChart"), {
+          series: [{
+            name: 'Usos',
+            data: [120, 98, 76, 65, 54, 43, 32, 21, 10, 8]
+          }],
+          chart: {
+            type: 'bar',
+            height: 350,
+            toolbar: {
+              show: false
+            }
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 4,
+              horizontal: true,
+            }
+          },
+          colors: ['#6a5af9'],
+          dataLabels: {
+            enabled: false
+          },
+          xaxis: {
+            categories: ['!ayuda', '!nivel', '!perfil', '!tienda', '!comprar', '!top', '!reportar', '!sugerir', '!info', '!invitar'],
+          }
+        });
+        commandsChart.render();
+      }
+
+      // Mostrar/ocultar secciones de configuración
+      document.getElementById('enableLevels')?.addEventListener('change', function() {
+        document.getElementById('levelsConfigSection').style.display = this.checked ? 'block' : 'none';
+      });
+
+      document.getElementById('enableModLog')?.addEventListener('change', function() {
+        document.getElementById('modLogConfigSection').style.display = this.checked ? 'block' : 'none';
+      });
+    });
+
+    // Función para mostrar notificaciones
+    function showToast(title, message, type = 'info') {
+      const toastEl = document.getElementById('notificationToast');
+      const toastTitle = document.getElementById('toast-title');
+      const toastBody = document.getElementById('toast-body');
+      const toastTime = document.getElementById('toast-time');
+
+      // Configurar estilo según el tipo
+      const toast = new bootstrap.Toast(toastEl);
+      const toastHeader = toastEl.querySelector('.toast-header');
+
+      // Resetear clases
+      toastHeader.className = 'toast-header';
+      toastHeader.classList.add('bg-' + type + '-gradient');
+
+      // Configurar contenido
+      toastTitle.textContent = title;
+      toastBody.textContent = message;
+      toastTime.textContent = 'justo ahora';
+
+      // Mostrar toast
+      toast.show();
+    }
+  </script>
+</body>
+
+</html>

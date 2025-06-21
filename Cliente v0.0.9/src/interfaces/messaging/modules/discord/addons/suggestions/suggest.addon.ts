@@ -48,7 +48,6 @@ export default new Addons(
 
     // Event to handle suggestions
     client.on("messageCreate", async (message) => {
-      if (message.author.bot) return await message.delete().catch(() => {});
       if (!message.guild) return;
 
       try {
@@ -58,6 +57,7 @@ export default new Addons(
 
         if (!myGuild || !myGuild.suggestChannel) return;
         if (message.channel.id !== myGuild.suggestChannel) return;
+        if (message.author.bot) return await message.delete().catch(() => {});
 
         // Delete original message
         await message.delete().catch(() => {});

@@ -21,7 +21,6 @@ import emojis from "@config/json/emojis.json";
 import { passport } from "./adapters/external/passport";
 import swaggerSetup from "./adapters/external/swagger";
 import { IPBlocker } from "./interfaces/messaging/broker/administrator";
-import { hostURL } from "./shared/functions";
 import { SwaggerMonitor } from "./shared/monitor";
 import { router } from "./shared/utils/routes";
 
@@ -114,16 +113,10 @@ export class API {
     this.app = express();
     this.server = createServer(this.app);
     this.io = new Server(this.server, {
-      /**
-       * @property {string} path - The path for Socket.IO connections.
-       * @property {object} cors - CORS configuration for Socket.IO.
-       */
-      //path: "/support/socket.io",
-      cors: {
-        origin: hostURL(),
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-        credentials: true,
-      },
+      transports: ["websocket", "polling"],
+      connectTimeout: 50000, // Esto hace que el cliente espere 5 segundos para conectarse
+      pingInterval: 40000,
+      pingTimeout: 75000
     });
     this.routes();
     this.middleware();

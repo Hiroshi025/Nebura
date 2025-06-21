@@ -3,7 +3,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance } from "../functions";
@@ -21,7 +21,7 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
         embeds: [
           new ErrorEmbed().setDescription("The minimum bet for Rock, Paper, Scissors is $200."),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
     }
     return;
@@ -37,7 +37,7 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
             `You don't have enough balance to place this bet! Your current balance is $${challengerBalance.balance}.`,
           ),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
     }
     return;
@@ -48,7 +48,7 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
       if (!interaction.replied) {
         return interaction.reply({
           embeds: [new ErrorEmbed().setDescription("You must mention a valid user to challenge.")],
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
       return;
@@ -64,7 +64,7 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
               `The opponent doesn't have enough balance to accept this bet! Their current balance is $${opponentBalance.balance}.`,
             ),
           ],
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
       return;
@@ -159,7 +159,7 @@ async function startGame(
       if (!i.replied) {
         return i.reply({
           content: "It's not your turn.",
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
       return;

@@ -39,10 +39,12 @@
       "@constants/*": ["src/shared/infrastructure/constants/*"],
       "@extenders/*": ["src/shared/infrastructure/extends/*"],
       "@modules/*": ["src/interfaces/messaging/modules/*"],
+      "@services/*": ["src/application/services/*"],
+      "@domain/services/*": ["src/domain/*"],
+      "@dtos/*": ["src/application/dtos/*"],
       "@utils/*": ["src/shared/utils/*"],
       "@typings/*": ["src/typings/*"],
-      "@backend/*": ["src/server/*"],
-      "@tests/*": ["./__tests__/*"],
+      "@domain/*": ["src/domain/*"],
       "@config/*": ["./config/*"],
       "@/*": ["./src/*"]
     },
@@ -74,6 +76,7 @@
   // === Exclusión de Archivos/Carpetas de la Compilación ===
   "exclude": [
     "node_modules", // Dependencias externas
-    "dist" // Carpeta de salida de la compilación
+    "dist", // Carpeta de salida de la compilación
+    "build"
   ]
 }

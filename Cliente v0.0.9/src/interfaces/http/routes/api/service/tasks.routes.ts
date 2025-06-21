@@ -133,6 +133,6 @@ export default ({ app }: TRoutesInput) => {
       message: "Too many requests, please try again later.",
     }),
     authenticateToken,
-    reminderController.getUpcomingReminders.bind(reminderController),
+    reminderController.getUpReminders.bind(reminderController),
   );
 };

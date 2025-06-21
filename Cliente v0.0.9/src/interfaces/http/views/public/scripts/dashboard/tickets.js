@@ -79,12 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * Documentación: https://socket.io/docs/v4/client-api/
    */
   function initAdminSocketConnection() {
-    socket = io({
-      //path: '/support/socket.io',
-      transports: ["websocket"],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
+    socket = io();
 
     socket.on("connect", () => {
       console.log(

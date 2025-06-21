@@ -4,7 +4,7 @@ import schedule from "node-schedule";
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { isValidObjectId } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()

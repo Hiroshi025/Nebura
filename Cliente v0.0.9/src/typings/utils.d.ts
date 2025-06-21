@@ -85,9 +85,9 @@ export interface User {
   discordId: {
     id: string;
     avatar: string;
-    username: string,
+    username: string;
     global_name: string;
-  }
+  };
 
   /**
    * The hashed password of the user.

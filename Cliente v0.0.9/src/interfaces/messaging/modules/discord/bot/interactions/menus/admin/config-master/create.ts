@@ -1,7 +1,7 @@
 import { TextChannel } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Menus } from "@typings/modules/discord";
 
 const menuName: Menus = {
@@ -30,7 +30,7 @@ const menuName: Menus = {
                 `The selected channel does not exist or is not a text channel.`,
             ),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
       return; // Termina aquí para evitar doble respuesta
     }

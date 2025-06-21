@@ -2,7 +2,7 @@ import {
 	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder
 } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const leaveCommand: Precommand = {
@@ -162,14 +162,14 @@ async function sendConfirmation(message: any, guild: any, prefix: string) {
     async (interaction: {
       customId: string;
       user: { id: any };
-      reply: (arg0: { content: string; ephemeral: boolean }) => any;
+      reply: any;
       deferUpdate: () => any;
       editReply: (arg0: { embeds: EmbedCorrect[] | ErrorEmbed[]; components: never[] }) => any;
     }) => {
       if (!interaction.customId.includes(interaction.user.id)) {
         return interaction.reply({
           content: "❌ You didn't execute this command.",
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
 

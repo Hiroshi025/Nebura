@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
+import { ErrorResponse } from "@/adapters/validators/user";
 import { AuthService } from "@/application/services/auth/auth.service";
-import { ErrorResponse } from "@/shared/infrastructure/constants/user";
 
 /**
  * Controller for handling authentication-related HTTP requests.
@@ -15,11 +15,10 @@ import { ErrorResponse } from "@/shared/infrastructure/constants/user";
  * app.post('/api/auth/register', controller.register);
  * app.get('/api/auth/:id', controller.getUserProfile);
  */
-export class AuthController {
-  /**
-   * Instance of AuthService used for authentication operations.
-   */
-  public service = new AuthService();
+export class AuthController extends AuthService {
+  constructor() {
+    super();
+  }
 
   /**
    * Handles user login requests.
@@ -40,7 +39,7 @@ export class AuthController {
     try {
       const { email, password } = req.body;
 
-      const result = await this.service.login({ email, password });
+      const result = await this.loginAuth({ email, password });
 
       if ("error" in result) {
         return this.handleErrorResponse(req, res, result as ErrorResponse);
@@ -82,7 +81,7 @@ export class AuthController {
     try {
       const userData = req.body;
 
-      const result = await this.service.createAuth(userData);
+      const result = await this.createAuth(userData);
 
       if ("error" in result) {
         return this.handleErrorResponse(req, res, result as ErrorResponse);
@@ -120,7 +119,7 @@ export class AuthController {
     try {
       const { id } = req.params;
 
-      const result = await this.service.getAuth(id);
+      const result = await this.getAuth(id);
 
       if ("error" in result) {
         return this.handleErrorResponse(req, res, result as ErrorResponse);

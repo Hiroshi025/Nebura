@@ -6,7 +6,7 @@ import {
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
-import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { ErrorEmbed } from "@extenders/embeds.extend";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
 import { config } from "@utils/config";
 
@@ -104,6 +104,29 @@ export default new Event("interactionCreate", async (interaction) => {
         }
 
         await command.run(client, interaction, config);
+        try {
+          const guildId = interaction.guild.id;
+          const commandName = interaction.commandName;
+          const guildData = await main.prisma.myGuild.findFirst({ where: { guildId } });
+          if (guildData) {
+            // Ensure usage is a Record<string, number>
+            let usage: Record<string, number> = {};
+            if (
+              typeof guildData.commandUsage === "object" &&
+              guildData.commandUsage !== null &&
+              !Array.isArray(guildData.commandUsage)
+            ) {
+              usage = guildData.commandUsage as Record<string, number>;
+            }
+            usage[commandName] = (usage[commandName] || 0) + 1;
+            await main.prisma.myGuild.update({
+              where: { id: guildData.id },
+              data: { commandUsage: usage },
+            });
+          }
+        } catch (err) {
+          // Puedes loggear el error si lo deseas
+        }
       }
       break;
 

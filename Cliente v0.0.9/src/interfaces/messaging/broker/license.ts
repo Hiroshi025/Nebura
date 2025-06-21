@@ -45,7 +45,7 @@ export class LicenseIPMiddleware {
     }
 
     const license = await main.prisma.license.findUnique({
-      where: { id: licenseKey },
+      where: { key: licenseKey },
     });
 
     if (!license) {
@@ -140,14 +140,26 @@ export class LicenseIPMiddleware {
         const realIp = typeof clientIp === "string" ? clientIp.split(",")[0].trim() : "";
 
         const license = await this.checkLicense(licenseKey, realIp, hwid);
+        const ips = license.ips || [];
+        // Verificar si la IP ya está registrada
+        if (realIp && !ips.includes(realIp)) {
+          ips.push(realIp); // Agregar la IP a la lista si no está ya registrada
+        }
+
+        //verificar si hay mas ips registradas que el maximo permitido
+        if (license.maxIps && ips.length > license.maxIps) {
+          // Eliminar la IP más antigua si se supera el límite
+          ips.shift();
+        }
 
         // Incrementar el contador de solicitudes
         await main.prisma.license.update({
-          where: { id: licenseKey },
+          where: { key: licenseKey },
           data: {
             requestCount: { increment: 1 },
             lastUsedIp: realIp,
             ...(hwid ? { lastUsedHwid: hwid } : {}),
+            ips: ips, // Actualizar la lista de IPs
           },
         });
 
@@ -171,7 +183,7 @@ export class LicenseIPMiddleware {
 
         res.status(403).json({
           error: "Access denied",
-          reason: error.message,
+          reason: "Invalid license",
           code: this.getErrorCode(error.message),
         });
       }

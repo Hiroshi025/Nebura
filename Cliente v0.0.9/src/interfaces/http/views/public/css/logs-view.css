@@ -7,25 +7,24 @@
   --warning-color: #ffc107;
   --danger-color: #dc3545;
   --info-color: #17a2b8;
-
-  --background-color-dark: #181818;
+  --background-color-dark: #121212;
   --card-bg-dark: #1e1e1e;
+  --card-bg-dark-hover: #252525;
   --text-color-dark: #e0e0e0;
-  --text-muted-dark: #aaaaaa;
-  --input-bg-dark: #232136;
+  --text-muted-dark: #aaa;
+  --input-bg-dark: #2a2a2a;
   --input-border-dark: #333;
-  --border-color-dark: #444;
-
+  --border-color-dark: #333;
   --border-radius: 0.75rem;
   --border-radius-sm: 0.5rem;
   --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --font-family: "Poppins", sans-serif;
-
-  --section-title-color: #ffffff;
+  --section-title-color: #fff;
   --count-box-bg: #232136;
-  --count-box-color: #ffffff;
+  --count-box-color: #fff;
   --log-line-hover: rgba(106, 90, 249, 0.08);
+  --transition-speed: 0.3s;
 }
 
 /* --- Estilos base --- */
@@ -115,17 +114,6 @@ main {
   transition: all 0.3s ease;
 }
 
-.admin-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: linear-gradient(135deg, rgba(106, 90, 249, 0.8), rgba(247, 37, 133, 0.8));
-  z-index: 0;
-}
-
 .admin-header > * {
   position: relative;
   z-index: 1;
@@ -159,6 +147,8 @@ main {
   align-items: center;
   justify-content: center;
   border: 2px solid var(--card-bg-dark);
+  background: var(--primary-color);
+  color: #fff;
 }
 
 .admin-header .welcome-title {
@@ -544,6 +534,16 @@ main {
 }
 
 @media (max-width: 576px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .count-box {
+    padding: 1.2rem;
+  }
+}
   .card-header {
     flex-direction: column;
     align-items: flex-start;

@@ -1,7 +1,8 @@
 import chalk from "chalk";
 import { ClientEvents, REST, Routes } from "discord.js";
 import { Discord } from "eternal-support";
-import fs from "fs";
+import { readdirSync, statSync } from "fs";
+import fs from "fs/promises";
 import path from "path";
 
 import { filesLoaded } from "@/shared/infrastructure/constants/tools";
@@ -69,7 +70,8 @@ export class DiscordHandler {
    * @throws {Error} If there is an issue loading commands, events, or addons.
    */
   public async _load() {
-    for (const dir of fs.readdirSync(
+    // --- DEBUG AND OPTIMIZED COMMAND LOADING ---
+    for (const dir of readdirSync(
       this.settings.configs.default + this.settings.configs.commandpath,
     )) {
       this.client.categories.set(dir, []);
@@ -88,7 +90,7 @@ export class DiscordHandler {
       }
     }
 
-    for (const dir of fs.readdirSync(
+    for (const dir of readdirSync(
       this.settings.configs.default + this.settings.configs.eventpath,
     )) {
       const files = getFiles(
@@ -106,58 +108,101 @@ export class DiscordHandler {
       }
     }
 
-    // Load addons: each addon is inside its own folder with a .addon.ts or .addon.js file (accept only one, whichever exists)
-    const addonDirs = fs
-      .readdirSync(this.settings.configs.default + this.settings.configs.addonspath, {
-        withFileTypes: true,
-      })
+    // --- DEBUG AND OPTIMIZED ADDON LOADING ---
+    const addonBasePath = this.settings.configs.default + this.settings.configs.addonspath;
+    const addonDirs = (await fs.readdir(addonBasePath, { withFileTypes: true }))
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name);
 
-    const loadedAddons: string[] = [];
+    let totalAddonFiles = 0;
     let totalAddonCode = 0;
-    const startAddonsTime = performance.now();
+    let loadedAddons: string[] = [];
 
-    for (const dir of addonDirs) {
-      // Accept any file ending with .addon.ts or .addon.js inside the addon folder
-      const addonFolderPath = path.join(
-        this.settings.configs.default + this.settings.configs.addonspath,
-        dir,
-      );
-      const filesInFolder = fs.readdirSync(addonFolderPath);
-      const addonFile = filesInFolder.find(
-        (file) => file.endsWith(".addon.ts") || file.endsWith(".addon.js"),
-      );
-      if (addonFile) {
-        const addonPath = path.join(addonFolderPath, addonFile);
-        const code = fs.readFileSync(addonPath, "utf8");
-        totalAddonCode += code.length;
-        const resolvedPath = path.resolve(addonPath);
-        const addonModule = require(resolvedPath).default;
-        if (addonModule instanceof Addons) {
-          this.client.addons.set(addonModule.structure.name, addonModule);
-          await addonModule.initialize(this.client, config);
-          loadedAddons.push(addonModule.structure.name);
+    console.log("\n[DEBUG] Starting general Addon loading...");
+    console.time("Total Addon Loading Time");
+
+    await Promise.all(
+      addonDirs.map(async (dir) => {
+        const addonFolderPath = path.join(addonBasePath, dir);
+        const filesInFolder = await fs.readdir(addonFolderPath);
+        const addonFile = filesInFolder.find(
+          (file) => file.endsWith(".addon.ts") || file.endsWith(".addon.js"),
+        );
+        if (addonFile) {
+          totalAddonFiles++;
+          const addonPath = path.join(addonFolderPath, addonFile);
+          const code = await fs.readFile(addonPath, "utf8");
+          totalAddonCode += code.length;
+          const resolvedPath = path.resolve(addonPath);
+          const addonModule = (await import(resolvedPath)).default;
+          if (addonModule instanceof Addons) {
+            this.client.addons.set(addonModule.structure.name, addonModule);
+            await addonModule.initialize(this.client, config);
+            loadedAddons.push(addonModule.structure.name);
+          }
         }
-      }
+      }),
+    );
+
+    console.timeEnd("Total Addon Loading Time");
+    console.log(
+      `[DEBUG] Addons: Files read: ${totalAddonFiles}, Addons loaded: ${loadedAddons.length}, Code read: ${totalAddonCode} characters`,
+    );
+
+    // --- DEBUG AND OPTIMIZED PRECOMMAND LOADING ---
+    let precommandStats = { files: 0, cargados: 0, code: 0 };
+
+    async function readComponentsRecursively(
+      directory: string,
+      client: MyClient,
+      stats: { files: number; cargados: number; code: number },
+    ) {
+      const filesAndFolders = await fs.readdir(directory, { withFileTypes: true });
+      await Promise.all(
+        filesAndFolders.map(async (item) => {
+          const fullPath = path.join(directory, item.name);
+          if (item.isDirectory()) {
+            await readComponentsRecursively(fullPath, client, stats);
+          } else if (item.name.endsWith(".ts") || item.name.endsWith(".js")) {
+            stats.files++;
+            try {
+              const code = await fs.readFile(fullPath, "utf8");
+              stats.code += code.length;
+              const commandModule = (await import(fullPath)).default;
+              if (commandModule.name && commandModule.execute) {
+                commandModule.path = fullPath;
+                client.precommands.set(commandModule.name, commandModule);
+                if (commandModule.aliases && Array.isArray(commandModule.aliases)) {
+                  commandModule.aliases.forEach((alias: string): void => {
+                    client.aliases.set(alias, commandModule.name);
+                  });
+                }
+                stats.cargados++;
+              }
+            } catch (error) {
+              // Loading error, does not count as loaded
+            }
+          }
+        }),
+      );
     }
 
-    const endAddonsTime = performance.now();
-
-    logWithLabel(
-      "custom",
-      [
-        "loaded the Addons-Client\n",
-        chalk.grey(`  ✅  Finished Loading the Addons Module`),
-        chalk.grey(`  🟢  Addon-Loaded Successfully: ${loadedAddons.length}`),
-        chalk.grey(`  🕛  Took: ${Math.round(endAddonsTime - startAddonsTime)}ms`),
-        chalk.grey(`  📦  Addons in cache: ${this.client.addons.size}`),
-        chalk.grey(`  📄  Total code read: ${totalAddonCode} chars`),
-      ].join("\n"),
-      {
-        customLabel: "addons",
-      },
+    console.log("\n[DEBUG] Starting general Precommand loading...");
+    console.time("Total Precommand Loading Time");
+    try {
+      const componentsDir = path.resolve(
+        `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}`,
+      );
+      await readComponentsRecursively(componentsDir, this.client, precommandStats);
+    } catch (error) {
+      console.error(`[DEBUG] Global error in precommand loading:`, error);
+    }
+    console.timeEnd("Total Precommand Loading Time");
+    console.log(
+      `[DEBUG] Precommands: Files read: ${precommandStats.files}, Precommands loaded: ${precommandStats.cargados}, Code read: ${precommandStats.code} characters`,
     );
+
+    // ...logWithLabel summary if desired...
   }
 
   /**
@@ -267,10 +312,10 @@ export class DiscordHandler {
     const startTime = performance.now();
 
     function readComponentsRecursively(directory: string) {
-      const filesAndFolders = fs.readdirSync(directory);
+      const filesAndFolders = readdirSync(directory);
       for (const item of filesAndFolders) {
         const fullPath = path.join(directory, item);
-        if (fs.statSync(fullPath).isDirectory()) {
+        if (statSync(fullPath).isDirectory()) {
           readComponentsRecursively(fullPath);
         } else if (item.endsWith(".ts") || item.endsWith(".js")) {
           try {

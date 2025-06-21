@@ -4,8 +4,9 @@ import multer from "multer";
 import { GeminiService } from "@/application/services/asistent/google.service";
 import { AuthenticatedRequest } from "@typings/modules/api";
 
+import { GoogleBody } from "../../../../typings/server/google";
+
 const upload = multer();
-const geminiService = new GeminiService();
 
 /**
  * Controller for handling Google Gemini Assistant requests.
@@ -20,7 +21,10 @@ const geminiService = new GeminiService();
  * app.post('/api/gemini/file', GeminiController.processFile);
  * app.post('/api/gemini/combined', GeminiController.processCombined);
  */
-export class GeminiController {
+export class GeminiController extends GeminiService {
+  constructor() {
+    super();
+  }
   /**
    * Processes a text-only request using the GeminiService.
    *
@@ -29,7 +33,6 @@ export class GeminiController {
    *
    * @param req - AuthenticatedRequest containing text and Gemini config.
    * @param res - Express Response object.
-   * @returns {Promise<Response>} JSON response with the Gemini result or error.
    *
    * @example
    * // Request body:
@@ -37,12 +40,8 @@ export class GeminiController {
    */
   static async processText(req: AuthenticatedRequest, res: Response) {
     try {
-      const { text, systemInstruction } = req.body as {
-        text: string;
-        systemInstruction?: string;
-      };
-
-      const result = await geminiService.processText(text, {
+      const { text, systemInstruction } = req.body as GoogleBody;
+      const result = await this.prototype.textGoogle(text, {
         apiKey: req.geminiConfig!.apiKey,
         model: req.geminiConfig!.model,
         systemInstruction,
@@ -65,7 +64,6 @@ export class GeminiController {
    *
    * @param req - AuthenticatedRequest with file and Gemini config.
    * @param res - Express Response object.
-   * @returns {Promise<Response>} JSON response with the Gemini result or error.
    *
    * @example
    * // Form-data:
@@ -83,12 +81,8 @@ export class GeminiController {
           return res.status(400).json({ error: "No file uploaded" });
         }
 
-        const { text, systemInstruction } = req.body as {
-          text?: string;
-          systemInstruction?: string;
-        };
-
-        const result = await geminiService.processFile(
+        const { text, systemInstruction } = req.body as GoogleBody;
+        const result = await this.prototype.fileGoogle(
           req.file.buffer,
           req.file.mimetype,
           text || "Default text",
@@ -117,7 +111,6 @@ export class GeminiController {
    *
    * @param req - AuthenticatedRequest with file, text, and Gemini config.
    * @param res - Express Response object.
-   * @returns {Promise<Response>} JSON response with the Gemini result or error.
    *
    * @example
    * // Form-data:
@@ -135,12 +128,8 @@ export class GeminiController {
           return res.status(400).json({ error: "No file uploaded" });
         }
 
-        const { text, systemInstruction } = req.body as {
-          text: string;
-          systemInstruction?: string;
-        };
-
-        const result = await geminiService.processCombined(
+        const { text, systemInstruction } = req.body as GoogleBody;
+        const result = await this.prototype.combinedGoogle(
           text,
           req.file.buffer,
           req.file.mimetype,

@@ -45,7 +45,7 @@ export default new Command(
     await interaction.reply({
       embeds: [embed],
       components: [row1, row2],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
 
     const collector = interaction.channel?.createMessageComponentCollector({
@@ -56,7 +56,7 @@ export default new Command(
       if (componentInteraction.user.id !== interaction.user.id) {
         return componentInteraction.reply({
           content: "You cannot interact with this configuration.",
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
 

@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, PermissionFlagsBits, PermissionsBitField } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, generateToken, toFixedNumber } from "../functions";

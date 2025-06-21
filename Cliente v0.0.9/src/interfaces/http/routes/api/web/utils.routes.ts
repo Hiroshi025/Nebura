@@ -15,6 +15,7 @@ import { SecurityController } from "@/interfaces/http/controllers/admin/devs.con
 import { ReminderController } from "@/interfaces/http/controllers/asistent/reminder.controllers";
 import { TaskController } from "@/interfaces/http/controllers/asistent/tasks.controllers";
 import { LicenseController } from "@/interfaces/http/controllers/license/license.controllers";
+import { Notification } from "@/interfaces/messaging/broker/notification";
 import { main } from "@/main";
 import { TRoutesInput } from "@/typings/utils";
 import { config } from "@utils/config";
@@ -174,7 +175,7 @@ export default ({ app }: TRoutesInput) => {
    * Requires authentication.
    * @route GET /dashboard/utils/reminders
    */
-  app.get("reminders", reminderController.getUpcomingReminders.bind(reminderController));
+  app.get("reminders", reminderController.getUpReminders.bind(reminderController));
 
   /**
    * Endpoint for file upload.
@@ -553,6 +554,19 @@ export default ({ app }: TRoutesInput) => {
         });
       }
 
+      // --- Notificación Discord ---
+      const notifier = new Notification();
+      await notifier.sendWebhookNotification(
+        "New Admin Registration",
+        `A new admin user has been registered.\n\n**Name:** ${dataUser.name}\n**Email:** ${dataUser.email}\n**Role:** ${dataUser.role}\n**Date:** ${new Date().toISOString()}`,
+        "#007bff",
+        [{ name: "User ID", value: dataUser.id, inline: false }],
+        {
+          content: "🛡️ New admin registration event",
+          username: "Admin Registration Bot",
+        },
+      );
+
       return res.status(201).json({ success: true, user: result });
     } catch (error) {
       return res.status(500).json({
@@ -757,6 +771,22 @@ export default ({ app }: TRoutesInput) => {
         updatedAt: new Date(),
       },
     });
+
+    // --- Notificación Discord ---
+    const notifier = new Notification();
+    await notifier.sendWebhookNotification(
+      "New Ticket Created",
+      `A new support ticket has been created.\n\n**User:** ${userName || userId}\n**Ticket ID:** ${ticketId}\n**Reason:** ${reason || "No reason provided"}\n**Date:** ${new Date().toISOString()}`,
+      "#28a745",
+      [
+        { name: "Guild ID", value: guildId || "N/A", inline: true },
+        { name: "Channel ID", value: channelId || "N/A", inline: true },
+      ],
+      {
+        content: "🎫 New ticket event",
+        username: "Ticket Bot",
+      },
+    );
 
     return res.status(201).json({
       success: true,
@@ -1894,30 +1924,751 @@ export default ({ app }: TRoutesInput) => {
   });
 
   /**
-   * Ruta para compartir archivo por link público.
-   * Renderiza la vista con los datos del archivo compartido.
-   * @route GET /dashboard/cdn/share/:userId/:fileName
+   * CRUD endpoints for Client, Discord, and WhatsApp models.
+   * All responses/messages are in English and include debug logs.
    */
-/*   app.get("/dashboard/cdn/share/:userId/:fileName", async (req: Request, res: Response) => {
-    const { userId, fileName } = req.params;
+
+  // ===================== CLIENT =====================
+
+  /**
+   * Get all clients.
+   * @route GET /dashboard/utils/client
+   */
+  app.get(formatRoute("client"), async (_req: Request, res: Response) => {
     try {
-      const sharedFile = await main.prisma.fileMetadata.findFirst({
-        where: { userId, fileName },
-      });
-      if (!sharedFile) {
-        return res
-          .status(404)
-          .render("cdn.ejs", { title: "Archivo no encontrado", sharedFile: null, user: req.user });
-      }
-      return res.render("cdn.ejs", {
-        title: sharedFile.title,
-        sharedFile,
-        user: req.user,
-      });
-    } catch (error) {
+      const clients = await main.prisma.client.findMany();
+      console.debug("[Client][GET] All clients fetched:", clients.length);
+      return res.status(200).json({ success: true, data: clients });
+    } catch (error: any) {
+      console.error("[Client][GET] Error fetching clients:", error);
       return res
         .status(500)
-        .render("cdn.ejs", { title: "Error", sharedFile: null, user: req.user });
+        .json({ success: false, message: "Failed to fetch clients", error: error.message });
     }
-  }); */
+  });
+
+  /**
+   * Get a client by ID.
+   * @route GET /dashboard/utils/client/:id
+   */
+  app.get(formatRoute("client/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const clientData = await main.prisma.client.findUnique({ where: { id } });
+      if (!clientData) {
+        console.debug(`[Client][GET] Client not found: ${id}`);
+        return res.status(404).json({ success: false, message: "Client not found" });
+      }
+      console.debug(`[Client][GET] Client fetched: ${id}`);
+      return res.status(200).json({ success: true, data: clientData });
+    } catch (error: any) {
+      console.error("[Client][GET] Error fetching client:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch client", error: error.message });
+    }
+  });
+
+  /**
+   * Create a new client.
+   * @route POST /dashboard/utils/client
+   */
+  app.post(formatRoute("client"), async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const created = await main.prisma.client.create({ data });
+      console.debug("[Client][POST] Client created:", created.id);
+      return res
+        .status(201)
+        .json({ success: true, message: "Client created successfully", data: created });
+    } catch (error: any) {
+      console.error("[Client][POST] Error creating client:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to create client", error: error.message });
+    }
+  });
+
+  /**
+   * Update a client by ID.
+   * @route PUT /dashboard/utils/client/:id
+   */
+  app.put(formatRoute("client/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const data = req.body;
+      const updated = await main.prisma.client.update({ where: { id }, data });
+      console.debug(`[Client][PUT] Client updated: ${id}`);
+      return res
+        .status(200)
+        .json({ success: true, message: "Client updated successfully", data: updated });
+    } catch (error: any) {
+      console.error("[Client][PUT] Error updating client:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to update client", error: error.message });
+    }
+  });
+
+  /**
+   * Delete a client by ID.
+   * @route DELETE /dashboard/utils/client/:id
+   */
+  app.delete(formatRoute("client/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      await main.prisma.client.delete({ where: { id } });
+      console.debug(`[Client][DELETE] Client deleted: ${id}`);
+      return res.status(200).json({ success: true, message: "Client deleted successfully" });
+    } catch (error: any) {
+      console.error("[Client][DELETE] Error deleting client:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to delete client", error: error.message });
+    }
+  });
+
+  // ===================== DISCORD =====================
+
+  /**
+   * Get all Discord configs.
+   * @route GET /dashboard/utils/discord
+   */
+  app.get(formatRoute("discord"), async (_req: Request, res: Response) => {
+    try {
+      const discordConfigs = await main.prisma.discord.findMany();
+      console.debug("[Discord][GET] All Discord configs fetched:", discordConfigs.length);
+      return res.status(200).json({ success: true, data: discordConfigs });
+    } catch (error: any) {
+      console.error("[Discord][GET] Error fetching Discord configs:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch Discord configs", error: error.message });
+    }
+  });
+
+  /**
+   * Get a Discord config by ID.
+   * @route GET /dashboard/utils/discord/:id
+   */
+  app.get(formatRoute("discord/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const discordData = await main.prisma.discord.findUnique({ where: { id } });
+      if (!discordData) {
+        console.debug(`[Discord][GET] Discord config not found: ${id}`);
+        return res.status(404).json({ success: false, message: "Discord config not found" });
+      }
+      console.debug(`[Discord][GET] Discord config fetched: ${id}`);
+      return res.status(200).json({ success: true, data: discordData });
+    } catch (error: any) {
+      console.error("[Discord][GET] Error fetching Discord config:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch Discord config", error: error.message });
+    }
+  });
+
+  /**
+   * Create a new Discord config.
+   * @route POST /dashboard/utils/discord
+   */
+  app.post(formatRoute("discord"), async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const created = await main.prisma.discord.create({ data });
+      console.debug("[Discord][POST] Discord config created:", created.id);
+      return res
+        .status(201)
+        .json({ success: true, message: "Discord config created successfully", data: created });
+    } catch (error: any) {
+      console.error("[Discord][POST] Error creating Discord config:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to create Discord config", error: error.message });
+    }
+  });
+
+  /**
+   * Update a Discord config by ID.
+   * @route PUT /dashboard/utils/discord/:id
+   */
+  app.put(formatRoute("discord/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const data = req.body;
+      const updated = await main.prisma.discord.update({ where: { id }, data });
+      console.debug(`[Discord][PUT] Discord config updated: ${id}`);
+      return res
+        .status(200)
+        .json({ success: true, message: "Discord config updated successfully", data: updated });
+    } catch (error: any) {
+      console.error("[Discord][PUT] Error updating Discord config:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to update Discord config", error: error.message });
+    }
+  });
+
+  /**
+   * Delete a Discord config by ID.
+   * @route DELETE /dashboard/utils/discord/:id
+   */
+  app.delete(formatRoute("discord/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      await main.prisma.discord.delete({ where: { id } });
+      console.debug(`[Discord][DELETE] Discord config deleted: ${id}`);
+      return res
+        .status(200)
+        .json({ success: true, message: "Discord config deleted successfully" });
+    } catch (error: any) {
+      console.error("[Discord][DELETE] Error deleting Discord config:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to delete Discord config", error: error.message });
+    }
+  });
+
+  // ===================== WHATSAPP =====================
+
+  /**
+   * Get all WhatsApp configs.
+   * @route GET /dashboard/utils/whatsapp
+   */
+  app.get(formatRoute("whatsapp"), async (_req: Request, res: Response) => {
+    try {
+      const whatsappConfigs = await main.prisma.whatsApp.findMany();
+      console.debug("[WhatsApp][GET] All WhatsApp configs fetched:", whatsappConfigs.length);
+      return res.status(200).json({ success: true, data: whatsappConfigs });
+    } catch (error: any) {
+      console.error("[WhatsApp][GET] Error fetching WhatsApp configs:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch WhatsApp configs",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Get a WhatsApp config by ID.
+   * @route GET /dashboard/utils/whatsapp/:id
+   */
+  app.get(formatRoute("whatsapp/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const whatsappData = await main.prisma.whatsApp.findUnique({ where: { id } });
+      if (!whatsappData) {
+        console.debug(`[WhatsApp][GET] WhatsApp config not found: ${id}`);
+        return res.status(404).json({ success: false, message: "WhatsApp config not found" });
+      }
+      console.debug(`[WhatsApp][GET] WhatsApp config fetched: ${id}`);
+      return res.status(200).json({ success: true, data: whatsappData });
+    } catch (error: any) {
+      console.error("[WhatsApp][GET] Error fetching WhatsApp config:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch WhatsApp config", error: error.message });
+    }
+  });
+
+  /**
+   * Create a new WhatsApp config.
+   * @route POST /dashboard/utils/whatsapp
+   */
+  app.post(formatRoute("whatsapp"), async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const created = await main.prisma.whatsApp.create({ data });
+      console.debug("[WhatsApp][POST] WhatsApp config created:", created.id);
+      return res
+        .status(201)
+        .json({ success: true, message: "WhatsApp config created successfully", data: created });
+    } catch (error: any) {
+      console.error("[WhatsApp][POST] Error creating WhatsApp config:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create WhatsApp config",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Update a WhatsApp config by ID.
+   * @route PUT /dashboard/utils/whatsapp/:id
+   */
+  app.put(formatRoute("whatsapp/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const data = req.body;
+      const updated = await main.prisma.whatsApp.update({ where: { id }, data });
+      console.debug(`[WhatsApp][PUT] WhatsApp config updated: ${id}`);
+      return res
+        .status(200)
+        .json({ success: true, message: "WhatsApp config updated successfully", data: updated });
+    } catch (error: any) {
+      console.error("[WhatsApp][PUT] Error updating WhatsApp config:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update WhatsApp config",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Delete a WhatsApp config by ID.
+   * @route DELETE /dashboard/utils/whatsapp/:id
+   */
+  app.delete(formatRoute("whatsapp/:id"), async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      await main.prisma.whatsApp.delete({ where: { id } });
+      console.debug(`[WhatsApp][DELETE] WhatsApp config deleted: ${id}`);
+      return res
+        .status(200)
+        .json({ success: true, message: "WhatsApp config deleted successfully" });
+    } catch (error: any) {
+      console.error("[WhatsApp][DELETE] Error deleting WhatsApp config:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete WhatsApp config",
+        error: error.message,
+      });
+    }
+  });
+
+  // ===================== COMMAND =====================
+
+  /**
+   * Get all commands for a guild.
+   * @route GET /dashboard/utils/commands/:guildId
+   */
+  app.get(formatRoute("commands/:guildId"), async (req: Request, res: Response) => {
+    try {
+      const { guildId } = req.params;
+      const commands = await main.prisma.command.findMany({
+        where: { guildId },
+        orderBy: { createdAt: "desc" },
+      });
+      console.debug(`[Command][GET] Commands fetched for guild: ${guildId}`);
+      return res.status(200).json({
+        success: true,
+        data: commands,
+      });
+    } catch (error: any) {
+      console.error("[Command][GET] Error fetching commands:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch commands",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Get a specific command by ID.
+   * @route GET /dashboard/utils/commands/:guildId/:commandId
+   */
+  app.get(formatRoute("commands/:guildId/:commandId"), async (req: Request, res: Response) => {
+    try {
+      const { guildId, commandId } = req.params;
+      const command = await main.prisma.command.findFirst({
+        where: {
+          id: commandId,
+          guildId,
+        },
+      });
+
+      if (!command) {
+        console.debug(`[Command][GET] Command not found: ${commandId}`);
+        return res.status(404).json({
+          success: false,
+          message: "Command not found",
+        });
+      }
+
+      console.debug(`[Command][GET] Command fetched: ${commandId}`);
+      return res.status(200).json({
+        success: true,
+        data: command,
+      });
+    } catch (error: any) {
+      console.error("[Command][GET] Error fetching command:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch command",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Create a new command.
+   * @route POST /dashboard/utils/commands
+   */
+  app.post(formatRoute("commands"), async (req: Request, res: Response) => {
+    try {
+      const {
+        guildId,
+        name,
+        embed,
+        embedColor,
+        embedTitle,
+        embedFooter,
+        embedImage,
+        embedThumbnail,
+        embedAuthor,
+        buttons,
+        file,
+        description,
+        response,
+      } = req.body;
+
+      if (!guildId || !name) {
+        return res.status(400).json({
+          success: false,
+          message: "guildId and name are required fields",
+        });
+      }
+
+      // Validate buttons structure if provided
+      if (buttons) {
+        try {
+          const parsedButtons = JSON.parse(buttons);
+          if (!Array.isArray(parsedButtons)) {
+            return res.status(400).json({
+              success: false,
+              message: "Buttons must be an array",
+            });
+          }
+
+          for (const btn of parsedButtons) {
+            if (!btn.label || !btn.style || !btn.customId) {
+              return res.status(400).json({
+                success: false,
+                message: "Each button must have label, style, and customId properties",
+              });
+            }
+          }
+        } catch (e) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid buttons format. Must be valid JSON array",
+          });
+        }
+      }
+
+      const existingCommand = await main.prisma.command.findFirst({
+        where: {
+          guildId,
+          name,
+        },
+      });
+
+      if (existingCommand) {
+        return res.status(400).json({
+          success: false,
+          message: "A command with this name already exists in this guild",
+        });
+      }
+
+      const created = await main.prisma.command.create({
+        data: {
+          guildId,
+          name,
+          embed: embed || false,
+          embedColor: embedColor || "Red",
+          embedTitle: embedTitle || null,
+          embedFooter: embedFooter || null,
+          embedImage: embedImage || null,
+          embedThumbnail: embedThumbnail || null,
+          embedAuthor: embedAuthor || null,
+          buttons: buttons ? JSON.parse(buttons) : null,
+          file: file || null,
+          description: description || null,
+          response: response || null,
+          isEnabled: true,
+        },
+      });
+
+      console.debug("[Command][POST] Command created:", created.id);
+      return res.status(201).json({
+        success: true,
+        message: "Command created successfully",
+        data: created,
+      });
+    } catch (error: any) {
+      console.error("[Command][POST] Error creating command:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create command",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Update a command by ID.
+   * @route PUT /dashboard/utils/commands/:commandId
+   */
+  app.put(formatRoute("commands/:commandId"), async (req: Request, res: Response) => {
+    try {
+      const { commandId } = req.params;
+      const {
+        name,
+        embed,
+        embedColor,
+        embedTitle,
+        embedFooter,
+        embedImage,
+        embedThumbnail,
+        embedAuthor,
+        buttons,
+        file,
+        description,
+        response,
+        isEnabled,
+      } = req.body;
+
+      const existingCommand = await main.prisma.command.findUnique({
+        where: { id: commandId },
+      });
+
+      if (!existingCommand) {
+        console.debug(`[Command][PUT] Command not found: ${commandId}`);
+        return res.status(404).json({
+          success: false,
+          message: "Command not found",
+        });
+      }
+
+      // Check for name uniqueness in the same guild
+      if (name && name !== existingCommand.name) {
+        const nameExists = await main.prisma.command.findFirst({
+          where: {
+            guildId: existingCommand.guildId,
+            name,
+          },
+        });
+
+        if (nameExists) {
+          return res.status(400).json({
+            success: false,
+            message: "A command with this name already exists in this guild",
+          });
+        }
+      }
+
+      // Validate buttons if provided
+      let parsedButtons = null;
+      if (buttons !== undefined) {
+        try {
+          parsedButtons = buttons ? JSON.parse(buttons) : null;
+          if (parsedButtons && !Array.isArray(parsedButtons)) {
+            return res.status(400).json({
+              success: false,
+              message: "Buttons must be an array",
+            });
+          }
+
+          if (parsedButtons) {
+            for (const btn of parsedButtons) {
+              if (!btn.label || !btn.style || !btn.customId) {
+                return res.status(400).json({
+                  success: false,
+                  message: "Each button must have label, style, and customId properties",
+                });
+              }
+            }
+          }
+        } catch (e) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid buttons format. Must be valid JSON array",
+          });
+        }
+      }
+
+      const updated = await main.prisma.command.update({
+        where: { id: commandId },
+        data: {
+          name: name || existingCommand.name,
+          embed: typeof embed === "boolean" ? embed : existingCommand.embed,
+          embedColor: embedColor || existingCommand.embedColor,
+          embedTitle: embedTitle !== undefined ? embedTitle : existingCommand.embedTitle,
+          embedFooter: embedFooter !== undefined ? embedFooter : existingCommand.embedFooter,
+          embedImage: embedImage !== undefined ? embedImage : existingCommand.embedImage,
+          embedThumbnail:
+            embedThumbnail !== undefined ? embedThumbnail : existingCommand.embedThumbnail,
+          embedAuthor: embedAuthor !== undefined ? embedAuthor : existingCommand.embedAuthor,
+          buttons: buttons !== undefined ? parsedButtons : existingCommand.buttons,
+          file: file !== undefined ? file : existingCommand.file,
+          description: description !== undefined ? description : existingCommand.description,
+          response: response !== undefined ? response : existingCommand.response,
+          isEnabled: typeof isEnabled === "boolean" ? isEnabled : existingCommand.isEnabled,
+        },
+      });
+
+      console.debug(`[Command][PUT] Command updated: ${commandId}`);
+      return res.status(200).json({
+        success: true,
+        message: "Command updated successfully",
+        data: updated,
+      });
+    } catch (error: any) {
+      console.error("[Command][PUT] Error updating command:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update command",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Delete a command by ID.
+   * @route DELETE /dashboard/utils/commands/:commandId
+   */
+  app.delete(formatRoute("commands/:commandId"), async (req: Request, res: Response) => {
+    try {
+      const { commandId } = req.params;
+
+      const existingCommand = await main.prisma.command.findUnique({
+        where: { id: commandId },
+      });
+
+      if (!existingCommand) {
+        console.debug(`[Command][DELETE] Command not found: ${commandId}`);
+        return res.status(404).json({
+          success: false,
+          message: "Command not found",
+        });
+      }
+
+      await main.prisma.command.delete({
+        where: { id: commandId },
+      });
+
+      console.debug(`[Command][DELETE] Command deleted: ${commandId}`);
+      return res.status(200).json({
+        success: true,
+        message: "Command deleted successfully",
+      });
+    } catch (error: any) {
+      console.error("[Command][DELETE] Error deleting command:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete command",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Toggle command status (enable/disable).
+   * @route PATCH /dashboard/utils/commands/:commandId/toggle
+   */
+  app.patch(formatRoute("commands/:commandId/toggle"), async (req: Request, res: Response) => {
+    try {
+      const { commandId } = req.params;
+
+      const existingCommand = await main.prisma.command.findUnique({
+        where: { id: commandId },
+      });
+
+      if (!existingCommand) {
+        console.debug(`[Command][PATCH] Command not found: ${commandId}`);
+        return res.status(404).json({
+          success: false,
+          message: "Command not found",
+        });
+      }
+
+      const updated = await main.prisma.command.update({
+        where: { id: commandId },
+        data: {
+          isEnabled: !existingCommand.isEnabled,
+        },
+      });
+
+      console.debug(
+        `[Command][PATCH] Command toggled: ${commandId}, new status: ${updated.isEnabled}`,
+      );
+      return res.status(200).json({
+        success: true,
+        message: `Command ${updated.isEnabled ? "enabled" : "disabled"} successfully`,
+        data: updated,
+      });
+    } catch (error: any) {
+      console.error("[Command][PATCH] Error toggling command:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to toggle command status",
+        error: error.message,
+      });
+    }
+  });
+
+  /**
+   * Increment command usage count.
+   * @route PATCH /dashboard/utils/commands/:commandId/usage
+   */
+  app.patch(formatRoute("commands/:commandId/usage"), async (req: Request, res: Response) => {
+    try {
+      const { commandId } = req.params;
+
+      const existingCommand = await main.prisma.command.findUnique({
+        where: { id: commandId },
+      });
+
+      if (!existingCommand) {
+        console.debug(`[Command][PATCH] Command not found: ${commandId}`);
+        return res.status(404).json({
+          success: false,
+          message: "Command not found",
+        });
+      }
+
+      const updated = await main.prisma.command.update({
+        where: { id: commandId },
+        data: {
+          usageCount: existingCommand.usageCount + 1,
+        },
+      });
+
+      console.debug(
+        `[Command][PATCH] Command usage incremented: ${commandId}, new count: ${updated.usageCount}`,
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Command usage incremented",
+        data: updated,
+      });
+    } catch (error: any) {
+      console.error("[Command][PATCH] Error incrementing command usage:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to increment command usage",
+        error: error.message,
+      });
+    }
+  });
+
+  app.get(formatRoute("commands"), async (_req: Request, res: Response) => {
+    try {
+      const commands = await main.prisma.command.findMany({
+        orderBy: { createdAt: "desc" },
+      });
+      return res.status(200).json({ success: true, data: commands });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch commands",
+        error: error.message,
+      });
+    }
+  });
 };

@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 
-import { CreateLicenseDto, UpdateLicenseDto } from "../../../../application/dto/license.dtos";
-import { LicenseService } from "../../../../application/services/license/license.service";
+import { CreateLicenseDto, UpdateLicenseDto } from "@/application/dto/license.dtos";
+import { LicenseService } from "@services/license/license.service";
 
-export class LicenseController {
-  private service = new LicenseService();
+export class LicenseController extends LicenseService {
+  constructor() {
+    super();
+  }
 
   /**
    *
@@ -18,7 +20,7 @@ export class LicenseController {
   async create(req: Request, res: Response) {
     try {
       const dto: CreateLicenseDto = req.body;
-      const license = await this.service.create(dto);
+      const license = await this.createLicense(dto);
       res.status(201).json(license);
     } catch (error) {
       res.status(500).json({ error: req.t("errors:failed_to_create_license") });
@@ -36,7 +38,7 @@ export class LicenseController {
    */
   async getAll(req: Request, res: Response) {
     try {
-      const licenses = await this.service.findAll();
+      const licenses = await this.findAllLicense();
       res.json(licenses);
     } catch (error) {
       res.status(500).json({ error: req.t("errors:failed_to_fetch_licenses") });
@@ -54,7 +56,7 @@ export class LicenseController {
    */
   async getById(req: Request, res: Response) {
     try {
-      const license = await this.service.findById(req.params.id);
+      const license = await this.findByIdLicense(req.params.id);
       license
         ? res.json(license)
         : res.status(404).json({ error: req.t("errors:license_not_found") });
@@ -74,7 +76,7 @@ export class LicenseController {
    */
   async getByUser(req: Request, res: Response) {
     try {
-      const licenses = await this.service.findByUserId(req.params.userId);
+      const licenses = await this.findByUserIdLicense(req.params.userId);
       res.json(licenses);
     } catch (error) {
       res.status(500).json({ error: req.t("errors:failed_to_fetch_user_licenses") });
@@ -93,7 +95,7 @@ export class LicenseController {
   async update(req: Request, res: Response) {
     try {
       const dto: UpdateLicenseDto = req.body;
-      const license = await this.service.update(req.params.id, dto);
+      const license = await this.updateLicense(req.params.id, dto);
       res.json(license);
     } catch (error) {
       res.status(500).json({ error: req.t("errors:failed_to_update_license") });
@@ -111,7 +113,7 @@ export class LicenseController {
    */
   async delete(req: Request, res: Response) {
     try {
-      await this.service.delete(req.params.id);
+      await this.deleteLicense(req.params.id);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: req.t("errors:failed_to_delete_license") });
@@ -129,7 +131,7 @@ export class LicenseController {
    */
   async validate(req: Request, res: Response) {
     try {
-      const isValid = await this.service.validateLicense(req.params.key, req.body.hwid);
+      const isValid = await this.validateLicense(req.params.key, req.body.hwid);
       isValid
         ? res.json({ valid: true })
         : res.status(403).json({ valid: false, error: req.t("errors:license_validation_failed") });

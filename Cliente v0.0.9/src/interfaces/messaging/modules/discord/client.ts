@@ -1,6 +1,5 @@
 import { Client, Collection, GatewayIntentBits, Options, Partials } from "discord.js";
-import { readdirSync, statSync } from "fs";
-import { basename, extname, join } from "path";
+import DisTube from "distube";
 
 import { DiscordError } from "@/shared/infrastructure/extends/error.extend";
 import { config } from "@/shared/utils/config";
@@ -8,7 +7,9 @@ import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
 
+import { GiveawayService } from "./structure/giveaway";
 import { DiscordHandler } from "./structure/handlers/collection";
+import { YouTube } from "./structure/handlers/youtube";
 import { Command } from "./structure/utils/builders";
 
 /**
@@ -115,6 +116,8 @@ export class MyClient extends Client {
    * @public
    */
   public Jobmembercount: any;
+  public distube: DisTube;
+  Youtubelog: any;
 
   /**
    * Initializes a new instance of the `MyClient` class.
@@ -142,6 +145,8 @@ export class MyClient extends Client {
         GatewayIntentBits.GuildScheduledEvents,
         GatewayIntentBits.DirectMessageTyping,
         GatewayIntentBits.GuildExpressions,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.DirectMessageReactions
       ],
       partials: [
         Partials.GuildMember,
@@ -184,6 +189,14 @@ export class MyClient extends Client {
           },
         },
       },
+    });
+
+    this.distube = new DisTube(this, {
+      emitNewSongOnly: true,
+      //leaveOnFinish: true,
+      emitAddSongWhenCreatingQueue: false,
+      emitAddListWhenCreatingQueue: false,
+      plugins: []
     });
 
     this.handlers = new DiscordHandler(this);
@@ -246,6 +259,8 @@ export class MyClient extends Client {
 
     // Load and deploy the handlers
     await this.handlers._load();
+    await new GiveawayService();
+    await YouTube(this);
     try {
       await Promise.all([
         this.handlers.loadAndSet(this, "buttons"),
@@ -275,203 +290,5 @@ export class MyClient extends Client {
     }
     // Si no se encuentra en el servidor, usar el emoji del archivo JSON
     return typeof emojis[emojiName] === "string" ? emojis[emojiName] : `:${emojiName}:`;
-  }
-
-  /**
-   * Reloads a specific command by searching recursively in the commands directory
-   * @param commandName - The name of the command to reload (without extension)
-   * @returns {Promise<void>} Resolves when the command is reloaded or rejects on error
-   */
-  public async reloadCommand(commandName: string): Promise<void> {
-    const commandPath =
-      config.modules.discord.configs.default + config.modules.discord.configs.precommands;
-    logWithLabel("debug", `Starting reload for command: ${commandName}`);
-
-    try {
-      // Find the command file recursively
-      const commandFile = this.findCommandFile(commandPath, commandName);
-
-      if (!commandFile) {
-        logWithLabel("custom", `Command ${commandName} not found in ${commandPath}`, {
-          customLabel: "Warning",
-          context: {
-            commandName,
-            commandPath,
-          },
-        });
-        throw new Error(`Command ${commandName} not found`);
-      }
-
-      logWithLabel("debug", `Found command file at: ${commandFile}`);
-
-      // Clear the cache and re-import
-      const modulePath = require.resolve(commandFile);
-      delete require.cache[modulePath];
-
-      // Use dynamic import for better error handling
-      const commandModule = await import(commandFile);
-      const command = commandModule.default || commandModule;
-
-      if (!command || !command.name) {
-        logWithLabel("error", `Invalid command structure in ${commandFile}`);
-        throw new Error(`Invalid command structure`);
-      }
-
-      // Update the command in collections
-      this.precommands.set(command.name, command);
-
-      // Update aliases if they exist
-      if (command.aliases && Array.isArray(command.aliases)) {
-        command.aliases.forEach((alias: string) => {
-          this.aliases.set(alias, command.name);
-        });
-      }
-
-      logWithLabel("success", `Command ${command.name} successfully reloaded from ${commandFile}`);
-    } catch (error: any) {
-      logWithLabel("error", `Failed to reload command ${commandName}: ${error.message}`);
-      console.error(error.stack);
-      throw error;
-    }
-  }
-
-  /**
-   * Recursively finds a command file in the directory and subdirectories
-   * @param directory - Directory to search in
-   * @param commandName - Command name to search for
-   * @returns {string | null} Full path to the command file or null if not found
-   */
-  private findCommandFile(directory: string, commandName: string): string | null {
-    try {
-      const files = readdirSync(directory);
-
-      for (const file of files) {
-        const fullPath = join(directory, file);
-        const stat = statSync(fullPath);
-
-        if (stat.isDirectory()) {
-          const found = this.findCommandFile(fullPath, commandName);
-          if (found) return found;
-        } else if (
-          stat.isFile() &&
-          [".ts", ".js"].includes(extname(file).toLowerCase()) &&
-          basename(file, extname(file)).toLowerCase() === commandName.toLowerCase()
-        ) {
-          return fullPath;
-        }
-      }
-
-      return null;
-    } catch (error: any) {
-      logWithLabel(
-        "error",
-        `Error searching for command ${commandName} in ${directory}: ${error.message}`,
-      );
-      return null;
-    }
-  }
-
-  /**
-   * Reloads all commands from the commands directory and subdirectories
-   * @returns {Promise<void>} Resolves when all commands are reloaded
-   */
-  public async loadCommands(): Promise<void> {
-    const commandPath =
-      config.modules.discord.configs.default + config.modules.discord.configs.precommands;
-    logWithLabel("debug", `Starting reload of all commands from ${commandPath}`);
-
-    try {
-      // Clear existing commands
-      this.precommands.clear();
-      this.aliases.clear();
-
-      // Find and load all command files
-      const commandFiles = this.findAllCommandFiles(commandPath);
-
-      if (commandFiles.length === 0) {
-        logWithLabel("custom", `No command files found in ${commandPath}`, {
-          customLabel: "Warning",
-          context: {
-            commandPath,
-          },
-        });
-        return;
-      }
-
-      logWithLabel("debug", `Found ${commandFiles.length} command files to load`);
-
-      // Load all commands in parallel
-      const loadPromises = commandFiles.map(async (file) => {
-        try {
-          const modulePath = require.resolve(file);
-          delete require.cache[modulePath];
-
-          const commandModule = await import(file);
-          const command = commandModule.default || commandModule;
-
-          if (!command || !command.name) {
-            logWithLabel("custom", `Skipping invalid command file: ${file}`, {
-              customLabel: "Warning",
-              context: {
-                file,
-              },
-            });
-            return;
-          }
-
-          this.precommands.set(command.name, command);
-
-          if (command.aliases && Array.isArray(command.aliases)) {
-            command.aliases.forEach((alias: string) => {
-              this.aliases.set(alias, command.name);
-            });
-          }
-
-          logWithLabel("debug", `Loaded command: ${command.name} from ${file}`);
-        } catch (error: any) {
-          logWithLabel("error", `Failed to load command from ${file}: ${error.message}`);
-        }
-      });
-
-      await Promise.all(loadPromises);
-
-      logWithLabel("success", `Successfully reloaded ${this.precommands.size} commands`);
-    } catch (error: any) {
-      logWithLabel("error", `Failed to reload commands: ${error.message}`);
-      console.error(error.stack);
-      throw error;
-    }
-  }
-
-  /**
-   * Recursively finds all command files in a directory
-   * @param directory - Directory to search in
-   * @returns {string[]} Array of full paths to command files
-   */
-  private findAllCommandFiles(directory: string): string[] {
-    const commandFiles: string[] = [];
-
-    try {
-      const files = readdirSync(directory);
-
-      for (const file of files) {
-        const fullPath = join(directory, file);
-        const stat = statSync(fullPath);
-
-        if (stat.isDirectory()) {
-          commandFiles.push(...this.findAllCommandFiles(fullPath));
-        } else if (
-          stat.isFile() &&
-          [".ts", ".js"].includes(extname(file).toLowerCase()) &&
-          !file.endsWith(".d.ts") // Exclude TypeScript declaration files
-        ) {
-          commandFiles.push(fullPath);
-        }
-      }
-    } catch (error: any) {
-      logWithLabel("error", `Error searching for command files in ${directory}: ${error.message}`);
-    }
-
-    return commandFiles;
   }
 }

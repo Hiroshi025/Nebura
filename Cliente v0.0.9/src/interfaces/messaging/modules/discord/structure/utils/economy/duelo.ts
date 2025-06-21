@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance } from "../functions";
@@ -247,7 +247,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
   const terrainMessage = await interaction.reply({
     content: `${challenger}, select the terrain for the duel:`,
     components: [terrainRow],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   let selectedTerrain: BattleTerrain = "plains"; // Valor por defecto
@@ -288,7 +288,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
   const challengerClassMsg = await interaction.followUp({
     content: `${challenger}, select your class:`,
     components: [classRow],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   let challengerClass: CharacterClass = "warrior";
@@ -314,7 +314,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
   const opponentClassMsg = await interaction.followUp({
     content: `${opponent}, select your class:`,
     components: [classRow],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   let opponentClass: CharacterClass = "warrior";

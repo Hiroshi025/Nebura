@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 
@@ -22,7 +22,7 @@ export async function StateCommand(interaction: ChatInputCommandInteraction, _cl
           .setDescription(`${targetUser.username} does not have an economy profile.`)
           .setColor("Red"),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -141,5 +141,5 @@ export async function StateCommand(interaction: ChatInputCommandInteraction, _cl
       iconURL: interaction.guild.iconURL() ?? undefined,
     });
 
-  return interaction.reply({ embeds: [embed], ephemeral: true });
+  return interaction.reply({ embeds: [embed], flags: "Ephemeral" });
 }

@@ -50,12 +50,12 @@
     </script>
 </head>
 
-<body class="loaded">
+<body class="loaded" style="background: var(--bs-body-bg); color: var(--bs-body-color);">
   <div id="app-container">
     <div class="d-flex" style="min-height: 100vh;">
       <%- include('partials/sidebar', { user: user }) %>
 
-        <main class="flex-grow-1 p-4">
+        <main class="flex-grow-1 p-4" style="background: var(--bs-body-bg); color: var(--bs-body-color);">
 
           <!-- Selector de idioma -->
           <div class="mb-3 d-flex justify-content-end">
@@ -86,8 +86,10 @@
           </ul>
 
           <!-- Estado del sistema -->
-          <section class="card mb-4 animate__animated animate__fadeIn" id="system-status-section">
-            <div class="card-header d-flex align-items-center justify-content-between">
+          <section class="card mb-4 animate__animated animate__fadeIn" id="system-status-section"
+            style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
+            <div class="card-header d-flex align-items-center justify-content-between"
+              style="background: rgba(30, 30, 30, 0.7); border-bottom: 1px solid var(--input-border-dark); color: var(--text-color-dark);">
               <div class="d-flex align-items-center">
                 <i class="fas fa-heartbeat me-2"></i>
                 <span data-key="systemStatus">Estado del Sistema</span>
@@ -136,19 +138,24 @@
             <div class="tab-pane fade show active" id="tickets-tab-pane" role="tabpanel" aria-labelledby="tickets-tab"
               tabindex="0">
               <!-- Filtros y búsqueda -->
-              <div class="card mb-4">
+              <div class="card mb-4"
+                style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                 <div class="card-body py-2">
                   <div class="d-flex flex-wrap align-items-center gap-2">
-                    <select id="ticket-filter" class="form-select form-select-sm" style="width: 150px;">
+                    <select id="ticket-filter" class="form-select form-select-sm"
+                      style="width: 150px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                       <option value="all" data-key="filterAll">Todos</option>
                       <option value="OPEN" data-key="filterOpen">Abiertos</option>
                       <option value="CLOSED" data-key="filterClosed">Cerrados</option>
                       <option value="PENDING" data-key="filterPending">Pendientes</option>
                     </select>
                     <div class="input-group input-group-sm" style="width: 200px;">
-                      <span class="input-group-text"><i class="fas fa-search"></i></span>
+                      <span class="input-group-text"
+                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);"><i
+                          class="fas fa-search"></i></span>
                       <input type="text" class="form-control" placeholder="Buscar tickets..." id="ticket-search"
-                        data-key="searchTicketsPlaceholder">
+                        data-key="searchTicketsPlaceholder"
+                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                     </div>
                     <button class="btn btn-sm btn-outline-secondary ms-auto" id="refresh-tickets" title="Recargar">
                       <i class="fas fa-sync-alt"></i>
@@ -162,10 +169,11 @@
               </div>
 
               <!-- Lista de tickets -->
-              <div class="card">
+              <div class="card" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                 <div class="card-body p-0">
                   <div class="table-responsive">
-                    <table class="table table-hover mb-0" id="tickets-table">
+                    <table class="table table-hover mb-0" id="tickets-table"
+                      style="background: transparent; color: var(--text-color-dark);">
                       <thead>
                         <tr>
                           <th data-key="ticketId">ID</th>
@@ -215,9 +223,12 @@
                   </h3>
                   <div class="d-flex align-items-center gap-2">
                     <div class="input-group input-group-sm" style="width: 200px;">
-                      <span class="input-group-text"><i class="fas fa-users"></i></span>
+                      <span class="input-group-text"
+                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);"><i
+                          class="fas fa-users"></i></span>
                       <input type="text" class="form-control" placeholder="Buscar usuarios..." id="user-search"
-                        data-key="searchUsersPlaceholder">
+                        data-key="searchUsersPlaceholder"
+                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                     </div>
                     <button class="btn btn-sm btn-outline-primary" id="toggle-chat-theme" title="Cambiar tema">
                       <i class="fas fa-moon"></i>
@@ -225,7 +236,7 @@
                   </div>
                 </div>
 
-                <div class="card">
+                <div class="card" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                   <div class="card-body p-0">
                     <div class="chat-container">
                       <div class="chat-sidebar">
@@ -285,7 +296,8 @@
                     <i class="fas fa-file-alt me-2"></i><span data-key="myTranscripts">Mis Transcripciones</span>
                   </h3>
                   <div class="d-flex align-items-center gap-2">
-                    <select id="transcript-filter" class="form-select form-select-sm" style="width: 150px;">
+                    <select id="transcript-filter" class="form-select form-select-sm"
+                      style="width: 150px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                       <option value="all" data-key="filterAll">Todos</option>
                       <option value="ticket" data-key="filterTicket">Tickets</option>
                       <option value="chat" data-key="filterChat">Chats</option>
@@ -296,10 +308,11 @@
                   </div>
                 </div>
 
-                <div class="card">
+                <div class="card" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                   <div class="card-body">
                     <div class="table-responsive">
-                      <table class="table table-hover mb-0" id="transcripts-table">
+                      <table class="table table-hover mb-0" id="transcripts-table"
+                        style="background: transparent; color: var(--text-color-dark);">
                         <thead>
                           <tr>
                             <th data-key="transcriptId">ID</th>

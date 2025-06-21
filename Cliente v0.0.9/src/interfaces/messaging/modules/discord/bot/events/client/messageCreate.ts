@@ -1,21 +1,22 @@
-import { TextChannel } from "discord.js";
+import { ColorResolvable, TextChannel } from "discord.js";
 
 import {
 	countMessage, createGuild, createUser, Economy
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
-import { Ranking } from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
 import { client, main } from "@/main";
 import { config } from "@/shared/utils/config";
-import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
-import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { Ranking } from "@modules/discord/structure/utils/ranking/helpers";
+import { ButtonFormat, Precommand } from "@typings/modules/discord";
 
 import { Event } from "../../../structure/utils/builders";
 
 export default new Event("messageCreate", async (message) => {
   if (!message.guild || !message.channel || message.author.bot || !client.user) return;
+  await countMessage(message.author.id, message.guild.id, message);
   await createGuild(message.guild.id, client);
   await createUser(message.author.id);
-
+  //await Asistent(message, client);
   await Ranking(message, client);
   await Economy(message);
 
@@ -46,7 +47,6 @@ export default new Event("messageCreate", async (message) => {
       ],
     });
 
-  await countMessage(message.author.id, message.guild.id);
   const args: string[] = message.content.slice(prefix.length).trim().split(/\s+/);
 
   const cmd: string = args.shift()?.toLowerCase() ?? "";
@@ -56,8 +56,84 @@ export default new Event("messageCreate", async (message) => {
     (client.precommands.get(cmd) as Precommand) ||
     (client.precommands.find((c) => (c as Precommand)?.aliases?.includes(cmd)) as Precommand);
 
-  if (!command) return;
+  if (!command) {
+    const data = await main.prisma.command.findFirst({
+      where: {
+        name: cmd,
+        guildId: message.guild.id,
+      },
+    });
 
+    if (!data || !data.isEnabled) return;
+
+    if (data.embed) {
+      const embed = new EmbedCorrect()
+        .setTitle(data.embedTitle || data.name)
+        .setDescription(data.response || "Sin respuesta configurada.")
+        .setColor((data.embedColor as ColorResolvable) || "Red");
+
+      if (data.embedFooter) {
+        embed.setFooter({
+          text: data.embedFooter,
+          iconURL: client.user?.displayAvatarURL(),
+        });
+      } else {
+        embed.setFooter({
+          text: `${data.isEnabled ? "Enabled" : "Disabled"} | ${data.name}`,
+          iconURL: client.user?.displayAvatarURL(),
+        });
+      }
+
+      if (data.embedImage) embed.setImage(data.embedImage);
+      if (data.embedThumbnail) embed.setThumbnail(data.embedThumbnail);
+      if (data.embedAuthor) {
+        embed.setAuthor({
+          name: data.embedAuthor,
+          iconURL: client.user?.displayAvatarURL(),
+        });
+      }
+
+      // Botones (si existen)
+      let components = [];
+      if (data.buttons && Array.isArray(data.buttons)) {
+        const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+        const row = new ActionRowBuilder();
+        // Ensure each button is an object with the expected properties
+        const buttons = data.buttons as unknown as ButtonFormat[];
+        buttons.forEach((button) => {
+          if (
+            button &&
+            typeof button === "object" &&
+            button.label &&
+            button.customId &&
+            button.style
+          ) {
+            row.addComponents(
+              new ButtonBuilder()
+                .setLabel(button.label)
+                .setCustomId(button.customId)
+                .setStyle(ButtonStyle[button.style as keyof typeof ButtonStyle]),
+            );
+          }
+        });
+        components.push(row);
+      }
+
+      return message.channel.send({
+        embeds: [embed],
+        components,
+        allowedMentions: { repliedUser: false },
+        files: data.file ? [data.file] : [],
+      });
+    }
+
+    // Si no es embed, pero puede tener archivo adjunto
+    return message.channel.send({
+      content: data.response as string,
+      allowedMentions: { repliedUser: false },
+      files: data.file ? [data.file] : [],
+    });
+  }
   try {
     if (command.owner && !clientData.owners.includes(message.author.id)) {
       return message.channel.send({
@@ -158,11 +234,26 @@ export default new Event("messageCreate", async (message) => {
     } */
 
     await command.execute(client, message, args, prefix, language, config);
+    try {
+      const guildId = message.guild.id;
+      const commandName = command.name;
+      const guildData = await main.prisma.myGuild.findFirst({ where: { guildId } });
+      if (guildData) {
+        const usage = (guildData.commandUsage as Record<string, number>) || {};
+        usage[commandName] = (usage[commandName] || 0) + 1;
+        await main.prisma.myGuild.update({
+          where: { id: guildData.id },
+          data: { commandUsage: usage },
+        });
+      }
+    } catch (err) {
+      console.debug("[DEBUG] Error updating command usage:", err);
+    }
   } catch (error: any) {
     const errorEmbed = new ErrorEmbed()
       .setError(true)
       .setTitle("Command Execution Error")
-      .setErrorFormat(`An error occurred while executing the command: ${command.name}`, error);
+      .setErrorFormat(error);
 
     await message.channel.send({ embeds: [errorEmbed] });
   }

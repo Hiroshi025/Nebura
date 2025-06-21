@@ -47,6 +47,8 @@ logs-apps
 
 # testing
 /coverage
+/build
+/dist
 
 # next.js
 /.next/

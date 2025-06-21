@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
 
-// src/controllers/discord.controller.ts
-import { DiscordService } from "@/application/services/utilities/discord.service";
-
-import {
-	DiscordStatusOutputDTO, DiscordUpdateOutputDTO
-} from "../../../../application/dto/discord.dtos";
+import { DiscordStatusOutputDTO, DiscordUpdateOutputDTO } from "@/application/dto/discord.dtos";
+import { DiscordService } from "@services/utilities/discord.service";
 
 /**
  * Controller for handling Discord status, updates, and incidents endpoints.
@@ -20,12 +16,10 @@ import {
  * const controller = new DiscordController();
  * app.get('/discord/status', controller.getStatus);
  */
-export class DiscordController {
-  /**
-   * Instance of DiscordService used to fetch Discord status and updates.
-   * @private
-   */
-  private discordService = new DiscordService();
+export class DiscordController extends DiscordService {
+  constructor() {
+    super();
+  }
 
   /**
    * Express route handler to get the current Discord status.
@@ -39,7 +33,7 @@ export class DiscordController {
    */
   public getStatus = async (req: Request, res: Response) => {
     try {
-      const status = await this.discordService.getCurrentStatus();
+      const status = await this.getCurrentStatus();
 
       const output: DiscordStatusOutputDTO = {
         status: this.mapStatusIndicator(status.indicator),
@@ -65,7 +59,7 @@ export class DiscordController {
    */
   public getUpdates = async (req: Request, res: Response) => {
     try {
-      const updates = await this.discordService.getLatestUpdates();
+      const updates = await this.getLatestUpdates();
 
       const output: DiscordUpdateOutputDTO[] = updates.map((update) => ({
         title: update.title,
@@ -93,7 +87,7 @@ export class DiscordController {
    */
   public getIncidents = async (req: Request, res: Response) => {
     try {
-      const incidents = await this.discordService.getActiveIncidents();
+      const incidents = await this.getActiveIncidents();
 
       const output: DiscordUpdateOutputDTO[] = incidents.map((incident) => ({
         title: incident.title,
@@ -115,7 +109,7 @@ export class DiscordController {
    * @returns {Promise<DiscordStatusOutputDTO>} The current Discord status object.
    */
   public getRecentStatus = async (): Promise<DiscordStatusOutputDTO> => {
-    const status = await this.discordService.getCurrentStatus();
+    const status = await this.getCurrentStatus();
     return {
       status: this.mapStatusIndicator(status.indicator),
       message: status.description,
@@ -129,7 +123,7 @@ export class DiscordController {
    * @returns {Promise<DiscordUpdateOutputDTO[]>} Array of recent update objects.
    */
   public getRecentUpdates = async (): Promise<DiscordUpdateOutputDTO[]> => {
-    const updates = await this.discordService.getLatestUpdates();
+    const updates = await this.getLatestUpdates();
     const recentUpdates = updates.filter((update) => {
       const now = new Date();
       const diff = now.getTime() - update.date.getTime();
@@ -150,7 +144,7 @@ export class DiscordController {
    * @returns {Promise<DiscordUpdateOutputDTO[]>} Array of recent incident objects.
    */
   public getRecentIncidents = async (): Promise<DiscordUpdateOutputDTO[]> => {
-    const incidents = await this.discordService.getActiveIncidents();
+    const incidents = await this.getActiveIncidents();
     const recentIncidents = incidents.filter((incident) => {
       const now = new Date();
       const diff = now.getTime() - incident.date.getTime();

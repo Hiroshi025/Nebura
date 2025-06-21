@@ -4,7 +4,7 @@ import {
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -218,7 +218,7 @@ export default new Command(
                 if (i.user.id !== interaction.user.id) {
                   return i.reply({
                     content: "You cannot interact with this pagination.",
-                    ephemeral: true,
+                    flags: "Ephemeral",
                   });
                 }
 

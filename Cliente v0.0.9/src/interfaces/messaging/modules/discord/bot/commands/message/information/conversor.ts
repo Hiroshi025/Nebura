@@ -7,7 +7,7 @@ import {
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import currency from "@config/json/coins.json";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const precommandConversor: Precommand = {
@@ -46,25 +46,41 @@ const precommandConversor: Precommand = {
             .setTitle("Error - Missing Arguments")
             .setDescription(
               [
-                `${client.getEmoji(message.guild.id, "error")} Please provide a currency to convert.`,
-                `**Usage:** \`${prefix}conversor <currency>\`\n`,
+                `${client.getEmoji(message.guild.id, "error")} Please provide an amount to convert.`,
+                `**Usage:** \`${prefix}conversor <amount>\`\n`,
                 structure,
               ].join("\n"),
             ),
         ],
       });
 
+    const monedas: any = currency;
+
+    // Validate that currencies are configured
+    if (!monedas || Object.keys(monedas).length === 0) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed()
+            .setTitle("Error - No currencies available")
+            .setDescription(
+              "No currencies are configured in the system. Please contact an administrator.",
+            ),
+        ],
+      });
+    }
+
     const panel1 = new EmbedCorrect()
       .setTitle(`💶 **Currency converter** 💵`)
-      .setDescription(`What is the currency of your money?`)
+      .setDescription(
+        `What is the source currency of your money?\nSelect the currency you want to convert from.`,
+      )
       .setColor(`#F7F9F7`)
       .setTimestamp();
 
     const menu = new StringSelectMenuBuilder()
       .setCustomId("menu-conversor1")
-      .setPlaceholder(`💷 Choose an option:`);
+      .setPlaceholder(`💷 Choose the source currency:`);
 
-    const monedas: any = currency;
     for (const i in monedas)
       menu.addOptions(
         new StringSelectMenuOptionBuilder()
@@ -78,25 +94,56 @@ const precommandConversor: Precommand = {
     const msg1 = await message.channel.send({ embeds: [panel1], components: [menu1] });
     const respuesta1: any = await new Promise((resolve) => {
       const filter1 = (menu1: Interaction) => menu1.user.id === message.author.id;
-      const collector1 = msg1.createMessageComponentCollector({ filter: filter1, time: 600000 });
+      const collector1 = msg1.createMessageComponentCollector({ filter: filter1, time: 60000 });
       collector1.on("collect", async (menu1: StringSelectMenuInteraction) => {
         const eleccion = menu1.values[0];
         resolve(eleccion);
         menu1.deferUpdate();
         collector1.stop();
       });
-      collector1.on("end", () => resolve(null));
+      collector1.on("end", (_collected, reason) => {
+        if (reason === "time") resolve("timeout");
+        else resolve(null);
+      });
     });
 
-    //RESPUESTA 2
+    if (!respuesta1 || respuesta1 === "timeout") {
+      await msg1.edit({
+        embeds: [
+          panel1.setDescription(
+            "⏰ The time to select the source currency has expired. Please try again.",
+          ),
+        ],
+        components: [],
+      });
+      return;
+    }
+
+    // Validate that the source currency exists
+    if (!monedas[respuesta1]) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed().setDescription(
+            [
+              `${client.getEmoji(message.guild.id, "error")} The selected source currency does not exist.`,
+              `Please select a valid currency.`,
+            ].join("\n"),
+          ),
+        ],
+      });
+    }
+
+    // RESPONSE 2
     const panel2 = new EmbedCorrect()
-      .setDescription(`What currency do you want to convert your money to?`)
+      .setDescription(
+        `To which currency do you want to convert your money?\nSelect the target currency.`,
+      )
       .setColor(`#F7F9F7`)
       .setTimestamp();
 
     const menu_2 = new StringSelectMenuBuilder()
       .setCustomId("menu-conversor2")
-      .setPlaceholder(`💴 Choose an option:`);
+      .setPlaceholder(`💴 Choose the target currency:`);
     for (const i in monedas)
       menu_2.addOptions(
         new StringSelectMenuOptionBuilder()
@@ -110,7 +157,7 @@ const precommandConversor: Precommand = {
     const msg2 = await message.channel.send({ embeds: [panel2], components: [menu2] });
     const respuesta2: any = await new Promise((resolve, _reject) => {
       const filter2 = (menu2: Interaction) => menu2.user.id === message.author.id;
-      const collector2 = msg2.createMessageComponentCollector({ filter: filter2, time: 600000 });
+      const collector2 = msg2.createMessageComponentCollector({ filter: filter2, time: 60000 });
       collector2.on("collect", async (menu2: StringSelectMenuInteraction) => {
         if (!message.guild) return;
         const eleccion = menu2.values[0];
@@ -121,7 +168,7 @@ const precommandConversor: Precommand = {
                 .setDescription(
                   [
                     `${client.getEmoji(message.guild.id, "error")} You cannot convert the same currency to itself...`,
-                    `Please choose another currency.`,
+                    `Please choose another target currency.`,
                   ].join("\n"),
                 )
                 .setColor(`#F7F9F7`),
@@ -134,16 +181,77 @@ const precommandConversor: Precommand = {
         menu2.deferUpdate();
         return;
       });
-      collector2.on("end", () => resolve(null));
+      collector2.on("end", (_collected, reason) => {
+        if (reason === "time") resolve("timeout");
+        else resolve(null);
+      });
     });
 
-    const json = await axios({
-      method: "GET",
-      url: `http://www.floatrates.com/daily/${respuesta1}.json`,
-    });
+    if (!respuesta2 || respuesta2 === "timeout") {
+      await msg2.edit({
+        embeds: [
+          panel2.setDescription(
+            "⏰ The time to select the target currency has expired. Please try again.",
+          ),
+        ],
+        components: [],
+      });
+      return;
+    }
 
-    if (json.status !== 200) return;
-    // Convertimos el json a un objeto
+    // Validate that the target currency exists
+    if (!monedas[respuesta2]) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed().setDescription(
+            [
+              `${client.getEmoji(message.guild.id, "error")} The selected target currency does not exist.`,
+              `Please select a valid currency.`,
+            ].join("\n"),
+          ),
+        ],
+      });
+    }
+
+    // API request with error handling
+    let json;
+    try {
+      json = await axios({
+        method: "GET",
+        url: `http://www.floatrates.com/daily/${respuesta1}.json`,
+        timeout: 10000,
+      });
+    } catch (err: any) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed()
+            .setTitle("Connection error")
+            .setDescription(
+              [
+                `${client.getEmoji(message.guild.id, "error")} Could not retrieve the exchange rate.`,
+                `Check your connection or try again later.`,
+                err.code ? `\`Error: ${err.code}\`` : "",
+              ]
+                .filter(Boolean)
+                .join("\n"),
+            ),
+        ],
+      });
+    }
+
+    if (!json || json.status !== 200) {
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed().setDescription(
+            [
+              `${client.getEmoji(message.guild.id, "error")} Could not retrieve the exchange rate.`,
+              `The conversion API did not respond correctly.`,
+            ].join("\n"),
+          ),
+        ],
+      });
+    }
+    // Convert the json to an object
     const data = JSON.parse(JSON.stringify(json.data));
 
     const currencyData = data[respuesta2.toLowerCase()];
@@ -156,7 +264,7 @@ const precommandConversor: Precommand = {
                 `${client.getEmoji(
                   message.guild.id,
                   "error",
-                )} The currency you are trying to convert to does not exist...`,
+                )} The target currency is not available in the API.`,
                 `Please choose another currency.`,
               ].join("\n"),
             )
@@ -170,10 +278,11 @@ const precommandConversor: Precommand = {
         new EmbedCorrect()
           .setTitle(`${monedas[respuesta1][2]} ⇌ ${monedas[respuesta2][2]}`)
           .setDescription(
-            "`💱`" +
-              ` **${moneda} ${monedas[respuesta1][1]}** are: **${(
-                (moneda as any) * data[respuesta2.toLowerCase()].rate
-              ).toFixed(2)} ${monedas[respuesta2][1]}**`,
+            [
+              `💱 **${moneda} ${monedas[respuesta1][1]}** equals:`,
+              `**${((moneda as any) * data[respuesta2.toLowerCase()].rate).toFixed(2)} ${monedas[respuesta2][1]}**`,
+              `\n_Exchange rate updated automatically._`,
+            ].join("\n"),
           ),
       ],
     });

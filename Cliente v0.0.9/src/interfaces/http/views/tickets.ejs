@@ -34,7 +34,7 @@
     </script>
 </head>
 
-<body class="loaded">
+<body class="loaded" style="background: var(--background-color-dark); color: var(--text-color-dark);">
   <div id="app-container">
     <div class="d-flex" style="min-height: 100vh;">
       <%- include('partials/sidebar', { user: user, panelSection: ` <div class='sidebar-section-title'>
@@ -52,9 +52,10 @@
     </a>
     ` }) %>
 
-    <main class="flex-grow-1 p-4">
+    <main class="flex-grow-1 p-4" style="background: var(--background-color-dark); color: var(--text-color-dark);">
       <!-- Tabs principales -->
-      <ul class="nav nav-tabs mb-4" id="adminSupportTabs" role="tablist">
+      <ul class="nav nav-tabs mb-4" id="adminSupportTabs" role="tablist"
+        style="border-bottom: 1px solid var(--border-color-dark);">
         <li class="nav-item" role="presentation">
           <button class="nav-link active" id="tickets-admin-tab" data-bs-toggle="tab"
             data-bs-target="#tickets-admin-pane" type="button" role="tab" aria-controls="tickets-admin-pane"
@@ -82,19 +83,23 @@
         <div class="tab-pane fade show active" id="tickets-admin-pane" role="tabpanel"
           aria-labelledby="tickets-admin-tab" tabindex="0">
           <!-- Filtros y búsqueda -->
-          <div class="card mb-4">
+          <div class="card mb-4" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
             <div class="card-body py-2">
               <div class="d-flex flex-wrap align-items-center gap-2">
-                <select id="admin-ticket-filter" class="form-select form-select-sm" style="width: 150px;">
+                <select id="admin-ticket-filter" class="form-select form-select-sm"
+                  style="width: 150px; background: var(--input-bg-dark); color: var(--text-color-dark); border: 1px solid var(--input-border-dark);">
                   <option value="all" data-key="filterAll">Todos</option>
                   <option value="OPEN" data-key="filterOpen">Abiertos</option>
                   <option value="PENDING" data-key="filterPending">Pendientes</option>
                   <option value="CLOSED" data-key="filterClosed">Cerrados</option>
                 </select>
                 <div class="input-group input-group-sm" style="width: 200px;">
-                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                  <span class="input-group-text"
+                    style="background: var(--input-bg-dark); color: var(--text-color-dark); border: 1px solid var(--input-border-dark);"><i
+                      class="fas fa-search"></i></span>
                   <input type="text" class="form-control" placeholder="Buscar tickets..." id="admin-ticket-search"
-                    data-key="searchTicketsPlaceholder">
+                    data-key="searchTicketsPlaceholder"
+                    style="background: var(--input-bg-dark); color: var(--text-color-dark); border: 1px solid var(--input-border-dark);">
                 </div>
                 <button class="btn btn-sm btn-outline-secondary ms-auto" id="admin-refresh-tickets" title="Recargar">
                   <i class="fas fa-sync-alt"></i>
@@ -104,10 +109,11 @@
           </div>
 
           <!-- Lista de tickets -->
-          <div class="card">
+          <div class="card" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
             <div class="card-body p-0">
               <div class="table-responsive">
-                <table class="table table-hover mb-0" id="admin-tickets-table">
+                <table class="table table-hover mb-0" id="admin-tickets-table"
+                  style="background: transparent; color: var(--text-color-dark);">
                   <thead>
                     <tr>
                       <th data-key="ticketId">ID</th>
@@ -156,7 +162,8 @@
             <div class="row">
               <!-- Estadísticas generales -->
               <div class="col-md-6">
-                <div class="stats-card">
+                <div class="stats-card"
+                  style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                   <h5><i class="fas fa-chart-pie me-2"></i> Resumen de Tickets</h5>
                   <div class="chart-container">
                     <canvas id="tickets-summary-chart"></canvas>
@@ -164,7 +171,8 @@
                 </div>
               </div>
               <div class="col-md-6">
-                <div class="stats-card">
+                <div class="stats-card"
+                  style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                   <h5><i class="fas fa-calendar-alt me-2"></i> Tickets por Mes</h5>
                   <div class="chart-container">
                     <canvas id="tickets-monthly-chart"></canvas>
@@ -175,7 +183,8 @@
 
             <div class="row">
               <div class="col-md-6">
-                <div class="stats-card">
+                <div class="stats-card"
+                  style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                   <h5><i class="fas fa-tags me-2"></i> Tickets por Categoría</h5>
                   <div class="chart-container">
                     <canvas id="tickets-category-chart"></canvas>
@@ -183,10 +192,11 @@
                 </div>
               </div>
               <div class="col-md-6">
-                <div class="stats-card">
+                <div class="stats-card"
+                  style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                   <h5><i class="fas fa-trophy me-2"></i> Top Usuarios</h5>
                   <div class="table-responsive">
-                    <table class="table table-sm">
+                    <table class="table table-sm" style="background: transparent; color: var(--text-color-dark);">
                       <thead>
                         <tr>
                           <th data-key="user">Usuario</th>
@@ -222,7 +232,8 @@
                   Transcripciones</span>
               </h3>
               <div class="d-flex align-items-center gap-2">
-                <select id="admin-transcript-filter" class="form-select form-select-sm" style="width: 150px;">
+                <select id="admin-transcript-filter" class="form-select form-select-sm"
+                  style="width: 150px; background: var(--input-bg-dark); color: var(--text-color-dark); border: 1px solid var(--input-border-dark);">
                   <option value="all" data-key="filterAll">Todos</option>
                   <option value="ticket" data-key="filterTicket">Tickets</option>
                   <option value="chat" data-key="filterChat">Chats</option>
@@ -233,10 +244,11 @@
               </div>
             </div>
 
-            <div class="card">
+            <div class="card" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table table-hover mb-0" id="admin-transcripts-table">
+                  <table class="table table-hover mb-0" id="admin-transcripts-table"
+                    style="background: transparent; color: var(--text-color-dark);">
                     <thead>
                       <tr>
                         <th data-key="transcriptId">ID</th>

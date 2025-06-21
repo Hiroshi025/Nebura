@@ -218,12 +218,12 @@ export default new Command(
               })
             ).first(3);
           } catch {
-            await i.followUp({ content: "No se recibieron los campos a tiempo.", ephemeral: true });
+            await i.followUp({ content: "No se recibieron los campos a tiempo." });
             enableComponents(fieldSetupComponent, fieldMenuComponent);
             return;
           }
           if (!msgArr || msgArr.length < 3) {
-            await i.followUp({ content: "Debes enviar los 3 campos.", ephemeral: true });
+            await i.followUp({ content: "Debes enviar los 3 campos." });
             enableComponents(fieldSetupComponent, fieldMenuComponent);
             return;
           }

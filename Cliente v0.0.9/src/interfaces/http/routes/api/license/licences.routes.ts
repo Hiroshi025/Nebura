@@ -1,4 +1,5 @@
 import { authenticateToken } from "@/interfaces/http/middlewares/jwt/token.middleware";
+import { LicenseIPMiddleware } from "@/interfaces/messaging/broker/license";
 import { RateLimitManager } from "@/interfaces/messaging/broker/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
@@ -119,11 +120,7 @@ export default ({ app }: TRoutesInput) => {
    */
   app.post(
     formatRoute("/validate/:key"),
-    RateLimitManager.getInstance().createCustomLimiter({
-      max: 10,
-      windowMs: 60 * 1000, // 1 minuto
-      message: "Too many requests, please try again later.",
-    }),
+    LicenseIPMiddleware.getInstance().getMiddleware(),
     controller.validate.bind(controller),
   );
 

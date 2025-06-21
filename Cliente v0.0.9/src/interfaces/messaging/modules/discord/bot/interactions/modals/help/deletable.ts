@@ -1,7 +1,7 @@
 import { readdirSync, statSync, unlinkSync } from "fs";
 import { join } from "path";
 
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Modals } from "@typings/modules/discord";
 import { config } from "@utils/config";
 import { logWithLabel } from "@utils/functions/console";
@@ -38,7 +38,9 @@ const ModalDeleteCommand: Modals = {
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel) return;
     const commandName = interaction.fields.getTextInputValue("command_to_delete");
-    const categories = readdirSync(config.modules.discord.configs.default + config.modules.discord.configs.precommands);
+    const categories = readdirSync(
+      config.modules.discord.configs.default + config.modules.discord.configs.precommands,
+    );
 
     try {
       let found = false;

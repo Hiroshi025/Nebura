@@ -1,5 +1,5 @@
 import { main } from "@/main";
-import { EmbedCorrect } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Menus } from "@typings/modules/discord";
 
 const logChannelClient: Menus = {

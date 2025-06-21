@@ -305,7 +305,7 @@ export default new Addons(
           logWithLabel("error", `Interaction handling failed: ${error}`);
           await interaction.followUp({
             content: "❌ Failed to update status. Please try again later.",
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
       });

@@ -379,7 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
               </p>
             </div>
             <div class="card-footer text-center">
-              <a href="/dashboard/server/${server.id}" class="btn btn-primary btn-sm">
+              <a href="/dashboard/discord/server?id=${server.id}" class="btn btn-primary btn-sm">
                 <i class="fas fa-cog me-1"></i> ${translations[currentLanguage].manageBtn}
               </a>
               <a href="https://discord.com/channels/${server.id}" class="btn btn-outline-primary btn-sm ms-2" target="_blank">

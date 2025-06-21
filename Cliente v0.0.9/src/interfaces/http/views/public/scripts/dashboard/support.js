@@ -66,12 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
    */
   function initSocketConnection() {
     // Se conecta usando el path personalizado para soporte.
-    socket = io({
-      //path: '/support/socket.io',
-      transports: ["websocket"],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
+    socket = io();
 
     // Evento: conexión exitosa
     socket.on("connect", () => {

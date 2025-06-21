@@ -1,17 +1,32 @@
 import { stripIndent } from "common-tags";
 import {
 	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ComponentType, EmbedBuilder,
-	Message, StringSelectMenuBuilder, StringSelectMenuInteraction
+	Message, ModalSubmitInteraction, PermissionResolvable, StringSelectMenuBuilder,
+	StringSelectMenuInteraction
 } from "discord.js";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
 import { MyClient } from "@/interfaces/messaging/modules/discord/client";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 import { config } from "@utils/config";
 
 import packages from "../../../../../../../../../package.json";
+
+/**
+ * Genera el objeto de footer para los embeds de paginación del menú de ayuda.
+ * @param page Página actual (1-indexed)
+ * @param totalPages Total de páginas
+ * @param prefix Prefijo del bot
+ * @param iconURL URL del icono a mostrar en el footer
+ */
+function getPageFooter(page: number, totalPages: number, prefix: string, iconURL?: string) {
+  return {
+    text: `Página ${page}/${totalPages} • Usa ${prefix}help <comando> para más info`,
+    iconURL: iconURL,
+  };
+}
 
 function getCommandsFromFolder(path: string): string[] {
   let commands: string[] = [];
@@ -116,6 +131,14 @@ function createCommandEmbed(
   return embed;
 }
 
+const SUPPORTED_LANGUAGES = [
+  { label: "Español", value: "es", emoji: "🇪🇸" },
+  { label: "English", value: "en", emoji: "🇬🇧" },
+  // Puedes agregar más idiomas aquí
+];
+
+let currentLanguage = "es"; // Por defecto español
+
 const helpCommand: Precommand = {
   name: "help",
   description: "View the help menu with all bot commands and information",
@@ -126,7 +149,9 @@ const helpCommand: Precommand = {
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(client: MyClient, message: Message, args: string[], prefix: string) {
-    const categories = readdirSync(config.modules.discord.configs.default + config.modules.discord.configs.precommands);
+    const categories = readdirSync(
+      config.modules.discord.configs.default + config.modules.discord.configs.precommands,
+    );
     const isOwner = config.modules.discord.owners.includes(message.author.id);
 
     if (!message.guild || !client.user) return;
@@ -235,10 +260,53 @@ const helpCommand: Precommand = {
       }
     }
 
+    // --- FILTROS DE PERMISOS Y NSFW ---
+    let filterPermissions: string[] = [];
+    let filterNSFW: boolean | null = null;
+
+    // Analizar argumentos para filtros
+    args.forEach((arg) => {
+      if (arg.toLowerCase() === "nsfw") filterNSFW = true;
+      if (arg.toLowerCase() === "sfw") filterNSFW = false;
+      // Ejemplo: "perm:ManageMessages"
+      if (arg.toLowerCase().startsWith("perm:")) {
+        const perm = arg.split(":")[1];
+        if (perm) filterPermissions.push(perm);
+      }
+    });
+
     // Main help menu
     let currentPage = 0;
 
-    // Create main help embed
+    // --- SELECTOR DE IDIOMA ---
+    const languageSelect = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId("help_language_select")
+        .setPlaceholder("Selecciona idioma / Select language...")
+        .setMinValues(1)
+        .setMaxValues(1)
+        .addOptions(SUPPORTED_LANGUAGES),
+    );
+
+    // --- FILTRO DE COMANDOS ---
+    // Filtrar comandos por permisos y NSFW si corresponde
+    /*     const filteredPrecommands = (Array.from(client.precommands.values()) as Precommand[]).filter(
+      (cmd) => {
+        if (
+          filterPermissions.length > 0 &&
+          (!cmd.permissions || !filterPermissions.every((p) => cmd.permissions?.includes(p as PermissionResolvable)))
+        ) {
+          return false;
+        }
+        if (filterNSFW !== null && cmd.nsfw !== filterNSFW) {
+          return false;
+        }
+        return true;
+      },
+    ); */
+
+    // Crear mainEmbed y categoryEmbeds usando filteredPrecommands si hay filtros activos
+    // Si no hay filtros, usar todos los comandos como antes
     const mainEmbed = new EmbedBuilder()
       .setAuthor({
         name: `${client.user.username} Help Menu`,
@@ -248,10 +316,13 @@ const helpCommand: Precommand = {
       .setColor("#5865F2")
       .setDescription(
         stripIndent`
-                **Welcome to ${client.user.username}'s help menu!**
+                **${currentLanguage === "es" ? `¡Bienvenido al menú de ayuda de ${client.user.username}!` : `Welcome to ${client.user.username}'s help menu!`}**
                 
-                Here you can find all available commands and information about the bot.
-                Use the buttons below to navigate or select a category from the dropdown.
+                ${
+                  currentLanguage === "es"
+                    ? "Aquí puedes encontrar todos los comandos disponibles e información sobre el bot.\nUsa los botones de abajo para navegar o selecciona una categoría en el menú desplegable."
+                    : "Here you can find all available commands and information about the bot.\nUse the buttons below to navigate or select a category from the dropdown."
+                }
             `,
       )
       .addFields(
@@ -276,17 +347,41 @@ const helpCommand: Precommand = {
           inline: true,
         },
       )
-      .setFooter({
-        text: `Page 1/${categories.length + 1} | ${prefix}help <command> for details`,
-        iconURL: message.guild.iconURL({ forceStatic: true }) as string,
-      });
+      .setFooter(
+        getPageFooter(
+          1,
+          categories.length + 1,
+          prefix,
+          message.guild.iconURL({ forceStatic: true }) as string,
+        ),
+      )
+      .setTitle(`📄 Página 1/${categories.length + 1}`);
 
-    // Create category embeds
+    // Crear categoryEmbeds
     const categoryEmbeds = categories.map((category, index) => {
-      const commands = getCommandsFromFolder(
+      // Filtrar comandos de la categoría si hay filtros activos
+      let commands = getCommandsFromFolder(
         `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`,
       );
-
+      if (filterPermissions.length > 0 || filterNSFW !== null) {
+        commands = commands.filter((cmdName) => {
+          const cmdObj = client.precommands.get(cmdName) as Precommand;
+          if (!cmdObj) return false;
+          if (
+            filterPermissions.length > 0 &&
+            (!cmdObj.permissions ||
+              !filterPermissions.every((p) =>
+                cmdObj.permissions?.includes(p as PermissionResolvable),
+              ))
+          ) {
+            return false;
+          }
+          if (filterNSFW !== null && cmdObj.nsfw !== filterNSFW) {
+            return false;
+          }
+          return true;
+        });
+      }
       return new EmbedBuilder()
         .setTitle(`📁 ${category} Commands`)
         .setColor("#5865F2")
@@ -294,12 +389,19 @@ const helpCommand: Precommand = {
           commands.length > 0
             ? `**${commands.length} commands available:**\n` +
                 commands.map((cmd) => `• \`${cmd}\``).join("\n")
-            : "No commands in this category yet",
+            : currentLanguage === "es"
+              ? "No hay comandos en esta categoría aún"
+              : "No commands in this category yet",
         )
-        .setFooter({
-          text: `Page ${index + 2}/${categories.length + 1} | ${prefix}help <command> for details`,
-          iconURL: message.guild?.iconURL({ forceStatic: true }) as string,
-        });
+        .setFooter(
+          getPageFooter(
+            index + 2,
+            categories.length + 1,
+            prefix,
+            message.guild?.iconURL({ forceStatic: true }) as string,
+          ),
+        )
+        .setTitle(`📄 Página ${index + 2}/${categories.length + 1} - ${category}`);
     });
 
     const allEmbeds = [mainEmbed, ...categoryEmbeds];
@@ -322,7 +424,7 @@ const helpCommand: Precommand = {
     );
 
     // Create navigation buttons
-    const navButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    const navButtonsRow1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("help_prev")
         .setLabel("Previous")
@@ -339,10 +441,18 @@ const helpCommand: Precommand = {
         .setStyle(ButtonStyle.Secondary)
         .setEmoji("➡️"),
       new ButtonBuilder()
+        .setCustomId("help_jump")
+        .setLabel("Jump")
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("🔢"),
+      new ButtonBuilder()
         .setCustomId("help_search")
         .setLabel("Search")
         .setStyle(ButtonStyle.Success)
         .setEmoji("🔍"),
+    );
+
+    const navButtonsRow2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("help_close")
         .setLabel("Close")
@@ -362,12 +472,12 @@ const helpCommand: Precommand = {
 
     // Send the initial message with conditional components
     const components = isOwner
-      ? [categorySelect, navButtons, ownerToolsButton]
-      : [categorySelect, navButtons];
+      ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+      : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2];
 
     const helpMessage = await message.reply({
       embeds: [allEmbeds[currentPage]],
-      components,
+      components: [...components],
     });
 
     // Create collectors for each type of interaction
@@ -379,6 +489,12 @@ const helpCommand: Precommand = {
 
     const selectMenuCollector = helpMessage.createMessageComponentCollector({
       componentType: ComponentType.StringSelect,
+      filter: (i) => i.user.id === message.author.id,
+      time: 300000,
+    });
+
+    // Modal collector para saltar a página
+    const modalCollector = helpMessage.channel?.createMessageComponentCollector({
       filter: (i) => i.user.id === message.author.id,
       time: 300000,
     });
@@ -401,8 +517,8 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [categorySelect, navButtons, ownerToolsButton]
-                : [categorySelect, navButtons],
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
             break;
 
@@ -411,8 +527,8 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [categorySelect, navButtons, ownerToolsButton]
-                : [categorySelect, navButtons],
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
             break;
 
@@ -421,8 +537,8 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [categorySelect, navButtons, ownerToolsButton]
-                : [categorySelect, navButtons],
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
             break;
 
@@ -436,7 +552,7 @@ const helpCommand: Precommand = {
             if (!isOwner) {
               await interaction.followUp({
                 content: "You don't have permission to use this!",
-                ephemeral: true,
+                flags: "Ephemeral",
               });
               return;
             }
@@ -485,7 +601,7 @@ const helpCommand: Precommand = {
             await interaction.followUp({
               content: "Owner Tools Menu",
               components: [ownerToolsMenu],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
             break;
         }
@@ -495,12 +611,40 @@ const helpCommand: Precommand = {
           await interaction
             .followUp({
               content: "❌ An error occurred while processing your request.",
-              ephemeral: true,
+              flags: "Ephemeral",
             })
             .catch(() => {});
         }
       }
     });
+
+    // Modal submit handler para saltar a página
+    if (modalCollector) {
+      modalCollector.on("collect", async (modalInteraction: ModalSubmitInteraction) => {
+        if (modalInteraction.customId === "help_jump_modal") {
+          const value = modalInteraction.fields.getTextInputValue("page_number");
+          const pageNum = parseInt(value, 10);
+          if (isNaN(pageNum) || pageNum < 1 || pageNum > allEmbeds.length) {
+            await modalInteraction.reply({
+              content:
+                currentLanguage === "es"
+                  ? `❌ Número de página inválido. Debe estar entre 1 y ${allEmbeds.length}.`
+                  : `❌ Invalid page number. Must be between 1 and ${allEmbeds.length}.`,
+              flags: "Ephemeral",
+            });
+            return;
+          }
+          currentPage = pageNum - 1;
+          await modalInteraction.reply({
+            embeds: [allEmbeds[currentPage]],
+            components: isOwner
+              ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+              : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
+            ephemeral: false,
+          });
+        }
+      });
+    }
 
     // Select menu interactions handler
     selectMenuCollector.on("collect", async (interaction: StringSelectMenuInteraction) => {
@@ -516,17 +660,31 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [categorySelect, navButtons, ownerToolsButton]
-                : [categorySelect, navButtons],
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
           }
+        }
+
+        // Manejar cambio de idioma
+        if (interaction.customId === "help_language_select") {
+          currentLanguage = interaction.values[0];
+          // Regenerar los embeds con el idioma seleccionado
+          // (Solo cambia los textos principales, los comandos siguen igual)
+          // Puedes regenerar los embeds aquí si quieres que cambie el idioma dinámicamente
+          await interaction.editReply({
+            embeds: [allEmbeds[currentPage]],
+            components: isOwner
+              ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+              : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
+          });
         }
       } catch (error) {
         console.error("Error in select menu interaction:", error);
         await interaction
           .followUp({
             content: "❌ An error occurred while processing your request.",
-            ephemeral: true,
+            flags: "Ephemeral",
           })
           .catch(() => {});
       }
@@ -541,7 +699,11 @@ const helpCommand: Precommand = {
           components: [],
           embeds: [
             new EmbedBuilder()
-              .setDescription("Help menu timed out. Use the help command again if needed.")
+              .setDescription(
+                currentLanguage === "es"
+                  ? "⏰ El menú de ayuda ha expirado. Usa el comando de ayuda nuevamente si lo necesitas."
+                  : "⏰ Help menu timed out. Use the help command again if needed.",
+              )
               .setColor("#808080"),
           ],
         })

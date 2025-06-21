@@ -2,7 +2,7 @@ import { ChannelType } from "discord.js";
 
 import { Addons } from "@/interfaces/messaging/modules/discord/structure/addons";
 import { main } from "@/main";
-import { EmbedCorrect } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect } from "@extenders/embeds.extend";
 
 export default new Addons(
   {

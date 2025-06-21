@@ -3,7 +3,7 @@ import { AttachmentBuilder, ChannelType, EmbedBuilder, TextChannel } from "disco
 import { NekoClient } from "eternal-support";
 
 import emojis from "@config/json/emojis.json";
-import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 import { logWithLabel } from "@utils/functions/console";
 

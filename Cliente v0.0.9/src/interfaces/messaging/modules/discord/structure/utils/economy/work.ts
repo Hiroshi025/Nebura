@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -77,7 +77,7 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
             `You need to wait **${24 - hoursSinceLastWork} hours** to claim your daily pay.`,
           ),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
     }
 
@@ -96,7 +96,7 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
             )
             .setColor("Red"),
         ],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
     }
 
@@ -179,7 +179,7 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(freelanceButton, payTaxButton),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -196,7 +196,7 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
           `You must wait **${48 - hoursSinceCooldown} hours** before selecting a new job.`,
         ),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -218,7 +218,7 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
   const jobMessage = await interaction.reply({
     content: "💼 Select a job from the list below or try a freelance job:",
     components: [row, freelanceRow],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   try {
@@ -315,7 +315,7 @@ export async function handleTaxButton(interaction: ButtonInteraction) {
       embeds: [
         new ErrorEmbed().setDescription("You do not have enough money to pay your taxes/expenses."),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -334,7 +334,7 @@ export async function handleTaxButton(interaction: ButtonInteraction) {
         )
         .setColor("Orange"),
     ],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 }
 
@@ -357,7 +357,7 @@ export async function showAllJobs(interaction: ChatInputCommandInteraction) {
     )
     .setFooter({ text: "Choose wisely and climb your career ladder!" });
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply({ embeds: [embed], flags: "Ephemeral" });
 }
 
 // Utility to calculate salary with rank and skills
@@ -381,7 +381,7 @@ export async function trainSkill(interaction: ChatInputCommandInteraction) {
   if (!userWork?.job) {
     return interaction.reply({
       content: "❌ You must have a job to train a skill.",
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -389,7 +389,7 @@ export async function trainSkill(interaction: ChatInputCommandInteraction) {
   if ((userWork.balance ?? 0) < cost) {
     return interaction.reply({
       content: "❌ You do not have enough money to train.",
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -409,7 +409,7 @@ export async function trainSkill(interaction: ChatInputCommandInteraction) {
 
   return interaction.reply({
     content: `✅ You improved your **${userWork.job}** skill to level ${skills[userWork.job]}.`,
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 }
 
@@ -425,7 +425,7 @@ export async function prestigeCareer(interaction: ChatInputCommandInteraction) {
   if ((userWork?.jobRank ?? 1) < 5) {
     return interaction.reply({
       content: "❌ You must reach at least rank 5 to prestige.",
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -444,7 +444,7 @@ export async function prestigeCareer(interaction: ChatInputCommandInteraction) {
 
   return interaction.reply({
     content: "🌟 You prestiged your career! You receive $1000 and permanent bonuses.",
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 }
 
@@ -460,7 +460,7 @@ export async function requestLoan(interaction: ChatInputCommandInteraction) {
           .setDescription("❌ The minimum amount to request a loan is **$100**.")
           .setColor("Red"),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -496,7 +496,7 @@ export async function requestLoan(interaction: ChatInputCommandInteraction) {
         .setFooter({ text: "Use /payloan to pay your loan before the due date." })
         .setColor("Green"),
     ],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 }
 
@@ -515,7 +515,7 @@ export async function payLoan(interaction: ChatInputCommandInteraction) {
           .setDescription("❌ You have no pending loans to pay.")
           .setColor("Red"),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -534,7 +534,7 @@ export async function payLoan(interaction: ChatInputCommandInteraction) {
           )
           .setColor("Red"),
       ],
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -562,6 +562,6 @@ export async function payLoan(interaction: ChatInputCommandInteraction) {
         .setFooter({ text: "Thank you for fulfilling your financial obligations!" })
         .setColor("Green"),
     ],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 }

@@ -6,7 +6,7 @@ import {
 	getTopUsers
 } from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()

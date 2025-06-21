@@ -1,4 +1,5 @@
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { main } from "@/main";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Modals } from "@typings/modules/discord";
 
 const ModalCommandReload: Modals = {
@@ -11,7 +12,7 @@ const ModalCommandReload: Modals = {
     if (!interaction.guild || !interaction.channel) return;
     const commandName = interaction.fields.getTextInputValue("command_name");
     try {
-      await client.reloadCommand(commandName);
+      await main.utils.reloadCommand(commandName);
       await interaction.reply({
         embeds: [
           new EmbedCorrect().setDescription(

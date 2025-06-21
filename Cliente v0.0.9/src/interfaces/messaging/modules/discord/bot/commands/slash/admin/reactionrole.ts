@@ -47,7 +47,7 @@ export default new Command(
       const statusMessage = await interaction.reply({
         embeds: [embed],
         components: [row],
-        ephemeral: true,
+        flags: "Ephemeral",
       });
 
       let messageId: string | null = null;
@@ -74,7 +74,7 @@ export default new Command(
         if (componentInteraction.user.id !== interaction.user.id) {
           return componentInteraction.reply({
             content: `${client.getEmoji(interaction.guild.id, "error")} You cannot interact with this configuration.`,
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
 
@@ -199,7 +199,7 @@ export default new Command(
           if (componentInteraction.user.id !== interaction.user.id) {
             return componentInteraction.reply({
               content: `${client.getEmoji(interaction.guild.id, "error")} You cannot interact with this configuration.`,
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
 
@@ -247,7 +247,7 @@ export default new Command(
       console.error(error);
       await interaction.reply({
         content: `${client.getEmoji(interaction.guild.id, "error")} An unexpected error occurred while executing the command.`,
-        ephemeral: true,
+        flags: "Ephemeral",
       });
     }
   },

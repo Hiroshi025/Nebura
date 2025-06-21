@@ -39,7 +39,7 @@
       <%- include('partials/sidebar', { user: user }) %>
 
         <!-- CONTENIDO PRINCIPAL -->
-        <main class="flex-grow-1 p-4">
+        <main class="flex-grow-1 p-4" style="background: var(--bs-body-bg); color: var(--bs-body-color);">
           <!-- TABS PRINCIPALES -->
           <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
             <li class="nav-item" role="presentation">
@@ -114,7 +114,8 @@
               <div class="row" style="margin-top: 20px">
                 <div class="col-md-4">
                   <!-- Tarjeta 1: Información Personal -->
-                  <div class="card mb-4" style="background: rgba(36, 45, 62, 0.08);">
+                  <div class="card mb-4"
+                    style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                     <div class="card-header">
                       <h5 class="mb-0 fw-bold" data-key="personalInfo">Información Personal</h5>
                     </div>
@@ -145,7 +146,8 @@
                 </div>
                 <div class="col-md-4">
                   <!-- Tarjeta 2: Información de la cuenta -->
-                  <div class="card mb-4" style="background: rgba(36, 45, 62, 0.08);">
+                  <div class="card mb-4"
+                    style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                     <div class="card-header">
                       <h5 class="mb-0 fw-bold" data-key="accountInfo">Información de la cuenta</h5>
                     </div>
@@ -178,8 +180,9 @@
                   </div>
                 </div>
                 <div class="col-md-4">
-                  <!-- Tarjeta 3: Información de la cuenta (puedes cambiar el contenido si es diferente) -->
-                  <div class="card mb-4" style="background: rgba(36, 45, 62, 0.08);">
+                  <!-- Tarjeta 3: Información Adicional -->
+                  <div class="card mb-4"
+                    style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                     <div class="card-header">
                       <h5 class="mb-0 fw-bold" data-key="infoadd">Información Adicional</h5>
                     </div>
@@ -215,12 +218,14 @@
                   <h3 class="h4 fw-bold" data-key="serversTitle">Mis Servidores</h3>
                   <div class="d-flex align-items-center gap-2 flex-wrap">
                     <!-- Filtros avanzados -->
-                    <select id="filter-type" class="form-select form-select-sm" style="width: 120px;">
+                    <select id="filter-type" class="form-select form-select-sm"
+                      style="width: 120px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                       <option value="all" data-key="filterAll">Todos</option>
                       <option value="owner" data-key="filterOwner">Propios</option>
                       <option value="member" data-key="filterMember">Miembro</option>
                     </select>
-                    <select id="filter-feature" class="form-select form-select-sm" style="width: 140px;">
+                    <select id="filter-feature" class="form-select form-select-sm"
+                      style="width: 140px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                       <option value="all" data-key="filterFeatureAll">Todas</option>
                       <option value="COMMUNITY" data-key="filterCommunity">Comunitario</option>
                       <option value="VERIFIED" data-key="filterVerified">Verificado</option>
@@ -231,9 +236,12 @@
                       <i class="fas fa-th-large"></i>
                     </button>
                     <div class="input-group" style="max-width: 220px;">
-                      <span class="input-group-text"><i class="fas fa-search"></i></span>
+                      <span class="input-group-text"
+                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);"><i
+                          class="fas fa-search"></i></span>
                       <input type="text" class="form-control" id="server-search" placeholder="Buscar servidores..."
-                        data-key="searchPlaceholder">
+                        data-key="searchPlaceholder"
+                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                     </div>
                   </div>
                 </div>
@@ -271,7 +279,8 @@
                 <% if ((fileData && fileData.length> 0) || (ticketData && ticketData.length > 0) || (licenseData &&
                   licenseData.length > 0)) { %>
                   <div class="col-md-6" style="margin-bottom: 10px;">
-                    <div class="stats-card mb-0 flex-grow-1" style="min-width: 100%; height: 100%;">
+                    <div class="stats-card mb-0 flex-grow-1"
+                      style="min-width: 100%; height: 100%; background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
                       <div class="stats-card-header">
                         <span class="stats-card-title"><i class="fa-solid fa-chart-bar me-2"></i>Estadísticas de
                           Usuario</span>
@@ -383,7 +392,7 @@
                   <!-- NUEVA TARJETA DE GRÁFICA -->
                   <div class="col-md-6" style="margin-bottom: 10px;">
                     <div class="stats-card chart-card mb-0 flex-grow-1"
-                      style="min-width: 100%; background: rgba(36, 45, 62, 0.08); height: 100%;">
+                      style="min-width: 100%; background: var(--card-bg-dark); border: 1px solid var(--input-border-dark); height: 100%;">
                       <div class="stats-card-header">
                         <span class="stats-card-title"><i class="fa-solid fa-chart-pie me-2"></i>Resumen Visual</span>
                       </div>
@@ -397,9 +406,9 @@
                   <% } %>
               </div>
               <section class="card mb-4 fade-in" id="userLicensesSection"
-                style="background: rgba(36, 45, 62, 0.08); border-radius: var(--border-radius); box-shadow: var(--box-shadow); margin-top: 2rem;">
+                style="background: var(--card-bg-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--input-border-dark); margin-top: 2rem;">
                 <div class="card-header d-flex align-items-center justify-content-between"
-                  style="background: transparent; border-bottom: 1px solid var(--input-border);">
+                  style="background: transparent; border-bottom: 1px solid var(--input-border-dark);">
                   <span class="section-title" data-key="licenseSectionTitle"><i
                       class="fa-solid fa-key me-2"></i>Licencias de usuario</span>
                   <button class="btn btn-primary btn-sm" id="refreshUserLicensesBtn" title="Recargar licencias"
@@ -409,12 +418,15 @@
                 </div>
                 <div class="card-body">
                   <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-                    <input type="text" id="licenseSearch" class="form-control form-control-sm" style="max-width:200px;"
+                    <input type="text" id="licenseSearch" class="form-control form-control-sm"
+                      style="max-width:200px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);"
                       placeholder="Buscar licencia..." data-key="licenseSearchPlaceholder">
-                    <select id="licenseTypeFilter" class="form-select form-select-sm" style="max-width:150px;">
+                    <select id="licenseTypeFilter" class="form-select form-select-sm"
+                      style="max-width:150px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                       <option value="" data-key="licenseTypeAll">Todos los tipos</option>
                     </select>
-                    <select id="licenseStatusFilter" class="form-select form-select-sm" style="max-width:130px;">
+                    <select id="licenseStatusFilter" class="form-select form-select-sm"
+                      style="max-width:130px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
                       <option value="" data-key="licenseStatusAll">Todos los estados</option>
                       <option value="ACTIVA" data-key="licenseStatusActive">Activa</option>
                       <option value="EXPIRADA" data-key="licenseStatusExpired">Expirada</option>
@@ -429,7 +441,8 @@
                     </span>
                   </div>
                   <div class="table-responsive position-relative">
-                    <table class="table table-hover align-middle mb-0" id="userLicensesTable">
+                    <table class="table table-hover align-middle mb-0" id="userLicensesTable"
+                      style="background: transparent; color: var(--text-color-dark);">
                       <thead>
                         <tr>
                           <th style="cursor:pointer" data-sort="key" data-key="licenseKey">Clave <i

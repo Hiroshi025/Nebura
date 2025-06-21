@@ -3,7 +3,7 @@ import {
 	PermissionFlagsBits, PermissionsBitField, Role, StringSelectMenuBuilder, time
 } from "discord.js";
 
-import { EmbedCorrect } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const roleInfo: Precommand = {
@@ -88,7 +88,7 @@ const roleInfo: Precommand = {
         if (interaction.user.id !== message.author.id) {
           return interaction.reply({
             content: "❌ This interaction is not for you!",
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
 
@@ -111,7 +111,7 @@ const roleInfo: Precommand = {
           console.error("Error handling interaction:", error);
           await interaction.reply({
             content: "❌ An error occurred while processing your request.",
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
 
@@ -210,7 +210,7 @@ async function handlePermissions(interaction: any, role: any) {
   await interaction.reply({
     embeds: [embed],
     components: [selectMenu],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   // Handle select menu interaction
@@ -284,7 +284,7 @@ async function handleMembers(interaction: any, role: any) {
   if (members.size === 0) {
     return interaction.reply({
       content: `❌ There are no members with the ${role.name} role.`,
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -315,7 +315,7 @@ async function handleMembers(interaction: any, role: any) {
   const reply = await interaction.reply({
     embeds: [embed],
     components: [buttons],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   const collector = reply.createMessageComponentCollector({
@@ -354,7 +354,7 @@ async function handleCompare(interaction: any, role: any, member: any) {
   if (!role || typeof role.comparePositionTo !== "function") {
     return interaction.reply({
       content: "❌ The role provided is invalid or could not be found.",
-      ephemeral: true,
+      flags: "Ephemeral",
     });
   }
 
@@ -414,7 +414,7 @@ async function handleCompare(interaction: any, role: any, member: any) {
     });
   }
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply({ embeds: [embed], flags: "Ephemeral" });
 }
 
 // Utility functions

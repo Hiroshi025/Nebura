@@ -13,7 +13,7 @@ import { promisify } from "util";
 
 import { main } from "@/main";
 import emojis from "@config/json/emojis.json";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/discord";
 import { config } from "@utils/config";
 
@@ -200,25 +200,41 @@ export function chunk<T>(array: T[], size: number): T[][] {
   return chunks;
 }
 
-export async function countMessage(userId: string, guildId: string) {
-  const data = await main.prisma.userEconomy.findFirst({
-    where: {
-      userId,
-    },
-  });
+export async function countMessage(userId: string, guildId: string, message: Message) {
+  try {
+    const data = await main.prisma.userEconomy.findFirst({
+      where: {
+        userId,
+      },
+    });
 
-  if (!data || !data.messageCount) return false;
-  await main.prisma.userEconomy.updateMany({
-    where: {
-      userId,
-      guildId,
-    },
-    data: {
-      messageCount: data.messageCount + 1,
-    },
-  });
+    if (!data || !message.guild) return false;
+    const channelId = message.channel.id;
+    const guildData = await main.prisma.myGuild.findFirst({ where: { guildId } });
+    if (guildData) {
+      const activity = (guildData.channelActivity as Record<string, number>) || {};
+      activity[channelId] = (activity[channelId] || 0) + 1;
+      await main.prisma.myGuild.update({
+        where: { id: guildData.id },
+        data: { channelActivity: activity },
+      });
+    }
 
-  return true;
+    await main.prisma.userEconomy.updateMany({
+      where: {
+        userId,
+        guildId,
+      },
+      data: {
+        messageCount: (data.messageCount ?? 0) + 1,
+      },
+    });
+
+    return true;
+  } catch (err) {
+    console.error("Error updating channel activity:", err);
+    return false;
+  }
 }
 
 export function generateToken(length = 16) {
@@ -1964,15 +1980,15 @@ export async function setupCollectors(message: any, data: any) {
       isButton: () => any;
       customId: string;
       user: { id: any };
-      reply: (arg0: { content: string; ephemeral: boolean }) => any;
+      reply: any;
       deferUpdate: () => any;
-      followUp: (arg0: { content: string; ephemeral: boolean }) => any;
+      followUp: any;
     }) => {
       if (!interaction.isButton()) return;
       if (!interaction.customId.includes(interaction.user.id)) {
         return interaction.reply({
           content: "❌ You didn't execute this command.",
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
 
@@ -1993,12 +2009,12 @@ export async function setupCollectors(message: any, data: any) {
                 "json",
                 json.length > 1500 ? json.substring(0, 1500) + "..." : json,
               ),
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           } catch (e) {
             await interaction.followUp({
               content: "❌ Could not stringify result as JSON",
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
           break;
@@ -2011,7 +2027,7 @@ export async function setupCollectors(message: any, data: any) {
                 ? data.originalOutput.substring(0, 1500) + "..."
                 : data.originalOutput,
             ),
-            ephemeral: true,
+            flags: "Ephemeral",
           });
           break;
       }

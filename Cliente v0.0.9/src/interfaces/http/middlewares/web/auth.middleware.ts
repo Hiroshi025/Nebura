@@ -3,7 +3,7 @@ import "passport"; // <-- Esto importa las extensiones de tipos de passport
 import { NextFunction, Request, Response } from "express";
 
 import { main } from "@/main";
-import { clientID } from "@/shared/DB";
+import { clientID } from "@/shared/class/DB";
 
 // Extiende la interfaz Request para incluir isAuthenticated
 //declare global {

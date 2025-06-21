@@ -3,7 +3,7 @@ import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -99,7 +99,7 @@ export default new Command(
                   ].join("\n"),
                 ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           } catch (error: any) {
             console.log(error);
@@ -112,7 +112,7 @@ export default new Command(
                   ].join("\n"),
                 ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
         }
@@ -139,7 +139,7 @@ export default new Command(
                   ].join("\n"),
                 ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           } catch (error: any) {
             interaction.reply({
@@ -151,7 +151,7 @@ export default new Command(
                   ].join("\n"),
                 ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
         }

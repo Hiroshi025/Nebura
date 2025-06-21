@@ -1,16 +1,54 @@
-// src/services/discord.service.ts
 import axios from "axios";
 import { load } from "cheerio";
 
+// src/services/discord.service.ts
 import { DiscordStatusResponseDTO } from "@/application/dto/discord.dtos";
+import { DiscordStatusEntity, DiscordUpdateEntity } from "@/application/entities/discord.entity";
 
-import { DiscordStatusEntity, DiscordUpdateEntity } from "../../entitys/discord.entity";
-
+/**
+ * Service for interacting with Discord's status and blog APIs.
+ *
+ * Provides methods to fetch the current status, latest updates, and active incidents from Discord.
+ *
+ * @see {@link https://discordstatus.com/} Discord Status Page
+ * @see {@link https://discord.com/blog} Discord Blog
+ */
 export class DiscordService {
+  /**
+   * The base URL for the Discord status API.
+   *
+   * @see {@link https://discordstatus.com/api}
+   * @private
+   * @readonly
+   */
   private readonly STATUS_API_URL = process.env.STATUS_API_URL as string;
+
+  /**
+   * The URL for the Discord blog.
+   *
+   * @see {@link https://discord.com/blog}
+   * @private
+   * @readonly
+   */
   private readonly BLOG_URL = process.env.BLOG_URL as string;
+
+  /**
+   * The base URL for the Discord status page.
+   *
+   * @see {@link https://discordstatus.com/}
+   * @private
+   * @readonly
+   */
   private readonly STATUS_PAGE_URL = process.env.STATUS_PAGE_URL as string;
 
+  /**
+   * Fetches the current status of Discord from the status API.
+   *
+   * @returns {Promise<DiscordStatusEntity>} The current status entity.
+   * @throws Will return a default critical status entity if the request fails.
+   *
+   * @see {@link https://discordstatus.com/api/v2/status.json}
+   */
   public async getCurrentStatus(): Promise<DiscordStatusEntity> {
     try {
       const response = await axios.get<DiscordStatusResponseDTO>(this.STATUS_API_URL);
@@ -26,6 +64,16 @@ export class DiscordService {
     }
   }
 
+  /**
+   * Fetches the latest updates from the Discord blog.
+   *
+   * Parses the blog HTML to extract articles, including announcements, incidents, and general updates.
+   *
+   * @returns {Promise<DiscordUpdateEntity[]>} An array of update entities sorted by date (descending).
+   * @throws Will return an empty array if the request or parsing fails.
+   *
+   * @see {@link https://discord.com/blog}
+   */
   public async getLatestUpdates(): Promise<DiscordUpdateEntity[]> {
     try {
       const response = await axios.get(this.BLOG_URL);
@@ -65,6 +113,16 @@ export class DiscordService {
     }
   }
 
+  /**
+   * Fetches currently active incidents from the Discord status page.
+   *
+   * Only incidents that are not resolved are returned.
+   *
+   * @returns {Promise<DiscordUpdateEntity[]>} An array of active incident entities.
+   * @throws Will return an empty array if the request fails.
+   *
+   * @see {@link https://discordstatus.com/api/v2/incidents.json}
+   */
   public async getActiveIncidents(): Promise<DiscordUpdateEntity[]> {
     try {
       const response = await axios.get(`${this.STATUS_PAGE_URL}/api/v2/incidents.json`);

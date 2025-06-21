@@ -8,10 +8,7 @@
     "**/.hg": true, // Carpeta de control de versiones Mercurial
     "**/.DS_Store": true, // Archivo oculto de macOS
     "**/Thumbs.db": true, // Archivo oculto de Windows
-    ".sentryclirc": true, // Archivo de configuración de Sentry CLI
-    "CHANGELOG.md": true, // Archivo de registro de cambios
     "**/.husky": true, // Carpeta de hooks de Husky
-    "LICENSE": false, // Archivo de licencia (no se oculta)
     "**/docs": true, // Carpeta de documentación
     "dist": true, // Carpeta de distribución (builds)
     "build": false, // Carpeta de builds
@@ -27,7 +24,8 @@
   // Acciones automáticas al guardar
   "editor.codeActionsOnSave": {
     "source.fixAll": "always", // Aplica todas las correcciones posibles
-    "source.organizeImports": "always" // Organiza automáticamente las importaciones
+    "source.organizeImports": "always", // Organiza automáticamente las importaciones
+    "source.removeUnusedImports": "always" // Elimina importaciones no utilizadas automáticamente
   },
 
   // ==========================================================================
@@ -68,5 +66,8 @@
   // SECCIÓN: Configuración de Prettier
   // ==========================================================================
   "prettier.enableDebugLogs": true, // Activa los logs de depuración de Prettier
-  "prettier.requireConfig": true, // Requiere un archivo de configuración de Prettier
+  "prettier.requireConfig": true,
+  "[html]": {
+    "editor.defaultFormatter": "j69.ejs-beautify"
+  } // Requiere un archivo de configuración de Prettier
 }

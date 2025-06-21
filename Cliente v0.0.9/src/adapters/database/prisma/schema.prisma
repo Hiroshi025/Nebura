@@ -45,17 +45,15 @@ model UserAPI {
   transcripts Json? /// Transcripciones relacionadas.
   createdAt   DateTime     @default(now()) /// Fecha de creación.
   updatedAt   DateTime     @updatedAt /// Fecha de última actualización.
-
-  blockedIPs BlockedIP[] @relation("BlockedUserRelation") /// IPs bloqueadas asociadas.
-  bans       BanUser[]   @relation("UserBans") /// Baneos asociados.
-  tasks      Task[]      @relation("UserTasks") /// Tareas asociadas.
+  blockedIPs  BlockedIP[]  @relation("BlockedUserRelation") /// IPs bloqueadas asociadas.
+  tasks       Task[]       @relation("UserTasks") /// Tareas asociadas.
 }
 
 /// Licencias asociadas a los usuarios.
 /// [Relaciones en Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/relations)
 model License {
   id           String      @id @default(auto()) @map("_id") @db.ObjectId /// ID único.
-  key          String /// Clave de la licencia.
+  key          String      @unique /// Clave de la licencia.
   type         LicenseType /// Tipo de licencia (enum).
   userId       String /// ID del usuario propietario.
   adminId      String /// ID del administrador asignador.
@@ -64,6 +62,9 @@ model License {
   requestCount Int         @default(0) /// Peticiones realizadas.
   validUntil   DateTime /// Fecha de expiración.
   lastUsedIp   String? /// Última IP usada.
+  lastUsedHwid String? /// Último HWID usado.
+  ips          String[]    @default([]) /// Lista de IPs asociadas.
+  maxIps       Int?        @default(5) /// Máximo de IPs permitidas.
   createdAt    DateTime    @default(now()) /// Fecha de creación.
   updatedAt    DateTime    @updatedAt /// Fecha de actualización.
 }
@@ -128,14 +129,16 @@ model Task {
 /// MODELOS DE DISCORD
 /// ------------------------------------------------------------
 model MyGuild {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  guildId   String  @unique
-  prefix    String? @default("!")
-  discordId String
-  rooms     String?
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId         String  @unique
+  prefix          String? @default("!")
+  discordId       String
+  rooms           String?
+  roomcategory    String?
+  commandUsage    Json? // { commandName: usageCount }
+  channelActivity Json? // { channelId: activityCount }
+  lenguage        String? @default("en")
 
-  reminders Reminder[]
-  warns     UserWarn[]
   bans      BanUser[]
 
   eventlogs EventLogs?
@@ -163,14 +166,34 @@ model MyGuild {
   updatedAt DateTime @updatedAt
 }
 
+model Giveaway {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  messageId    String   @unique
+  channelId    String
+  guildId      String
+  prize        String
+  winnerCount  Int
+  endsAt      DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  hostedBy    String
+  requirements GiveawayRequirements?
+}
+
+model GiveawayRequirements {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  giveawayId  String   @unique @db.ObjectId
+  giveaway    Giveaway @relation(fields: [giveawayId], references: [id])
+  requiredRoles String[]
+  minAccountAge Int?
+  minMessages  Int?
+}
+
 model BanUser {
   id            String       @id @default(cuid()) @map("_id")
   guildId       String       @db.ObjectId
   guild         MyGuild      @relation(fields: [guildId], references: [id])
-  userId        String       @db.ObjectId
-  user          UserAPI      @relation("UserBans", fields: [userId], references: [id])
-  userDiscordId String?      @db.ObjectId
-  userDiscord   UserDiscord? @relation(fields: [userDiscordId], references: [id])
+  userId        String       
   banReason     String?
   banTime       DateTime?
   createdAt     DateTime     @default(now())
@@ -178,10 +201,8 @@ model BanUser {
 
 model UserWarn {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  guildId    String       @db.ObjectId
-  guild      MyGuild      @relation(fields: [guildId], references: [id])
-  userId     String       @db.ObjectId
-  user       UserDiscord? @relation(fields: [userId], references: [id])
+  guildId    String       
+  userId     String       
   warnReason String
   warnDate   String
   moderator  String
@@ -189,7 +210,7 @@ model UserWarn {
 
 model ServerModlog {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
-  guildId   String @unique @db.ObjectId
+  guildId   String @unique
   channelId String
 
   @@map("serverModlogs")
@@ -198,14 +219,34 @@ model ServerModlog {
 model Reminder {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String
-  guildId   String   @db.ObjectId
-  guild     MyGuild  @relation(fields: [guildId], references: [id])
+  guildId   String  
   message   String
   remindAt  DateTime
   createdAt DateTime @default(now())
   isSent    Boolean  @default(false)
 
   @@index([remindAt])
+}
+
+model Command {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId        String
+  name           String
+  embed          Boolean  @default(false)
+  embedColor     String?  @default("Red")
+  embedTitle     String?
+  embedFooter    String?
+  embedImage     String?
+  embedThumbnail String?
+  embedAuthor    String?
+  buttons        Json? // Array of { label: String, style: String, customId: String }
+  file           String?
+  usageCount     Int      @default(0)
+  description    String?
+  response       String?
+  isEnabled      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 /// ------------------------------------------------------------
@@ -287,8 +328,6 @@ model UserDiscord {
   id     String     @id @default(auto()) @map("_id") @db.ObjectId
   userId String     @unique
   guilds Int?       @default(0)
-  warns  UserWarn[]
-  bans   BanUser[]
 }
 
 model LevelConfig {
@@ -427,7 +466,7 @@ model WhatsApp {
 model Discord {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   avatar       String?
-  username     String   @default("Nebura")
+  username     String    @default("Nebura")
   activity     Activity?
   clientId     String    @unique
   clientSecret String
@@ -558,6 +597,41 @@ model TicketMessage {
   content      String
   timestamp    DateTime   @default(now())
   ticket       TicketUser @relation(fields: [ticketId], references: [ticketId])
+}
+
+model TicketSystem {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String
+  channelId  String
+  messageId  String
+  category   String
+  transcript String
+  options    Json // Opciones del sistema de tickets
+  content    String // Contenido del mensaje de creación de tickets
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Youtube {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  serverId   String?
+  serverName String?
+  youtubers  Youtuber[]
+}
+
+model Youtuber {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  youtubeId    String?  @unique @db.ObjectId
+  guildId      String?
+  name         String?
+  userId       String?
+  lastVideo    String?
+  lastVideoUrl String?
+  channelId    String?
+  channelName  String?
+  url          String?
+  message      String   @default("Our friend **{user}** made a new post!")
+  Youtube      Youtube? @relation(fields: [youtubeId], references: [id])
 }
 
 /// ------------------------------------------------------------

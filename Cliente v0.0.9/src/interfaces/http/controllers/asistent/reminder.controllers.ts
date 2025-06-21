@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 
 import { ReminderService } from "@/application/services/utilities/reminder.service";
 
-const reminderService = new ReminderService();
-
 /**
  * Controller for handling reminder-related HTTP requests.
  *
@@ -13,7 +11,10 @@ const reminderService = new ReminderService();
  * // Usage with Express:
  * app.get('/api/reminders/upcoming', reminderController.getUpcomingReminders);
  */
-export class ReminderController {
+export class ReminderController extends ReminderService {
+  constructor() {
+    super();
+  }
   /**
    * Retrieves a list of upcoming reminders.
    *
@@ -31,9 +32,9 @@ export class ReminderController {
    * //   ...
    * // ]
    */
-  async getUpcomingReminders(req: Request, res: Response) {
+  async getUpReminders(req: Request, res: Response) {
     try {
-      const reminders = await reminderService.getUpcomingReminders();
+      const reminders = await this.getUpcomingReminders();
       res.json(reminders);
     } catch (error) {
       res.status(500).json({ message: req.t("errors:failed_to_fetch_reminders") });

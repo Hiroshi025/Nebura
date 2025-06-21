@@ -24,19 +24,38 @@
   <style>
     :root {
       --primary-color: #6a5af9;
-      --primary-hover: #5a4ae9;
-      --secondary-color: #00c9a7;
-      --dark-bg: #1a1e24;
-      --card-bg: #1e1e2d;
-      --text-color: #e0e0e0;
-      --text-muted: #a1a5b7;
+      --primary-color-hover: #5a4af7;
+      --secondary-color: #f72585;
+      --success-color: #4cc9f0;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --info-color: #17a2b8;
+      --background-color-dark: #121212;
+      --card-bg-dark: #1e1e1e;
+      --card-bg-dark-hover: #252525;
+      --text-color-dark: #e0e0e0;
+      --text-muted-dark: #aaa;
+      --input-bg-dark: #2a2a2a;
+      --input-border-dark: #333;
+      --border-color-dark: #333;
+      --border-radius: 0.75rem;
+      --border-radius-sm: 0.5rem;
+      --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
       --transition-speed: 0.3s;
+      --font-family: "Poppins", sans-serif;
+      --primary-gradient: linear-gradient(135deg, var(--primary-color), #8a7cff);
+      --secondary-gradient: linear-gradient(135deg, var(--secondary-color), #ff4da6);
+      --success-gradient: linear-gradient(135deg, var(--success-color), #6bd5f5);
+      --warning-gradient: linear-gradient(135deg, var(--warning-color), #ffd351);
+      --danger-gradient: linear-gradient(135deg, var(--danger-color), #e83e8c);
+      --info-gradient: linear-gradient(135deg, var(--info-color), #5bc0de);
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--dark-bg);
-      color: var(--text-color);
+      font-family: var(--font-family);
+      background-color: var(--background-color-dark);
+      color: var(--text-color-dark);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -45,10 +64,9 @@
 
     /* Navbar */
     .navbar {
-      background: rgba(30, 30, 45, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(106, 90, 249, 0.2);
+      background: var(--card-bg-dark);
+      box-shadow: var(--box-shadow);
+      border-bottom: 1px solid var(--input-border-dark);
       padding: 1rem 0;
     }
 
@@ -57,6 +75,7 @@
       font-size: 1.3rem;
       display: flex;
       align-items: center;
+      color: var(--text-color-dark);
     }
 
     .navbar-brand i {
@@ -75,15 +94,15 @@
     }
 
     .maintenance-card {
-      background: var(--card-bg);
-      border-radius: 1rem;
+      background: var(--card-bg-dark);
+      border-radius: var(--border-radius);
       padding: 3rem;
       text-align: center;
       max-width: 800px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--box-shadow);
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(106, 90, 249, 0.2);
+      border: 1px solid var(--input-border-dark);
       z-index: 2;
     }
 
@@ -100,8 +119,13 @@
     }
 
     @keyframes rotate {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     .maintenance-icon {
@@ -112,9 +136,17 @@
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     h1.maintenance-title {
@@ -142,16 +174,24 @@
 
     .progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      background: var(--primary-gradient);
       border-radius: 50px;
       width: 65%;
       animation: progress-animation 3s ease-in-out infinite;
     }
 
     @keyframes progress-animation {
-      0% { width: 65%; }
-      50% { width: 75%; }
-      100% { width: 65%; }
+      0% {
+        width: 65%;
+      }
+
+      50% {
+        width: 75%;
+      }
+
+      100% {
+        width: 65%;
+      }
     }
 
     .countdown {
@@ -182,7 +222,7 @@
     }
 
     .btn-maintenance {
-      background: var(--primary-color);
+      background: var(--primary-gradient);
       color: white;
       border: none;
       padding: 0.8rem 2rem;
@@ -198,7 +238,7 @@
     }
 
     .btn-maintenance:hover {
-      background: var(--primary-hover);
+      background: linear-gradient(135deg, #5a4af7, #7a6cff);
       transform: translateY(-3px);
       box-shadow: 0 6px 20px rgba(106, 90, 249, 0.4);
     }
@@ -234,24 +274,24 @@
       .maintenance-card {
         padding: 2rem 1.5rem;
       }
-      
+
       h1.maintenance-title {
         font-size: 2rem;
       }
-      
+
       .maintenance-icon {
         font-size: 4rem;
       }
-      
+
       .countdown {
         gap: 1rem;
       }
-      
+
       .countdown-item {
         min-width: 70px;
         padding: 0.8rem;
       }
-      
+
       .countdown-value {
         font-size: 1.5rem;
       }
@@ -283,18 +323,18 @@
             <div class="maintenance-icon">
               <i class="fas fa-tools"></i>
             </div>
-            
+
             <h1 class="maintenance-title">Estamos realizando mantenimiento</h1>
-            
+
             <p class="maintenance-message">
-              Nuestro sitio está experimentando mejoras y actualizaciones para ofrecerte una mejor experiencia. 
+              Nuestro sitio está experimentando mejoras y actualizaciones para ofrecerte una mejor experiencia.
               Estamos trabajando diligentemente para volver a estar en línea lo antes posible.
             </p>
-            
+
             <div class="progress-container">
               <div class="progress-bar"></div>
             </div>
-            
+
             <div class="countdown">
               <div class="countdown-item">
                 <div class="countdown-value" id="days">00</div>
@@ -313,11 +353,11 @@
                 <div class="countdown-label">Segundos</div>
               </div>
             </div>
-            
+
             <p class="mb-4">
               El sitio volverá a estar disponible aproximadamente el <strong>25 de junio, 2023</strong>
             </p>
-            
+
             <button class="btn-maintenance">
               <i class="fas fa-envelope me-1"></i> Notificarme cuando esté listo
             </button>
@@ -338,27 +378,27 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Fecha estimada de finalización (25 de junio 2023, 12:00 PM)
       const endDate = new Date('2023-06-25T12:00:00').getTime();
-      
+
       // Actualizar el contador cada segundo
-      const countdown = setInterval(function() {
+      const countdown = setInterval(function () {
         const now = new Date().getTime();
         const distance = endDate - now;
-        
+
         // Cálculos de tiempo
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
+
         // Mostrar el resultado
         document.getElementById('days').textContent = days.toString().padStart(2, '0');
         document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
         document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
         document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-        
+
         // Si el contador termina
         if (distance < 0) {
           clearInterval(countdown);
@@ -369,62 +409,63 @@
           `;
         }
       }, 1000);
-      
+
       // Botón de notificación
-      document.querySelector('.btn-maintenance').addEventListener('click', function() {
+      document.querySelector('.btn-maintenance').addEventListener('click', function () {
         alert('Te notificaremos por correo electrónico cuando el sitio esté disponible. ¡Gracias por tu paciencia!');
       });
-      
+
       // Animación de partículas
       const particlesContainer = document.body;
       const particleCount = 15;
-      
+
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
-        
+
         // Tamaño aleatorio entre 2px y 8px
         const size = Math.random() * 6 + 2;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-        
+
         // Posición aleatoria
         particle.style.left = `${Math.random() * 100}%`;
         particle.style.top = `${Math.random() * 100}%`;
-        
+
         // Opacidad aleatoria
         particle.style.opacity = Math.random() * 0.4 + 0.1;
-        
+
         // Añadir al contenedor
         particlesContainer.appendChild(particle);
-        
+
         // Animación flotante
         animateParticle(particle);
       }
-      
+
       function animateParticle(particle) {
         let x = parseFloat(particle.style.left);
         let y = parseFloat(particle.style.top);
         let xSpeed = (Math.random() - 0.5) * 0.02;
         let ySpeed = (Math.random() - 0.5) * 0.02;
-        
+
         function move() {
           x += xSpeed;
           y += ySpeed;
-          
+
           // Rebotar en los bordes
           if (x < 0 || x > 100) xSpeed *= -1;
           if (y < 0 || y > 100) ySpeed *= -1;
-          
+
           particle.style.left = `${x}%`;
           particle.style.top = `${y}%`;
-          
+
           requestAnimationFrame(move);
         }
-        
+
         move();
       }
     });
   </script>
 </body>
+
 </html>

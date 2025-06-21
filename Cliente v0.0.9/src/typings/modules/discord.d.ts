@@ -1,5 +1,5 @@
 import {
-	AutocompleteInteraction, ButtonInteraction, ChannelSelectMenuInteraction, Message,
+	AutocompleteInteraction, ButtonInteraction, ButtonStyle, ChannelSelectMenuInteraction, Message,
 	ModalSubmitInteraction, PermissionResolvable, RoleSelectMenuInteraction,
 	StringSelectMenuInteraction
 } from "discord.js";
@@ -419,4 +419,56 @@ export interface RoleAssignmentConfig {
    * If `null`, no logging will occur.
    */
   logChannel: string | null;
+}
+
+export interface ButtonFormat {
+  customId: string;
+  label: string;
+  style: ButtonStyle
+}
+
+export interface AnimeData {
+  data: [
+    {
+      id: string;
+      type: string;
+      attributes: {
+        titles: {
+          en_jp: string;
+        };
+        synopsis: string;
+        status: string;
+        subtype: string;
+        ratingRank: number;
+        episodeCount?: number;
+        popularityRank: number;
+        averageRating: string;
+        episodeLength?: number;
+        startDate: string;
+        endDate?: string;
+        posterImage: {
+          small: string;
+        };
+        coverImage: {
+          tiny: string;
+        };
+        youtubeVideoId?: string;
+      };
+      relationships: {
+        genres: {
+          links: {
+            related: string;
+          };
+        };
+      };
+    },
+  ];
+}
+
+export interface GenreData {
+  data: Array<{
+    attributes: {
+      name: string;
+    };
+  }>;
 }

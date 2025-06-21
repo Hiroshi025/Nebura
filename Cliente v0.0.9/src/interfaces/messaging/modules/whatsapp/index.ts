@@ -108,15 +108,13 @@ export class MyApp {
 
     // Log when scheduling the interval
     logWithLabel("custom", "Scheduled WhatsApp status backup every 24 hours.", {
-      customLabel: "WhatsApp",
-      context: { timestamp: new Date().toISOString() },
+      customLabel: "WhatsApp"
     });
 
     setInterval(
       async () => {
         logWithLabel("custom", "Generating scheduled WhatsApp status backup...", {
-          customLabel: "WhatsApp",
-          context: { timestamp: new Date().toISOString() },
+          customLabel: "WhatsApp"
         });
         await this.generateStatusBackup();
       },
@@ -213,19 +211,9 @@ export class MyApp {
     this.client.on("authenticated", () => {
       logWithLabel("custom", "AUTHENTICATED. The session is ready to be used.", {
         customLabel: "WhatsApp",
-        context: {
-          clientId: this.client.info.wid.user,
-          clientName: this.client.info.pushname,
-          timestamp: new Date().toISOString(),
-        },
       });
       logWithLabel("custom", "Registered Client on the Web", {
         customLabel: "WhatsApp",
-        context: {
-          clientId: this.client.info.wid.user,
-          clientName: this.client.info.pushname,
-          timestamp: new Date().toISOString(),
-        },
       });
     });
 
@@ -414,11 +402,6 @@ export class MyApp {
         ].join("\n"),
         {
           customLabel: "WhatsApp",
-          context: {
-            clientId: this.client.info.wid.user,
-            clientName: this.client.info.pushname,
-            timestamp: new Date().toISOString(),
-          },
         },
       );
     });

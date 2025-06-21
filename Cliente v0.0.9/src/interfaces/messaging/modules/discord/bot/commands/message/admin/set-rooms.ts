@@ -3,7 +3,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const roomsCommand: Precommand = {
@@ -51,6 +51,7 @@ const roomsCommand: Precommand = {
                 `${client.getEmoji(message.guild.id, "correct")} You are in the voice room system configuration menu now.`,
                 `Please select the channel where you want to create the rooms.`,
                 `**Current Channel:** ${data.rooms ? `<#${data.rooms}>` : "Not set"}`,
+                `> **Note:** A hidden category called rooms will be created for text channels, hidden from members.`,
               ].join("\n"),
             );
 
@@ -99,7 +100,7 @@ const roomsCommand: Precommand = {
                       ].join("\n"),
                     ),
                   ],
-                  ephemeral: true,
+                  flags: "Ephemeral",
                 });
               }
 
@@ -108,17 +109,40 @@ const roomsCommand: Precommand = {
                 data: { rooms: selectedChannel },
               });
 
-              await interaction.update({
-                embeds: [
-                  new EmbedCorrect().setDescription(
-                    [
-                      `${client.getEmoji(message.guild.id, "correct")} The rooms system has been successfully enabled.`,
-                      `• **Usage:** \`${prefix}rooms disabled\` to disable the system.`,
-                    ].join("\n"),
-                  ),
-                ],
-                components: [],
-              });
+              await interaction
+                .update({
+                  embeds: [
+                    new EmbedCorrect().setDescription(
+                      [
+                        `${client.getEmoji(message.guild.id, "correct")} The rooms system has been successfully enabled.`,
+                        `• **Usage:** \`${prefix}rooms disabled\` to disable the system.`,
+                      ].join("\n"),
+                    ),
+                  ],
+                  components: [],
+                })
+                .then(async () => {
+                  const category = await message.guild?.channels.create({
+                    name: "Rooms",
+                    type: ChannelType.GuildCategory,
+                    permissionOverwrites: [
+                      {
+                        id: message.guild.roles.everyone.id,
+                        deny: ["ViewChannel"],
+                      },
+                      {
+                        id: client.user?.id || "",
+                        allow: ["ViewChannel", "SendMessages", "Connect", "Speak"],
+                      },
+                    ],
+                    topic: "This category is used for the rooms system.",
+                  });
+
+                  await main.prisma.myGuild.update({
+                    where: { guildId: message.guild?.id },
+                    data: { roomcategory: category?.id },
+                  });
+                });
             } else if (interaction.isButton()) {
               switch (interaction.customId) {
                 case "rooms-confirm-selection":

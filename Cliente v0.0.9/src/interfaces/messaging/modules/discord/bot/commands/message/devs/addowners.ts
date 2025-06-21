@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const OwnerAddCommand: Precommand = {
@@ -98,7 +98,7 @@ const OwnerAddCommand: Precommand = {
             await main.prisma.discord.update({
               where: { clientId: client.user.id },
               data: {
-                    owners: [...owners, ...newOwners],
+                owners: [...owners, ...newOwners],
               },
             });
             await i.reply({

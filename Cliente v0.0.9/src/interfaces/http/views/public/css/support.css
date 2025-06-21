@@ -4,21 +4,36 @@
   --primary-color-hover: #5a4af7;
   --secondary-color: #f72585;
   --success-color: #4cc9f0;
-  --warning-color: #f7b42c;
-  --danger-color: #f72585;
-  --info-color: #4cc9f0;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
+  --dark-color: #121212;
+  --light-color: #f8f9fa;
 
   --background-color-dark: #121212;
   --card-bg-dark: #1e1e1e;
+  --card-bg-dark-hover: #252525;
   --text-color-dark: #e0e0e0;
+  --text-muted-dark: #aaa;
   --input-bg-dark: #2a2a2a;
   --input-border-dark: #333;
-  --border-radius: 1rem;
-  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  --border-color-dark: #333;
+  --border-radius: 0.75rem;
+  --border-radius-sm: 0.5rem;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --font-family: "Poppins", sans-serif;
   --transition-speed: 0.3s;
 
-  --chat-bg-dark: #1a1a1a;
+  /* Gradientes */
+  --primary-gradient: linear-gradient(135deg, var(--primary-color), #8a7cff);
+  --secondary-gradient: linear-gradient(135deg, var(--secondary-color), #ff4da6);
+  --success-gradient: linear-gradient(135deg, var(--success-color), #6bd5f5);
+  --warning-gradient: linear-gradient(135deg, var(--warning-color), #ffd351);
+  --danger-gradient: linear-gradient(135deg, var(--danger-color), #e83e8c);
+  --info-gradient: linear-gradient(135deg, var(--info-color), #5bc0de);
+
+  --chat-bg-dark: #1a1a2e;
   --chat-message-bg: rgba(106, 90, 249, 0.1);
   --chat-message-bg-alt: rgba(42, 42, 42, 0.7);
   --chat-user-bg: rgba(76, 201, 240, 0.1);
@@ -29,6 +44,18 @@
   --bs-body-color: var(--text-color-dark);
   --bs-border-color: var(--input-border-dark);
   --bs-tertiary-bg: var(--input-bg-dark);
+}
+
+[data-bs-theme="light"] {
+  --bs-body-bg: var(--light-color);
+  --bs-body-color: #333;
+  --bs-border-color: #e0e0e0;
+  --bs-tertiary-bg: #fdfdfd;
+  --card-bg-dark: #fff;
+  --input-bg-dark: #fdfdfd;
+  --input-border-dark: #e0e0e0;
+  --text-color-dark: #333;
+  --text-muted-dark: #888;
 }
 
 body {
@@ -89,26 +116,6 @@ body {
   }
 }
 
-/* --- Tablas --- */
-.table {
-  color: var(--text-color-dark);
-  margin-bottom: 0;
-}
-
-.table-hover tbody tr:hover {
-  background-color: rgba(106, 90, 249, 0.05);
-}
-
-.table thead th {
-  border-bottom-width: 1px;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 0.5px;
-  color: var(--text-color-dark);
-  opacity: 0.8;
-}
-
 /* --- Badges --- */
 .badge {
   font-weight: 500;
@@ -118,19 +125,99 @@ body {
 
 .badge.bg-primary {
   background-color: var(--primary-color) !important;
+  color: #fff !important;
 }
-
 .badge.bg-success {
   background-color: var(--success-color) !important;
+  color: #fff !important;
 }
-
 .badge.bg-warning {
   background-color: var(--warning-color) !important;
-  color: #000;
+  color: #222 !important;
 }
-
 .badge.bg-danger {
   background-color: var(--danger-color) !important;
+  color: #fff !important;
+}
+.badge.bg-info {
+  background-color: var(--info-color) !important;
+  color: #fff !important;
+}
+
+/* Badges con gradiente */
+.badge.bg-primary-gradient {
+  background: var(--primary-gradient);
+  color: white;
+}
+.badge.bg-secondary-gradient {
+  background: var(--secondary-gradient);
+  color: white;
+}
+.badge.bg-success-gradient {
+  background: var(--success-gradient);
+  color: white;
+}
+.badge.bg-warning-gradient {
+  background: var(--warning-gradient);
+  color: #222;
+}
+.badge.bg-danger-gradient {
+  background: var(--danger-gradient);
+  color: white;
+}
+.badge.bg-info-gradient {
+  background: var(--info-gradient);
+  color: white;
+}
+
+/* --- Cards y tablas --- */
+.card {
+  background: var(--card-bg-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow-sm);
+  border: 1px solid var(--input-border-dark);
+  margin-bottom: 2rem;
+  transition: all var(--transition-speed);
+}
+.card-header {
+  background: rgba(30, 30, 30, 0.7);
+  border-bottom: 1px solid var(--input-border-dark);
+  font-weight: 600;
+  color: var(--text-color-dark);
+  padding: 1rem 1.5rem;
+  border-top-left-radius: var(--border-radius) !important;
+  border-top-right-radius: var(--border-radius) !important;
+}
+.card-body {
+  padding: 2rem;
+}
+
+/* Tablas */
+.table {
+  color: var(--text-color-dark);
+  background: transparent;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.table thead th {
+  background: rgba(106, 90, 249, 0.1);
+  color: #fff;
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 1rem;
+  vertical-align: middle;
+}
+.table tbody tr:hover {
+  background: rgba(106, 90, 249, 0.05);
+}
+.table th,
+.table td {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color-dark);
+  vertical-align: middle;
 }
 
 /* --- Chat Global --- */

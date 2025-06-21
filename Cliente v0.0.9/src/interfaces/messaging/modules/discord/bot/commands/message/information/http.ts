@@ -3,7 +3,7 @@ import { EmbedBuilder } from "discord.js";
 import { STATUS_CODES } from "http";
 
 import emojis from "@config/json/emojis.json";
-import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const httpCommand: Precommand = {
@@ -63,7 +63,7 @@ const httpCommand: Precommand = {
                 `please try again later or join our support server for help!`,
               ].join("\n"),
             )
-            .setErrorFormat(e.message, e.stack),
+            .setErrorFormat(e.stack),
         ],
       });
     }

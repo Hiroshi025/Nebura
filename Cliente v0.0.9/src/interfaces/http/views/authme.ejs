@@ -50,10 +50,11 @@
   </style>
 </head>
 
-<body>
+<body style="background: var(--bs-body-bg); color: var(--bs-body-color);">
 
   <main class="container d-flex justify-content-center align-items-center min-vh-100 p-3">
-    <div class="auth-card">
+    <div class="auth-card"
+      style="background: var(--card-bg-light); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--input-border-light);">
       <!-- Controles Superiores -->
       <div class="top-controls">
         <div class="language-switcher">
@@ -86,7 +87,6 @@
           <a href="/dashboard/auth/discord" class="btn btn-social btn-discord"><i
               class="fab fa-discord fa-fw me-2"></i><span data-key="discordBtn">Continuar con Discord</span></a>
         </div>
-
         <div class="separator" data-key="separatorText">O con tu email</div>
 
         <!-- Toggle entre Login y Registro -->
@@ -100,8 +100,11 @@
           <div class="mb-3">
             <label for="login-email" class="form-label fw-medium" data-key="emailLabel">Email</label>
             <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-              <input type="email" class="form-control" id="login-email" name="email" required>
+              <span class="input-group-text"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);"><i
+                  class="fas fa-envelope"></i></span>
+              <input type="email" class="form-control" id="login-email" name="email" required
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
             </div>
             <div class="error-message" id="login-email-error"></div>
           </div>
@@ -109,9 +112,13 @@
           <div class="mb-3">
             <label for="login-password" class="form-label fw-medium" data-key="passwordLabel">Contraseña</label>
             <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-lock"></i></span>
-              <input type="password" class="form-control" id="login-password" name="password" required>
-              <button class="btn btn-outline-secondary" type="button" id="toggle-login-password">
+              <span class="input-group-text"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);"><i
+                  class="fas fa-lock"></i></span>
+              <input type="password" class="form-control" id="login-password" name="password" required
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
+              <button class="btn btn-outline-secondary" type="button" id="toggle-login-password"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
                 <i class="fas fa-eye"></i>
               </button>
             </div>
@@ -136,8 +143,11 @@
           <div class="mb-3">
             <label for="register-name" class="form-label fw-medium" data-key="nameLabel">Nombre</label>
             <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-user"></i></span>
-              <input type="text" class="form-control" id="register-name" required>
+              <span class="input-group-text"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);"><i
+                  class="fas fa-user"></i></span>
+              <input type="text" class="form-control" id="register-name" required
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
             </div>
             <div class="error-message" id="register-name-error"></div>
           </div>
@@ -145,8 +155,11 @@
           <div class="mb-3">
             <label for="register-discord" class="form-label fw-medium" data-key="discordLabel">Discord ID</label>
             <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-discord"></i></span>
-              <input type="text" class="form-control" id="register-discord" required>
+              <span class="input-group-text"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);"><i
+                  class="fas fa-discord"></i></span>
+              <input type="text" class="form-control" id="register-discord" required
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
             </div>
             <div class="error-message" id="register-discord-error"></div>
           </div>
@@ -154,8 +167,11 @@
           <div class="mb-3">
             <label for="register-email" class="form-label fw-medium" data-key="emailLabel">Email</label>
             <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-              <input type="email" class="form-control" id="register-email" required>
+              <span class="input-group-text"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);"><i
+                  class="fas fa-envelope"></i></span>
+              <input type="email" class="form-control" id="register-email" required
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
             </div>
             <div class="error-message" id="register-email-error"></div>
           </div>
@@ -163,12 +179,17 @@
           <div class="mb-3">
             <label for="register-password" class="form-label fw-medium" data-key="passwordLabel">Contraseña</label>
             <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-lock"></i></span>
-              <input type="password" class="form-control" id="register-password" required>
-              <button class="btn btn-outline-secondary" type="button" id="generate-password">
+              <span class="input-group-text"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);"><i
+                  class="fas fa-lock"></i></span>
+              <input type="password" class="form-control" id="register-password" required
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
+              <button class="btn btn-outline-secondary" type="button" id="generate-password"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
                 <i class="fas fa-key"></i>
               </button>
-              <button class="btn btn-outline-secondary" type="button" id="toggle-register-password">
+              <button class="btn btn-outline-secondary" type="button" id="toggle-register-password"
+                style="background: var(--input-bg-light); border-color: var(--input-border-light); color: var(--bs-body-color);">
                 <i class="fas fa-eye"></i>
               </button>
             </div>

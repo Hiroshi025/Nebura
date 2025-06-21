@@ -2,28 +2,32 @@
 :root {
   --primary-color: #6a5af9;
   --primary-color-hover: #5a4af7;
-  --error-color: #f72585;
-  --background-color-light: #f4f7f6;
-  --card-bg-light: #ffffff;
-  --text-color-light: #333;
-  --input-bg-light: #fdfdfd;
-  --input-border-light: #ced4da;
+  --secondary-color: #f72585;
+  --success-color: #4cc9f0;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
+  --dark-color: #121212;
+  --light-color: #f8f9fa;
 
   --background-color-dark: #121212;
   --card-bg-dark: #1e1e1e;
+  --card-bg-dark-hover: #252525;
   --text-color-dark: #e0e0e0;
+  --text-muted-dark: #aaa;
   --input-bg-dark: #2a2a2a;
-  --input-border-dark: #444;
-
-  --strength-low: #dc3545;
-  --strength-medium: #ffc107;
-  --strength-high: #28a745;
-  --strength-secure: #0d6efd;
-
-  --font-family: "Poppins", sans-serif;
-  --border-radius: 1rem;
-  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  --input-border-dark: #333;
+  --border-color-dark: #333;
+  --border-radius: 0.75rem;
+  --border-radius-sm: 0.5rem;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --transition-speed: 0.3s;
+  --font-family: "Poppins", sans-serif;
+
+  /* Gradientes */
+  --primary-gradient: linear-gradient(135deg, var(--primary-color), #8a7cff);
+  --secondary-gradient: linear-gradient(135deg, var(--secondary-color), #ff4da6);
 }
 
 /* Estilos para el Tema Oscuro usando el atributo de Bootstrap */
@@ -31,6 +35,22 @@
   --bs-body-bg: var(--background-color-dark);
   --bs-body-color: var(--text-color-dark);
   --bs-border-color: var(--input-border-dark);
+  --bs-tertiary-bg: var(--input-bg-dark);
+  --card-bg-light: var(--card-bg-dark);
+  --input-bg-light: var(--input-bg-dark);
+  --input-border-light: var(--input-border-dark);
+  --text-color-light: var(--text-color-dark);
+}
+
+[data-bs-theme="light"] {
+  --bs-body-bg: var(--light-color);
+  --bs-body-color: #333;
+  --bs-border-color: #e0e0e0;
+  --bs-tertiary-bg: #fdfdfd;
+  --card-bg-light: #fff;
+  --input-bg-light: #fdfdfd;
+  --input-border-light: #ced4da;
+  --text-color-light: #333;
 }
 
 body {
@@ -42,6 +62,7 @@ body {
     color var(--transition-speed);
 }
 
+/* Tarjeta de autenticación */
 .auth-card {
   background: var(--card-bg-light);
   border-radius: var(--border-radius);
@@ -58,7 +79,7 @@ body {
 [data-bs-theme="dark"] .auth-card {
   background: var(--card-bg-dark);
   border-color: var(--input-border-dark);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow);
 }
 
 .top-controls {
@@ -82,6 +103,7 @@ body {
   font-weight: 700;
 }
 
+/* Inputs y grupos */
 .form-control,
 .input-group-text,
 .btn-outline-secondary {
@@ -95,7 +117,7 @@ body {
 }
 
 .form-control:focus {
-  box-shadow: 0 0 0 0.2rem rgba(var(--primary-color), 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(106, 90, 249, 0.15);
   border-color: var(--primary-color);
   background-color: var(--input-bg-light);
 }
@@ -131,17 +153,19 @@ body {
   background-color: var(--input-bg-dark);
 }
 
+/* Botones */
 .btn-primary {
-  background-color: var(--primary-color);
+  background: var(--primary-gradient);
   border: none;
   padding: 0.75rem;
   font-weight: 600;
   transition: background-color var(--transition-speed);
   border-radius: 0.5rem;
+  color: #fff;
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-color-hover);
+  background: linear-gradient(135deg, #5a4af7, #7a6cff);
 }
 
 .btn-social {

@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 
 import { Precommand } from "@/typings/modules/discord";
-import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { ErrorEmbed } from "@extenders/embeds.extend";
 
 const ToolsChannel: Precommand = {
   name: "channel-tools",

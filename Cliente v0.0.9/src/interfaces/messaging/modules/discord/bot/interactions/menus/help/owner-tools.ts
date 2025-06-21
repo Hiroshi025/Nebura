@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { main } from "@/main";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Menus } from "@typings/modules/discord";
 
 const OwnerSelectMenu: Menus = {
@@ -30,7 +31,7 @@ const OwnerSelectMenu: Menus = {
       await interaction.showModal(reloadModal);
     } else if (interaction.values.includes("reload_all")) {
       try {
-        await client.loadCommands();
+        await main.utils.loadCommands();
         await interaction.reply({
           embeds: [
             new EmbedCorrect().setDescription(

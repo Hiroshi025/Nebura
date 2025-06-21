@@ -1,7 +1,7 @@
 {
-  "name": "nebura-works",
-  "version": "0.0.10",
-  "main": "index.js",
+  "name": "nebura-assistent",
+  "version": "0.0.12",
+  "main": "src/main.js",
   "scripts": {
     "lint": "eslint --ext .ts .",
     "lint:fix": "eslint --fix --ext .ts .",
@@ -31,18 +31,21 @@
     "postbuild": "npm run copy-env",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org nebura --project nebura-client ./build && sentry-cli sourcemaps upload --org nebura --project nebura-client ./build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "api",
+    "modular",
+    "discord",
+    "whatsapp",
+    "github",
+    "google-ai",
+    "typescript",
+    "nodejs",
+    "express",
+    "socket.io",
+    "swagger"
+  ],
+  "author": "Hiroshi025",
   "license": "ISC",
-  "lint-staged": {
-    "*.{ts,tsx,js}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
-  },
   "prisma": {
     "schema": "src/adapters/database/prisma/schema.prisma"
   },
@@ -53,13 +56,12 @@
     "vscode": "^1.22.0"
   },
   "dependencies": {
+    "@gonetone/get-youtube-id-by-url": "^2.0.0",
     "@google/generative-ai": "^0.24.0",
+    "@iamtraction/google-translate": "^2.0.1",
     "@napi-rs/canvas": "^0.1.70",
-    "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/context-async-hooks": "^1.30.1",
     "@prisma/client": "^6.5.0",
     "@sentry/cli": "^2.43.1",
-    "@sentry/esbuild-plugin": "^3.3.1",
     "@sentry/node": "^9.15.0",
     "apicache": "^1.6.3",
     "axios": "^1.8.4",
@@ -69,10 +71,12 @@
     "cheerio": "^1.0.0",
     "common-tags": "^1.8.2",
     "connect-sqlite3": "^0.9.15",
-    "cors": "^2.8.5",
+    "cron": "^4.3.1",
     "date-fns": "^4.1.0",
     "discord-arts": "^0.7.1",
+    "discord-giveaways": "^6.0.1",
     "discord.js": "^14.18.0",
+    "distube": "^5.0.7",
     "eternal-support": "^1.0.9",
     "exceljs": "^4.4.0",
     "express": "^4.21.2",
@@ -85,7 +89,8 @@
     "i18next-http-middleware": "^3.7.4",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.6.1",
-    "mongodb": "^6.17.0",
+    "moment": "^2.30.1",
+    "ms": "^2.1.3",
     "multer": "^1.4.5-lts.2",
     "node-schedule": "^2.1.1",
     "nodemailer": "^7.0.3",
@@ -93,17 +98,18 @@
     "passport-discord": "^0.1.4",
     "pdfkit": "^0.17.1",
     "qrcode-terminal": "^0.12.0",
+    "rss-parser": "^3.13.0",
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-parser": "^10.0.3",
     "swagger-stats": "^0.95.7",
     "swagger-ui-express": "^5.0.1",
-    "systeminformation": "^5.27.1",
     "uuid": "^11.1.0",
     "whatsapp-web.js": "^1.23.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
     "yaml": "^2.7.0",
+    "yt-channel-info": "^3.2.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -136,7 +142,6 @@
     "eslint-plugin-prettier": "^5.2.5",
     "eslint-plugin-sonarjs": "^3.0.2",
     "eslint-plugin-unicorn": "^58.0.0",
-    "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
     "prisma": "^6.5.0",
@@ -151,11 +156,11 @@
   },
   "bugs": {
     "url": "https://github.com/Hiroshi025/Nebura-AI/issues",
-    "email": "tu-email@dominio.com"
+    "email": "alchemistdevs@gmail.com"
   },
   "homepage": "https://help.hiroshi-dev.me/",
   "markdown": "github",
-  "readme": "# Nebura Works",
+  "readme": "# Nebura",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Hiroshi025/Nebura-AI.git"

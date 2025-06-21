@@ -8,9 +8,9 @@
 
 <!-- SECCIÓN DE GESTIÓN DE LICENCIAS -->
 <section class="card mb-4 fade-in" id="licensesSection"
-  style="background: rgba(36, 45, 62, 0.08); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+  style="background: var(--card-bg-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--input-border-dark);">
   <div class="card-header d-flex flex-wrap align-items-center justify-content-between"
-    style="background: transparent; border-bottom: 1px solid var(--input-border);">
+    style="background: rgba(30, 30, 30, 0.7); border-bottom: 1px solid var(--input-border-dark); color: var(--section-title-color);">
     <div class="d-flex align-items-center">
       <span class="section-title"><i class="fa-solid fa-key me-2"></i>Gestión de Licencias</span>
       <div class="ms-3 d-flex align-items-center">
@@ -40,14 +40,16 @@
       <div class="col-md-6">
         <div class="search-group">
           <input type="text" id="licenseSearch" class="form-control"
-            placeholder="Buscar licencias por clave, usuario, estado..." autocomplete="off">
+            placeholder="Buscar licencias por clave, usuario, estado..." autocomplete="off"
+            style="background: var(--input-bg-dark); color: var(--text-color-dark); border: 1.5px solid var(--input-border-dark);">
           <span class="search-icon"><i class="fa fa-search"></i></span>
           <button class="clear-btn" type="button" style="display:none;"><i class="fa fa-times"></i></button>
         </div>
       </div>
       <div class="col-md-6">
         <div class="d-flex flex-wrap gap-2">
-          <select class="form-select form-select-sm flex-grow-1" id="licenseTypeFilter" style="max-width: 150px;">
+          <select class="form-select form-select-sm flex-grow-1" id="licenseTypeFilter"
+            style="max-width: 150px; background: var(--input-bg-dark); color: var(--text-color-dark); border: 1.5px solid var(--input-border-dark);">
             <option value="">Todos los tipos</option>
             <option value="FREE">Free</option>
             <option value="BASIC">Basic</option>
@@ -55,7 +57,8 @@
             <option value="ENTERPRISE">Enterprise</option>
             <option value="CUSTOM">Custom</option>
           </select>
-          <select class="form-select form-select-sm flex-grow-1" id="licenseStatusFilter" style="max-width: 150px;">
+          <select class="form-select form-select-sm flex-grow-1" id="licenseStatusFilter"
+            style="max-width: 150px; background: var(--input-bg-dark); color: var(--text-color-dark); border: 1.5px solid var(--input-border-dark);">
             <option value="">Todos los estados</option>
             <option value="ACTIVE">Activas</option>
             <option value="EXPIRED">Expiradas</option>
@@ -74,7 +77,8 @@
 
     <!-- TABLA DE LICENCIAS -->
     <div class="table-responsive position-relative">
-      <table class="table table-hover align-middle mb-0" id="licensesTable">
+      <table class="table table-hover align-middle mb-0" id="licensesTable"
+        style="background: var(--card-bg-dark); color: var(--text-color-dark);">
         <thead>
           <tr>
             <th class="sortable" data-sort="key">Clave <i class="fa fa-sort ms-1"></i></th>
@@ -113,7 +117,8 @@
 <!-- MODAL PARA CREAR/EDITAR LICENCIA -->
 <div class="modal fade" id="licenseModal" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="background: var(--card-bg); color: var(--text-color);">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
       <form id="licenseForm" novalidate>
         <div class="modal-header">
           <h5 class="modal-title" id="licenseModalLabel">Nueva Licencia</h5>
@@ -161,7 +166,13 @@
               </div>
               <div class="mb-3">
                 <label for="licenseHwid" class="form-label">HWID (separados por coma)</label>
-                <textarea class="form-control" id="licenseHwid" rows="2"></textarea>
+                <div class="input-group">
+                  <textarea class="form-control" id="licenseHwid" rows="2"></textarea>
+                  <button class="btn btn-outline-secondary" type="button" id="generateHwidBtn"
+                    title="Generar HWID aleatorio">
+                    <i class="fa fa-dice"></i>
+                  </button>
+                </div>
               </div>
               <div class="mb-3">
                 <label for="licenseRequestLimit" class="form-label">Límite de peticiones</label>
@@ -188,7 +199,8 @@
 <div class="modal fade" id="deleteLicenseModal" tabindex="-1" aria-labelledby="deleteLicenseModalLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="background: var(--card-bg); color: var(--text-color);">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
       <div class="modal-header">
         <h5 class="modal-title" id="deleteLicenseModalLabel">Eliminar Licencia</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -213,7 +225,8 @@
 <div class="modal fade" id="licenseDetailsModal" tabindex="-1" aria-labelledby="licenseDetailsModalLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="background: var(--card-bg); color: var(--text-color);">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
       <div class="modal-header">
         <h5 class="modal-title" id="licenseDetailsModalLabel">Detalles de Licencia</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -238,7 +251,8 @@
 <!-- MODAL DE EXPORTACIÓN -->
 <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content" style="background: var(--card-bg); color: var(--text-color);">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
       <div class="modal-header">
         <h5 class="modal-title" id="exportModalLabel">Exportar Licencias</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -572,6 +586,7 @@
       licenseStatusFilter: document.getElementById('licenseStatusFilter'),
       clearFiltersBtn: document.getElementById('clearFiltersBtn'),
       generateLicenseKeyBtn: document.getElementById('generateLicenseKeyBtn'),
+      generateHwidBtn: document.getElementById('generateHwidBtn'),
       totalLicensesCount: document.getElementById('totalLicensesCount'),
       activeLicensesCount: document.getElementById('activeLicensesCount'),
       expiredLicensesCount: document.getElementById('expiredLicensesCount'),
@@ -608,6 +623,8 @@
       elements.exportLicensesBtn.addEventListener('click', () => new bootstrap.Modal('#exportModal').show());
       elements.clearFiltersBtn.addEventListener('click', clearFilters);
       elements.generateLicenseKeyBtn.addEventListener('click', generateLicenseKey);
+      // Añadir evento para el botón de HWID
+      elements.generateHwidBtn.addEventListener('click', generateHwid);
       elements.prevPageBtn.addEventListener('click', () => changePage(-1));
       elements.nextPageBtn.addEventListener('click', () => changePage(1));
       elements.confirmDeleteLicenseBtn.addEventListener('click', deleteLicense);
@@ -727,6 +744,23 @@
       }
       elements.licenseKey.value = key;
       elements.licenseKey.focus();
+    }
+
+    // Generador de HWID aleatorio
+    function generateHwid() {
+      // Genera 1 o varios HWID aleatorios (formato hexadecimal, 16 caracteres)
+      const chars = 'ABCDEF0123456789';
+      let hwids = [];
+      // Por defecto genera 1 HWID, pero puedes cambiar a varios si lo deseas
+      for (let j = 0; j < 1; j++) {
+        let hwid = '';
+        for (let i = 0; i < 16; i++) {
+          hwid += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        hwids.push(hwid);
+      }
+      elements.licenseHwid.value = hwids.join(', ');
+      elements.licenseHwid.focus();
     }
 
     // Fetch de licencias

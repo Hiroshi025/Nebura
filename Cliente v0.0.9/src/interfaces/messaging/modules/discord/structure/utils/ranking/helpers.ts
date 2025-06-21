@@ -41,8 +41,7 @@ export async function Ranking(message: Message, client: MyClient) {
   // 1. Cooldown and anti-spam check
   if (cooldown.has(userId)) {
     logWithLabel("info", `User: ${message.author.tag} | Cooldown activated.`, {
-      customLabel: "Ranking",
-      context: { userId, userName: message.author.username, userTag: message.author.tag },
+      customLabel: "Rank",
     });
     return;
   }
@@ -66,7 +65,12 @@ export async function Ranking(message: Message, client: MyClient) {
   }
 
   // Skip if ranking is disabled
-  if (!rankingConfig.status) return;
+  if (!rankingConfig.status) {
+    logWithLabel("info", `Ranking is disabled for guild: ${guildId}`, {
+      customLabel: "Rank",
+    });
+    return;
+  }
 
   // 5. Channel bonus check
   const channelBonus = await getChannelBonus(message.channel.id, rankingConfig);
@@ -149,8 +153,7 @@ export async function Ranking(message: Message, client: MyClient) {
     "info",
     `User: ${message.author.tag} | XP: ${xp}/${level * 100} | Level: ${level} | Streak: ${streakUpdate.currentStreak} | Earned: ${totalXp} XP (Base: ${xpAmount}, Streak: ${streakBonus}, Quests: ${questXp})`,
     {
-      customLabel: "Ranking",
-      context: { userId, userName: message.author.username, userTag: message.author.tag },
+      customLabel: "Rank",
     },
   );
 

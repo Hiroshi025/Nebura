@@ -3,20 +3,29 @@
   --primary-color-hover: #5a4af7;
   --secondary-color: #f72585;
   --success-color: #4cc9f0;
-  --background-color-light: #f4f7f6;
-  --card-bg-light: #ffffff;
-  --text-color-light: #333;
-  --input-bg-light: #fdfdfd;
-  --input-border-light: #e0e0e0;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
   --background-color-dark: #121212;
-  --card-bg-dark: rgba(36, 45, 62, 0.08);
+  --card-bg-dark: #1e1e1e;
+  --card-bg-dark-hover: #252525;
   --text-color-dark: #e0e0e0;
+  --text-muted-dark: #aaa;
   --input-bg-dark: #2a2a2a;
   --input-border-dark: #333;
-  --font-family: "Poppins", sans-serif;
-  --border-radius: 1rem;
-  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  --border-color-dark: #333;
+  --border-radius: 0.75rem;
+  --border-radius-sm: 0.5rem;
+  --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
   --transition-speed: 0.3s;
+  --font-family: "Poppins", sans-serif;
+  --primary-gradient: linear-gradient(135deg, var(--primary-color), #8a7cff);
+  --secondary-gradient: linear-gradient(135deg, var(--secondary-color), #ff4da6);
+  --success-gradient: linear-gradient(135deg, var(--success-color), #6bd5f5);
+  --warning-gradient: linear-gradient(135deg, var(--warning-color), #ffd351);
+  --danger-gradient: linear-gradient(135deg, var(--danger-color), #e83e8c);
+  --info-gradient: linear-gradient(135deg, var(--info-color), #5bc0de);
   --code-bg-dark: #1e1e1e;
   --code-bg-light: #f8f8f8;
   --code-text-dark: #f8f8f8;
@@ -32,6 +41,18 @@
   --bs-body-color: var(--text-color-dark);
   --bs-border-color: var(--input-border-dark);
   --bs-tertiary-bg: #2a2a2a;
+}
+
+[data-bs-theme="light"] {
+  --bs-body-bg: #f8f9fa;
+  --bs-body-color: #333;
+  --bs-border-color: #e0e0e0;
+  --bs-tertiary-bg: #fdfdfd;
+  --card-bg-dark: #fff;
+  --input-bg-dark: #fdfdfd;
+  --input-border-dark: #e0e0e0;
+  --text-color-dark: #333;
+  --text-muted-dark: #888;
 }
 
 body {
@@ -67,7 +88,7 @@ body.loaded #app-container {
 }
 
 [data-bs-theme="light"] .navbar {
-  background: var(--card-bg-light);
+  background: var(--card-bg-dark);
 }
 
 .language-switcher a {
@@ -87,12 +108,13 @@ body.loaded #app-container {
   margin-left: 1rem;
 }
 
+/* Cards */
 .card {
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
-  background: rgba(36, 45, 62, 0.08);
+  background: var(--card-bg-dark);
   margin-bottom: 2rem;
-  border: none;
+  border: 1px solid var(--input-border-dark);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -104,34 +126,38 @@ body.loaded #app-container {
 }
 
 [data-bs-theme="light"] .card {
-  background: var(--card-bg-light);
+  background: var(--card-bg-dark);
+  border-color: var(--input-border-dark);
 }
 
 .card-header {
-  background: transparent;
-  border-bottom: none;
+  background: rgba(30, 30, 30, 0.7);
+  border-bottom: 1px solid var(--input-border-dark);
   font-weight: 600;
   font-size: 1.2rem;
   padding: 1.25rem 1.5rem;
+  color: var(--text-color-dark);
 }
 
 .form-label {
   font-weight: 500;
 }
 
+/* Botones */
 .btn-primary {
-  background: var(--primary-color);
+  background: var(--primary-gradient);
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-sm);
   transition:
     background var(--transition-speed),
     transform 0.2s;
   padding: 0.5rem 1.5rem;
   font-weight: 500;
+  color: white;
 }
 
 .btn-primary:hover {
-  background: var(--primary-color-hover);
+  background: linear-gradient(135deg, #5a4af7, #7a6cff);
   transform: translateY(-2px);
 }
 
@@ -390,9 +416,10 @@ body.loaded #app-container {
   color: var(--text-color-light);
 }
 
+/* Inputs y selects */
 .form-control,
 .form-select {
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-sm);
   padding: 0.75rem 1rem;
   border: 1px solid var(--input-border-dark);
   background: var(--input-bg-dark);
@@ -404,9 +431,9 @@ body.loaded #app-container {
 
 [data-bs-theme="light"] .form-control,
 [data-bs-theme="light"] .form-select {
-  border-color: var(--input-border-light);
-  background: var(--input-bg-light);
-  color: var(--text-color-light);
+  border-color: var(--input-border-dark);
+  background: var(--input-bg-dark);
+  color: var(--text-color-dark);
 }
 
 .form-control:focus,
@@ -467,6 +494,22 @@ textarea.form-control {
   margin: 1rem 0;
   color: var(--text-color-dark);
   font-style: italic;
+}
+
+/* Toast notifications */
+.toast {
+  background: var(--card-bg-dark);
+  border: 1px solid var(--border-color-dark);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--box-shadow);
+}
+
+.toast-header {
+  border-bottom: 1px solid var(--border-color-dark);
+  border-top-left-radius: var(--border-radius-sm) !important;
+  border-top-right-radius: var(--border-radius-sm) !important;
+  background: var(--primary-gradient);
+  color: #fff;
 }
 
 /* Responsive adjustments */

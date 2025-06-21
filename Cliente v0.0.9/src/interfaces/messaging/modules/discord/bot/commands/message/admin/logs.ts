@@ -3,7 +3,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 
 const logAdminCommand: Precommand = {
@@ -170,7 +170,7 @@ const logAdminCommand: Precommand = {
                 if (interaction.user.id !== message.author.id) {
                   return interaction.reply({
                     content: "You cannot interact with this pagination.",
-                    ephemeral: true,
+                    flags: "Ephemeral",
                   });
                 }
 

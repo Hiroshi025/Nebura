@@ -1,0 +1,40 @@
+<!-- Fragmento de ejemplo para mostrar cómo debes actualizar la vista server.ejs -->
+<!--
+1. Estadísticas generales (tarjetas):
+   - Total de miembros: <%= totalMembers %>
+   - Mensajes totales: <%= totalMessages %>
+   - Economía total: <%= totalEconomy %>
+   - Nivel promedio: <%= avgLevel %>
+
+2. Comandos más usados (tabla o gráfica):
+<table class="table table-hover">
+  <thead><tr><th>Comando</th><th>Usos</th></tr></thead>
+  <tbody>
+    <% topCommands.forEach(cmd => { %>
+      <tr><td><%= cmd.name %></td><td><%= cmd.count %></td></tr>
+    <% }) %>
+  </tbody>
+</table>
+
+3. Canales más usados (tabla):
+<table class="table table-hover">
+  <thead><tr><th>ID Canal</th><th>Mensajes</th></tr></thead>
+  <tbody>
+    <% topChannels.forEach(ch => { %>
+      <tr><td>#<%= ch.id %></td><td><%= ch.count %></td></tr>
+    <% }) %>
+  </tbody>
+</table>
+
+4. Miembros destacados (tabla):
+<table class="table table-hover">
+  <thead><tr><th>UserID</th><th>Nivel</th><th>XP</th><th>Mensajes</th></tr></thead>
+  <tbody>
+    <% userLevels.forEach(u => { %>
+      <tr><td><%= u.userId %></td><td><%= u.level %></td><td><%= u.xp %></td><td><%= u.totalMessages %></td></tr>
+    <% }) %>
+  </tbody>
+</table>
+-->
+
+<!-- Inserta estos fragmentos en los apartados correspondientes de server.ejs -->

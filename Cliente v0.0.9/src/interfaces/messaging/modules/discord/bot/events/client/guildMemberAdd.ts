@@ -3,7 +3,7 @@ import { AttachmentBuilder, Message } from "discord.js";
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
-import { EmbedCorrect } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect } from "@extenders/embeds.extend";
 
 export default new Event("guildMemberAdd", async (member) => {
   const { guild, id } = member;

@@ -1,6 +1,6 @@
 import { AttachmentBuilder, ChannelType } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { Precommand } from "@typings/modules/discord";
 

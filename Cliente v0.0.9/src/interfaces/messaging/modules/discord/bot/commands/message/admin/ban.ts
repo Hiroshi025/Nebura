@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { ErrorEmbed } from "@modules/discord/structure/extends/embeds.extend";
+import { ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 import { logWithLabel } from "@utils/functions/console";
 
@@ -214,10 +214,13 @@ async function executeBan(message: Message, target: GuildMember, reason: string)
   }
 
   try {
+    const guild = await main.prisma.myGuild.findFirst({
+      where: { guildId: message.guild.id },
+    });
     // Crear registro de ban en la base de datos (sin moderatorId si no existe en el modelo)
     const banRecord = await main.prisma.banUser.create({
       data: {
-        guildId: message.guild.id,
+        guildId: guild?.id as string,
         userId: target.id,
         banReason: reason,
         banTime: new Date(),
@@ -369,10 +372,15 @@ async function executeBan(message: Message, target: GuildMember, reason: string)
 async function handleBanList(client: any, message: any, args: string[]) {
   const page = parseInt(args[0]) || 1;
   const perPage = 5;
+      const guild = await main.prisma.myGuild.findFirst({
+      where: { guildId: message.guild.id },
+    });
+
 
   try {
+
     const totalBans = await main.prisma.banUser.count({
-      where: { guildId: message.guild.id },
+      where: { guildId: guild?.id },
     });
 
     const totalPages = Math.ceil(totalBans / perPage);
@@ -388,7 +396,7 @@ async function handleBanList(client: any, message: any, args: string[]) {
     }
 
     const bans = await main.prisma.banUser.findMany({
-      where: { guildId: message.guild.id },
+      where: { guildId: guild?.id },
       skip: (page - 1) * perPage,
       take: perPage,
       orderBy: { banTime: "desc" },
@@ -490,6 +498,10 @@ async function handleBanList(client: any, message: any, args: string[]) {
  * Handles removing a ban (unban)
  */
 async function handleBanRemove(message: Message, args: string[]) {
+      const guild = await main.prisma.myGuild.findFirst({
+      where: { guildId: message.guild?.id as string },
+    });
+
   if (!message.guild || message.channel.type !== ChannelType.GuildText) {
     logWithLabel("error", "Invalid guild or channel for ban removal.");
     return (message.channel as TextChannel).send({
@@ -515,7 +527,7 @@ async function handleBanRemove(message: Message, args: string[]) {
 
   try {
     const banRecord = await main.prisma.banUser.findFirst({
-      where: { userId, guildId: message.guild.id },
+      where: { userId, guildId: guild?.id as string },
     });
 
     if (!banRecord) {
@@ -678,6 +690,10 @@ async function handleBanRemove(message: Message, args: string[]) {
  */
 async function handleBanInfo(client: any, message: any, args: string[]) {
   const userId = args[0];
+      const guild = await main.prisma.myGuild.findFirst({
+      where: { guildId: message.guild.id },
+    });
+
 
   if (!userId) {
     return message.channel.send({
@@ -691,7 +707,7 @@ async function handleBanInfo(client: any, message: any, args: string[]) {
 
   try {
     const banRecord = await main.prisma.banUser.findFirst({
-      where: { userId, guildId: message.guild.id },
+      where: { userId, guildId: guild?.id as string },
     });
 
     if (!banRecord) {

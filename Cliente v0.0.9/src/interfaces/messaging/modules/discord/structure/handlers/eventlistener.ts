@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect } from "@modules/discord/structure/extends/embeds.extend";
+import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Fields } from "@typings/utils";
 
 import { MyClient } from "../../client";
@@ -78,7 +78,7 @@ export class LogClass {
 
       events.forEach((event) => {
         switch (event) {
-          case Events.ChannelCreate:
+          case "ChannelCreate":
             this.client.on(Events.ChannelCreate, async (channel) => {
               console.log(`[DEBUG] Evento ChannelCreate detectado para el canal: ${channel.id}`); // Log de depuración
               if (channel.guild.id !== guild.id) return; // Ensure the event is for the current guild
@@ -139,7 +139,7 @@ export class LogClass {
               }, this.delay);
             });
             break;
-          case Events.ChannelDelete:
+          case "ChannelDelete":
             this.client.on(Events.ChannelDelete, async (channel) => {
               console.log(`[DEBUG] Evento ChannelDelete detectado para el canal: ${channel.id}`); // Log de depuración
               if (channel.type === ChannelType.DM || !channel.guild) return;
@@ -195,7 +195,7 @@ export class LogClass {
               }, this.delay);
             });
             break;
-          case Events.GuildMemberAdd:
+          case "GuildMemberAdd":
             this.client.on(Events.GuildMemberAdd, async (member) => {
               if (member.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -222,7 +222,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.GuildBanAdd:
+          case "GuildBanAdd":
             this.client.on(Events.GuildBanAdd, async (ban) => {
               if (ban.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -249,7 +249,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.GuildBanRemove:
+          case "GuildBanRemove":
             this.client.on(Events.GuildBanRemove, async (ban) => {
               if (ban.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -276,7 +276,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.GuildMemberRemove:
+          case "GuildMemberRemove":
             this.client.on(Events.GuildMemberRemove, async (member) => {
               if (member.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -303,7 +303,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.AutoModerationRuleCreate:
+          case "AutoModerationRuleCreate":
             this.client.on(Events.AutoModerationRuleCreate, async (rule) => {
               if (rule.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -341,7 +341,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.AutoModerationRuleDelete:
+          case "AutoModerationRuleDelete":
             this.client.on(Events.AutoModerationRuleDelete, async (rule) => {
               if (rule.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -379,7 +379,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.GuildRoleCreate:
+          case "GuildRoleCreate":
             this.client.on(Events.GuildRoleCreate, async (role) => {
               if (role.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -407,7 +407,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.GuildRoleDelete:
+          case "GuildRoleDelete":
             this.client.on(Events.GuildRoleDelete, async (role) => {
               if (role.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -435,7 +435,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.GuildEmojiCreate:
+          case "GuildEmojiCreate":
             this.client.on(Events.GuildEmojiCreate, async (emoji) => {
               if (emoji.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
@@ -470,7 +470,7 @@ export class LogClass {
               );
             });
             break;
-          case Events.GuildEmojiDelete:
+          case "GuildEmojiDelete":
             this.client.on(Events.GuildEmojiDelete, async (emoji) => {
               if (emoji.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
