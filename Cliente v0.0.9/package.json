@@ -1,6 +1,6 @@
 {
   "name": "nebura-assistent",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "main": "src/main.js",
   "scripts": {
     "lint": "eslint --ext .ts .",
@@ -101,6 +101,7 @@
     "pdfkit": "^0.17.1",
     "qrcode-terminal": "^0.12.0",
     "rss-parser": "^3.13.0",
+    "sharp": "^0.34.2",
     "socket.io": "^4.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-parser": "^10.0.3",
@@ -126,7 +127,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/luxon": "^3.6.2",
     "@types/multer": "^1.4.12",
-    "@types/node": "^22.13.14",
+    "@types/node": "^22.15.33",
     "@types/node-schedule": "^2.1.7",
     "@types/nodemailer": "^6.4.17",
     "@types/passport": "^1.0.17",
@@ -134,6 +135,7 @@
     "@types/passport-local": "^1.0.38",
     "@types/pdfkit": "^0.13.9",
     "@types/qrcode-terminal": "^0.12.2",
+    "@types/sharp": "^0.31.1",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-stats": "^0.95.4",
     "@types/swagger-ui-express": "^4.1.8",
