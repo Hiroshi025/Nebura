@@ -1,7 +1,7 @@
 import { compare, hash } from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
 
-import { DomainError } from "@utils/extenders/error.extend";
+import { DomainError } from "@utils/extends/error.extension";
 
 /**
  * Generates a JSON Web Token (JWT) for the given user ID (email).

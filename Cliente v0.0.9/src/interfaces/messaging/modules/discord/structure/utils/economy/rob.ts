@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import { MyClient } from "../../../client";
 import { fetchBalance } from "../functions";

@@ -6,7 +6,7 @@ import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
-import { DiscordError } from "@utils/extenders/error.extend";
+import { DiscordError } from "@utils/extends/error.extension";
 
 import { GiveawayService } from "./structure/giveaway";
 import { DiscordHandler } from "./structure/handlers/collection";

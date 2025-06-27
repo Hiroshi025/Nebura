@@ -11,7 +11,7 @@ import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { getFiles } from "@modules/discord/structure/utils/files";
 import { FileType } from "@typings/modules/discord";
-import { DiscordError } from "@utils/extenders/error.extend";
+import { DiscordError } from "@utils/extends/error.extension";
 
 import { MyClient } from "../../client";
 import { Addons } from "../addons";

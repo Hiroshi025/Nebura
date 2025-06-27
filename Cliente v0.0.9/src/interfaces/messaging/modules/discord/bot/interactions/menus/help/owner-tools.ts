@@ -2,7 +2,7 @@ import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from
 
 import { main } from "@/main";
 import { Menus } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const OwnerSelectMenu: Menus = {
   id: "owner_tools_select",

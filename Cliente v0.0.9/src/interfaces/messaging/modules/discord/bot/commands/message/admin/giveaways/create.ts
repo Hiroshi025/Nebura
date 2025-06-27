@@ -1,22 +1,13 @@
 // src/commands/giveaway/create.ts
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelSelectMenuBuilder,
-  ChannelType,
-  ComponentType,
-  EmbedBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  User,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
+	ComponentType, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, User
 } from "discord.js";
 
 import { GiveawayManager, main } from "@/main"; // Ajusta la ruta según tu estructura
 import { MyClient } from "@modules/discord/client";
 import { GiveawayInterface, Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 //TODO: No crea el sorteo configurado y cambia los ephemerañ: true por los flags
 

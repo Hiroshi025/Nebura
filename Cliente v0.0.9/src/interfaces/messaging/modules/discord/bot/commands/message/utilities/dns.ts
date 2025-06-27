@@ -1,14 +1,8 @@
 import { exec } from "child_process";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-  ModalBuilder,
-  StringSelectMenuBuilder,
-  TextInputBuilder,
-  TextInputStyle,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ModalBuilder,
+	StringSelectMenuBuilder, TextInputBuilder, TextInputStyle
 } from "discord.js";
 import { MxRecord, SoaRecord, SrvRecord } from "dns";
 import { lookup } from "dns/promises";
@@ -17,7 +11,7 @@ import { promisify } from "util";
 
 import emojis from "@config/json/emojis.json";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const execPromise = promisify(exec);
 

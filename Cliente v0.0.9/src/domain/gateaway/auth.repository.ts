@@ -1,6 +1,6 @@
-import { AuthRegisterType } from "@/adapters/validators/user";
+import { AuthRegisterType } from "@/interfaces/http/middlewares/validators/user";
 import { main } from "@/main";
-import { RepositoryError } from "@utils/extenders/error.extend";
+import { RepositoryError } from "@utils/extends/error.extension";
 
 export class AuthRepository {
   constructor() {}

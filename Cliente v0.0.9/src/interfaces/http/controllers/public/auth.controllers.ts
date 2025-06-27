@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { ErrorResponse } from "@/adapters/validators/user";
+import { ErrorResponse } from "@/interfaces/http/middlewares/validators/user";
 import { AuthService } from "@domain/services/use-cases/auth/auth.service";
 
 /**

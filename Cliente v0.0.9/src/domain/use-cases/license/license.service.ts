@@ -1,12 +1,14 @@
 import { userMention } from "discord.js";
 
-import { CreateLicenseSchema, UpdateLicenseSchema } from "@/adapters/validators/license";
 import { CreateLicenseDto, UpdateLicenseDto } from "@/interfaces/http/dtos/license.dto";
+import {
+	CreateLicenseSchema, UpdateLicenseSchema
+} from "@/interfaces/http/middlewares/validators/license";
 import { Notification } from "@/interfaces/messaging/broker/notification"; // Importa Notification
 import { client } from "@/main";
 import { LicenseEntity } from "@domain/services/entities/license.entity";
 import { LicenseRepository } from "@domain/services/gateaway/license.repository";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 /**
  * Service for managing software licenses.

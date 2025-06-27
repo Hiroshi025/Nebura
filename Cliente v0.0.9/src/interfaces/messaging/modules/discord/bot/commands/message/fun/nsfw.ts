@@ -2,7 +2,7 @@ import { ChannelType, codeBlock } from "discord.js";
 import { Nsfw } from "eternal-support";
 
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const nsfwCommands: Precommand = {
   name: "nsfw",

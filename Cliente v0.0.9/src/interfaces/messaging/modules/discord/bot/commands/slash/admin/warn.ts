@@ -2,7 +2,7 @@ import { PermissionFlagsBits, SlashCommandBuilder, TextChannel, time } from "dis
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 export default new Command(
   new SlashCommandBuilder()

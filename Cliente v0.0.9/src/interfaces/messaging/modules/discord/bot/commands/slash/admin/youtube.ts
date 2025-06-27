@@ -4,7 +4,7 @@ import Parser from "rss-parser";
 import { main } from "@/main";
 import { channelId } from "@gonetone/get-youtube-id-by-url";
 import { Command } from "@modules/discord/structure/utils/builders";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const fetch = new Parser();
 export default new Command(

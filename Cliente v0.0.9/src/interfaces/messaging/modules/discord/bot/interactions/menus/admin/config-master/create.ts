@@ -2,7 +2,7 @@ import { TextChannel } from "discord.js";
 
 import { main } from "@/main";
 import { Menus } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const menuName: Menus = {
   id: "select-webhook-channel",

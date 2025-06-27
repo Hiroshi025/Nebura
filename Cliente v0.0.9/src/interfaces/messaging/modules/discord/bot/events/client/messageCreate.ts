@@ -1,16 +1,13 @@
 import { ColorResolvable, TextChannel } from "discord.js";
 
 import {
-  countMessage,
-  createGuild,
-  createUser,
-  Economy,
+	countMessage, createGuild, createUser, Economy
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { client, main } from "@/main";
 import { config } from "@/shared/utils/config";
 import { Ranking } from "@modules/discord/structure/utils/ranking/helpers";
 import { ButtonFormat, Fields, Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import { Event } from "../../../structure/utils/builders";
 

@@ -1,16 +1,8 @@
 import { stripIndent } from "common-tags";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ComponentType,
-  EmbedBuilder,
-  Message,
-  ModalSubmitInteraction,
-  PermissionResolvable,
-  StringSelectMenuBuilder,
-  StringSelectMenuInteraction,
+	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ComponentType, EmbedBuilder,
+	Message, ModalSubmitInteraction, PermissionResolvable, StringSelectMenuBuilder,
+	StringSelectMenuInteraction
 } from "discord.js";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
@@ -18,7 +10,7 @@ import { join } from "path";
 import { MyClient } from "@/interfaces/messaging/modules/discord/client";
 import { Precommand } from "@typings/modules/discord";
 import { config } from "@utils/config";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import packages from "../../../../../../../../../package.json";
 

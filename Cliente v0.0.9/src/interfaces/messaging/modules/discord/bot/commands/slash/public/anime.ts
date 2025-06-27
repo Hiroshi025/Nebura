@@ -5,7 +5,7 @@ import moment from "moment";
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import translate from "@iamtraction/google-translate";
 import { Entretenment } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 export default new Command(
   new SlashCommandBuilder()

@@ -1,9 +1,11 @@
 import axios from "axios";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder } from "discord.js";
+import {
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder
+} from "discord.js";
 
-import { Precommand } from "@typings/modules/discord";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { Precommand } from "@typings/modules/discord";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 const pokedexCommand: Precommand = {

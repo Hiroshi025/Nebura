@@ -22,7 +22,7 @@
     "baseUrl": "./",
     "paths": {
       "@constants/*": ["src/shared/adapters/constants/*"],
-      "@extenders/*": ["src/shared/utils/extenders/*"],
+      "@extenders/*": ["src/shared/utils/extends/*"],
       "@modules/*": ["src/interfaces/messaging/modules/*"],
       "@services/*": ["src/domain/use-cases/*"],
       "@domain/services/*": ["src/domain/*"],

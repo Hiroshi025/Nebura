@@ -1,16 +1,11 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelSelectMenuBuilder,
-  ChannelType,
-  PermissionFlagsBits,
-  TextChannel,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
+	PermissionFlagsBits, TextChannel
 } from "discord.js";
 
 import { main } from "@/main";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 /**
  * Interactive command to configure the NSFW channel for the server.

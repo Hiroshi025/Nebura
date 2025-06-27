@@ -2,7 +2,7 @@ import axios from "axios";
 import { ChannelType } from "discord.js";
 
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const twitchInfo: Precommand = {
   name: "twitch-info",

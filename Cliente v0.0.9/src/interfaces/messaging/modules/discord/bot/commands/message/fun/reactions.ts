@@ -4,7 +4,7 @@ import { NekoClient } from "eternal-support";
 
 import emojis from "@config/json/emojis.json";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 async function animeApi(action: string) {

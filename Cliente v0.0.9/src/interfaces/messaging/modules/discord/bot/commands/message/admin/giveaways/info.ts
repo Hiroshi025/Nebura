@@ -3,7 +3,7 @@ import { EmbedBuilder } from "discord.js";
 
 import { GiveawayManager } from "@/main";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const GiveawayInfo: Precommand = {
   name: "giveaway-info",

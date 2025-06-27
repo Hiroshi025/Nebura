@@ -1,16 +1,10 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  ModalBuilder,
-  StringSelectMenuBuilder,
-  TextInputBuilder,
-  TextInputStyle,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ModalBuilder,
+	StringSelectMenuBuilder, TextInputBuilder, TextInputStyle
 } from "discord.js";
 
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const decode64Command: Precommand = {
   name: "decode64",

@@ -1,16 +1,11 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ChannelType,
-  UserSelectMenuBuilder,
-  UserSelectMenuInteraction,
+	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChannelType,
+	UserSelectMenuBuilder, UserSelectMenuInteraction
 } from "discord.js";
 
 import { main } from "@/main";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const OwnerAddCommand: Precommand = {
   name: "addowners",

@@ -1,17 +1,13 @@
 import axios from "axios";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ComponentType,
-  EmbedBuilder,
-  StringSelectMenuBuilder,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, EmbedBuilder,
+	StringSelectMenuBuilder
 } from "discord.js";
 
 import emojis from "@config/json/emojis.json";
 import { Pagination } from "@discordx/pagination";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const mcblockCommand: Precommand = {
   name: "mcblock",

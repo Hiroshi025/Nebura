@@ -1,7 +1,7 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
-import { validateTokenAI } from "@/interfaces/http/middlewares/jwt/google.middleware";
+import { validateTokenAI } from "@/interfaces/http/middlewares/jwt/google-auth.middleware";
 import { isCustomerToken } from "@/interfaces/http/middlewares/jwt/token.middleware";
 import { RateLimitManager } from "@/interfaces/messaging/broker/rateLimit";
 import { TRoutesInput } from "@/typings/utils";

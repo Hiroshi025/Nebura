@@ -32,7 +32,7 @@ import { Innertube } from "youtubei.js";
 
 import { main } from "@/main";
 import { MyClient } from "@modules/discord/client";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 /**
  * Initializes the YouTube notification system for Discord servers.

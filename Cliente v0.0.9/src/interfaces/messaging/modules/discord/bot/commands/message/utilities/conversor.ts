@@ -1,19 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import {
-  ActionRowBuilder,
-  ChannelType,
-  Interaction,
-  StringSelectMenuBuilder,
-  StringSelectMenuInteraction,
-  StringSelectMenuOptionBuilder,
-  TextChannel,
+	ActionRowBuilder, ChannelType, Interaction, StringSelectMenuBuilder,
+	StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextChannel
 } from "discord.js";
 
 import currency from "@config/json/coins.json";
-import { Precommand } from "@typings/modules/discord";
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const precommandConversor: Precommand = {
   name: "conversor",

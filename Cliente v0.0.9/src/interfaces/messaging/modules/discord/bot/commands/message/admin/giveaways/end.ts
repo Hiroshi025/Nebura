@@ -1,16 +1,11 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ComponentType,
-  Message,
-  MessageActionRowComponentBuilder,
-  StringSelectMenuBuilder,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, Message,
+	MessageActionRowComponentBuilder, StringSelectMenuBuilder
 } from "discord.js";
 
 import { GiveawayManager } from "@/main";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const GiveawayEnd: Precommand = {
   name: "giveaway-end",

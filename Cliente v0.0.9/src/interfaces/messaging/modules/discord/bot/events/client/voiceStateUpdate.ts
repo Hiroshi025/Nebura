@@ -2,7 +2,7 @@ import { ChannelType } from "discord.js";
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
-import { DiscordError } from "@utils/extenders/error.extend";
+import { DiscordError } from "@utils/extends/error.extension";
 
 /**
  * Utility function to pause execution for a specified amount of milliseconds.

@@ -1,19 +1,10 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  ComponentType,
-  EmbedBuilder,
-  PermissionFlagsBits,
-  PermissionsBitField,
-  Role,
-  StringSelectMenuBuilder,
-  time,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder,
+	PermissionFlagsBits, PermissionsBitField, Role, StringSelectMenuBuilder, time
 } from "discord.js";
 
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const roleInfo: Precommand = {
   name: "roleinfo",

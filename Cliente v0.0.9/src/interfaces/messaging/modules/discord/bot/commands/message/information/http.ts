@@ -4,7 +4,7 @@ import { STATUS_CODES } from "http";
 
 import emojis from "@config/json/emojis.json";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const httpCommand: Precommand = {
   name: "https",

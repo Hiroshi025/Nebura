@@ -1,19 +1,14 @@
 import {
-  ButtonInteraction,
-  ChannelSelectMenuInteraction,
-  InteractionType,
-  MessageFlags,
-  ModalSubmitInteraction,
-  PermissionsBitField,
-  RoleSelectMenuInteraction,
-  StringSelectMenuInteraction,
+	ButtonInteraction, ChannelSelectMenuInteraction, InteractionType, MessageFlags,
+	ModalSubmitInteraction, PermissionsBitField, RoleSelectMenuInteraction,
+	StringSelectMenuInteraction
 } from "discord.js";
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
 import { config } from "@utils/config";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 // Mapa para rastrear los cooldowns de los usuarios
 const cooldowns = new Map<string, Map<string, number>>();

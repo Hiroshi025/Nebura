@@ -16,7 +16,7 @@ import i18next from "@/shared/i18n";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
-import { DomainError } from "@utils/extenders/error.extend";
+import { DomainError } from "@utils/extends/error.extension";
 
 import { passport } from "./adapters/external/passport";
 import swaggerSetup from "./adapters/external/swagger";

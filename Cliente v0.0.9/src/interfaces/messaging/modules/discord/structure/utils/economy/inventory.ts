@@ -1,7 +1,9 @@
-import { ChannelType, ChatInputCommandInteraction, GuildMemberRoleManager, Message } from "discord.js";
+import {
+	ChannelType, ChatInputCommandInteraction, GuildMemberRoleManager, Message
+} from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";

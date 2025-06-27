@@ -1,9 +1,11 @@
 import axios from "axios";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder } from "discord.js";
+import {
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder
+} from "discord.js";
 import { createWorker } from "tesseract.js";
 
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const ocrCommand: Precommand = {
   name: "extracttext",

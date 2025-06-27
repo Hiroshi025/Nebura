@@ -17,7 +17,7 @@ import { Utils } from "@/shared/class/utils";
 import emojis from "@config/json/emojis.json";
 import { GiveawayService } from "@modules/discord/structure/giveaway";
 import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
-import { ProyectError } from "@utils/extenders/error.extend"; // Custom error handling class
+import { ProyectError } from "@utils/extends/error.extension"; // Custom error handling class
 import { loadPendingReminders } from "@utils/functions/reminders"; // Function to load pending reminders
 
 import { API } from "./";

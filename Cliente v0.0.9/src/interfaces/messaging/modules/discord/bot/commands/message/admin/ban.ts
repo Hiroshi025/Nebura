@@ -1,20 +1,11 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  EmbedBuilder,
-  GuildMember,
-  GuildMemberRoleManager,
-  Message,
-  MessageComponentInteraction,
-  PermissionFlagsBits,
-  TextChannel,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, GuildMember,
+	GuildMemberRoleManager, Message, MessageComponentInteraction, PermissionFlagsBits, TextChannel
 } from "discord.js";
 
 import { main } from "@/main";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 // Asume que existe un modelo separado para la configuración de ban logs, por ejemplo: banConfig

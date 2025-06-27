@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ChannelSelectMenuBuilder } from "discord.js";
 
 import { Buttons } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const webhookConfig: Buttons = {
   id: "button-create-webhook-config",

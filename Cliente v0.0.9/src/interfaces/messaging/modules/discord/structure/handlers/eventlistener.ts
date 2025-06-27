@@ -1,17 +1,11 @@
 import {
-  ChannelType,
-  ColorResolvable,
-  Events,
-  Guild,
-  OverwriteType,
-  roleMention,
-  TextChannel,
-  userMention,
+	ChannelType, ColorResolvable, Events, Guild, OverwriteType, roleMention, TextChannel,
+	userMention
 } from "discord.js";
 
 import { main } from "@/main";
 import { Fields } from "@typings/utils";
-import { EmbedCorrect } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 import { MyClient } from "../../client";
 

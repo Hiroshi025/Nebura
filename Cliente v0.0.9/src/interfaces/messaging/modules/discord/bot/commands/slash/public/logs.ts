@@ -1,8 +1,10 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from "discord.js";
+import {
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder
+} from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 export default new Command(
   new SlashCommandBuilder()

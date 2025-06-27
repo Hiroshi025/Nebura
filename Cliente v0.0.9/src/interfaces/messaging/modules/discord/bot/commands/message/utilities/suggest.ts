@@ -1,20 +1,13 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  EmbedBuilder,
-  Message,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, Message, ModalBuilder,
+	TextInputBuilder, TextInputStyle
 } from "discord.js";
 
 import { main } from "@/main";
 import { clientID } from "@/shared/class/DB";
 import { MyClient } from "@modules/discord/client";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const suggestCommand: Precommand = {
   name: "suggest",

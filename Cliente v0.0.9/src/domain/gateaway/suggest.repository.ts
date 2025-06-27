@@ -1,6 +1,6 @@
 import { main } from "@/main";
 import { Suggest } from "@typings/modules/discord";
-import { DiscordError } from "@utils/extenders/error.extend";
+import { DiscordError } from "@utils/extends/error.extension";
 
 /**
  * Repository class for managing Suggestion entities in the database.

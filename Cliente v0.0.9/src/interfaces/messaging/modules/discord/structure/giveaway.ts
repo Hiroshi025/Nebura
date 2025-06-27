@@ -4,7 +4,7 @@ import { ChannelType, NewsChannel, TextChannel, ThreadChannel, User } from "disc
 import { client, main } from "@/main";
 import { Prisma } from "@prisma/client";
 import { GiveawayInterface } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 /**
  * Service class for managing Discord giveaways using the [discord-giveaways](https://github.com/Androz2091/discord-giveaways) library.

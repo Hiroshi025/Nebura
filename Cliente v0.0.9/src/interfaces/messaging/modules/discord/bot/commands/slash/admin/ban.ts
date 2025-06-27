@@ -1,17 +1,11 @@
 import {
-  ChannelType,
-  EmbedBuilder,
-  GuildMember,
-  GuildMemberRoleManager,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-  TextChannel,
-  userMention,
+	ChannelType, EmbedBuilder, GuildMember, GuildMemberRoleManager, PermissionFlagsBits,
+	SlashCommandBuilder, TextChannel, userMention
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extends/embeds.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 export default new Command(

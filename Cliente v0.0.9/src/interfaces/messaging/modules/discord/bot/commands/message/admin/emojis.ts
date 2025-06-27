@@ -1,18 +1,10 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  Collection,
-  EmbedBuilder,
-  GuildEmoji,
-  Message,
-  MessageComponentInteraction,
-  TextChannel,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Collection, EmbedBuilder, GuildEmoji,
+	Message, MessageComponentInteraction, TextChannel
 } from "discord.js";
 
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 // Dummy logger para evitar error de símbolo no encontrado
 function logWithLabel(label: string, message: string) {

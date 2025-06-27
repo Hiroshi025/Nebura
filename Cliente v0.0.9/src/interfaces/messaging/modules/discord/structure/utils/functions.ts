@@ -2,30 +2,11 @@ import axios from "axios";
 import { createHash } from "crypto";
 import { format } from "date-fns";
 import {
-  ActionRowBuilder,
-  AttachmentBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  codeBlock,
-  Colors,
-  ComponentType,
-  EmbedBuilder,
-  Guild,
-  GuildDefaultMessageNotifications,
-  GuildExplicitContentFilter,
-  GuildFeature,
-  GuildMember,
-  GuildNSFWLevel,
-  GuildPremiumTier,
-  GuildVerificationLevel,
-  Message,
-  MessageEditAttachmentData,
-  StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
-  TextChannel,
-  User,
-  UserFlagsBitField,
+	ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChannelType, codeBlock, Colors,
+	ComponentType, EmbedBuilder, Guild, GuildDefaultMessageNotifications,
+	GuildExplicitContentFilter, GuildFeature, GuildMember, GuildNSFWLevel, GuildPremiumTier,
+	GuildVerificationLevel, Message, MessageEditAttachmentData, StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder, TextChannel, User, UserFlagsBitField
 } from "discord.js";
 import moment from "moment";
 import { promisify } from "util";
@@ -34,7 +15,7 @@ import { main } from "@/main";
 import emojis from "@config/json/emojis.json";
 import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/discord";
 import { config } from "@utils/config";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import { MyClient } from "../../client";
 

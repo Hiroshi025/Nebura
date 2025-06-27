@@ -1,5 +1,5 @@
-import { TaskRecurrence, TaskReminder } from "@/adapters/validators/task";
 import { CreateTaskDto } from "@/interfaces/http/dtos/tasks/create-task.dto";
+import { TaskRecurrence, TaskReminder } from "@/interfaces/http/middlewares/validators/task";
 import { Notification } from "@/interfaces/messaging/broker/notification"; // Importa Notification
 import { Recurrence, Reminder, Task } from "@domain/services/entities/tasks/task.entity";
 import { UpdateTaskDto } from "@domain/services/entities/tasks/update-task.dto";

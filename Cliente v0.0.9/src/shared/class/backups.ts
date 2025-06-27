@@ -4,7 +4,7 @@ import path from "path";
 
 import { PrismaClient } from "@prisma/client";
 import { config } from "@utils/config";
-import { PrismaError } from "@utils/extenders/error.extend";
+import { PrismaError } from "@utils/extends/error.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 /**

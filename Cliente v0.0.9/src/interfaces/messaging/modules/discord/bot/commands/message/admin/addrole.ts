@@ -1,21 +1,11 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ChannelType,
-  ComponentType,
-  EmbedBuilder,
-  MessageComponentInteraction,
-  PermissionFlagsBits,
-  Role,
-  RoleSelectMenuBuilder,
-  StringSelectMenuBuilder,
-  TextChannel,
+	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChannelType, ComponentType,
+	EmbedBuilder, MessageComponentInteraction, PermissionFlagsBits, Role, RoleSelectMenuBuilder,
+	StringSelectMenuBuilder, TextChannel
 } from "discord.js";
 
 import { Precommand, RoleAssignmentConfig } from "@/typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 //TODO: Arreglar los errores de respuesta, el codigo ya esta completo solo falta arreglar los errores de las interacciones
 const AddRoleCommand: Precommand = {

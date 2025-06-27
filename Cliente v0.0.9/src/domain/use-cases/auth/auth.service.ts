@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { AuthLogin } from "@/adapters/validators/user";
+import { AuthLogin } from "@/interfaces/http/middlewares/validators/user";
 import { Notification } from "@/interfaces/messaging/broker/notification"; // Importa Notification
 import { User } from "@/typings/utils";
 import { AuthRepository } from "@domain/services/gateaway/auth.repository";

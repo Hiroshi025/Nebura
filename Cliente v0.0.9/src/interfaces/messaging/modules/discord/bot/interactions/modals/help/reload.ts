@@ -1,6 +1,6 @@
 import { main } from "@/main";
 import { Modals } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const ModalCommandReload: Modals = {
   id: "reload_command_modal",
