@@ -1,0 +1,287 @@
+"use strict";
+!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="2add5007-9223-5755-b5e2-f09844e7333c")}catch(e){}}();
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const axios_1 = __importDefault(require("axios"));
+const discord_js_1 = require("discord.js");
+const commandPyPI = {
+    name: "pypi",
+    description: "Get detailed information about a Python package from PyPI",
+    examples: ["pypi <package-name>", "pypi requests", "pypi numpy"],
+    nsfw: false,
+    owner: false,
+    aliases: ["pypi-info", "python-package", "pip-package"],
+    botpermissions: ["SendMessages", "EmbedLinks"],
+    permissions: ["SendMessages"],
+    async execute(client, message, args, prefix) {
+        if (!message.guild || !message.channel || message.channel.type !== discord_js_1.ChannelType.GuildText)
+            return;
+        if (!args[0]) {
+            return message.reply({
+                embeds: [
+                    {
+                        title: "Error - PyPI Package",
+                        description: [
+                            `${client.getEmoji(message.guild.id, "error")} Please provide a package name.`,
+                            `Usage: \`${prefix}${this.name} <package-name>\``,
+                        ].join("\n"),
+                    },
+                ],
+            });
+        }
+        const packageName = args[0];
+        let pkgData;
+        try {
+            const response = await axios_1.default.get(`https://pypi.org/pypi/${packageName}/json`);
+            pkgData = response.data;
+        }
+        catch (error) {
+            if (axios_1.default.isAxiosError(error)) {
+                if (error.response?.status === 404) {
+                    return message.reply({
+                        embeds: [
+                            {
+                                title: "Error - PyPI Package",
+                                description: [
+                                    `${client.getEmoji(message.guild.id, "error")} Package not found on PyPI.`,
+                                    `Please check the package name and try again.`,
+                                ].join("\n"),
+                            },
+                        ],
+                    });
+                }
+            }
+            console.error("Error fetching PyPI package:", error);
+            return message.reply({
+                embeds: [
+                    {
+                        title: "Error - PyPI Package",
+                        description: [
+                            `${client.getEmoji(message.guild.id, "error")} An error occurred while fetching the package data.`,
+                            `Please try again later or check the package name.`,
+                        ].join("\n"),
+                    },
+                ],
+            });
+        }
+        // Main embed with basic info
+        const mainEmbed = new discord_js_1.EmbedBuilder()
+            .setTitle(`PyPI Package: ${pkgData.info.name}`)
+            .setColor(0x3776ab) // PyPI blue color
+            .setDescription(pkgData.info.summary || "No summary provided")
+            .addFields({ name: "Latest Version", value: pkgData.info.version, inline: true }, { name: "License", value: pkgData.info.license || "Unknown", inline: true }, {
+            name: "Author",
+            value: pkgData.info.author || pkgData.info.author_email || "Unknown",
+            inline: true,
+        });
+        // Add homepage if available
+        if (pkgData.info.home_page) {
+            mainEmbed.addFields({
+                name: "Homepage",
+                value: `[Visit Website](${pkgData.info.home_page})`,
+                inline: true,
+            });
+        }
+        // Add project URLs if available
+        if (pkgData.info.project_urls) {
+            const urls = Object.entries(pkgData.info.project_urls)
+                .map(([name, url]) => `[${name}](${url})`)
+                .join(" • ");
+            mainEmbed.addFields({
+                name: "Project Links",
+                value: urls,
+            });
+        }
+        // Add Python version requirement if specified
+        if (pkgData.info.requires_python) {
+            mainEmbed.addFields({
+                name: "Python Version",
+                value: pkgData.info.requires_python,
+                inline: true,
+            });
+        }
+        // Create buttons
+        const buttons = new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
+            .setLabel("View on PyPI")
+            .setURL(`https://pypi.org/project/${pkgData.info.name}/`)
+            .setStyle(discord_js_1.ButtonStyle.Link), new discord_js_1.ButtonBuilder()
+            .setLabel("View Dependencies")
+            .setCustomId("view_deps")
+            .setStyle(discord_js_1.ButtonStyle.Primary), new discord_js_1.ButtonBuilder()
+            .setLabel("View Versions")
+            .setCustomId("view_versions")
+            .setStyle(discord_js_1.ButtonStyle.Primary), new discord_js_1.ButtonBuilder()
+            .setLabel("View Classifiers")
+            .setCustomId("view_classifiers")
+            .setStyle(discord_js_1.ButtonStyle.Secondary));
+        // Create versions select menu
+        const versions = Object.keys(pkgData.releases || {})
+            .sort((a, b) => {
+            const aParts = a.split(".").map(Number);
+            const bParts = b.split(".").map(Number);
+            for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+                const aVal = aParts[i] || 0;
+                const bVal = bParts[i] || 0;
+                if (aVal !== bVal)
+                    return bVal - aVal;
+            }
+            return 0;
+        })
+            .slice(0, 25);
+        const versionSelect = new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.StringSelectMenuBuilder()
+            .setCustomId("select_version")
+            .setPlaceholder("Select a version to view details")
+            .addOptions(versions.map((version) => ({
+            label: version,
+            value: version,
+            description: `${pkgData.releases[version]?.length || 0} release files`,
+            default: version === pkgData.info.version,
+        }))));
+        // Send initial message
+        const msg = await message.reply({
+            embeds: [mainEmbed],
+            components: [buttons, versionSelect],
+        });
+        // Collector for button interactions
+        const collector = msg.createMessageComponentCollector({
+            time: 60000, // 1 minute
+            componentType: discord_js_1.ComponentType.Button,
+        });
+        collector.on("collect", async (interaction) => {
+            if (!interaction.isButton())
+                return;
+            await interaction.deferUpdate();
+            switch (interaction.customId) {
+                case "view_deps": {
+                    const dependencies = pkgData.info.requires_dist || [];
+                    const depsEmbed = new discord_js_1.EmbedBuilder()
+                        .setTitle(`Dependencies for ${pkgData.info.name}`)
+                        .setColor(0x3776ab);
+                    if (dependencies.length > 0) {
+                        // Group dependencies by type (required vs optional)
+                        const requiredDeps = dependencies.filter((d) => !d.includes("extra =="));
+                        const optionalDeps = dependencies.filter((d) => d.includes("extra =="));
+                        if (requiredDeps.length > 0) {
+                            depsEmbed.addFields({
+                                name: "Required Dependencies",
+                                value: requiredDeps
+                                    .map((dep) => {
+                                    // Clean up version specifications
+                                    return dep
+                                        .replace(/[;].*$/, "") // Remove environment markers
+                                        .replace(/\s*\(.*?\)\s*/g, " ") // Remove parentheses with spaces
+                                        .trim();
+                                })
+                                    .map((dep) => `• ${dep}`)
+                                    .join("\n"),
+                            });
+                        }
+                        if (optionalDeps.length > 0) {
+                            // Group optional dependencies by their extra name
+                            const extrasMap = new Map();
+                            optionalDeps.forEach((dep) => {
+                                const extraMatch = dep.match(/extra == ['"](.*?)['"]/);
+                                if (extraMatch) {
+                                    const extraName = extraMatch[1];
+                                    const cleanDep = dep.replace(/;\s*extra == ['"].*?['"]/, "");
+                                    if (!extrasMap.has(extraName)) {
+                                        extrasMap.set(extraName, []);
+                                    }
+                                    extrasMap.get(extraName)?.push(cleanDep);
+                                }
+                            });
+                            extrasMap.forEach((deps, extraName) => {
+                                depsEmbed.addFields({
+                                    name: `Optional: ${extraName}`,
+                                    value: deps.map((dep) => `• ${dep}`).join("\n"),
+                                });
+                            });
+                        }
+                    }
+                    else {
+                        depsEmbed.setDescription("This package has no dependencies.");
+                    }
+                    await interaction.editReply({ embeds: [mainEmbed, depsEmbed] });
+                    break;
+                }
+                case "view_versions": {
+                    const versionsEmbed = new discord_js_1.EmbedBuilder()
+                        .setTitle(`Available Versions for ${pkgData.info.name}`)
+                        .setColor(0x3776ab)
+                        .setDescription(versions
+                        .map((version) => `• ${version} (${pkgData.releases[version]?.length || 0} files)`)
+                        .join("\n")
+                        .slice(0, 2000));
+                    await interaction.editReply({ embeds: [mainEmbed, versionsEmbed] });
+                    break;
+                }
+                case "view_classifiers": {
+                    const classifiers = pkgData.info.classifiers || [];
+                    const classifiersEmbed = new discord_js_1.EmbedBuilder()
+                        .setTitle(`Classifiers for ${pkgData.info.name}`)
+                        .setColor(0x3776ab);
+                    if (classifiers.length > 0) {
+                        // Group classifiers by type
+                        const classifierGroups = {};
+                        classifiers.forEach((classifier) => {
+                            const [type, ...rest] = classifier.split(" :: ");
+                            if (!classifierGroups[type]) {
+                                classifierGroups[type] = [];
+                            }
+                            classifierGroups[type].push(rest.join(" :: "));
+                        });
+                        for (const [type, items] of Object.entries(classifierGroups)) {
+                            classifiersEmbed.addFields({
+                                name: type,
+                                value: items.map((item) => `• ${item}`).join("\n"),
+                            });
+                        }
+                    }
+                    else {
+                        classifiersEmbed.setDescription("No classifiers available for this package.");
+                    }
+                    await interaction.editReply({ embeds: [mainEmbed, classifiersEmbed] });
+                    break;
+                }
+            }
+        });
+        // Handle version selection
+        const selectCollector = msg.createMessageComponentCollector({
+            time: 60000,
+            componentType: discord_js_1.ComponentType.StringSelect,
+        });
+        selectCollector.on("collect", async (interaction) => {
+            if (!interaction.isStringSelectMenu())
+                return;
+            await interaction.deferUpdate();
+            const selectedVersion = interaction.values[0];
+            const releaseFiles = pkgData.releases?.[selectedVersion] || [];
+            const versionEmbed = new discord_js_1.EmbedBuilder()
+                .setTitle(`Version ${selectedVersion} of ${pkgData.info.name}`)
+                .setColor(0x3776ab)
+                .addFields({
+                name: "Release Files",
+                value: releaseFiles.length > 0
+                    ? releaseFiles
+                        .map((file) => `• [${file.filename}](${file.url}) (${file.size} bytes)`)
+                        .join("\n")
+                        .slice(0, 1024)
+                    : "No files available for this version",
+            });
+            await interaction.editReply({ embeds: [mainEmbed, versionEmbed] });
+        });
+        // Clean up when collector ends
+        collector.on("end", () => {
+            msg.edit({ components: [] }).catch(console.error);
+        });
+        selectCollector.on("end", () => {
+            msg.edit({ components: [] }).catch(console.error);
+        });
+        return;
+    },
+};
+module.exports = commandPyPI;
+//# sourceMappingURL=pypi.js.map
+//# debugId=2add5007-9223-5755-b5e2-f09844e7333c

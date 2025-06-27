@@ -1,13 +1,22 @@
 // src/commands/giveaway/create.ts
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
-	ComponentType, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, User
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelSelectMenuBuilder,
+  ChannelType,
+  ComponentType,
+  EmbedBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  User,
 } from "discord.js";
 
 import { GiveawayManager, main } from "@/main"; // Ajusta la ruta según tu estructura
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { MyClient } from "@modules/discord/client";
 import { GiveawayInterface, Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 //TODO: No crea el sorteo configurado y cambia los ephemerañ: true por los flags
 
@@ -22,9 +31,7 @@ const GiveawayCreate: Precommand = {
   async execute(client, message) {
     if (!message.guild || !message.channel) {
       await message.reply({
-        embeds: [
-          new ErrorEmbed().setDescription("This command can only be used in a server channel."),
-        ],
+        embeds: [new ErrorEmbed().setDescription("This command can only be used in a server channel.")],
         flags: "SuppressNotifications",
       });
       return;
@@ -91,9 +98,7 @@ const GiveawayCreate: Precommand = {
           },
           {
             name: "⏱️ Duration",
-            value: giveawayData.duration
-              ? `✅ ${formatDuration(giveawayData.duration)}`
-              : "❌ Not set",
+            value: giveawayData.duration ? `✅ ${formatDuration(giveawayData.duration)}` : "❌ Not set",
             inline: true,
           },
           {
@@ -109,9 +114,7 @@ const GiveawayCreate: Precommand = {
         )
         .setFooter({ text: "Complete all required steps to enable creation." });
 
-      setupButtons.components[4].setDisabled(
-        !(giveawayData.prize && giveawayData.duration && giveawayData.channelId),
-      );
+      setupButtons.components[4].setDisabled(!(giveawayData.prize && giveawayData.duration && giveawayData.channelId));
 
       await botMessage.edit({
         embeds: [statusEmbed],
@@ -151,15 +154,11 @@ const GiveawayCreate: Precommand = {
         console.error("Error in giveaway setup:", error);
         if (buttonInteraction.replied || buttonInteraction.deferred) {
           await buttonInteraction.followUp({
-            embeds: [
-              new ErrorEmbed().setDescription("An error occurred while processing your request."),
-            ],
+            embeds: [new ErrorEmbed().setDescription("An error occurred while processing your request.")],
           });
         } else {
           await buttonInteraction.reply({
-            embeds: [
-              new ErrorEmbed().setDescription("An error occurred while processing your request."),
-            ],
+            embeds: [new ErrorEmbed().setDescription("An error occurred while processing your request.")],
             flags: "Ephemeral",
           });
         }
@@ -207,9 +206,7 @@ const GiveawayCreate: Precommand = {
 // ========== Helper Functions ==========
 
 async function handlePrizeSetup(interaction: any, _giveawayData: GiveawayInterface.Data) {
-  const modal = new ModalBuilder()
-    .setCustomId("giveaway_prize_modal")
-    .setTitle("Giveaway Prize Configuration");
+  const modal = new ModalBuilder().setCustomId("giveaway_prize_modal").setTitle("Giveaway Prize Configuration");
 
   const prizeInput = new TextInputBuilder()
     .setCustomId("prize_input")
@@ -237,9 +234,7 @@ async function handlePrizeSetup(interaction: any, _giveawayData: GiveawayInterfa
 }
 
 async function handleDurationSetup(interaction: any, _giveawayData: GiveawayInterface.Data) {
-  const modal = new ModalBuilder()
-    .setCustomId("giveaway_duration_modal")
-    .setTitle("Giveaway Duration Configuration");
+  const modal = new ModalBuilder().setCustomId("giveaway_duration_modal").setTitle("Giveaway Duration Configuration");
 
   const durationInput = new TextInputBuilder()
     .setCustomId("duration_input")
@@ -346,19 +341,11 @@ async function handleRequirementsSetup(interaction: any, _giveawayData: Giveaway
   await interaction.showModal(modal);
 }
 
-async function handleGiveawayCreation(
-  interaction: any,
-  giveawayData: GiveawayInterface.Data,
-  _client: MyClient,
-) {
+async function handleGiveawayCreation(interaction: any, giveawayData: GiveawayInterface.Data, _client: MyClient) {
   // Validate all required fields
   if (!giveawayData.prize || !giveawayData.duration || !giveawayData.channelId) {
     await interaction.reply({
-      embeds: [
-        new ErrorEmbed().setDescription(
-          "Please complete all required fields before creating the giveaway.",
-        ),
-      ],
+      embeds: [new ErrorEmbed().setDescription("Please complete all required fields before creating the giveaway.")],
       flags: "Ephemeral",
     });
     return;
@@ -386,8 +373,7 @@ async function handleGiveawayCreation(
           "🎉 **GIVEAWAY EVENT STARTED!** 🎉\n\nDon't miss your chance to win an exclusive prize! React with 🎉 below to participate.",
         giveawayEnded:
           "🎉 **GIVEAWAY ENDED** 🎉\n\nThank you to everyone who participated! Check below to see if you are one of the lucky winners.",
-        inviteToParticipate:
-          "React with 🎉 to join this giveaway and stand a chance to win the prize!",
+        inviteToParticipate: "React with 🎉 to join this giveaway and stand a chance to win the prize!",
         timeRemaining: "⏳ **Time left:** {duration}",
         winMessage:
           "🎊 Congratulations {winners}! You have won **{prize}**! Please contact the staff to claim your reward.",
@@ -454,11 +440,7 @@ async function handleGiveawayCreation(
   } catch (error) {
     console.error("Giveaway creation error:", error);
     await interaction.reply({
-      embeds: [
-        new ErrorEmbed().setDescription(
-          "An error occurred while creating the giveaway. Please try again.",
-        ),
-      ],
+      embeds: [new ErrorEmbed().setDescription("An error occurred while creating the giveaway. Please try again.")],
       flags: "Ephemeral",
     });
   }
@@ -481,9 +463,7 @@ async function processPrizeModal(interaction: any, giveawayData: GiveawayInterfa
   giveawayData.winners = winners;
 
   await interaction.reply({
-    embeds: [
-      new EmbedCorrect().setDescription(`**Prize set:** ${prize}\n` + `**Winners:** ${winners}`),
-    ],
+    embeds: [new EmbedCorrect().setDescription(`**Prize set:** ${prize}\n` + `**Winners:** ${winners}`)],
     flags: "Ephemeral",
   });
 }
@@ -565,9 +545,7 @@ async function processRequirementsModal(interaction: any, giveawayData: Giveaway
         new EmbedCorrect().setDescription(
           "**Requirements set:**\n" +
             (requirements.roles ? `- Roles: ${requirements.roles.length}\n` : "") +
-            (requirements.accountAge
-              ? `- Min Account Age: ${requirements.accountAge} days\n`
-              : "") +
+            (requirements.accountAge ? `- Min Account Age: ${requirements.accountAge} days\n` : "") +
             (requirements.messageCount ? `- Min Messages: ${requirements.messageCount}` : ""),
         ),
       ],
@@ -576,11 +554,7 @@ async function processRequirementsModal(interaction: any, giveawayData: Giveaway
   } else {
     delete giveawayData.requirements;
     await interaction.reply({
-      embeds: [
-        new EmbedCorrect().setDescription(
-          "No requirements set - giveaway will be open to everyone.",
-        ),
-      ],
+      embeds: [new EmbedCorrect().setDescription("No requirements set - giveaway will be open to everyone.")],
       flags: "Ephemeral",
     });
   }

@@ -1,11 +1,17 @@
 import {
-	ChannelType, ColorResolvable, Events, Guild, OverwriteType, roleMention, TextChannel,
-	userMention
+  ChannelType,
+  ColorResolvable,
+  Events,
+  Guild,
+  OverwriteType,
+  roleMention,
+  TextChannel,
+  userMention,
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Fields } from "@typings/utils";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../client";
 
@@ -72,12 +78,138 @@ export class LogClass {
         continue;
       }
 
-      console.log(
-        `[DEBUG] Registrando eventos para el servidor: ${guild.id}, eventos: ${events.join(", ")}`,
-      ); // Log de depuración
+      console.log(`[DEBUG] Registrando eventos para el servidor: ${guild.id}, eventos: ${events.join(", ")}`); // Log de depuración
 
       events.forEach((event) => {
         switch (event) {
+          case "VoiceStateUpdate":
+            this.client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+              console.log(`[DEBUG] Evento VoiceStateUpdate detectado para el usuario: ${newState.id}`); // Log de depuración
+              if (oldState.guild.id !== guild.id) return; // Ensure the event is for the current guild
+
+              if (oldState.channelId === newState.channelId) return; // Ignore if the channel hasn't changed
+              if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
+                setTimeout(async () => {
+                  const fields: Fields[] = [
+                    {
+                      name: "__Voice State Information__",
+                      value: [
+                        `> **User:** ${userMention(newState.id)}`,
+                        `> **Old Channel:** ${oldState.channelId ? `<#${oldState.channelId}>` : "None"}`,
+                        `> **New Channel:** ${newState.channelId ? `<#${newState.channelId}>` : "None"}`,
+                        `> **Self Mute:** ${newState.selfMute ? "Yes" : "No"}`,
+                        `> **Self Deaf:** ${newState.selfDeaf ? "Yes" : "No"}`,
+                      ].join("\n"),
+                      inline: false,
+                    },
+                  ];
+
+                  this.send_log(
+                    guild,
+                    newState.selfMute || newState.selfDeaf ? "Red" : "Green",
+                    "Events Logger - Voice State Update",
+                    [
+                      `> **User ID:** \`${newState.id}\``,
+                      `> **Old Channel ID:** \`${oldState.channelId ?? "None"}\``,
+                      `> **New Channel ID:** \`${newState.channelId ?? "None"}\``,
+                    ].join("\n"),
+                    guild.iconURL({ forceStatic: true }) as string,
+                    fields,
+                  );
+                }, this.delay);
+              }
+
+              if (newState.channelId && !oldState.channelId) {
+                setTimeout(async () => {
+                  const fields: Fields[] = [
+                    {
+                      name: "__Voice Channel Information__",
+                      value: [
+                        `> **User:** ${userMention(newState.id)}`,
+                        `> **Channel:** <#${newState.channelId}>`,
+                      ].join("\n"),
+                      inline: false,
+                    },
+                  ];
+
+                  this.send_log(
+                    guild,
+                    "Green",
+                    "Events Logger - Voice Channel Join",
+                    [`> **User ID:** \`${newState.id}\``, `> **Channel ID:** \`${newState.channelId}\``].join("\n"),
+                    guild.iconURL({ forceStatic: true }) as string,
+                    fields,
+                  );
+                }, this.delay);
+              }
+            });
+            break;
+          case "InviteDelete":
+            this.client.on(Events.InviteDelete, async (invite) => {
+              console.log(`[DEBUG] Evento InviteDelete detectado para la invitación: ${invite.code}`); // Log de depuración
+              if (!invite.guild || invite.guild.id !== guild.id) return; // Ensure the event is for the current guild
+              setTimeout(async () => {
+                const fields: Fields[] = [
+                  {
+                    name: "__Invite Information__",
+                    value: [
+                      `> **Invite Created At:** ${invite.createdAt ? invite.createdAt.toLocaleString() : "Unknown"}`,
+                      `> **Invite Channel:** ${invite.channel ? `${invite.channel.name} (\`${invite.channel.id}\`)` : "Unknown"}`,
+                      `> **Invite Inviter:** ${userMention(invite.inviter?.id ?? "Unknown")}`,
+                    ].join("\n"),
+                    inline: false,
+                  },
+                ];
+
+                this.send_log(
+                  guild,
+                  "Red",
+                  "Events Logger - Invite Delete",
+                  [
+                    `> **Invite Code:** \`${invite.code}\``,
+                    `> **Invite Uses:** ${invite.uses}`,
+                    `> **Invite Max Uses:** ${invite.maxUses ?? "Unlimited"}`,
+                    `> **Invite Max Age:** ${invite.maxAge ? `${invite.maxAge} seconds` : "No Limit"}`,
+                  ].join("\n"),
+                  guild.iconURL({ forceStatic: true }) as string,
+                  fields,
+                );
+              }, this.delay);
+            });
+            break;
+          case "InviteCreate":
+            this.client.on(Events.InviteCreate, async (invite) => {
+              console.log(`[DEBUG] Evento InviteCreate detectado para la invitación: ${invite.code}`); // Log de depuración
+              if (!invite.guild || invite.guild.id !== guild.id) return; // Ensure the event is for the current guild
+              setTimeout(async () => {
+                const fields: Fields[] = [
+                  {
+                    name: "__Invite Information__",
+                    value: [
+                      `> **Invite Created At:** ${invite.createdAt ? invite.createdAt.toLocaleString() : "Unknown"}`,
+                      `> **Invite Channel:** ${invite.channel ? `${invite.channel.name} (\`${invite.channel.id}\`)` : "Unknown"}`,
+                      `> **Invite Inviter:** ${userMention(invite.inviter?.id ?? "Unknown")}`,
+                    ].join("\n"),
+                    inline: false,
+                  },
+                ];
+
+                this.send_log(
+                  guild,
+                  "Green",
+                  "Events Logger - Invite Create",
+                  [
+                    `> **Invite Code:** \`${invite.code}\``,
+                    `> **Invite Uses:** ${invite.uses}`,
+                    `> **Invite Max Uses:** ${invite.maxUses ?? "Unlimited"}`,
+                    `> **Invite Max Age:** ${invite.maxAge ? `${invite.maxAge} seconds` : "No Limit"}`,
+                  ].join("\n"),
+                  guild.iconURL({ forceStatic: true }) as string,
+                  fields,
+                );
+              }, this.delay);
+            });
+            break;
           case "ChannelCreate":
             this.client.on(Events.ChannelCreate, async (channel) => {
               console.log(`[DEBUG] Evento ChannelCreate detectado para el canal: ${channel.id}`); // Log de depuración
@@ -332,10 +464,7 @@ export class LogClass {
                 guild,
                 "Green",
                 "Events Logger - Auto Moderation Rule Create",
-                [
-                  `> **Rule Name:** ${rule.name} (\`${rule.id}\`)`,
-                  `> **Rule Type:** ${rule.eventType}`,
-                ].join("\n"),
+                [`> **Rule Name:** ${rule.name} (\`${rule.id}\`)`, `> **Rule Type:** ${rule.eventType}`].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
               );
@@ -370,10 +499,7 @@ export class LogClass {
                 guild,
                 "Red",
                 "Events Logger - Auto Moderation Rule Delete",
-                [
-                  `> **Rule Name:** ${rule.name} (\`${rule.id}\`)`,
-                  `> **Rule Type:** ${rule.eventType}`,
-                ].join("\n"),
+                [`> **Rule Name:** ${rule.name} (\`${rule.id}\`)`, `> **Rule Type:** ${rule.eventType}`].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
               );
@@ -456,9 +582,7 @@ export class LogClass {
                 [
                   `> **Emoji Name:** ${emoji.name} (\`${emoji.id}\`)`,
                   `> **Emoji URL:** [
-                    ${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${
-                      emoji.animated ? "gif" : "png"
-                    }?v=1)`,
+                    ${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? "gif" : "png"}?v=1)`,
                   `> **Emoji Roles:** ${emoji.roles.cache
                     .map((role) => {
                       return `${roleMention(role.id)}`;
@@ -491,9 +615,7 @@ export class LogClass {
                 [
                   `> **Emoji Name:** ${emoji.name} (\`${emoji.id}\`)`,
                   `> **Emoji URL:** [
-                    ${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${
-                      emoji.animated ? "gif" : "png"
-                    }?v=1)`,
+                    ${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? "gif" : "png"}?v=1)`,
                   `> **Emoji Roles:** ${emoji.roles.cache
                     .map((role) => {
                       return `${roleMention(role.id)}`;

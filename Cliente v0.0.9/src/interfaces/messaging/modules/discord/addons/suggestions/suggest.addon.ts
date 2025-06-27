@@ -1,23 +1,70 @@
+/**
+ * Discord.js imports for building suggestion system UI and handling permissions.
+ * @packageDocumentation
+ */
 import {
 	ActionRowBuilder, ButtonBuilder, ButtonStyle, ColorResolvable, Colors, EmbedBuilder,
 	MessageFlags, PermissionFlagsBits
 } from "discord.js";
 
+/**
+ * Import Addons structure for Discord modules.
+ */
 import { Addons } from "@/interfaces/messaging/modules/discord/structure/addons";
+/**
+ * Main application entry, used for accessing Prisma and client.
+ */
 import { main } from "@/main";
+import { SuggestRepository } from "@utils/gateaway/suggest.repository";
 
+/**
+ * Type definition for embed configuration.
+ */
 import { EmbedConfig } from "./types";
 
+/**
+ * Suggestion management Discord Addon.
+ * Handles suggestion messages, voting, and admin approval/rejection.
+ * @remarks
+ * This Addon listens to messages in a configured suggestion channel,
+ * creates suggestion embeds, manages voting via buttons, and allows
+ * administrators to approve or reject suggestions.
+ */
 export default new Addons(
   {
+    /**
+     * Name of the Addon.
+     */
     name: "Suggest Manager",
+    /**
+     * Description of the Addon functionality.
+     */
     description: "Manage suggestions in the server.",
+    /**
+     * Author of the Addon.
+     */
     author: "Hiroshi025",
+    /**
+     * Version of the Addon.
+     */
     version: "1.0.0",
+    /**
+     * Required permission bitfields for the Addon.
+     */
     bitfield: ["Administrator"],
   },
+  /**
+   * Main Addon logic.
+   * @param client - The Discord client instance.
+   */
   async (client) => {
-    // Default configuration
+    console.debug("[SuggestAddon] Addon initialized with client:", !!client);
+
+    /**
+     * Default embed configuration for suggestions.
+     * @type {EmbedConfig}
+     */
+    const suggestRepository = new SuggestRepository();
     const defaultEmbedConfig: EmbedConfig = {
       color: Colors.Blurple.toString(),
       footer: {
@@ -25,14 +72,27 @@ export default new Addons(
       },
     };
 
-    // Helper function to create progress bar
-    function createProgressBar(percentage: number, length = 10) {
+    /**
+     * Helper function to create a visual progress bar for voting percentages.
+     * @param percentage - The percentage of upvotes.
+     * @param length - The total length of the progress bar (default: 10).
+     * @returns The formatted progress bar string.
+     */
+    function createProgressBar(percentage: number, length = 10): string {
+      console.debug("[SuggestAddon] Creating progress bar:", { percentage, length });
       const filled = Math.round((percentage / 100) * length);
       return `[${"█".repeat(filled)}${"░".repeat(length - filled)}] ${percentage.toFixed(1)}%`;
     }
 
-    // Helper function to get last voter info
-    async function getLastVoterInfo(guildId: string, voters: string[], downvoters: string[]) {
+    /**
+     * Helper function to get information about the last user who voted.
+     * @param guildId - The ID of the guild.
+     * @param voters - Array of user IDs who upvoted.
+     * @param downvoters - Array of user IDs who downvoted.
+     * @returns A string describing the last voter and their action.
+     */
+    async function getLastVoterInfo(guildId: string, voters: string[], downvoters: string[]): Promise<string> {
+      console.debug("[SuggestAddon] Getting last voter info:", { guildId, voters, downvoters });
       const allVoters = [...voters, ...downvoters];
       if (allVoters.length === 0) return "No votes yet";
 
@@ -46,23 +106,52 @@ export default new Addons(
       }
     }
 
-    // Event to handle suggestions
+    /**
+     * Event listener for message creation.
+     * Handles new suggestions posted in the suggestion channel.
+     */
     client.on("messageCreate", async (message) => {
-      if (!message.guild) return;
+      if (!message.guild || !message.author) return;
+      if (message.author.bot) return; // <-- Agrega esta línea
 
       try {
+        /**
+         * Fetch guild configuration from the database.
+         */
+        console.debug("[SuggestAddon] Fetching guild config from DB:", message.guild.id);
         const myGuild = await main.prisma.myGuild.findUnique({
           where: { guildId: message.guild.id },
         });
 
-        if (!myGuild || !myGuild.suggestChannel) return;
-        if (message.channel.id !== myGuild.suggestChannel) return;
-        if (message.author.bot) return await message.delete().catch(() => {});
+        if (!myGuild || !myGuild.suggestChannel) {
+          console.debug("[SuggestAddon] Guild config or suggestChannel missing:", { myGuild });
+          return;
+        }
+        if (message.channel.id !== myGuild.suggestChannel) {
+          console.debug("[SuggestAddon] Message not in suggest channel:", {
+            channelId: message.channel.id,
+            suggestChannel: myGuild.suggestChannel,
+          });
+          return;
+        }
+
+        console.debug("[SuggestAddon] messageCreate event triggered:", {
+          guild: !!message.guild,
+          author: !!message.author,
+          channelId: message.channel?.id,
+          content: message.content,
+        });
+        //if (message.author.bot && message.author.id !== client.user?.id) return;
 
         // Delete original message
-        await message.delete().catch(() => {});
+        await message.delete().catch((err) => {
+          console.debug("[SuggestAddon] Error deleting original message:", err);
+        });
 
-        // Create suggestion embed
+        /**
+         * Create the suggestion embed with voting fields and user info.
+         */
+        console.debug("[SuggestAddon] Creating suggestion embed for author:", message.author.id);
         const embed = new EmbedBuilder()
           .setAuthor({
             name: `${message.author.tag}'s Suggestion`,
@@ -94,10 +183,14 @@ export default new Addons(
           ["png", "jpeg", "jpg", "gif"].some((ext) => attach.url.toLowerCase().endsWith(ext)),
         );
         if (imageAttachment) {
+          console.debug("[SuggestAddon] Image attachment found:", imageAttachment.url);
           embed.setImage(imageAttachment.url);
         }
 
-        // Create buttons
+        /**
+         * Create voting and admin action buttons for the suggestion.
+         */
+        console.debug("[SuggestAddon] Creating voting/admin buttons");
         const upvoteButton = new ButtonBuilder()
           .setCustomId("suggest_upvote")
           .setEmoji(myGuild.approveEmoji || "👍")
@@ -129,52 +222,64 @@ export default new Addons(
           .setLabel("Reject")
           .setStyle(ButtonStyle.Danger);
 
-        const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          upvoteButton,
-          downvoteButton,
-          whoButton,
-        );
+        const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(upvoteButton, downvoteButton, whoButton);
 
-        const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          approveButton,
-          rejectButton,
-        );
+        const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(approveButton, rejectButton);
 
-        // Send suggestion message
+        /**
+         * Send the suggestion message to the channel.
+         */
+        console.debug("[SuggestAddon] Sending suggestion message to channel");
         const suggestionMessage = await message.channel.send({
           embeds: [embed],
           components: [row1, row2],
         });
 
-        // Save to database
-        await main.prisma.suggestion.create({
-          data: {
-            suggestId: `${message.guild.id}-${suggestionMessage.id}`,
-            messageId: suggestionMessage.id,
-            content: message.content,
-            imageUrl: imageAttachment?.url,
-            authorId: message.author.id,
-            guildId: message.guild.id,
-            status: "pending", // New status field
-          },
+        /**
+         * Save the suggestion details to the database.
+         */
+        console.debug("[SuggestAddon] Saving suggestion to DB:", {
+          suggestId: `${message.guild.id}-${suggestionMessage.id}`,
+          messageId: suggestionMessage.id,
+          authorId: message.author.id,
+        });
+        await suggestRepository.createSuggest({
+          suggestId: `${message.guild.id}-${suggestionMessage.id}`,
+          messageId: suggestionMessage.id,
+          content: message.content,
+          imageUrl: imageAttachment ? imageAttachment.url : null,
+          authorId: message.author.id,
+          guildId: message.guild.id,
+          status: "pending", // New status field
         });
       } catch (error) {
+        console.debug("[SuggestAddon] Error in messageCreate handler:", error);
         console.error("Error handling suggestion:", error);
       }
     });
 
     client.on("interactionCreate", async (interaction) => {
+      console.debug("[SuggestAddon] interactionCreate event triggered:", {
+        isButton: interaction.isButton(),
+        guild: !!interaction.guild,
+        customId: interaction.isButton() ? interaction.customId : undefined,
+      });
       if (!interaction.isButton() || !interaction.guild) return;
 
       try {
         const customId = interaction.customId;
-        if (!customId.startsWith("suggest_")) return;
+        console.debug("[SuggestAddon] Handling button interaction:", customId);
 
-        const suggestion = await main.prisma.suggestion.findUnique({
-          where: { messageId: interaction.message.id },
-        });
+        if (!customId.startsWith("suggest_")) {
+          console.debug("[SuggestAddon] Not a suggestion interaction:", customId);
+          return;
+        }
+
+        const suggestion = await suggestRepository.getSuggestById(interaction.message.id);
+        console.debug("[SuggestAddon] Fetched suggestion from DB:", suggestion);
 
         if (!suggestion) {
+          console.debug("[SuggestAddon] Suggestion not found in DB for message:", interaction.message.id);
           return interaction.reply({
             content: "Suggestion not found in the database.",
             flags: MessageFlags.Ephemeral,
@@ -184,16 +289,21 @@ export default new Addons(
         const myGuild = await main.prisma.myGuild.findUnique({
           where: { guildId: interaction.guild.id },
         });
+        console.debug("[SuggestAddon] Fetched guild config for interaction:", myGuild);
 
         if (!myGuild || interaction.channelId !== myGuild.suggestChannel) {
+          console.debug("[SuggestAddon] Interaction not allowed in this channel:", {
+            channelId: interaction.channelId,
+            suggestChannel: myGuild?.suggestChannel,
+          });
           return interaction.reply({
             content: "This interaction is not allowed in this channel.",
             flags: MessageFlags.Ephemeral,
           });
         }
 
-        // Check if suggestion is already resolved
         if (suggestion.status !== "pending" && !customId.startsWith("suggest_who")) {
+          console.debug("[SuggestAddon] Suggestion already resolved:", suggestion.status);
           return interaction.reply({
             content: `This suggestion has already been ${suggestion.status}.`,
             flags: MessageFlags.Ephemeral,
@@ -201,10 +311,13 @@ export default new Addons(
         }
 
         const userId = interaction.user.id;
+        console.debug("[SuggestAddon] Processing interaction for user:", userId);
 
         switch (customId) {
           case "suggest_upvote":
+            console.debug("[SuggestAddon] Upvote button pressed by:", userId);
             if (suggestion.voters.includes(userId)) {
+              console.debug("[SuggestAddon] User already upvoted:", userId);
               return interaction.reply({
                 content: "You can't upvote this suggestion twice!",
                 flags: MessageFlags.Ephemeral,
@@ -222,21 +335,23 @@ export default new Addons(
             const updatedVoters = [...new Set([...suggestion.voters, userId])];
             const upvotes = suggestion.upvotes + 1;
 
-            await main.prisma.suggestion.update({
-              where: { messageId: interaction.message.id },
-              data: {
+            await suggestRepository.updateUpvote(
+              {
                 upvotes,
                 downvotes,
                 voters: updatedVoters,
                 downvoters: updatedDownvoters,
                 lastVoter: userId,
               },
-            });
-
+              interaction.message.id,
+            );
+            console.debug("[SuggestAddon] Upvote updated in DB for:", interaction.message.id);
             break;
 
           case "suggest_downvote":
+            console.debug("[SuggestAddon] Downvote button pressed by:", userId);
             if (suggestion.downvoters.includes(userId)) {
+              console.debug("[SuggestAddon] User already downvoted:", userId);
               return interaction.reply({
                 content: "You can't downvote this suggestion twice!",
                 flags: MessageFlags.Ephemeral,
@@ -254,20 +369,20 @@ export default new Addons(
             const updatedDownvotersDownvote = [...new Set([...suggestion.downvoters, userId])];
             const downvotesDownvote = suggestion.downvotes + 1;
 
-            await main.prisma.suggestion.update({
-              where: { messageId: interaction.message.id },
-              data: {
-                upvotes: upvotesDownvote,
+            await suggestRepository.updateDownvote(
+              {
                 downvotes: downvotesDownvote,
                 voters: updatedVotersDownvote,
                 downvoters: updatedDownvotersDownvote,
                 lastVoter: userId,
               },
-            });
-
+              interaction.message.id,
+            );
+            console.debug("[SuggestAddon] Downvote updated in DB for:", interaction.message.id);
             break;
 
           case "suggest_who":
+            console.debug("[SuggestAddon] Who voted button pressed");
             const embed = new EmbedBuilder()
               .setTitle("❓ Who reacted with what? ❓")
               .setColor(
@@ -309,8 +424,10 @@ export default new Addons(
 
           case "suggest_approve":
           case "suggest_reject":
+            console.debug("[SuggestAddon] Admin action button pressed:", customId, "by", userId);
             // Check if user has admin permissions
             if (!interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
+              console.debug("[SuggestAddon] User lacks admin permissions:", userId);
               return interaction.reply({
                 content: "You don't have permission to manage suggestions.",
                 flags: MessageFlags.Ephemeral,
@@ -323,15 +440,12 @@ export default new Addons(
             const statusMessage = isApproval ? "approved" : "rejected";
 
             // Update suggestion status
-            await main.prisma.suggestion.update({
-              where: { messageId: interaction.message.id },
-              data: {
-                status: newStatus,
-                resolvedBy: interaction.user.id,
-                resolvedAt: new Date(),
-              },
+            await suggestRepository.updateStatus(interaction.message.id, newStatus, interaction.user.id);
+            console.debug("[SuggestAddon] Suggestion status updated in DB:", {
+              messageId: interaction.message.id,
+              newStatus,
+              resolvedBy: interaction.user.id,
             });
-
             // Get the author and guild owner
             const author = await client.users.fetch(suggestion.authorId).catch(() => null);
             const guild = await client.guilds.fetch(suggestion.guildId);
@@ -343,7 +457,9 @@ export default new Addons(
                 await author.send({
                   content: `Your suggestion in ${guild.name} has been ${statusMessage}:\n\n${suggestion.content}`,
                 });
+                console.debug("[SuggestAddon] DM sent to suggestion author:", author.id);
               } catch (error) {
+                console.debug("[SuggestAddon] Could not send DM to author:", author.id, error);
                 console.error(`Could not send DM to ${author.tag}`);
               }
             }
@@ -354,7 +470,9 @@ export default new Addons(
                 await owner.send({
                   content: `A suggestion in your server ${guild.name} has been approved by ${interaction.user.tag}:\n\n${suggestion.content}`,
                 });
+                console.debug("[SuggestAddon] DM sent to server owner:", owner.id);
               } catch (error) {
+                console.debug("[SuggestAddon] Could not send DM to server owner:", owner.id, error);
                 console.error(`Could not send DM to server owner ${owner.user.tag}`);
               }
             }
@@ -399,7 +517,7 @@ export default new Addons(
               embeds: [updatedEmbed],
               components: [disabledRow],
             });
-
+            console.debug("[SuggestAddon] Suggestion message edited after admin action");
             return interaction.reply({
               content: `Suggestion has been ${statusMessage}.`,
               flags: MessageFlags.Ephemeral,
@@ -407,18 +525,14 @@ export default new Addons(
         }
 
         // Update the message with new votes
-        const updatedSuggestion = await main.prisma.suggestion.findUnique({
-          where: { messageId: interaction.message.id },
-        });
-
+        const updatedSuggestion = await suggestRepository.getSuggestById(interaction.message.id);
+        console.debug("[SuggestAddon] Refetched updated suggestion from DB:", updatedSuggestion);
         if (!updatedSuggestion) return;
 
         // Calculate percentages
         const totalVotes = updatedSuggestion.upvotes + updatedSuggestion.downvotes;
-        const upvotePercentage =
-          totalVotes > 0 ? (updatedSuggestion.upvotes / totalVotes) * 100 : 0;
-        const downvotePercentage =
-          totalVotes > 0 ? (updatedSuggestion.downvotes / totalVotes) * 100 : 0;
+        const upvotePercentage = totalVotes > 0 ? (updatedSuggestion.upvotes / totalVotes) * 100 : 0;
+        const downvotePercentage = totalVotes > 0 ? (updatedSuggestion.downvotes / totalVotes) * 100 : 0;
 
         // Get last voter info
         const lastVoterInfo = await getLastVoterInfo(
@@ -426,6 +540,7 @@ export default new Addons(
           updatedSuggestion.voters,
           updatedSuggestion.downvoters,
         );
+        console.debug("[SuggestAddon] Last voter info:", lastVoterInfo);
 
         const updatedEmbed = EmbedBuilder.from(interaction.message.embeds[0]).spliceFields(
           0,
@@ -488,24 +603,20 @@ export default new Addons(
           .setLabel("Reject")
           .setStyle(ButtonStyle.Danger);
 
-        const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          upvoteButton,
-          downvoteButton,
-          whoButton,
-        );
+        const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(upvoteButton, downvoteButton, whoButton);
 
-        const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          approveButton,
-          rejectButton,
-        );
+        const row2 = new ActionRowBuilder<ButtonBuilder>().addComponents(approveButton, rejectButton);
 
         await interaction.message.edit({
           embeds: [updatedEmbed],
           components: [row1, row2],
         });
+        console.debug("[SuggestAddon] Suggestion message edited after vote");
 
         await interaction.deferUpdate();
+        console.debug("[SuggestAddon] Interaction deferred update called");
       } catch (error) {
+        console.debug("[SuggestAddon] Error in interactionCreate handler:", error);
         console.error("Error handling suggestion interaction:", error);
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp({

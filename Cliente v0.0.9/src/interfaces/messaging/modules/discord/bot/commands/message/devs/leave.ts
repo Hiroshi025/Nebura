@@ -1,9 +1,7 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const leaveCommand: Precommand = {
   name: "leave",
@@ -30,11 +28,7 @@ const leaveCommand: Precommand = {
     const guild = client.guilds.cache.get(serverId);
 
     if (!guild) {
-      return await sendError(
-        message,
-        "Guild not found",
-        `The bot is not in any guild with ID: \`${serverId}\``,
-      );
+      return await sendError(message, "Guild not found", `The bot is not in any guild with ID: \`${serverId}\``);
     }
 
     // If no confirmation flag, send confirmation prompt
@@ -107,9 +101,7 @@ async function sendConfirmation(message: any, guild: any, prefix: string) {
   const embed = new EmbedBuilder()
     .setTitle(`⚠️ Confirm Guild Leave`)
     .setColor(0xffa500)
-    .setDescription(
-      `You are about to make the bot leave **${guild.name}**. This action cannot be undone!`,
-    )
+    .setDescription(`You are about to make the bot leave **${guild.name}**. This action cannot be undone!`)
     .addFields(
       {
         name: "🆔 Guild ID",

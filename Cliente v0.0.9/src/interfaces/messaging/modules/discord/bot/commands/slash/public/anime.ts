@@ -3,9 +3,9 @@ import { SlashCommandBuilder } from "discord.js";
 import moment from "moment";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import translate from "@iamtraction/google-translate";
 import { Entretenment } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -24,10 +24,9 @@ export default new Command(
       await interaction.reply({
         embeds: [
           new EmbedCorrect().setDescription(
-            [
-              `${client.getEmoji(guild.id, "loading")} Searching for anime...`,
-              `**Search Query:** ${searchQuery}`,
-            ].join("\n"),
+            [`${client.getEmoji(guild.id, "loading")} Searching for anime...`, `**Search Query:** ${searchQuery}`].join(
+              "\n",
+            ),
           ),
         ],
       });
@@ -57,10 +56,7 @@ export default new Command(
         return interaction.editReply({
           embeds: [
             new ErrorEmbed().setDescription(
-              [
-                "⚠️ | No genres found for this anime!",
-                "Please check if the anime is listed on Kitsu.io.",
-              ].join("\n"),
+              ["⚠️ | No genres found for this anime!", "Please check if the anime is listed on Kitsu.io."].join("\n"),
             ),
           ],
         });
@@ -69,9 +65,7 @@ export default new Command(
       const genreResponse = await axios.get<Entretenment.Genre>(relatedGenresUrl);
       const genres = genreResponse.data.data.map((genre) => genre.attributes.name).join(", ");
 
-      const [translatedSynopsis] = await Promise.all([
-        translate(anime.attributes.synopsis, { to: "en" }),
-      ]);
+      const [translatedSynopsis] = await Promise.all([translate(anime.attributes.synopsis, { to: "en" })]);
 
       const statusMap: Record<string, string> = {
         finished: "Finished",
@@ -80,8 +74,7 @@ export default new Command(
         unreleased: "Unreleased",
       };
 
-      const animeStatus =
-        statusMap[anime.attributes.status.toLowerCase()] || anime.attributes.status;
+      const animeStatus = statusMap[anime.attributes.status.toLowerCase()] || anime.attributes.status;
 
       const animeEmbed = new EmbedCorrect()
         .setAuthor({
@@ -123,9 +116,7 @@ export default new Command(
           },
           {
             name: "⌚ Duration",
-            value: anime.attributes.episodeLength
-              ? `${anime.attributes.episodeLength} minutes`
-              : "Unknown",
+            value: anime.attributes.episodeLength ? `${anime.attributes.episodeLength} minutes` : "Unknown",
             inline: true,
           },
           {

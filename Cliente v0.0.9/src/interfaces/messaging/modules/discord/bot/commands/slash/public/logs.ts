@@ -1,10 +1,8 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -114,9 +112,7 @@ export default new Command(
                 embeds: [
                   new ErrorEmbed()
                     .setTitle("Invalid Page Number")
-                    .setDescription(
-                      `The page number must be between 1 and ${Math.ceil(userWarnings.length / 5)}.`,
-                    ),
+                    .setDescription(`The page number must be between 1 and ${Math.ceil(userWarnings.length / 5)}.`),
                 ],
                 flags: "Ephemeral",
               });

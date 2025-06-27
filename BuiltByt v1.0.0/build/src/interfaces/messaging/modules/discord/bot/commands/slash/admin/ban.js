@@ -1,0 +1,257 @@
+"use strict";
+!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="fd6cdc65-fb55-59b0-8756-aa2785697faf")}catch(e){}}();
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const discord_js_1 = require("discord.js");
+const builders_1 = require("../../../../../../../../interfaces/messaging/modules/discord/structure/utils/builders");
+const main_1 = require("../../../../../../../../main");
+const embeds_extend_1 = require("../../../../../../../../shared/adapters/extends/embeds.extend");
+const console_1 = require("../../../../../../../../shared/utils/functions/console");
+exports.default = new builders_1.Command(new discord_js_1.SlashCommandBuilder()
+    .setName("ban")
+    .setNameLocalizations({
+    "es-ES": "banear",
+})
+    .setDescription("Ban a member!")
+    .setDescriptionLocalizations({
+    "es-ES": "¡Banea a un miembro!",
+})
+    .setDefaultMemberPermissions(discord_js_1.PermissionFlagsBits.BanMembers)
+    .addSubcommand((subcommand) => subcommand
+    .setName("user")
+    .setNameLocalizations({
+    "es-ES": "usuario",
+})
+    .setDescription("Ban a user!")
+    .setDescriptionLocalizations({
+    "es-ES": "¡Banea a un usuario!",
+})
+    .addUserOption((option) => option
+    .setName("target")
+    .setNameLocalizations({
+    "es-ES": "usuario",
+})
+    .setDescription("User to ban.")
+    .setDescriptionLocalizations({
+    "es-ES": "Usuario a banear.",
+})
+    .setRequired(true))
+    .addStringOption((option) => option
+    .setName("reason")
+    .setNameLocalizations({
+    "es-ES": "razón",
+})
+    .setDescription("Reason for the ban.")
+    .setDescriptionLocalizations({
+    "es-ES": "Razón del baneo.",
+})
+    .setRequired(true)))
+    .addSubcommand((subcommand) => subcommand
+    .setName("setup")
+    .setNameLocalizations({
+    "es-ES": "configurar",
+})
+    .setDescription("Setup the ban logs.")
+    .setDescriptionLocalizations({
+    "es-ES": "Configura los registros de baneos.",
+})
+    .addChannelOption((option) => option
+    .setName("channel")
+    .setNameLocalizations({
+    "es-ES": "canal",
+})
+    .setDescription("Channel to send the message to.")
+    .setDescriptionLocalizations({
+    "es-ES": "Canal donde enviar el mensaje.",
+})
+    .addChannelTypes(discord_js_1.ChannelType.GuildText)
+    .setRequired(true))), async (client, interaction) => {
+    if (!interaction.guild || !interaction.channel || interaction.user.bot || !client.user)
+        return;
+    await interaction.deferReply({ flags: "Ephemeral" });
+    const subcommand = interaction.options.getSubcommand();
+    const embed = new discord_js_1.EmbedBuilder();
+    // Validación de permisos del usuario ejecutor
+    if (!interaction.memberPermissions?.has(discord_js_1.PermissionFlagsBits.BanMembers)) {
+        return interaction.followUp({
+            embeds: [embed.setColor("Red").setDescription("You do not have permission to ban members.")],
+        });
+    }
+    switch (subcommand) {
+        case "user": {
+            const { options, guild, member } = interaction;
+            const target = options.getMember("target");
+            if (!target || !member || !guild) {
+                return interaction.followUp({
+                    embeds: [
+                        new embeds_extend_1.ErrorEmbed()
+                            .setTitle("Ban Command Error")
+                            .setDescription(`${client.getEmoji(interaction.guild.id, "error")} Invalid parameters. Please provide valid data.`),
+                    ],
+                });
+            }
+            const reason = options.getString("reason") || "No reason provided.";
+            try {
+                await target.user.fetch();
+            }
+            catch (err) {
+                (0, console_1.logWithLabel)("error", err);
+                return interaction.followUp({
+                    embeds: [embed.setColor("Red").setDescription("Failed to fetch target user information.")],
+                });
+            }
+            if (target.user.id === client.user.id) {
+                return interaction.followUp({
+                    embeds: [embed.setColor("Red").setDescription("You cannot ban me!")],
+                });
+            }
+            if (target.user.id === interaction.user.id) {
+                return interaction.followUp({
+                    embeds: [embed.setColor("Yellow").setDescription("You cannot ban yourself.")],
+                });
+            }
+            if (target.roles.highest.position >= member.roles.highest.position) {
+                return interaction.followUp({
+                    embeds: [
+                        embed.setColor("Red").setDescription("The member has a higher role than you, so you cannot ban them."),
+                    ],
+                });
+            }
+            if (!guild.members.me?.permissions.has("BanMembers")) {
+                return interaction.followUp({
+                    embeds: [embed.setColor("Red").setDescription("I do not have permission to ban members.")],
+                });
+            }
+            const banSys = await main_1.main.prisma.banUser.findFirst({
+                where: { guildId: guild.id },
+            });
+            if (!banSys) {
+                return interaction.followUp({
+                    embeds: [
+                        new embeds_extend_1.ErrorEmbed()
+                            .setTitle("Ban Command Error")
+                            .setDescription(`${client.getEmoji(interaction.guild.id, "error")} Missing configuration. Please set up the ban logs channel using \`/ban setup\`.`),
+                    ],
+                });
+            }
+            try {
+                await main_1.main.prisma.banUser.create({
+                    data: {
+                        guildId: interaction.guild.id,
+                        userId: target.id,
+                        banReason: reason,
+                        banTime: new Date(),
+                    },
+                });
+                const modlog = await main_1.main.prisma.serverModlog.findFirst({ where: { guildId: guild.id } });
+                if (modlog?.channelId) {
+                    const channelDB = guild.channels.cache.get(modlog.channelId);
+                    if (channelDB?.isTextBased()) {
+                        await new Promise((resolve) => setTimeout(resolve, 1000));
+                        channelDB.send({
+                            embeds: [
+                                new discord_js_1.EmbedBuilder()
+                                    .setColor("Red")
+                                    .setTitle(`User banned by ${(0, discord_js_1.userMention)(member.user.id)}`)
+                                    .addFields({ name: "Banned User", value: `<@${target.id}>` }, { name: "User ID", value: `${target.id}` }, { name: "Ban Date", value: `${new Date().toISOString()}` }, { name: "Reason", value: `\`\`\`${reason}\`\`\`` }),
+                            ],
+                        });
+                    }
+                }
+                const response = new discord_js_1.EmbedBuilder()
+                    .setTitle("User successfully banned!")
+                    .setColor("Green")
+                    .setThumbnail(target.user.avatarURL({ forceStatic: true }))
+                    .addFields({ name: "ID", value: target.user.id }, { name: "Reason", value: reason }, {
+                    name: "Joined Server",
+                    value: target.joinedTimestamp
+                        ? `<t:${parseInt((target.joinedTimestamp / 1000).toString())}:R>`
+                        : "Unknown",
+                    inline: true,
+                }, {
+                    name: "Account Created",
+                    value: `<t:${parseInt((target.user.createdTimestamp / 1000).toString())}:R>`,
+                    inline: true,
+                });
+                try {
+                    const targetDM = new discord_js_1.EmbedBuilder()
+                        .setTitle(`You have been banned from the server: ${interaction.guild.name}!`)
+                        .setColor("Red")
+                        .setThumbnail(target.user.avatarURL({ forceStatic: true }))
+                        .addFields({ name: "ID", value: target.user.id }, { name: "Reason", value: reason }, {
+                        name: "Joined Server",
+                        value: target.joinedTimestamp
+                            ? `<t:${parseInt((target.joinedTimestamp / 1000).toString())}:R>`
+                            : "Unknown",
+                        inline: true,
+                    });
+                    await target.send({ embeds: [targetDM] });
+                }
+                catch (err) {
+                    (0, console_1.logWithLabel)("error", err);
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                    await interaction.channel.send({
+                        embeds: [
+                            embed
+                                .setColor("Red")
+                                .setDescription("Failed to send a direct message to the banned user. They might have DMs disabled."),
+                        ],
+                    });
+                }
+                await interaction.followUp({ embeds: [response] });
+                await target.ban({ reason: reason });
+            }
+            catch (error) {
+                (0, console_1.logWithLabel)("error", error);
+                interaction.followUp({
+                    embeds: [
+                        new embeds_extend_1.ErrorEmbed()
+                            .setTitle("Command Execution Error")
+                            .setDescription("An unexpected error occurred. Please try again."),
+                    ],
+                });
+            }
+            break;
+        }
+        case "setup": {
+            const channel = interaction.options.getChannel("channel");
+            const { guild } = interaction;
+            if (!channel) {
+                return interaction.followUp({
+                    embeds: [
+                        new embeds_extend_1.ErrorEmbed()
+                            .setTitle("Error Ban Command")
+                            .setDescription(`${client.getEmoji(interaction.guild.id, "error")} Please provide a valid channel.`),
+                    ],
+                });
+            }
+            try {
+                await main_1.main.prisma.serverModlog.upsert({
+                    where: { guildId: guild.id },
+                    update: { channelId: channel.id },
+                    create: { guildId: guild.id, channelId: channel.id },
+                });
+                const successEmbed = new discord_js_1.EmbedBuilder()
+                    .setDescription(`${client.getEmoji(guild.id, "correct")} Ban logs are now enabled in <#${channel.id}>!`)
+                    .setColor("#00ff00");
+                interaction.followUp({
+                    embeds: [successEmbed],
+                });
+            }
+            catch (err) {
+                (0, console_1.logWithLabel)("error", err);
+                interaction.followUp({
+                    embeds: [
+                        new embeds_extend_1.ErrorEmbed()
+                            .setTitle("Setup Error")
+                            .setDescription("An error occurred while setting up the ban logs."),
+                    ],
+                });
+            }
+            break;
+        }
+    }
+    return;
+});
+//# sourceMappingURL=ban.js.map
+//# debugId=fd6cdc65-fb55-59b0-8756-aa2785697faf

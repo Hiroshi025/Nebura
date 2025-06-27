@@ -14,10 +14,10 @@
 import chalk from "chalk";
 
 import { Utils } from "@/shared/class/utils";
-import { ProyectError } from "@/shared/infrastructure/extends/error.extend"; // Custom error handling class
 import emojis from "@config/json/emojis.json";
 import { GiveawayService } from "@modules/discord/structure/giveaway";
 import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
+import { ProyectError } from "@utils/extenders/error.extend"; // Custom error handling class
 import { loadPendingReminders } from "@utils/functions/reminders"; // Function to load pending reminders
 
 import { API } from "./";
@@ -129,6 +129,7 @@ export class Engine {
     utils: Utils = new Utils(),
     api: API = new API(),
   ) {
+    console.debug("[Engine][constructor] Initializing Engine with provided modules.");
     this.whatsapp = whatsapp;
     this.discord = discord;
     this.prisma = prisma;
@@ -145,6 +146,7 @@ export class Engine {
    * @see {@link https://www.prisma.io/docs/reference/api-reference/prisma-client-reference | Prisma Client API Reference}
    */
   private static createDefaultPrismaClient(): PrismaClient {
+    console.debug("[Engine][createDefaultPrismaClient] Creating default Prisma client.");
     return new PrismaClient({
       log: [
         { emit: "event", level: "query" },
@@ -172,6 +174,7 @@ export class Engine {
    * @returns {Promise<void>} A promise that resolves when monitoring is configured.
    */
   private async configureMonitoring(): Promise<void> {
+    console.debug("[Engine][configureMonitoring] Configuring monitoring (Sentry).");
     /*     await Sentry.init({
       dsn: SENTRY_NODE_KEY,
       tracesSampleRate: 1.0,
@@ -194,11 +197,16 @@ export class Engine {
    * @returns {Promise<void>} A promise that resolves when the backup service is set up.
    */
   private async setupBackupService(): Promise<void> {
-    if (process.env.BACKUPS_ENABLED !== "true") return;
+    console.debug("[Engine][setupBackupService] Setting up backup service.");
+    if (config.tasks.backups.enabled !== true) {
+      console.debug("[Engine][setupBackupService] Backups are disabled in config.");
+      return;
+    }
     await new Backups().scheduleBackups(CRON_BACKUPS_TIME);
     logWithLabel("custom", `Backup scheduled with cron expression: ${CRON_BACKUPS_TIME}`, {
       customLabel: "Backups",
     });
+    console.debug("[Engine][setupBackupService] Backup service scheduled.");
   }
 
   /**
@@ -212,9 +220,12 @@ export class Engine {
    * @returns {Promise<void>} A promise that resolves when the WhatsApp module is processed.
    */
   private async conditionallyStartWhatsApp(): Promise<void> {
+    console.debug("[Engine][conditionallyStartWhatsApp] Checking if WhatsApp module should start.");
     try {
       if (this.config.modules.whatsapp.enabled) {
+        console.debug("[Engine][conditionallyStartWhatsApp] WhatsApp module enabled. Starting...");
         await this.whatsapp.start();
+        console.debug("[Engine][conditionallyStartWhatsApp] WhatsApp module started.");
       } else {
         logWithLabel(
           "custom",
@@ -226,9 +237,11 @@ export class Engine {
             customLabel: "whatsapp",
           },
         );
+        console.debug("[Engine][conditionallyStartWhatsApp] WhatsApp module is disabled in config.");
       }
     } catch (err) {
       console.error(err);
+      console.debug("[Engine][conditionallyStartWhatsApp] Error starting WhatsApp module:", err);
       throw new ProyectError(`WhatsApp module failed to start: ${err}`);
     }
   }
@@ -244,15 +257,19 @@ export class Engine {
    * @throws {ProyectError} If any module fails to start.
    */
   public async start(): Promise<void> {
+    console.debug("[Engine][start] Starting application engine.");
     try {
       await ErrorConsole(this.discord);
+      console.debug("[Engine][start] ErrorConsole initialized.");
       await this.initializeModules();
-
-      //// Load the configuration and set up the Discord client ////
+      console.debug("[Engine][start] Core modules initialized.");
       await this.clientCreate();
+      console.debug("[Engine][start] Discord client created in DB.");
       await loadPendingReminders();
+      console.debug("[Engine][start] Pending reminders loaded.");
     } catch (err) {
       console.error(err);
+      console.debug("[Engine][start] Error during startup:", err);
       throw new ProyectError(`Failed to start the application: ${err}`);
     }
   }
@@ -264,20 +281,25 @@ export class Engine {
    * @throws {ProyectError} If any module fails to initialize.
    */
   private async initializeModules(): Promise<void> {
+    console.debug(
+      "[Engine][initializeModules] Initializing core modules (Discord, API, WhatsApp, Backups, Monitoring).",
+    );
     try {
       // Arranca Discord y API en paralelo
       await Promise.all([this.discord.start(), this.api.start()]);
+      console.debug("[Engine][initializeModules] Discord and API started.");
+
+      // Valid licence product
+      /*       if (!this.LicenceValid) {
+        throw new ProyectError("Invalid licence product. Please check your licence key.");
+      } */
 
       // WhatsApp y backups después (si dependen de los anteriores)
-      await Promise.all([
-        this.conditionallyStartWhatsApp(),
-        this.configureMonitoring(),
-        this.setupBackupService(),
-      ]);
-
-      console.timeEnd("Total modules");
+      await Promise.all([this.conditionallyStartWhatsApp(), this.configureMonitoring(), this.setupBackupService()]);
+      console.debug("[Engine][initializeModules] WhatsApp, Monitoring, and Backups initialized.");
     } catch (err) {
       console.trace("Error in initializeModules:", err);
+      console.debug("[Engine][initializeModules] Error initializing modules:", err);
       throw new ProyectError(`Failed to initialize modules: ${err}`);
     }
   }
@@ -289,16 +311,37 @@ export class Engine {
    * @throws {ProyectError} If the client configuration fails to be created or updated.
    */
   private async clientCreate(): Promise<void> {
+    console.debug("[Engine][clientCreate] Creating/updating Discord client in DB.");
     try {
       console.time("DB:CreateClient");
       await this.DB.createClient(client, "");
       console.timeEnd("DB:CreateClient");
       debugLog("DB", "Discord client registered in the database");
+      console.debug("[Engine][clientCreate] Discord client registered in DB.");
     } catch (err) {
       console.trace("Error in clientCreate:", err);
+      console.debug("[Engine][clientCreate] Error registering Discord client in DB:", err);
       throw new ProyectError(`Failed to Discord client configuration: ${err}`);
     }
   }
+
+  /*   private async LicenceValid() {
+    const { LICENCE, HWID } = process.env;
+    const res = await axios({
+      method: "POST",
+      baseURL: hostURL(),
+      url: `/api/v1/license/validate/${LICENCE}`,
+      headers: {
+        "Content-Type": "application/json",
+        "x-license-key": LICENCE,
+        "x-hwid": HWID,
+      },
+      data: { hwid: HWID },
+    });
+
+    if (res.status !== 200) return false;
+    return true;
+  } */
 }
 
 /**
@@ -325,6 +368,7 @@ main.start().catch((err) => {
   logWithLabel("custom", `Failed to start the application: ${err}`, {
     customLabel: "Startup",
   });
+  console.debug("[main] Application failed to start:", err);
   process.exit(1); // Exit the process with a failure code
 });
 

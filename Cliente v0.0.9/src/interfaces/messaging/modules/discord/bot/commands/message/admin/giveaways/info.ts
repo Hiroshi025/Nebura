@@ -2,8 +2,8 @@
 import { EmbedBuilder } from "discord.js";
 
 import { GiveawayManager } from "@/main";
-import { ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const GiveawayInfo: Precommand = {
   name: "giveaway-info",

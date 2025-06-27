@@ -1,10 +1,17 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionFlagsBits,
-	StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+  TextChannel,
 } from "discord.js";
 
 import { Precommand } from "@/typings/modules/discord";
-import { ErrorEmbed } from "@extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const ToolsChannel: Precommand = {
   name: "channel-tools",
@@ -12,6 +19,7 @@ const ToolsChannel: Precommand = {
   examples: ["/channel-tools"],
   nsfw: false,
   owner: false,
+  cooldown: 5,
   aliases: ["tools-channel", "tools", "channel-manage", "mod-tools"],
   botpermissions: [PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ManageMessages],
   permissions: [PermissionFlagsBits.ManageChannels],
@@ -40,9 +48,7 @@ const ToolsChannel: Precommand = {
       // Main embed with channel information
       const embed = new EmbedBuilder()
         .setTitle(`Channel Tools - #${message.channel.name}`)
-        .setDescription(
-          "Select an action to manage this channel. Tools will expire after 5 minutes of inactivity.",
-        )
+        .setDescription("Select an action to manage this channel. Tools will expire after 5 minutes of inactivity.")
         .setColor("#5865F2")
         .addFields(
           {
@@ -80,36 +86,22 @@ const ToolsChannel: Precommand = {
         new ButtonBuilder()
           .setCustomId("lock_toggle")
           .setLabel(
-            message.channel
-              .permissionsFor(message.guild.roles.everyone)
-              ?.has(PermissionFlagsBits.SendMessages)
+            message.channel.permissionsFor(message.guild.roles.everyone)?.has(PermissionFlagsBits.SendMessages)
               ? "Lock"
               : "Unlock",
           )
           .setStyle(
-            message.channel
-              .permissionsFor(message.guild.roles.everyone)
-              ?.has(PermissionFlagsBits.SendMessages)
+            message.channel.permissionsFor(message.guild.roles.everyone)?.has(PermissionFlagsBits.SendMessages)
               ? ButtonStyle.Danger
               : ButtonStyle.Success,
           )
           .setEmoji(
-            message.channel
-              .permissionsFor(message.guild.roles.everyone)
-              ?.has(PermissionFlagsBits.SendMessages)
+            message.channel.permissionsFor(message.guild.roles.everyone)?.has(PermissionFlagsBits.SendMessages)
               ? "🔒"
               : "🔓",
           ),
-        new ButtonBuilder()
-          .setCustomId("purge")
-          .setLabel("Purge Messages")
-          .setStyle(ButtonStyle.Danger)
-          .setEmoji("🗑️"),
-        new ButtonBuilder()
-          .setCustomId("info")
-          .setLabel("Channel Info")
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji("ℹ️"),
+        new ButtonBuilder().setCustomId("purge").setLabel("Purge Messages").setStyle(ButtonStyle.Danger).setEmoji("🗑️"),
+        new ButtonBuilder().setCustomId("info").setLabel("Channel Info").setStyle(ButtonStyle.Secondary).setEmoji("ℹ️"),
       );
 
       // Secondary action buttons
@@ -118,14 +110,8 @@ const ToolsChannel: Precommand = {
           .setCustomId("nsfw_toggle")
           .setLabel(message.channel.nsfw ? "Make SFW" : "Make NSFW")
           .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId("rename")
-          .setLabel("Rename Channel")
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId("clone")
-          .setLabel("Clone Channel")
-          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId("rename").setLabel("Rename Channel").setStyle(ButtonStyle.Primary),
+        new ButtonBuilder().setCustomId("clone").setLabel("Clone Channel").setStyle(ButtonStyle.Success),
       );
 
       console.log("DEBUG: Sending initial message with tools");
@@ -189,8 +175,7 @@ const ToolsChannel: Precommand = {
               );
 
               await interaction.editReply({
-                content:
-                  "**⏱️ Set Channel Slowmode**\nSelect how long users must wait between messages:",
+                content: "**⏱️ Set Channel Slowmode**\nSelect how long users must wait between messages:",
                 components: [slowmodeRow],
               });
               break;
@@ -236,8 +221,7 @@ const ToolsChannel: Precommand = {
               );
 
               await interaction.editReply({
-                content:
-                  "**⚠️ Purge Messages**\nSelect how many messages to delete (this cannot be undone):",
+                content: "**⚠️ Purge Messages**\nSelect how many messages to delete (this cannot be undone):",
                 components: [purgeRow],
               });
               break;
@@ -315,8 +299,7 @@ const ToolsChannel: Precommand = {
             case "rename":
               console.log("DEBUG: Rename requested");
               await interaction.editReply({
-                content:
-                  "✏️ Please reply with the new name for this channel (type `cancel` to abort):",
+                content: "✏️ Please reply with the new name for this channel (type `cancel` to abort):",
                 components: [],
               });
 
@@ -330,9 +313,7 @@ const ToolsChannel: Precommand = {
                 if (!message.guild || message.channel.type !== ChannelType.GuildText) return;
 
                 if (m.content.toLowerCase() === "cancel") {
-                  await m
-                    .reply("Channel rename cancelled.")
-                    .then((msg) => setTimeout(() => msg.delete(), 5000));
+                  await m.reply("Channel rename cancelled.").then((msg) => setTimeout(() => msg.delete(), 5000));
                   return;
                 }
 

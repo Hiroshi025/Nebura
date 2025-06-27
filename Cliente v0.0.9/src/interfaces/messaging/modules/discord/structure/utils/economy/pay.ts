@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -109,9 +109,7 @@ export async function PayEconomy(interaction: ChatInputCommandInteraction, clien
           }`,
         )
         .setColor("Green")
-        .setImage(
-          "https://cdn.discordapp.com/attachments/1098838797229236315/1098864088639078481/money-banner.png",
-        ),
+        .setImage("https://cdn.discordapp.com/attachments/1098838797229236315/1098864088639078481/money-banner.png"),
     ],
   });
 

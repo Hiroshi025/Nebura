@@ -1,10 +1,16 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction,
-	EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -176,18 +182,14 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
           )
           .setColor("Green"),
       ],
-      components: [
-        new ActionRowBuilder<ButtonBuilder>().addComponents(freelanceButton, payTaxButton),
-      ],
+      components: [new ActionRowBuilder<ButtonBuilder>().addComponents(freelanceButton, payTaxButton)],
       flags: "Ephemeral",
     });
   }
 
   // Check if the user is on cooldown
   const cooldown = userWork?.jobCooldown ? new Date(userWork.jobCooldown) : null;
-  const hoursSinceCooldown = cooldown
-    ? Math.floor((now.getTime() - cooldown.getTime()) / (1000 * 60 * 60))
-    : 48;
+  const hoursSinceCooldown = cooldown ? Math.floor((now.getTime() - cooldown.getTime()) / (1000 * 60 * 60)) : 48;
 
   if (cooldown && hoursSinceCooldown < 48) {
     return interaction.reply({
@@ -239,9 +241,7 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
             value: job.name,
           })),
         );
-      const freelanceMenuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        freelanceMenu,
-      );
+      const freelanceMenuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(freelanceMenu);
 
       await jobResponse.update({
         content: "Select a freelance job:",
@@ -253,9 +253,7 @@ export async function WorkCommand(interaction: ChatInputCommandInteraction, _cli
         time: 20000,
       })) as StringSelectMenuInteraction;
 
-      const selectedFreelance = FREELANCE_JOBS.find(
-        (job) => job.name === freelanceResponse.values[0],
-      );
+      const selectedFreelance = FREELANCE_JOBS.find((job) => job.name === freelanceResponse.values[0]);
       if (!selectedFreelance) {
         return freelanceResponse.update({
           content: "❌ Invalid selection.",
@@ -312,9 +310,7 @@ export async function handleTaxButton(interaction: ButtonInteraction) {
 
   if (userBalance.balance < taxAmount) {
     return interaction.reply({
-      embeds: [
-        new ErrorEmbed().setDescription("You do not have enough money to pay your taxes/expenses."),
-      ],
+      embeds: [new ErrorEmbed().setDescription("You do not have enough money to pay your taxes/expenses.")],
       flags: "Ephemeral",
     });
   }
@@ -329,9 +325,7 @@ export async function handleTaxButton(interaction: ButtonInteraction) {
   return interaction.reply({
     embeds: [
       new EmbedCorrect()
-        .setDescription(
-          `💸 You paid **$${taxAmount}** in taxes/expenses. Your new balance is **$${newBalance}**.`,
-        )
+        .setDescription(`💸 You paid **$${taxAmount}** in taxes/expenses. Your new balance is **$${newBalance}**.`)
         .setColor("Orange"),
     ],
     flags: "Ephemeral",
@@ -396,9 +390,7 @@ export async function trainSkill(interaction: ChatInputCommandInteraction) {
   // Ensure skills is a record of string to number
   type SkillsRecord = Record<string, number>;
   const skills: SkillsRecord =
-    typeof userWork.skills === "object" && userWork.skills !== null
-      ? (userWork.skills as SkillsRecord)
-      : {};
+    typeof userWork.skills === "object" && userWork.skills !== null ? (userWork.skills as SkillsRecord) : {};
 
   skills[userWork.job] = (skills[userWork.job] || 0) + 1;
 

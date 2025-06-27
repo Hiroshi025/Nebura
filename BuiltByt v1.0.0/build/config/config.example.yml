@@ -1,0 +1,108 @@
+# ================================================================================
+# Example Configuration File for Nebura Asistent
+# Fill in the values according to your environment before using in production.
+# This file documents all available configuration options.
+# ================================================================================
+
+# -------------------------------------------------------------------------------
+# PROJECT CONFIGURATION
+# -------------------------------------------------------------------------------
+project:
+  name: "" # (string) Project name, e.g., "Nebura Asistent"
+  version: "" # (string) Project version, e.g., "0.0.9"
+  type: "" # (string, optional) Project type, e.g., "monorepo"
+  api-version: "" # (string) API version, e.g., "v1"
+  logs: "" # (string) Path to store application logs
+  winstonlog: "" # (string) Path for Winston logger logs
+  cdnpath: "" # (string) Path to CDN client backups
+
+# -------------------------------------------------------------------------------
+# ENVIRONMENTS CONFIGURATION
+# -------------------------------------------------------------------------------
+environments:
+  # Default environment settings (can be inherited by other environments)
+  default: &default
+    api:
+      port: # (number) Port where the API will run, e.g., 3000
+      host: "" # (string) Host address for the API, e.g., "localhost"
+      swagger:
+        local: "" # (string) Path to Swagger config file
+        name: "" # (string) API name for Swagger documentation
+        version: "" # (string) API version for Swagger
+        url: "" # (string) Base URL for admin monitor
+        docs: "" # (string) URL to access API documentation
+        auth:
+          name: "" # (string) Username for Swagger authentication
+          password: "" # (string) Password for Swagger authentication
+      # Optional: Only for production
+      sessions:
+        websecret: "" # (string) Secret key for web sessions (change in production)
+    database:
+      sessions:
+        url: "" # (string) Path to session database
+        name: "" # (string) Session database name
+    website:
+      role: "" # (string) Website role, e.g., "admin"
+
+  # Production environment settings (inherits from default)
+  production:
+    <<: *default
+    api:
+      port: # (number) Port for API in production
+      host: "" # (string) Host address for production
+      sessions:
+        websecret: "" # (string) Secret key for web sessions in production
+
+# -------------------------------------------------------------------------------
+# MODULES CONFIGURATION
+# -------------------------------------------------------------------------------
+modules:
+  # Discord module configuration
+  discord:
+    id: "" # (string) Discord client ID
+    callback: "" # (string) OAuth callback path for Discord authentication
+    secret: "" # (string) Discord client secret
+    channel: "" # (string) Default Discord channel ID
+    guildId: "" # (string) Discord guild/server ID
+    owners: # (array of strings) List of bot owner user IDs
+      - ""
+    prefix: "" # (string) Prefix for bot commands
+    configs:
+      default: "" # (string) Default path for Discord module
+      # Actualiza los nombres de las rutas para coincidir con config.yml
+      precommands: "" # (string) Path to precommands
+      components: "" # (string) Path to bot components/interactions
+      commands: "" # (string) Path to slash commands
+      addons: "" # (string) Path to bot addons
+      events: "" # (string) Path to bot events
+      bot-extensions: # (array of strings) Supported file extensions for the bot
+        - ""
+  # WhatsApp module configuration
+  whatsapp:
+    enabled: false # (boolean) Indicates if WhatsApp module is enabled
+
+# -------------------------------------------------------------------------------
+# MODERATION CONFIGURATION
+# -------------------------------------------------------------------------------
+moderation:
+  notifications:
+    urlapi: "" # (string) Base URL for Discord API
+    version: "" # (string) Discord API version, e.g., "v10"
+    webhooks:
+      token: "" # (string) Webhook token
+      id: "" # (string) Webhook ID
+      avatarURL: "" # (string, optional) Webhook avatar URL
+
+# -------------------------------------------------------------------------------
+# TASKS CONFIGURATION
+# -------------------------------------------------------------------------------
+tasks:
+  reloadproyect:
+    enabled: false # (boolean) Indicates if project reload task is enabled
+    cron: "" # (string) Cron schedule for reloading the project, e.g., "0 0 * * *"
+    cmd: "" # (string, optional) Command to execute for reload
+    cmdreload: "" # (string, optional) Command to execute for reload
+  backups:
+    enabled: false
+    path: "" # (string) Path to store database backups
+    cron: "" # (string) Cron schedule for backups, e.g., "0 2 * * *"

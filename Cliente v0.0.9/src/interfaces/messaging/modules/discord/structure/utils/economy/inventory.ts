@@ -1,9 +1,7 @@
-import {
-	ChannelType, ChatInputCommandInteraction, GuildMemberRoleManager, Message
-} from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, GuildMemberRoleManager, Message } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect } from "@extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -37,9 +35,7 @@ export const InventoryCommand = {
               ],
             });
 
-          const embed = new EmbedCorrect()
-            .setTitle(`${interaction.user.username}'s inventory`)
-            .setColor(0x2f3136);
+          const embed = new EmbedCorrect().setTitle(`${interaction.user.username}'s inventory`).setColor(0x2f3136);
 
           // if the user selected a page
           if (page) {
@@ -143,24 +139,22 @@ export const InventoryCommand = {
             });
 
           if (item.role) {
-            await (interaction.member.roles as GuildMemberRoleManager)
-              .add(item.role)
-              .catch((err) => {
-                interaction.reply({
-                  embeds: [
-                    new EmbedCorrect()
-                      .setDescription(
-                        [
-                          `${client.getEmoji(interaction.guild?.id as string, "error")} I was unable to give you the role: ${interaction.guild?.roles.cache.get(item.role)}`,
-                          `Please contact a staff member for assistance!`,
-                        ].join("\n"),
-                      )
-                      .setColor("Red"),
-                  ],
-                });
-
-                return console.log(err);
+            await (interaction.member.roles as GuildMemberRoleManager).add(item.role).catch((err) => {
+              interaction.reply({
+                embeds: [
+                  new EmbedCorrect()
+                    .setDescription(
+                      [
+                        `${client.getEmoji(interaction.guild?.id as string, "error")} I was unable to give you the role: ${interaction.guild?.roles.cache.get(item.role)}`,
+                        `Please contact a staff member for assistance!`,
+                      ].join("\n"),
+                    )
+                    .setColor("Red"),
+                ],
               });
+
+              return console.log(err);
+            });
 
             await main.prisma.userInventory.delete({ where: { id: item.id } });
             return interaction.reply({
@@ -178,10 +172,7 @@ export const InventoryCommand = {
           }
 
           if (item.money) {
-            const selectedUserBalance = await fetchBalance(
-              interaction.user.id,
-              interaction.guild.id,
-            );
+            const selectedUserBalance = await fetchBalance(interaction.user.id, interaction.guild.id);
 
             const balanceFixed = await toFixedNumber(selectedUserBalance.balance + item.money);
 
@@ -215,8 +206,7 @@ export const InventoryCommand = {
     return;
   },
   Message: async (message: Message, client: MyClient, args: string[]) => {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
     const guild = message.guild;
     const user = message.author;
 
@@ -247,9 +237,7 @@ export const InventoryCommand = {
               ],
             });
 
-          const embed = new EmbedCorrect()
-            .setTitle(`${user.username}'s inventory`)
-            .setColor(0x2f3136);
+          const embed = new EmbedCorrect().setTitle(`${user.username}'s inventory`).setColor(0x2f3136);
 
           // if the user selected a page
           if (page) {

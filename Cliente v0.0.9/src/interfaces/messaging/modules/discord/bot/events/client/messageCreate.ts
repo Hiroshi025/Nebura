@@ -1,15 +1,27 @@
 import { ColorResolvable, TextChannel } from "discord.js";
 
 import {
-	countMessage, createGuild, createUser, Economy
+  countMessage,
+  createGuild,
+  createUser,
+  Economy,
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { client, main } from "@/main";
 import { config } from "@/shared/utils/config";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Ranking } from "@modules/discord/structure/utils/ranking/helpers";
-import { ButtonFormat, Precommand } from "@typings/modules/discord";
+import { ButtonFormat, Fields, Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { Event } from "../../../structure/utils/builders";
+
+function escapeRegex(str: string) {
+  try {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, `\\$&`);
+  } catch (e: any) {
+    console.log(String(e.stack));
+    return str;
+  }
+}
 
 export default new Event("messageCreate", async (message) => {
   if (!message.guild || !message.channel || message.author.bot || !client.user) return;
@@ -21,9 +33,17 @@ export default new Event("messageCreate", async (message) => {
   await Economy(message);
 
   const guildData = await main.prisma.myGuild.findFirst({ where: { guildId: message.guild.id } });
-  const prefix = guildData?.prefix ? guildData.prefix : config.modules.discord.prefix;
+  const dataPrefix = guildData?.prefix ? guildData.prefix : config.modules.discord.prefix;
+  const prefixRegex = new RegExp(`^(<@!?${client.user.id}>|${escapeRegex(dataPrefix)})\\s*`);
+  //if its not that then return
+  if (!prefixRegex.test(message.content)) return;
+  //now define the right prefix either ping or not ping
+  const match = message.content.match(prefixRegex);
+  if (!match) return;
+  const [, matchedPrefix] = match;
+
   const language: string = message.guild.preferredLocale;
-  if (!message.content.startsWith(prefix)) return;
+  if (!message.content.startsWith(matchedPrefix)) return;
 
   const data = await main.prisma.userDiscord.findFirst({
     where: {
@@ -41,14 +61,13 @@ export default new Event("messageCreate", async (message) => {
           .setDescription(
             [
               `${client.getEmoji(message.guild.id, "error")} The bot is not set up in this server.`,
-              `Use the command \`${prefix}setup\` to set up the bot.`,
+              `Use the command \`${matchedPrefix}setup\` to set up the bot.`,
             ].join("\n"),
           ),
       ],
     });
 
-  const args: string[] = message.content.slice(prefix.length).trim().split(/\s+/);
-
+  const args: string[] = message.content.slice(matchedPrefix.length).trim().split(/ +/);
   const cmd: string = args.shift()?.toLowerCase() ?? "";
   if (!cmd || !data) return;
 
@@ -95,7 +114,7 @@ export default new Event("messageCreate", async (message) => {
 
       // Botones (si existen)
       let components = [];
-      if (data.buttons && Array.isArray(data.buttons)) {
+      if (data.buttons && Array.isArray(data.buttons) && data.buttons.length > 0) {
         const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
         const row = new ActionRowBuilder();
         // Ensure each button is an object with the expected properties
@@ -105,18 +124,34 @@ export default new Event("messageCreate", async (message) => {
             button &&
             typeof button === "object" &&
             button.label &&
-            button.customId &&
-            button.style
+            button.style &&
+            ((button.style === "LINK" && button.url) || (button.style !== "LINK" && button.customId))
           ) {
-            row.addComponents(
-              new ButtonBuilder()
-                .setLabel(button.label)
-                .setCustomId(button.customId)
-                .setStyle(ButtonStyle[button.style as keyof typeof ButtonStyle]),
-            );
+            const btn = new ButtonBuilder()
+              .setLabel(button.label)
+              .setStyle(ButtonStyle[button.style as keyof typeof ButtonStyle]);
+            if (button.style === "LINK") {
+              btn.setURL(button.url);
+            } else {
+              btn.setCustomId(button.customId);
+            }
+            row.addComponents(btn);
           }
         });
         components.push(row);
+      }
+
+      if (data.fields && Array.isArray(data.fields) && data.fields.length > 0) {
+        (data.fields as unknown as Fields[]).forEach((field: Fields) => {
+          if (!field) return;
+          if (field.name && field.value) {
+            embed.addFields({
+              name: field.name,
+              value: field.value,
+              inline: field.inline || false,
+            });
+          }
+        });
       }
 
       return message.channel.send({
@@ -190,10 +225,7 @@ export default new Event("messageCreate", async (message) => {
       });
     }
 
-    if (
-      command.botpermissions &&
-      !message.guild.members.me?.permissions.has(command.botpermissions)
-    ) {
+    if (command.botpermissions && !message.guild.members.me?.permissions.has(command.botpermissions)) {
       return message.channel.send({
         embeds: [
           new ErrorEmbed().setDescription(
@@ -233,7 +265,7 @@ export default new Event("messageCreate", async (message) => {
       client.cooldown.set(command.name, cooldown);
     } */
 
-    await command.execute(client, message, args, prefix, language, config);
+    await command.execute(client, message, args, matchedPrefix, language, config);
     try {
       const guildId = message.guild.id;
       const commandName = command.name;
@@ -250,10 +282,7 @@ export default new Event("messageCreate", async (message) => {
       console.debug("[DEBUG] Error updating command usage:", err);
     }
   } catch (error: any) {
-    const errorEmbed = new ErrorEmbed()
-      .setError(true)
-      .setTitle("Command Execution Error")
-      .setErrorFormat(error);
+    const errorEmbed = new ErrorEmbed().setError(true).setTitle("Command Execution Error").setErrorFormat(error);
 
     await message.channel.send({ embeds: [errorEmbed] });
   }

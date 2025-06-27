@@ -1,6 +1,6 @@
 import { main } from "@/main";
-import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Menus } from "@typings/modules/discord";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 const logChannelClient: Menus = {
   id: "select-log-channel",

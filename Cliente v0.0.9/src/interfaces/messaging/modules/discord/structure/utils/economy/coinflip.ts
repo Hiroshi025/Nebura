@@ -1,9 +1,7 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ColorResolvable
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ColorResolvable } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -35,21 +33,13 @@ export async function CoinflipCommand(interaction: ChatInputCommandInteraction, 
   }
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId("choose_heads")
-      .setLabel("🟡 Heads")
-      .setStyle(ButtonStyle.Primary),
-    new ButtonBuilder()
-      .setCustomId("choose_tails")
-      .setLabel("⚪ Tails")
-      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId("choose_heads").setLabel("🟡 Heads").setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId("choose_tails").setLabel("⚪ Tails").setStyle(ButtonStyle.Primary),
   );
 
   const embed = new EmbedCorrect()
     .setTitle("🪙 Coinflip Game")
-    .setDescription(
-      `**Your Bet:** $${bet}\n\nChoose your side: 🟡 Heads or ⚪ Tails. You have 15 seconds to decide!`,
-    )
+    .setDescription(`**Your Bet:** $${bet}\n\nChoose your side: 🟡 Heads or ⚪ Tails. You have 15 seconds to decide!`)
     .setColor("Orange");
 
   const message = await interaction.reply({
@@ -113,14 +103,8 @@ export async function CoinflipCommand(interaction: ChatInputCommandInteraction, 
             .setColor("Orange");
 
           const riskRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setCustomId("risk_continue")
-              .setLabel("Continue")
-              .setStyle(ButtonStyle.Success),
-            new ButtonBuilder()
-              .setCustomId("risk_stop")
-              .setLabel("Stop")
-              .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder().setCustomId("risk_continue").setLabel("Continue").setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId("risk_stop").setLabel("Stop").setStyle(ButtonStyle.Danger),
           );
 
           await interaction.editReply({
@@ -129,8 +113,7 @@ export async function CoinflipCommand(interaction: ChatInputCommandInteraction, 
           });
 
           const riskCollector = message.createMessageComponentCollector({
-            filter: (btn) =>
-              btn.user.id === user.id && ["risk_continue", "risk_stop"].includes(btn.customId),
+            filter: (btn) => btn.user.id === user.id && ["risk_continue", "risk_stop"].includes(btn.customId),
             time: 15000,
           });
 
@@ -140,8 +123,7 @@ export async function CoinflipCommand(interaction: ChatInputCommandInteraction, 
             if (btn.customId === "risk_stop") {
               riskCollector.stop();
               return btn.update({
-                content:
-                  "You have exited Risk Mode. Your winnings have been added to your balance.",
+                content: "You have exited Risk Mode. Your winnings have been added to your balance.",
                 components: [],
               });
             }

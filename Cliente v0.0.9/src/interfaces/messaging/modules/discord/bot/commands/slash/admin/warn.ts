@@ -2,7 +2,7 @@ import { PermissionFlagsBits, SlashCommandBuilder, TextChannel, time } from "dis
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -208,9 +208,7 @@ export default new Command(
 
         const data = await main.prisma.userWarn.findUnique({ where: { id: warnId } });
 
-        const err = new EmbedCorrect().setDescription(
-          `No warn Id watching \`${warnId}\` was found!`,
-        );
+        const err = new EmbedCorrect().setDescription(`No warn Id watching \`${warnId}\` was found!`);
 
         if (!data) return await interaction.reply({ embeds: [err] });
 

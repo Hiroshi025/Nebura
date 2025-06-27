@@ -1,12 +1,12 @@
 // Importa los tipos necesarios de Express
 // import { Request, Response } from 'express';
 
+import { validateTokenAI } from "@/interfaces/http/middlewares/jwt/google.middleware";
 import { isCustomerToken } from "@/interfaces/http/middlewares/jwt/token.middleware";
-import { validateTokenAI } from "@/interfaces/http/middlewares/tokens/google.middleware";
 import { RateLimitManager } from "@/interfaces/messaging/broker/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
-import { GeminiController } from "../../../controllers/asistent/google.controllers";
+import { GeminiController } from "../../../controllers/services/google.controllers";
 
 // Constantes para paths base y versionado
 const BASE_PATH = "/service/google";

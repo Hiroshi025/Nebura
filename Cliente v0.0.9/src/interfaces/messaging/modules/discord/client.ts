@@ -1,11 +1,12 @@
 import { Client, Collection, GatewayIntentBits, Options, Partials } from "discord.js";
 import DisTube from "distube";
 
-import { DiscordError } from "@/shared/infrastructure/extends/error.extend";
+import { main } from "@/main";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
+import { DiscordError } from "@utils/extenders/error.extend";
 
 import { GiveawayService } from "./structure/giveaway";
 import { DiscordHandler } from "./structure/handlers/collection";
@@ -146,7 +147,7 @@ export class MyClient extends Client {
         GatewayIntentBits.DirectMessageTyping,
         GatewayIntentBits.GuildExpressions,
         GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.DirectMessageReactions
+        GatewayIntentBits.DirectMessageReactions,
       ],
       partials: [
         Partials.GuildMember,
@@ -196,7 +197,7 @@ export class MyClient extends Client {
       //leaveOnFinish: true,
       emitAddSongWhenCreatingQueue: false,
       emitAddListWhenCreatingQueue: false,
-      plugins: []
+      plugins: [],
     });
 
     this.handlers = new DiscordHandler(this);
@@ -214,6 +215,26 @@ export class MyClient extends Client {
     this.modals = new Collection();
     this.addons = new Collection();
     this.menus = new Collection();
+
+    this.on("ready", async () => {
+      const data = await main.DB.findDiscord(this.user?.id as string);
+      if (!data || !this.user || !data.activity) return;
+      this.user.setUsername(data.username);
+      this.user.setAvatar(data.avatar);
+      let activityName: string | undefined;
+      if (typeof data.activity === "object" && data.activity !== null && "name" in data.activity) {
+        activityName = (data.activity as { name: string }).name;
+      } else if (typeof data.activity === "string") {
+        activityName = data.activity;
+      }
+      if (activityName) {
+        this.user.setActivity({
+          name: activityName,
+          url: (data.activity as { url: string }).url,
+          state: (data.activity as { status: string }).status,
+        });
+      }
+    });
   }
 
   /**
@@ -228,9 +249,10 @@ export class MyClient extends Client {
    */
   public async start(): Promise<void> {
     logWithLabel("debug", "Starting Discord API...");
+    const { TOKEN_DISCORD } = process.env;
 
     // Check if the token is provided in the configuration
-    if (!process.env.TOKEN_DISCORD) {
+    if (!TOKEN_DISCORD) {
       logWithLabel(
         "info",
         [
@@ -247,7 +269,7 @@ export class MyClient extends Client {
      * The token is expected to be a string that authenticates the client with the Discord API.
      * This method is asynchronous and returns a promise that resolves when the login is successful.
      */
-    await this.login(process.env.TOKEN_DISCORD);
+    await this.login(TOKEN_DISCORD);
     logWithLabel(
       "debug",
       [
@@ -258,17 +280,11 @@ export class MyClient extends Client {
     );
 
     // Load and deploy the handlers
-    await this.handlers._load();
+    await this.handlers.loadAll();
     await new GiveawayService();
     await YouTube(this);
     try {
-      await Promise.all([
-        this.handlers.loadAndSet(this, "buttons"),
-        this.handlers.loadAndSet(this, "modals"),
-        this.handlers.loadAndSet(this, "menus"),
-        this.handlers.components(this),
-        this.handlers.deploy(),
-      ]);
+      await Promise.all([this.handlers.deployCommands()]);
     } catch (err) {
       console.error(err);
       throw new DiscordError("Error loading handlers");

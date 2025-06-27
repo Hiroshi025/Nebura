@@ -1,9 +1,7 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -18,11 +16,7 @@ export const DailyCommand = {
     const chosenCard = interaction.options.getString("card");
     if (!chosenCard || !["1", "2", "3", "4"].includes(chosenCard)) {
       return interaction.reply({
-        embeds: [
-          new ErrorEmbed().setDescription(
-            "You must choose a card between `1`, `2`, `3`, or `4` to play!",
-          ),
-        ],
+        embeds: [new ErrorEmbed().setDescription("You must choose a card between `1`, `2`, `3`, or `4` to play!")],
         flags: "Ephemeral",
       });
     }
@@ -54,10 +48,7 @@ export const DailyCommand = {
       });
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("daily_x10")
-          .setLabel("Bet x10")
-          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId("daily_x10").setLabel("Bet x10").setStyle(ButtonStyle.Danger),
       );
 
       await interaction.reply({
@@ -138,11 +129,7 @@ export const DailyCommand = {
     const chosenCard = args[0];
     if (!chosenCard || !["1", "2", "3", "4"].includes(chosenCard)) {
       return message.reply({
-        embeds: [
-          new ErrorEmbed().setDescription(
-            "You must choose a card between `1`, `2`, `3`, or `4` to play!",
-          ),
-        ],
+        embeds: [new ErrorEmbed().setDescription("You must choose a card between `1`, `2`, `3`, or `4` to play!")],
       });
     }
 
@@ -172,10 +159,7 @@ export const DailyCommand = {
       });
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("daily_x10")
-          .setLabel("Bet x10")
-          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId("daily_x10").setLabel("Bet x10").setStyle(ButtonStyle.Danger),
       );
 
       const reply = await message.reply({

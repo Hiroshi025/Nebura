@@ -2,8 +2,9 @@ import fs from "fs-extra";
 import schedule, { Job } from "node-schedule";
 import path from "path";
 
-import { PrismaError } from "@/shared/infrastructure/extends/error.extend";
 import { PrismaClient } from "@prisma/client";
+import { config } from "@utils/config";
+import { PrismaError } from "@utils/extenders/error.extend";
 import { logWithLabel } from "@utils/functions/console";
 
 /**
@@ -19,7 +20,7 @@ export const Backups = class BackupService {
    * Initializes a new instance of the BackupService.
    * @param backupDir - The directory where backups will be stored. Defaults to a `backups` folder in the current directory.
    */
-  constructor(backupDir: string = path.join(__dirname, "../../../config/backups/database")) {
+  constructor(backupDir: string = path.join(__dirname, config.tasks.backups.path)) {
     this.prisma = new PrismaClient();
     this.backupDir = backupDir;
     this.job = null;
@@ -70,9 +71,7 @@ export const Backups = class BackupService {
       for (const model of models) {
         console.debug(`[BackupService] Fetching data from model: ${model}`);
         backupData[model] = await (this.prisma as any)[model].findMany();
-        console.debug(
-          `[BackupService] Model ${model} fetched: ${backupData[model].length} records`,
-        );
+        console.debug(`[BackupService] Model ${model} fetched: ${backupData[model].length} records`);
       }
 
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -151,7 +150,7 @@ export const Backups = class BackupService {
    */
 
   // en un minuto
-  public scheduleBackups(cronExpression: string = "0 2 * * *"): void {
+  public scheduleBackups(cronExpression: string = config.tasks.backups.cron): void {
     if (this.job) {
       this.job.cancel();
       console.info(`[BackupService] Previous backup job cancelled`);
@@ -179,4 +178,4 @@ export const Backups = class BackupService {
     await this.prisma.$disconnect();
     console.info(`[BackupService] PrismaClient disconnected.`);
   }
-}
+};

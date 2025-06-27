@@ -1,11 +1,21 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChannelType, ComponentType,
-	EmbedBuilder, MessageComponentInteraction, PermissionFlagsBits, Role, RoleSelectMenuBuilder,
-	StringSelectMenuBuilder, TextChannel
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ChannelType,
+  ComponentType,
+  EmbedBuilder,
+  MessageComponentInteraction,
+  PermissionFlagsBits,
+  Role,
+  RoleSelectMenuBuilder,
+  StringSelectMenuBuilder,
+  TextChannel,
 } from "discord.js";
 
 import { Precommand, RoleAssignmentConfig } from "@/typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 //TODO: Arreglar los errores de respuesta, el codigo ya esta completo solo falta arreglar los errores de las interacciones
 const AddRoleCommand: Precommand = {
@@ -19,8 +29,7 @@ const AddRoleCommand: Precommand = {
   botpermissions: [PermissionFlagsBits.ManageRoles],
   permissions: [PermissionFlagsBits.ManageRoles],
   async execute(client, message) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     const config: RoleAssignmentConfig = {
       roles: [],
@@ -53,18 +62,12 @@ const AddRoleCommand: Precommand = {
       .addFields(
         {
           name: "Selected Roles",
-          value:
-            config.roles.length > 0 ? config.roles.map((id) => `<@&${id}>`).join(", ") : "None",
+          value: config.roles.length > 0 ? config.roles.map((id) => `<@&${id}>`).join(", ") : "None",
           inline: true,
         },
         {
           name: "Target",
-          value:
-            config.target === "all"
-              ? "All members"
-              : config.target === "bots"
-                ? "Only bots"
-                : "Only human users",
+          value: config.target === "all" ? "All members" : config.target === "bots" ? "Only bots" : "Only human users",
           inline: true,
         },
         {
@@ -126,22 +129,13 @@ const AddRoleCommand: Precommand = {
         .setLabel("Confirm Configuration")
         .setStyle(ButtonStyle.Success)
         .setDisabled(config.roles.length === 0),
-      new ButtonBuilder()
-        .setCustomId("edit_roles")
-        .setLabel("Edit Roles")
-        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId("edit_roles").setLabel("Edit Roles").setStyle(ButtonStyle.Primary),
       new ButtonBuilder().setCustomId("cancel").setLabel("Cancel").setStyle(ButtonStyle.Danger),
     );
 
     const response = await message.reply({
       embeds: [mainEmbed],
-      components: [
-        roleSelectRow,
-        targetSelectRow,
-        optionsSelectRow,
-        delayButtonsRow,
-        actionButtonsRow,
-      ],
+      components: [roleSelectRow, targetSelectRow, optionsSelectRow, delayButtonsRow, actionButtonsRow],
     });
 
     const collector = response.createMessageComponentCollector({
@@ -155,11 +149,7 @@ const AddRoleCommand: Precommand = {
       try {
         if (interaction.user.id !== message.author.id) {
           return interaction.reply({
-            embeds: [
-              new ErrorEmbed().setDescription(
-                "Only the command author can interact with this menu.",
-              ),
-            ],
+            embeds: [new ErrorEmbed().setDescription("Only the command author can interact with this menu.")],
             flags: "Ephemeral",
           });
         }
@@ -219,14 +209,12 @@ const AddRoleCommand: Precommand = {
             } else if (selectedOption === "set_log") {
               // Prompt user to mention a log channel
               await interaction.followUp({
-                content:
-                  "Please mention or provide the ID of the channel where you want to log the results:",
+                content: "Please mention or provide the ID of the channel where you want to log the results:",
                 flags: "Ephemeral",
               });
 
               // Collect channel message
-              const channelFilter = (m: { author: { id: string } }) =>
-                m.author.id === interaction.user.id;
+              const channelFilter = (m: { author: { id: string } }) => m.author.id === interaction.user.id;
               try {
                 const collected = await (interaction.channel as TextChannel).awaitMessages({
                   filter: channelFilter,
@@ -256,8 +244,7 @@ const AddRoleCommand: Precommand = {
                       }
                     } else {
                       await collected.first()?.reply({
-                        content:
-                          "No channel mentioned. Please mention a channel or provide its ID.",
+                        content: "No channel mentioned. Please mention a channel or provide its ID.",
                         flags: "SuppressNotifications",
                       });
                     }
@@ -277,18 +264,13 @@ const AddRoleCommand: Precommand = {
         mainEmbed.setFields(
           {
             name: "Selected Roles",
-            value:
-              config.roles.length > 0 ? config.roles.map((id) => `<@&${id}>`).join(", ") : "None",
+            value: config.roles.length > 0 ? config.roles.map((id) => `<@&${id}>`).join(", ") : "None",
             inline: true,
           },
           {
             name: "Target",
             value:
-              config.target === "all"
-                ? "All members"
-                : config.target === "bots"
-                  ? "Only bots"
-                  : "Only human users",
+              config.target === "all" ? "All members" : config.target === "bots" ? "Only bots" : "Only human users",
             inline: true,
           },
           {
@@ -310,13 +292,7 @@ const AddRoleCommand: Precommand = {
 
         await interaction.editReply({
           embeds: [mainEmbed],
-          components: [
-            roleSelectRow,
-            targetSelectRow,
-            optionsSelectRow,
-            delayButtonsRow,
-            actionButtonsRow,
-          ],
+          components: [roleSelectRow, targetSelectRow, optionsSelectRow, delayButtonsRow, actionButtonsRow],
         });
       } catch (error) {
         console.error("Error in interaction handler:", error);
@@ -394,11 +370,7 @@ const AddRoleCommand: Precommand = {
 
         if (rolesToAssign.length === 0) {
           await interaction.editReply({
-            embeds: [
-              new ErrorEmbed()
-                .setTitle("Error")
-                .setDescription("No valid roles were selected for assignment."),
-            ],
+            embeds: [new ErrorEmbed().setTitle("Error").setDescription("No valid roles were selected for assignment.")],
           });
           return;
         }
@@ -427,9 +399,7 @@ const AddRoleCommand: Precommand = {
         const confirmationEmbed = new EmbedCorrect()
           .setTitle("Final Confirmation")
           .setColor("#0099ff")
-          .setDescription(
-            `You are about to assign ${rolesToAssign.length} role(s) to ${members.size} member(s).`,
-          )
+          .setDescription(`You are about to assign ${rolesToAssign.length} role(s) to ${members.size} member(s).`)
           .addFields(
             {
               name: "Roles",
@@ -439,11 +409,7 @@ const AddRoleCommand: Precommand = {
             {
               name: "Target",
               value:
-                config.target === "all"
-                  ? "All members"
-                  : config.target === "bots"
-                    ? "Only bots"
-                    : "Only human users",
+                config.target === "all" ? "All members" : config.target === "bots" ? "Only bots" : "Only human users",
               inline: true,
             },
             {
@@ -463,10 +429,7 @@ const AddRoleCommand: Precommand = {
             .setCustomId("final-confirm-addrole")
             .setLabel("Confirm Assignment")
             .setStyle(ButtonStyle.Success),
-          new ButtonBuilder()
-            .setCustomId("final-cancel-addrole")
-            .setLabel("Cancel")
-            .setStyle(ButtonStyle.Danger),
+          new ButtonBuilder().setCustomId("final-cancel-addrole").setLabel("Cancel").setStyle(ButtonStyle.Danger),
         );
 
         await interaction.editReply({
@@ -486,11 +449,7 @@ const AddRoleCommand: Precommand = {
           try {
             if (finalInteraction.user.id !== message.author.id) {
               await finalInteraction.reply({
-                embeds: [
-                  new ErrorEmbed().setDescription(
-                    "Only the command author can confirm this action.",
-                  ),
-                ],
+                embeds: [new ErrorEmbed().setDescription("Only the command author can confirm this action.")],
                 flags: "Ephemeral",
               });
               return;
@@ -521,9 +480,7 @@ const AddRoleCommand: Precommand = {
               let logMessage = null;
               if (config.logChannel) {
                 try {
-                  const logChannel = (await message.guild?.channels.fetch(
-                    config.logChannel,
-                  )) as TextChannel;
+                  const logChannel = (await message.guild?.channels.fetch(config.logChannel)) as TextChannel;
                   if (logChannel) {
                     const logEmbed = new EmbedBuilder()
                       .setTitle("Role Assignment Started")
@@ -566,9 +523,7 @@ const AddRoleCommand: Precommand = {
                   try {
                     // Check if member already has all roles and skip if configured
                     if (config.skipExisting) {
-                      const hasAllRoles = rolesToAssign.every((role) =>
-                        member.roles.cache.has(role.id),
-                      );
+                      const hasAllRoles = rolesToAssign.every((role) => member.roles.cache.has(role.id));
                       if (hasAllRoles) {
                         skipCount++;
                         return;
@@ -612,9 +567,7 @@ const AddRoleCommand: Precommand = {
               // Final result
               const resultEmbed = new EmbedCorrect()
                 .setTitle("Role Assignment Complete")
-                .setDescription(
-                  `Assigned ${rolesToAssign.length} role(s) to ${members.size} member(s)`,
-                )
+                .setDescription(`Assigned ${rolesToAssign.length} role(s) to ${members.size} member(s)`)
                 .addFields(
                   {
                     name: "Successful Assignments",
@@ -644,9 +597,7 @@ const AddRoleCommand: Precommand = {
               // Update log channel if specified
               if (logMessage && config.logChannel) {
                 try {
-                  const logChannel = (await message.guild?.channels.fetch(
-                    config.logChannel,
-                  )) as TextChannel;
+                  const logChannel = (await message.guild?.channels.fetch(config.logChannel)) as TextChannel;
                   if (logChannel) {
                     const logEmbed = new EmbedBuilder()
                       .setTitle("Role Assignment Completed")

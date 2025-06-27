@@ -1,0 +1,1371 @@
+<!-- TOAST NOTIFICATION -->
+<div id="notificationToast" class="toast position-fixed bottom-0 end-0 m-3" style="z-index: 1100;">
+  <div class="d-flex">
+    <div class="toast-body"></div>
+    <button type="button" class="btn-close btn-close-white ms-auto me-2" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<!-- SECCIÓN DE GESTIÓN DE LICENCIAS -->
+<section class="card mb-4 fade-in" id="licensesSection"
+  style="background: var(--card-bg-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--input-border-dark);">
+  <div class="card-header d-flex flex-wrap align-items-center justify-content-between"
+    style="background: rgba(30, 30, 30, 0.7); border-bottom: 1px solid var(--input-border-dark); color: var(--section-title-color);">
+    <div class="d-flex align-items-center">
+      <span class="section-title"><i class="fa-solid fa-key me-2"></i>Gestión de Licencias</span>
+      <div class="ms-3 d-flex align-items-center">
+        <span class="badge bg-primary rounded-pill ms-2" id="totalLicensesCount">0</span>
+        <span class="badge bg-success rounded-pill ms-1" id="activeLicensesCount">0</span>
+        <span class="badge bg-danger rounded-pill ms-1" id="expiredLicensesCount">0</span>
+      </div>
+    </div>
+    <div class="d-flex mt-2 mt-md-0">
+      <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#licenseModal" title="Nueva licencia">
+        <i class="fa fa-plus me-1 d-none d-md-inline"></i>
+        <span class="d-none d-md-inline">Nueva</span>
+        <span class="d-md-none"><i class="fa fa-plus"></i></span>
+      </button>
+      <button class="btn btn-outline-secondary me-2" id="exportLicensesBtn" title="Exportar licencias">
+        <i class="fa fa-download me-1 d-none d-md-inline"></i>
+        <span class="d-md-none"><i class="fa fa-download"></i></span>
+      </button>
+      <button class="btn btn-outline-secondary" id="refreshLicensesBtn" title="Recargar licencias">
+        <i class="fa fa-rotate"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- FILTROS AVANZADOS -->
+    <div class="row mb-3 g-2">
+      <div class="col-md-6">
+        <div class="search-group">
+          <input type="text" id="licenseSearch" class="form-control"
+            placeholder="Buscar licencias por clave, usuario, estado..." autocomplete="off"
+            style="background: var(--input-bg-dark); color: var(--text-color-dark); border: 1.5px solid var(--input-border-dark);">
+          <span class="search-icon"><i class="fa fa-search"></i></span>
+          <button class="clear-btn" type="button" style="display:none;"><i class="fa fa-times"></i></button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex flex-wrap gap-2">
+          <select class="form-select form-select-sm flex-grow-1" id="licenseTypeFilter"
+            style="max-width: 150px; background: var(--input-bg-dark); color: var(--text-color-dark); border: 1.5px solid var(--input-border-dark);">
+            <option value="">Todos los tipos</option>
+            <option value="FREE">Free</option>
+            <option value="BASIC">Basic</option>
+            <option value="PREMIUM">Premium</option>
+            <option value="ENTERPRISE">Enterprise</option>
+            <option value="CUSTOM">Custom</option>
+          </select>
+          <select class="form-select form-select-sm flex-grow-1" id="licenseStatusFilter"
+            style="max-width: 150px; background: var(--input-bg-dark); color: var(--text-color-dark); border: 1.5px solid var(--input-border-dark);">
+            <option value="">Todos los estados</option>
+            <option value="ACTIVE">Activas</option>
+            <option value="EXPIRED">Expiradas</option>
+          </select>
+          <button class="btn btn-sm btn-outline-secondary" id="clearFiltersBtn">
+            <i class="fa fa-filter-circle-xmark me-1"></i>Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRÁFICO ESTADÍSTICO -->
+    <div class="chart-container mb-4" style="height: 200px; display: none;" id="licensesChartContainer">
+      <canvas id="licensesChart"></canvas>
+    </div>
+
+    <!-- TABLA DE LICENCIAS -->
+    <div class="table-responsive position-relative">
+      <table class="table table-hover align-middle mb-0" id="licensesTable"
+        style="background: var(--card-bg-dark); color: var(--text-color-dark);">
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="key">Clave <i class="fa fa-sort ms-1"></i></th>
+            <th class="sortable" data-sort="userId">Usuario <i class="fa fa-sort ms-1"></i></th>
+            <th class="sortable" data-sort="type">Tipo <i class="fa fa-sort ms-1"></i></th>
+            <th class="sortable" data-sort="status">Estado <i class="fa fa-sort ms-1"></i></th>
+            <th class="sortable" data-sort="validUntil">Válida hasta <i class="fa fa-sort ms-1"></i></th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="licensesTableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    <nav class="mt-3" id="paginationContainer" style="display: none;">
+      <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+          <a class="page-link" href="#" id="prevPageBtn">&laquo;</a>
+        </li>
+        <li class="page-item active">
+          <a class="page-link" href="#">1</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#" id="nextPageBtn">&raquo;</a>
+        </li>
+      </ul>
+      <div class="text-center text-muted small">
+        Mostrando <span id="currentPageItems">0</span> de <span id="totalItems">0</span> licencias
+      </div>
+    </nav>
+  </div>
+</section>
+
+<!-- MODAL PARA CREAR/EDITAR LICENCIA -->
+<div class="modal fade" id="licenseModal" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+      <form id="licenseForm" novalidate>
+        <div class="modal-header">
+          <h5 class="modal-title" id="licenseModalLabel">Nueva Licencia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="licenseId">
+          <input type="hidden" id="licenseAdminId" value="<%= user.id %>">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="licenseKey" class="form-label">Clave de Licencia</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="licenseKey" required>
+                  <button class="btn btn-outline-secondary" type="button" id="generateLicenseKeyBtn"
+                    title="Generar clave aleatoria">
+                    <i class="fa fa-dice"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback">Por favor ingresa una clave de licencia válida</div>
+              </div>
+              <div class="mb-3">
+                <label for="licenseUserId" class="form-label">ID de Usuario</label>
+                <input type="text" class="form-control" id="licenseUserId" required>
+                <div class="invalid-feedback">Por favor ingresa un ID de usuario</div>
+              </div>
+              <div class="mb-3">
+                <label for="licenseType" class="form-label">Tipo</label>
+                <select class="form-select" id="licenseType" required>
+                  <option value="">Seleccionar tipo</option>
+                  <option value="FREE">Free</option>
+                  <option value="BASIC">Basic</option>
+                  <option value="PREMIUM">Premium</option>
+                  <option value="ENTERPRISE">Enterprise</option>
+                  <option value="CUSTOM">Custom</option>
+                </select>
+                <div class="invalid-feedback">Por favor selecciona un tipo de licencia</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="licenseValidUntil" class="form-label">Válida hasta</label>
+                <input type="date" class="form-control" id="licenseValidUntil" required>
+                <div class="invalid-feedback">Por favor selecciona una fecha válida</div>
+              </div>
+              <div class="mb-3">
+                <label for="licenseHwid" class="form-label">HWID (separados por coma)</label>
+                <div class="input-group">
+                  <textarea class="form-control" id="licenseHwid" rows="2"></textarea>
+                  <button class="btn btn-outline-secondary" type="button" id="generateHwidBtn"
+                    title="Generar HWID aleatorio">
+                    <i class="fa fa-dice"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="licenseRequestLimit" class="form-label">Límite de peticiones</label>
+                <input type="number" class="form-control" id="licenseRequestLimit" min="1" value="1000" required>
+                <div class="invalid-feedback">Por favor ingresa un límite válido</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="submitLicenseBtn">
+            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"
+              style="display: none;"></span>
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN -->
+<div class="modal fade" id="deleteLicenseModal" tabindex="-1" aria-labelledby="deleteLicenseModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteLicenseModalLabel">Eliminar Licencia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar esta licencia?</p>
+        <p class="text-danger"><strong>Esta acción no se puede deshacer.</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteLicenseBtn">
+          <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"
+            style="display: none;"></span>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PARA VER DETALLES DE LICENCIA -->
+<div class="modal fade" id="licenseDetailsModal" tabindex="-1" aria-labelledby="licenseDetailsModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+      <div class="modal-header">
+        <h5 class="modal-title" id="licenseDetailsModalLabel">Detalles de Licencia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="licenseDetailsBody">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="copyLicenseDetailsBtn">
+          <i class="fa fa-copy me-1"></i>Copiar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE EXPORTACIÓN -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"
+      style="background: var(--card-bg-dark); color: var(--text-color-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exportModalLabel">Exportar Licencias</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="exportFormat" class="form-label">Formato</label>
+          <select class="form-select" id="exportFormat">
+            <option value="csv">CSV (Excel)</option>
+            <option value="json">JSON</option>
+            <option value="excel">Excel (XLSX)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="exportScope" class="form-label">Ámbito</label>
+          <select class="form-select" id="exportScope">
+            <option value="current">Resultados actuales</option>
+            <option value="all">Todas las licencias</option>
+          </select>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="includeAllFields" checked>
+          <label class="form-check-label" for="includeAllFields">Incluir todos los campos</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="confirmExportBtn">
+          <i class="fa fa-download me-1"></i>Exportar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSS ADICIONAL -->
+<style>
+  /* Elimina variables locales y usa las globales del layout principal */
+  /* Usa las mismas variables y estilos que administrator.ejs */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .search-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-group .search-icon {
+    position: absolute;
+    left: 10px;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    opacity: 0.8;
+    pointer-events: none;
+    transition: color 0.2s;
+  }
+
+  .search-group input {
+    padding-left: 35px;
+    background: var(--input-bg-dark);
+    color: var(--text-color-dark);
+    border: 1.5px solid var(--primary-color);
+    border-radius: 0.5rem;
+    min-width: 0;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+
+  .search-group input:focus {
+    box-shadow: 0 0 0 4px rgba(106, 90, 249, 0.15);
+    border-color: var(--primary-color-hover);
+    outline: none;
+  }
+
+  .search-group .clear-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #f72585;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    z-index: 2;
+    display: none;
+  }
+
+  .search-group input:not(:placeholder-shown)~.clear-btn {
+    display: block;
+    animation: fadeIn 0.2s;
+  }
+
+  .badge-status {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    border-radius: 0.7em;
+  }
+
+  .badge-status.ACTIVE {
+    background: #28a745;
+    color: #fff;
+  }
+
+  .badge-status.EXPIRED {
+    background: #ffc107;
+    color: #222;
+  }
+
+  .sortable {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .sortable:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .sortable.active {
+    color: var(--primary-color);
+  }
+
+  .sortable.active .fa-sort {
+    display: none;
+  }
+
+  .sortable.active .fa-sort-up,
+  .sortable.active .fa-sort-down {
+    display: inline-block;
+  }
+
+  .sortable .fa-sort-up,
+  .sortable .fa-sort-down {
+    display: none;
+  }
+
+  .skeleton-row {
+    height: 48px;
+  }
+
+  .skeleton {
+    height: 20px;
+    background: linear-gradient(90deg, #232136 25%, #2a2a2a 50%, #232136 75%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .toast {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .btn-hover-effect {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Card y modal backgrounds y textos */
+  #licensesSection {
+    background: rgba(36, 45, 62, 0.08);
+  }
+
+  .modal-content {
+    background: var(--card-bg-dark) !important;
+    color: var(--text-color-dark) !important;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+
+  .card-header {
+    background: transparent !important;
+    border-bottom: 1px solid var(--input-border-dark) !important;
+    color: var(--section-title-color) !important;
+  }
+
+  .table {
+    color: var(--text-color-dark);
+    background: rgba(36, 45, 62, 0.08);
+  }
+
+  .table th,
+  .table td {
+    vertical-align: middle;
+  }
+
+  .form-control,
+  .form-select,
+  textarea {
+    background: var(--input-bg-dark);
+    color: var(--text-color-dark);
+    border: 1.5px solid var(--input-border-dark);
+    border-radius: 0.5rem;
+  }
+
+  .form-control:focus,
+  .form-select:focus,
+  textarea:focus {
+    border-color: var(--primary-color-hover);
+    box-shadow: 0 0 0 4px rgba(106, 90, 249, 0.15);
+    outline: none;
+  }
+
+  .modal-header,
+  .modal-footer {
+    border-color: var(--input-border-dark);
+  }
+
+  /* Toast de notificación igual a tasksUI.ejs */
+  #notificationToast.toast {
+    background: #232136;
+    color: #fff;
+    border-radius: 0.5rem;
+    min-width: 250px;
+    max-width: 350px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    border: none;
+    opacity: 1;
+    transition: opacity 0.3s;
+  }
+
+  #notificationToast .toast-body {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  #notificationToast .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    .table-responsive {
+      border: 0;
+    }
+
+    .table thead {
+      display: none;
+    }
+
+    .table tr {
+      display: block;
+      margin-bottom: 1rem;
+      border: 1px solid var(--input-border-dark);
+      border-radius: var(--border-radius);
+    }
+
+    .table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--input-border-dark);
+    }
+
+    .table td:before {
+      content: attr(data-label);
+      font-weight: bold;
+      margin-right: 1rem;
+    }
+
+    .table td:last-child {
+      border-bottom: 0;
+    }
+
+    .badge {
+      font-size: 0.75em;
+    }
+  }
+</style>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+  (function () {
+    const LICENSES_API = '/dashboard/utils/licenses';
+    let licenses = [];
+    let filteredLicenses = [];
+    let editingLicenseId = null;
+    let licenseToDelete = null;
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let sortField = 'validUntil';
+    let sortDirection = 'desc';
+    let licensesChart = null;
+
+    // DOM Elements
+    const elements = {
+      licensesTableBody: document.getElementById('licensesTableBody'),
+      licenseSearch: document.getElementById('licenseSearch'),
+      licenseForm: document.getElementById('licenseForm'),
+      licenseId: document.getElementById('licenseId'),
+      licenseAdminId: document.getElementById('licenseAdminId'),
+      licenseKey: document.getElementById('licenseKey'),
+      licenseUserId: document.getElementById('licenseUserId'),
+      licenseType: document.getElementById('licenseType'),
+      licenseValidUntil: document.getElementById('licenseValidUntil'),
+      licenseHwid: document.getElementById('licenseHwid'),
+      licenseRequestLimit: document.getElementById('licenseRequestLimit'),
+      refreshLicensesBtn: document.getElementById('refreshLicensesBtn'),
+      exportLicensesBtn: document.getElementById('exportLicensesBtn'),
+      licenseTypeFilter: document.getElementById('licenseTypeFilter'),
+      licenseStatusFilter: document.getElementById('licenseStatusFilter'),
+      clearFiltersBtn: document.getElementById('clearFiltersBtn'),
+      generateLicenseKeyBtn: document.getElementById('generateLicenseKeyBtn'),
+      generateHwidBtn: document.getElementById('generateHwidBtn'),
+      totalLicensesCount: document.getElementById('totalLicensesCount'),
+      activeLicensesCount: document.getElementById('activeLicensesCount'),
+      expiredLicensesCount: document.getElementById('expiredLicensesCount'),
+      licensesChartContainer: document.getElementById('licensesChartContainer'),
+      loadingOverlay: document.getElementById('loadingOverlay'),
+      paginationContainer: document.getElementById('paginationContainer'),
+      currentPageItems: document.getElementById('currentPageItems'),
+      totalItems: document.getElementById('totalItems'),
+      prevPageBtn: document.getElementById('prevPageBtn'),
+      nextPageBtn: document.getElementById('nextPageBtn'),
+      submitLicenseBtn: document.getElementById('submitLicenseBtn'),
+      confirmDeleteLicenseBtn: document.getElementById('confirmDeleteLicenseBtn'),
+      copyLicenseDetailsBtn: document.getElementById('copyLicenseDetailsBtn'),
+      confirmExportBtn: document.getElementById('confirmExportBtn'),
+      licenseModalLabel: document.getElementById('licenseModalLabel') // <-- Añadido
+    };
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      setupEventListeners();
+      await fetchLicenses();
+      setupThemeToggle();
+      setDefaultValidUntilDate();
+    }
+
+    function setupEventListeners() {
+      // Formulario de licencia
+      elements.licenseForm.addEventListener('submit', submitLicenseForm);
+
+      // Botones
+      elements.refreshLicensesBtn.addEventListener('click', fetchLicenses);
+      elements.exportLicensesBtn.addEventListener('click', () => new bootstrap.Modal('#exportModal').show());
+      elements.clearFiltersBtn.addEventListener('click', clearFilters);
+      elements.generateLicenseKeyBtn.addEventListener('click', generateLicenseKey);
+      // Añadir evento para el botón de HWID
+      elements.generateHwidBtn.addEventListener('click', generateHwid);
+      elements.prevPageBtn.addEventListener('click', () => changePage(-1));
+      elements.nextPageBtn.addEventListener('click', () => changePage(1));
+      elements.confirmDeleteLicenseBtn.addEventListener('click', deleteLicense);
+      elements.copyLicenseDetailsBtn.addEventListener('click', copyLicenseDetails);
+      elements.confirmExportBtn.addEventListener('click', exportLicenses);
+
+      // Filtros
+      elements.licenseSearch.addEventListener('input', debounce(() => {
+        filterLicenses();
+        currentPage = 1;
+        renderLicensesTable();
+      }, 300));
+
+      elements.licenseTypeFilter.addEventListener('change', () => {
+        filterLicenses();
+        currentPage = 1;
+        renderLicensesTable();
+      });
+
+      elements.licenseStatusFilter.addEventListener('change', () => {
+        filterLicenses();
+        currentPage = 1;
+        renderLicensesTable();
+      });
+
+      // Ordenación
+      document.querySelectorAll('.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+          const field = th.getAttribute('data-sort');
+          if (sortField === field) {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+          } else {
+            sortField = field;
+            sortDirection = 'asc';
+          }
+
+          // Actualizar iconos de ordenación
+          document.querySelectorAll('.sortable i').forEach(icon => {
+            icon.className = 'fa fa-sort ms-1';
+          });
+
+          const icon = th.querySelector('i');
+          icon.className = `fa fa-sort-${sortDirection === 'asc' ? 'up' : 'down'} ms-1`;
+
+          // Resaltar columna ordenada
+          document.querySelectorAll('.sortable').forEach(el => el.classList.remove('active'));
+          th.classList.add('active');
+
+          filterLicenses();
+          renderLicensesTable();
+        });
+      });
+
+      // Limpiar búsqueda
+      document.querySelector('#licenseSearch + .clear-btn').addEventListener('click', function () {
+        elements.licenseSearch.value = '';
+        filterLicenses();
+        renderLicensesTable();
+        this.style.display = 'none';
+      });
+
+      // Mostrar/ocultar botón de limpiar búsqueda
+      elements.licenseSearch.addEventListener('input', function () {
+        document.querySelector('#licenseSearch + .clear-btn').style.display =
+          this.value ? 'block' : 'none';
+      });
+
+      // Resetear formulario al cerrar modal
+      document.querySelector('#licenseModal').addEventListener('hidden.bs.modal', () => {
+        elements.licenseForm.reset();
+        elements.licenseId.value = '';
+        elements.licenseModalLabel.textContent = 'Nueva Licencia';
+        elements.licenseForm.classList.remove('was-validated');
+      });
+    }
+
+    function setupThemeToggle() {
+      const themeToggle = document.createElement('button');
+      themeToggle.className = 'btn btn-sm btn-outline-secondary position-fixed bottom-0 end-0 m-3';
+      themeToggle.innerHTML = '<i class="fa fa-moon"></i>';
+      themeToggle.title = 'Cambiar tema';
+      themeToggle.style.zIndex = 1000;
+      themeToggle.addEventListener('click', toggleTheme);
+      document.body.appendChild(themeToggle);
+
+      // Cargar preferencia de tema
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      updateThemeIcon(themeToggle, savedTheme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-bs-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(this, newTheme);
+    }
+
+    function updateThemeIcon(button, theme) {
+      button.innerHTML = theme === 'light' ? '<i class="fa fa-moon"></i>' : '<i class="fa fa-sun"></i>';
+    }
+
+    function setDefaultValidUntilDate() {
+      const today = new Date();
+      const nextMonth = new Date(today.setMonth(today.getMonth() + 1));
+      const formattedDate = nextMonth.toISOString().split('T')[0];
+      elements.licenseValidUntil.value = formattedDate;
+    }
+
+    function generateLicenseKey() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let key = '';
+      for (let i = 0; i < 16; i++) {
+        if (i > 0 && i % 4 === 0) key += '-';
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      elements.licenseKey.value = key;
+      elements.licenseKey.focus();
+    }
+
+    // Generador de HWID aleatorio
+    function generateHwid() {
+      // Genera 1 o varios HWID aleatorios (formato hexadecimal, 16 caracteres)
+      const chars = 'ABCDEF0123456789';
+      let hwids = [];
+      // Por defecto genera 1 HWID, pero puedes cambiar a varios si lo deseas
+      for (let j = 0; j < 1; j++) {
+        let hwid = '';
+        for (let i = 0; i < 16; i++) {
+          hwid += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        hwids.push(hwid);
+      }
+      elements.licenseHwid.value = hwids.join(', ');
+      elements.licenseHwid.focus();
+    }
+
+    // Fetch de licencias
+    async function fetchLicenses() {
+      try {
+        showLoading(true);
+        const res = await fetch(LICENSES_API);
+        if (!res.ok) throw new Error('Error al cargar licencias');
+
+        licenses = await res.json();
+        updateLicenseCounts();
+        filterLicenses();
+        currentPage = 1; // <-- Asegura que siempre empiece en la página 1
+        renderLicensesTable();
+        updatePagination(); // <-- Asegura que la paginación se actualice correctamente
+        renderLicenseChart();
+
+        showToast('Licencias cargadas correctamente', 'success');
+      } catch (e) {
+        console.error('Error:', e);
+        showToast('Error al cargar licencias', 'danger');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function showLoading(show) {
+      if (show) {
+        elements.licensesTableBody.innerHTML = '';
+      }
+    }
+
+    function updateLicenseCounts() {
+      const active = licenses.filter(l => new Date(l.validUntil) >= new Date()).length;
+      const expired = licenses.length - active;
+
+      elements.totalLicensesCount.textContent = licenses.length;
+      elements.activeLicensesCount.textContent = active;
+      elements.expiredLicensesCount.textContent = expired;
+    }
+
+    function filterLicenses() {
+      const searchTerm = elements.licenseSearch.value.toLowerCase();
+      const typeFilter = elements.licenseTypeFilter.value;
+      const statusFilter = elements.licenseStatusFilter.value;
+
+      filteredLicenses = licenses.filter(license => {
+        // Filtro de búsqueda
+        const matchesSearch =
+          (license.key && license.key.toLowerCase().includes(searchTerm)) ||
+          (license.userId && license.userId.toLowerCase().includes(searchTerm)) ||
+          (license.type && license.type.toLowerCase().includes(searchTerm));
+
+        // Filtro por tipo
+        const matchesType = !typeFilter || license.type === typeFilter;
+
+        // Filtro por estado
+        let matchesStatus = true;
+        if (statusFilter === 'ACTIVE') {
+          matchesStatus = new Date(license.validUntil) >= new Date();
+        } else if (statusFilter === 'EXPIRED') {
+          matchesStatus = new Date(license.validUntil) < new Date();
+        }
+
+        return matchesSearch && matchesType && matchesStatus;
+      });
+
+      // Ordenar
+      filteredLicenses.sort((a, b) => {
+        let valA, valB;
+
+        if (sortField === 'status') {
+          valA = new Date(a.validUntil) >= new Date() ? 1 : 0;
+          valB = new Date(b.validUntil) >= new Date() ? 1 : 0;
+        } else {
+          valA = a[sortField] || '';
+          valB = b[sortField] || '';
+
+          if (sortField === 'validUntil') {
+            valA = new Date(valA).getTime();
+            valB = new Date(valB).getTime();
+          }
+        }
+
+        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      updatePagination();
+    }
+
+    function updatePagination() {
+      const totalPages = Math.ceil(filteredLicenses.length / itemsPerPage);
+
+      if (filteredLicenses.length <= itemsPerPage) {
+        elements.paginationContainer.style.display = 'none';
+      } else {
+        elements.paginationContainer.style.display = 'block';
+        elements.prevPageBtn.parentElement.classList.toggle('disabled', currentPage === 1);
+        elements.nextPageBtn.parentElement.classList.toggle('disabled', currentPage === totalPages);
+      }
+
+      elements.totalItems.textContent = filteredLicenses.length;
+      elements.currentPageItems.textContent =
+        `${(currentPage - 1) * itemsPerPage + 1}-${Math.min(currentPage * itemsPerPage, filteredLicenses.length)}`;
+    }
+
+    function changePage(delta) {
+      const totalPages = Math.ceil(filteredLicenses.length / itemsPerPage);
+      const newPage = currentPage + delta;
+
+      if (newPage > 0 && newPage <= totalPages) {
+        currentPage = newPage;
+        renderLicensesTable();
+        updatePagination();
+      }
+    }
+
+    // Renderiza la tabla de licencias
+    function renderLicensesTable() {
+      const startIdx = (currentPage - 1) * itemsPerPage;
+      const endIdx = startIdx + itemsPerPage;
+      const pageLicenses = filteredLicenses.slice(startIdx, endIdx);
+      const usersMap = JSON.parse('<%- JSON.stringify(usersMap) %>');
+
+      let html = '';
+
+      if (pageLicenses.length === 0) {
+        html = '<tr><td colspan="6" class="text-center text-muted py-4">No hay licencias Creadas</td></tr>';
+      } else {
+        pageLicenses.forEach(license => {
+          const estado = new Date(license.validUntil) < new Date() ? 'Expirada' : 'Activa';
+          const statusClass = estado === 'Activa' ? 'ACTIVE' : 'EXPIRED';
+
+          html += `
+            <tr class="btn-hover-effect">
+              <td data-label="Clave">
+                <span class="badge bg-secondary">${license.key}</span>
+              </td>
+              <td data-label="Usuario">${usersMap[license.userId] || license.userId}</td>
+              <td data-label="Tipo">${license.type || '-'}</td>
+              <td data-label="Estado">
+                <span class="badge badge-status ${statusClass}">${estado}</span>
+              </td>
+              <td data-label="Válida hasta">
+                ${license.validUntil ? new Date(license.validUntil).toLocaleDateString() : '-'}
+              </td>
+              <td data-label="Acciones">
+                <div class="d-flex justify-content-center">
+                  <button class="btn btn-sm btn-info me-1" title="Ver detalles" onclick="openLicenseDetails('${license.key}')">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="btn btn-sm btn-warning me-1" title="Editar" onclick="openEditLicense('${license.key}')">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" title="Eliminar" onclick="openDeleteLicense('${license.key}')">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      elements.licensesTableBody.innerHTML = html;
+    }
+
+    function renderLicenseChart() {
+      if (licenses.length === 0) {
+        elements.licensesChartContainer.style.display = 'none';
+        return;
+      }
+
+      elements.licensesChartContainer.style.display = 'block';
+
+      const ctx = document.getElementById('licensesChart').getContext('2d');
+
+      // Datos para el gráfico
+      const types = ['FREE', 'BASIC', 'PREMIUM', 'ENTERPRISE', 'CUSTOM'];
+      const typeCounts = types.map(type =>
+        licenses.filter(l => l.type === type).length
+      );
+
+      const activeCount = licenses.filter(l => new Date(l.validUntil) >= new Date()).length;
+      const expiredCount = licenses.length - activeCount;
+
+      // Destruir gráfico anterior si existe
+      if (licensesChart) {
+        licensesChart.destroy();
+      }
+
+      licensesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Free', 'Basic', 'Premium', 'Enterprise', 'Custom', 'Activas', 'Expiradas'],
+          datasets: [{
+            label: 'Distribución de Licencias',
+            data: [...typeCounts, activeCount, expiredCount],
+            backgroundColor: [
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(153, 102, 255, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(40, 167, 69, 0.7)',
+              'rgba(220, 53, 69, 0.7)'
+            ],
+            borderColor: [
+              'rgba(54, 162, 235, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(255, 99, 132, 1)',
+              'rgba(40, 167, 69, 1)',
+              'rgba(220, 53, 69, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return `${context.dataset.label}: ${context.raw}`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Crear o actualizar licencia
+    async function submitLicenseForm(e) {
+      e.preventDefault();
+
+      if (!elements.licenseForm.checkValidity()) {
+        elements.licenseForm.classList.add('was-validated');
+        return;
+      }
+
+      const id = elements.licenseId.value; // id interno (ObjectId)
+      const key = elements.licenseKey.value.trim();
+      const userId = elements.licenseUserId.value.trim();
+      const type = elements.licenseType.value;
+      const adminId = elements.licenseAdminId.value;
+      const validUntil = elements.licenseValidUntil.value;
+      const hwid = elements.licenseHwid.value.split(',').map(t => t.trim()).filter(Boolean);
+      const requestLimit = parseInt(elements.licenseRequestLimit.value, 10) || 1000;
+
+      const payload = {
+        key,
+        userId,
+        type,
+        validUntil,
+        hwid,
+        requestLimit,
+        adminId
+      };
+
+      try {
+        toggleSubmitButton(true);
+
+        let res;
+        if (id) {
+          res = await fetch(`${LICENSES_API}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } else {
+          res = await fetch(`${LICENSES_API}/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({}));
+          throw new Error(error.message || 'Error al guardar licencia');
+        }
+
+        bootstrap.Modal.getOrCreateInstance('#licenseModal').hide();
+        await fetchLicenses();
+        showToast('Licencia guardada correctamente', 'success', true);
+      } catch (e) {
+        console.error('Error:', e);
+        showToast(e.message || 'Error al guardar licencia', 'danger', true);
+      } finally {
+        toggleSubmitButton(false);
+      }
+    }
+
+    function toggleSubmitButton(loading) {
+      const spinner = elements.submitLicenseBtn.querySelector('.spinner-border');
+      spinner.style.display = loading ? 'inline-block' : 'none';
+      elements.submitLicenseBtn.disabled = loading;
+    }
+
+    // Abrir modal para editar
+    function openEditLicense(key) {
+      const license = licenses.find(l => l.key === key);
+      if (!license) return;
+
+      elements.licenseId.value = license.id; // id interno (ObjectId)
+      elements.licenseKey.value = license.key;
+      elements.licenseUserId.value = license.userId || '';
+      elements.licenseType.value = license.type || 'STANDARD';
+      elements.licenseValidUntil.value = license.validUntil ? new Date(license.validUntil).toISOString().split('T')[0] : '';
+      elements.licenseHwid.value = license.hwid ? license.hwid.join(', ') : '';
+      elements.licenseRequestLimit.value = license.requestLimit || 1000;
+      elements.licenseModalLabel.textContent = 'Editar Licencia';
+
+      bootstrap.Modal.getOrCreateInstance('#licenseModal').show();
+    }
+
+    // Abrir modal de detalles
+    async function openLicenseDetails(key) {
+      const license = licenses.find(l => l.key === key);
+      if (!license) return;
+
+      const body = document.getElementById('licenseDetailsBody');
+      body.innerHTML = `
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      `;
+
+      bootstrap.Modal.getOrCreateInstance('#licenseDetailsModal').show();
+
+      setTimeout(() => {
+        const status = new Date(license.validUntil) < new Date() ? 'Expirada' : 'Activa';
+        const statusClass = status === 'Activa' ? 'ACTIVE' : 'EXPIRED';
+        const usersMap = JSON.parse('<%- JSON.stringify(usersMap) %>');
+
+        body.innerHTML = `
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label text-muted">Clave de Licencia</label>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-secondary">${license.key}</span>
+                  <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('${license.key}')">
+                    <i class="fa fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted">Usuario</label>
+                <p>${usersMap[license.userId] || license.userId}</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted">Tipo</label>
+                <p>${license.type || '-'}</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted">Estado</label>
+                <p><span class="badge badge-status ${statusClass}">${status}</span></p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label text-muted">Válida hasta</label>
+                <p>${license.validUntil ? new Date(license.validUntil).toLocaleDateString() : '-'}</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted">HWID</label>
+                <p>${license.hwid && license.hwid.length ? license.hwid.join(', ') : '-'}</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted">Límite de peticiones</label>
+                <p>${license.requestLimit || 1000}</p>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted">Peticiones realizadas</label>
+                <p>${license.requestCount || 0}</p>
+              </div>
+            </div>
+          </div>
+          ${license.lastUsed ? `
+            <div class="alert alert-info mt-3">
+              <strong>Último uso:</strong> ${new Date(license.lastUsed).toLocaleString()}
+            </div>
+          ` : ''}
+        `;
+      }, 300);
+    }
+
+    // Abrir modal de confirmación de borrado
+    function openDeleteLicense(key) {
+      licenseToDelete = key;
+      bootstrap.Modal.getOrCreateInstance('#deleteLicenseModal').show();
+    }
+
+    // Eliminar licencia
+    async function deleteLicense() {
+      if (!licenseToDelete) return;
+
+      try {
+        toggleDeleteButton(true);
+
+        const res = await fetch(`${LICENSES_API}/${licenseToDelete}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Error al eliminar licencia');
+
+        await fetchLicenses();
+        showToast('Licencia eliminada correctamente', 'success', true);
+      } catch (e) {
+        console.error('Error:', e);
+        showToast('Error al eliminar licencia', 'danger', true);
+      } finally {
+        toggleDeleteButton(false);
+        licenseToDelete = null;
+        bootstrap.Modal.getOrCreateInstance('#deleteLicenseModal').hide();
+      }
+    }
+
+    function toggleDeleteButton(loading) {
+      const spinner = elements.confirmDeleteLicenseBtn.querySelector('.spinner-border');
+      spinner.style.display = loading ? 'inline-block' : 'none';
+      elements.confirmDeleteLicenseBtn.disabled = loading;
+    }
+
+    function clearFilters() {
+      elements.licenseSearch.value = '';
+      elements.licenseTypeFilter.value = '';
+      elements.licenseStatusFilter.value = '';
+      document.querySelector('#licenseSearch + .clear-btn').style.display = 'none';
+
+      filterLicenses();
+      currentPage = 1;
+      renderLicensesTable();
+    }
+
+    // Exportar licencias
+    async function exportLicenses() {
+      try {
+        const format = document.getElementById('exportFormat').value;
+        const scope = document.getElementById('exportScope').value;
+        const includeAllFields = document.getElementById('includeAllFields').checked;
+
+        const dataToExport = scope === 'all' ? licenses : filteredLicenses;
+
+        if (dataToExport.length === 0) {
+          showToast('No hay datos para exportar', 'warning', true);
+          return;
+        }
+
+        // Mapear datos para exportación
+        const exportData = dataToExport.map(license => {
+          const baseFields = {
+            Clave: license.id,
+            Usuario: license.userId || '',
+            Tipo: license.type || '',
+            Estado: new Date(license.validUntil) < new Date() ? 'Expirada' : 'Activa',
+            'Válida hasta': license.validUntil ? new Date(license.validUntil).toLocaleDateString() : ''
+          };
+
+          if (includeAllFields) {
+            return {
+              ...baseFields,
+              HWID: license.hwid ? license.hwid.join(', ') : '',
+              'Límite peticiones': license.requestLimit || 1000,
+              'Peticiones realizadas': license.requestCount || 0,
+              'Último uso': license.lastUsed ? new Date(license.lastUsed).toLocaleString() : 'Nunca'
+            };
+          }
+
+          return baseFields;
+        });
+
+        if (format === 'csv') {
+          exportToCSV(exportData, 'licencias.csv');
+        } else if (format === 'json') {
+          exportToJSON(exportData, 'licencias.json');
+        } else if (format === 'excel') {
+          exportToExcel(exportData, 'licencias.xlsx');
+        }
+
+        bootstrap.Modal.getOrCreateInstance('#exportModal').hide();
+        showToast('Exportación completada', 'success', true);
+      } catch (e) {
+        console.error('Error al exportar:', e);
+        showToast('Error al exportar licencias', 'danger', true);
+      }
+    }
+
+    function exportToCSV(data, filename) {
+      const headers = Object.keys(data[0]);
+      const csvRows = [
+        headers.join(','),
+        ...data.map(row =>
+          headers.map(field =>
+            `"${String(row[field] || '').replace(/"/g, '""')}"`
+          ).join(',')
+        )
+      ];
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      downloadFile(blob, filename);
+    }
+
+    function exportToJSON(data, filename) {
+      const jsonContent = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      downloadFile(blob, filename);
+    }
+
+    function exportToExcel(data, filename) {
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Licencias');
+      XLSX.writeFile(wb, filename);
+    }
+
+    function downloadFile(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Toast de notificación
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('notificationToast');
+      toast.className = 'toast show position-fixed bottom-0 end-0 m-3';
+      toast.innerHTML = `<div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white ms-auto me-2" data-bs-dismiss="toast"></button></div>`;
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    // Función debounce para optimizar búsquedas
+    function debounce(func, wait) {
+      let timeout;
+      return function () {
+        const context = this, args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+      };
+    }
+
+    // --- FUNCIONES DE COPIADO AL PORTAPAPELES ---
+
+    // Copia un texto al portapapeles y muestra un toast
+    function copyToClipboard(text) {
+      if (!navigator.clipboard) {
+        // Fallback para navegadores antiguos
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          showToast('Copiado al portapapeles', 'success', true);
+        } catch (e) {
+          showToast('No se pudo copiar', 'danger', true);
+        }
+        document.body.removeChild(textarea);
+      } else {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast('Copiado al portapapeles', 'success', true))
+          .catch(() => showToast('No se pudo copiar', 'danger', true));
+      }
+    }
+
+    // Copia los detalles de la licencia mostrados en el modal de detalles
+    function copyLicenseDetails() {
+      const body = document.getElementById('licenseDetailsBody');
+      if (!body) return;
+      // Extrae solo el texto visible (sin HTML)
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = body.innerHTML;
+      // Elimina los botones de copiar
+      tempDiv.querySelectorAll('button').forEach(btn => btn.remove());
+      const text = tempDiv.innerText.trim();
+      copyToClipboard(text);
+    }
+
+    // Exponer funciones globalmente para los botones de acción
+    window.openEditLicense = openEditLicense;
+    window.openDeleteLicense = openDeleteLicense;
+    window.openLicenseDetails = openLicenseDetails;
+    window.copyToClipboard = copyToClipboard;
+    window.copyLicenseDetails = copyLicenseDetails;
+  })();
+</script>

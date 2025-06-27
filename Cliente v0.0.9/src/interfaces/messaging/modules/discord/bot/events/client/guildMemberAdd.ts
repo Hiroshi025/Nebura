@@ -3,7 +3,7 @@ import { AttachmentBuilder, Message } from "discord.js";
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
-import { EmbedCorrect } from "@extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 export default new Event("guildMemberAdd", async (member) => {
   const { guild, id } = member;
@@ -24,8 +24,8 @@ export default new Event("guildMemberAdd", async (member) => {
     ].join("\n"),
   };
 
-  const settings = await main.prisma.myGuild.findUnique({
-    where: { id: guild.id },
+  const settings = await main.prisma.myGuild.findFirst({
+    where: { guildId: guild.id },
     select: { captcha: true },
   });
 
@@ -129,8 +129,7 @@ export default new Event("guildMemberAdd", async (member) => {
             new EmbedCorrect()
               .setTitle("Verification Failed")
               .setDescription(
-                `You entered the wrong captcha. Please try again.\n\n` +
-                  `**Failed Attempts:** ${attempts}/3`,
+                `You entered the wrong captcha. Please try again.\n\n` + `**Failed Attempts:** ${attempts}/3`,
               ),
           ],
         });

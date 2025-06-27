@@ -2,20 +2,39 @@ import axios from "axios";
 import { createHash } from "crypto";
 import { format } from "date-fns";
 import {
-	ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChannelType, codeBlock, Colors,
-	ComponentType, EmbedBuilder, Guild, GuildDefaultMessageNotifications,
-	GuildExplicitContentFilter, GuildFeature, GuildMember, GuildNSFWLevel, GuildPremiumTier,
-	GuildVerificationLevel, Message, MessageEditAttachmentData, StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder, TextChannel, User, UserFlagsBitField
+  ActionRowBuilder,
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  codeBlock,
+  Colors,
+  ComponentType,
+  EmbedBuilder,
+  Guild,
+  GuildDefaultMessageNotifications,
+  GuildExplicitContentFilter,
+  GuildFeature,
+  GuildMember,
+  GuildNSFWLevel,
+  GuildPremiumTier,
+  GuildVerificationLevel,
+  Message,
+  MessageEditAttachmentData,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+  TextChannel,
+  User,
+  UserFlagsBitField,
 } from "discord.js";
 import moment from "moment";
 import { promisify } from "util";
 
 import { main } from "@/main";
 import emojis from "@config/json/emojis.json";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/discord";
 import { config } from "@utils/config";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../client";
 
@@ -65,15 +84,8 @@ export function getMenuOptions(): StringSelectMenuOptionBuilder[] {
  * @param value - The value associated with the menu option.
  * @returns A `StringSelectMenuOptionBuilder` instance representing the menu option.
  */
-export function createMenuOption(
-  label: string,
-  description: string,
-  value: string,
-): StringSelectMenuOptionBuilder {
-  return new StringSelectMenuOptionBuilder()
-    .setLabel(label)
-    .setDescription(description)
-    .setValue(value);
+export function createMenuOption(label: string, description: string, value: string): StringSelectMenuOptionBuilder {
+  return new StringSelectMenuOptionBuilder().setLabel(label).setDescription(description).setValue(value);
 }
 
 /**
@@ -174,10 +186,7 @@ export function enableComponents(...components: any[]): void {
  * @returns The integer representation of the color.
  */
 export function hexToInt(input: string): number {
-  return parseInt(
-    input.replace(/^#([\da-f])([\da-f])([\da-f])$/i, "#$1$1$2$2$3$3").substring(1),
-    16,
-  );
+  return parseInt(input.replace(/^#([\da-f])([\da-f])([\da-f])$/i, "#$1$1$2$2$3$3").substring(1), 16);
 }
 
 /**
@@ -406,9 +415,7 @@ export async function handleUser(message: Message, username: string) {
 
     // Main user embed
     const userEmbed = new EmbedBuilder()
-      .setTitle(
-        `${userData.name || userData.login} ${userData.type === "Organization" ? "🏢" : "👤"}`,
-      )
+      .setTitle(`${userData.name || userData.login} ${userData.type === "Organization" ? "🏢" : "👤"}`)
       .setURL(userData.html_url)
       .setColor(0x24292e) // GitHub dark color
       .setThumbnail(userData.avatar_url)
@@ -444,30 +451,18 @@ export async function handleUser(message: Message, username: string) {
     }
 
     // Get user's repositories
-    const reposResponse = await axios.get(
-      `https://api.github.com/users/${username}/repos?sort=updated&per_page=5`,
-      {
-        headers: {
-          "User-Agent": "DiscordBot (https://github.com)",
-        },
+    const reposResponse = await axios.get(`https://api.github.com/users/${username}/repos?sort=updated&per_page=5`, {
+      headers: {
+        "User-Agent": "DiscordBot (https://github.com)",
       },
-    );
+    });
     const repos: GitHubRepo[] = reposResponse.data;
 
     // Create buttons
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setLabel("View Profile")
-        .setURL(userData.html_url)
-        .setStyle(ButtonStyle.Link),
-      new ButtonBuilder()
-        .setLabel("View Repositories")
-        .setCustomId("view_repos")
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setLabel("View Starred")
-        .setCustomId("view_starred")
-        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View Profile").setURL(userData.html_url).setStyle(ButtonStyle.Link),
+      new ButtonBuilder().setLabel("View Repositories").setCustomId("view_repos").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View Starred").setCustomId("view_starred").setStyle(ButtonStyle.Primary),
     );
 
     // Send initial message
@@ -507,14 +502,11 @@ export async function handleUser(message: Message, username: string) {
 
         case "view_starred": {
           try {
-            const starredResponse = await axios.get(
-              `https://api.github.com/users/${username}/starred?per_page=5`,
-              {
-                headers: {
-                  "User-Agent": "DiscordBot (https://github.com)",
-                },
+            const starredResponse = await axios.get(`https://api.github.com/users/${username}/starred?per_page=5`, {
+              headers: {
+                "User-Agent": "DiscordBot (https://github.com)",
               },
-            );
+            });
             const starredRepos: GitHubRepo[] = starredResponse.data;
 
             const starredEmbed = new EmbedBuilder()
@@ -608,33 +600,18 @@ export async function handleRepository(message: Message, repoPath: string) {
 
     // Create buttons
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setLabel("View Repository")
-        .setURL(repoData.html_url)
-        .setStyle(ButtonStyle.Link),
-      new ButtonBuilder()
-        .setLabel("View Owner")
-        .setCustomId("view_owner")
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setLabel("View Readme")
-        .setCustomId("view_readme")
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setLabel("View Languages")
-        .setCustomId("view_languages")
-        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setLabel("View Repository").setURL(repoData.html_url).setStyle(ButtonStyle.Link),
+      new ButtonBuilder().setLabel("View Owner").setCustomId("view_owner").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View Readme").setCustomId("view_readme").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View Languages").setCustomId("view_languages").setStyle(ButtonStyle.Secondary),
     );
 
     // Get branches for select menu
-    const branchesResponse = await axios.get(
-      `https://api.github.com/repos/${owner}/${repoName}/branches`,
-      {
-        headers: {
-          "User-Agent": "DiscordBot (https://github.com)",
-        },
+    const branchesResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}/branches`, {
+      headers: {
+        "User-Agent": "DiscordBot (https://github.com)",
       },
-    );
+    });
     const branches = branchesResponse.data.slice(0, 25);
 
     const branchSelect = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -675,15 +652,12 @@ export async function handleRepository(message: Message, repoPath: string) {
 
         case "view_readme": {
           try {
-            const readmeResponse = await axios.get(
-              `https://api.github.com/repos/${owner}/${repoName}/readme`,
-              {
-                headers: {
-                  "User-Agent": "DiscordBot (https://github.com)",
-                  Accept: "application/vnd.github.v3.raw",
-                },
+            const readmeResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}/readme`, {
+              headers: {
+                "User-Agent": "DiscordBot (https://github.com)",
+                Accept: "application/vnd.github.v3.raw",
               },
-            );
+            });
             const readmeText = readmeResponse.data;
 
             const readmeEmbed = new EmbedBuilder()
@@ -700,9 +674,7 @@ export async function handleRepository(message: Message, repoPath: string) {
             const readmeEmbed = new EmbedBuilder()
               .setTitle(`README for ${repoData.full_name}`)
               .setColor(0x24292e)
-              .setDescription(
-                `No README found or it couldn't be loaded. [View repository](${repoData.html_url})`,
-              );
+              .setDescription(`No README found or it couldn't be loaded. [View repository](${repoData.html_url})`);
 
             await interaction.editReply({ embeds: [repoEmbed, readmeEmbed] });
           }
@@ -711,14 +683,11 @@ export async function handleRepository(message: Message, repoPath: string) {
 
         case "view_languages": {
           try {
-            const languagesResponse = await axios.get(
-              `https://api.github.com/repos/${owner}/${repoName}/languages`,
-              {
-                headers: {
-                  "User-Agent": "DiscordBot (https://github.com)",
-                },
+            const languagesResponse = await axios.get(`https://api.github.com/repos/${owner}/${repoName}/languages`, {
+              headers: {
+                "User-Agent": "DiscordBot (https://github.com)",
               },
-            );
+            });
             const languages: Record<string, number> = languagesResponse.data;
             const totalBytes = Object.values(languages).reduce((sum, bytes) => sum + bytes, 0);
 
@@ -802,9 +771,7 @@ export async function handleSearch(message: Message, query: string) {
     const searchEmbed = new EmbedBuilder()
       .setTitle(`GitHub Search: "${query}"`)
       .setColor(0x24292e)
-      .setDescription(
-        `Found ${searchData.total_count} repositories. Showing top ${searchData.items.length} results.`,
-      )
+      .setDescription(`Found ${searchData.total_count} repositories. Showing top ${searchData.items.length} results.`)
       .addFields(
         searchData.items.map((item: any) => ({
           name: item.full_name,
@@ -918,47 +885,35 @@ export async function createStatsEmbed(guild: Guild) {
 
 export async function createComponents() {
   const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId("view_roles")
-      .setLabel("View Roles")
-      .setStyle(ButtonStyle.Primary),
-    new ButtonBuilder()
-      .setCustomId("view_emojis")
-      .setLabel("View Emojis")
-      .setStyle(ButtonStyle.Primary),
-    new ButtonBuilder()
-      .setCustomId("view_features")
-      .setLabel("View Features")
-      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("view_roles").setLabel("View Roles").setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId("view_emojis").setLabel("View Emojis").setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId("view_features").setLabel("View Features").setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId("view_bans").setLabel("View Bans").setStyle(ButtonStyle.Danger),
   );
 
   const selectMenu = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-    new StringSelectMenuBuilder()
-      .setCustomId("serverinfo_select")
-      .setPlaceholder("Select more information")
-      .addOptions(
-        {
-          label: "Boost Information",
-          value: "boost_info",
-          description: "Shows details about the server's boosts",
-        },
-        {
-          label: "Security Settings",
-          value: "security_info",
-          description: "Shows the server's security settings",
-        },
-        {
-          label: "Featured Channels",
-          value: "featured_channels",
-          description: "Shows important channels",
-        },
-        {
-          label: "Server Widget",
-          value: "widget_info",
-          description: "Shows widget information",
-        },
-      ),
+    new StringSelectMenuBuilder().setCustomId("serverinfo_select").setPlaceholder("Select more information").addOptions(
+      {
+        label: "Boost Information",
+        value: "boost_info",
+        description: "Shows details about the server's boosts",
+      },
+      {
+        label: "Security Settings",
+        value: "security_info",
+        description: "Shows the server's security settings",
+      },
+      {
+        label: "Featured Channels",
+        value: "featured_channels",
+        description: "Shows important channels",
+      },
+      {
+        label: "Server Widget",
+        value: "widget_info",
+        description: "Shows widget information",
+      },
+    ),
   );
 
   return { buttons, selectMenu };
@@ -1075,10 +1030,7 @@ export async function showBans(interaction: any, guild: Guild) {
       .setDescription(
         bans.size > 0
           ? bans
-              .map(
-                (ban) =>
-                  `**${ban.user.tag}** (ID: ${ban.user.id})\nReason: ${ban.reason || "Not specified"}`,
-              )
+              .map((ban) => `**${ban.user.tag}** (ID: ${ban.user.id})\nReason: ${ban.reason || "Not specified"}`)
               .join("\n\n")
               .substring(0, 2000)
           : "There are no banned users in this server",
@@ -1151,11 +1103,7 @@ export async function showFeaturedChannels(interaction: any, guild: Guild) {
   const channelsEmbed = new EmbedBuilder()
     .setTitle(`📌 Featured Channels of ${guild.name}`)
     .setColor(guild.roles.highest.color || 0x0099ff)
-    .setDescription(
-      channels
-        .map((c) => `**${c.name}:** ${c.channel ? c.channel.toString() : "Not set"}`)
-        .join("\n"),
-    );
+    .setDescription(channels.map((c) => `**${c.name}:** ${c.channel ? c.channel.toString() : "Not set"}`).join("\n"));
 
   await interaction.editReply({ embeds: [channelsEmbed] });
 }
@@ -1335,10 +1283,7 @@ export async function createStatusEmbed(_user: User, member?: GuildMember) {
       },
       {
         name: "👑 Roles",
-        value:
-          member.roles.cache.size > 1
-            ? `${member.roles.cache.size - 1} roles`
-            : "No additional roles",
+        value: member.roles.cache.size > 1 ? `${member.roles.cache.size - 1} roles` : "No additional roles",
         inline: true,
       },
     );
@@ -1384,10 +1329,7 @@ export async function createComponentsv2(user: User, member?: GuildMember) {
       .setLabel("View Roles")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(!member),
-    new ButtonBuilder()
-      .setCustomId("view_badges")
-      .setLabel("View Badges")
-      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("view_badges").setLabel("View Badges").setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId("view_permissions")
       .setLabel("View Permissions")
@@ -1832,19 +1774,14 @@ export async function createDebugInfo(data: any) {
     `Heap Total: ${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
     `Heap Used: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
     `=== Code (${data.code.length} chars) ===`,
-    data.code.length > MAX_DEBUG_INFO_LENGTH
-      ? data.code.substring(0, MAX_DEBUG_INFO_LENGTH) + "..."
-      : data.code,
+    data.code.length > MAX_DEBUG_INFO_LENGTH ? data.code.substring(0, MAX_DEBUG_INFO_LENGTH) + "..." : data.code,
     `=== Output Preview (${data.output.length} chars) ===`,
-    data.output.length > MAX_DEBUG_INFO_LENGTH
-      ? data.output.substring(0, MAX_DEBUG_INFO_LENGTH) + "..."
-      : data.output,
+    data.output.length > MAX_DEBUG_INFO_LENGTH ? data.output.substring(0, MAX_DEBUG_INFO_LENGTH) + "..." : data.output,
   ].join("\n");
 }
 
 export async function sendResponse(message: any, data: any) {
-  const { code, output, debugInfo, executionTimeMs, executionTimeSec, type, evaluated, flags } =
-    data;
+  const { code, output, debugInfo, executionTimeMs, executionTimeSec, type, evaluated, flags } = data;
 
   // Create file attachments if needed
   const files = [];
@@ -1878,9 +1815,7 @@ export async function sendResponse(message: any, data: any) {
       },
       {
         name: "⏱️ Performance",
-        value:
-          `**Time:** ${executionTimeMs.toFixed(3)}ms (${executionTimeSec})\n` +
-          `**Type:** \`${type}\``,
+        value: `**Time:** ${executionTimeMs.toFixed(3)}ms (${executionTimeSec})\n` + `**Type:** \`${type}\``,
         inline: true,
       },
       {
@@ -1899,10 +1834,7 @@ export async function sendResponse(message: any, data: any) {
 
   // Action buttons
   const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`eval-delete-${message.author.id}`)
-      .setLabel("Delete")
-      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(`eval-delete-${message.author.id}`).setLabel("Delete").setStyle(ButtonStyle.Danger),
     new ButtonBuilder()
       .setCustomId(`eval-json-${message.author.id}`)
       .setLabel("View as JSON")
@@ -2005,10 +1937,7 @@ export async function setupCollectors(message: any, data: any) {
           try {
             const json = JSON.stringify(data.evaluated, null, 2);
             await interaction.followUp({
-              content: codeBlock(
-                "json",
-                json.length > 1500 ? json.substring(0, 1500) + "..." : json,
-              ),
+              content: codeBlock("json", json.length > 1500 ? json.substring(0, 1500) + "..." : json),
               flags: "Ephemeral",
             });
           } catch (e) {
@@ -2023,9 +1952,7 @@ export async function setupCollectors(message: any, data: any) {
           await interaction.followUp({
             content: codeBlock(
               "",
-              data.originalOutput.length > 1500
-                ? data.originalOutput.substring(0, 1500) + "..."
-                : data.originalOutput,
+              data.originalOutput.length > 1500 ? data.originalOutput.substring(0, 1500) + "..." : data.originalOutput,
             ),
             flags: "Ephemeral",
           });
@@ -2072,9 +1999,7 @@ ${any}
           await interaction.followUp({
             content: codeBlock(
               "",
-              data.debugInfo.length > 1500
-                ? data.debugInfo.substring(0, 1500) + "..."
-                : data.debugInfo,
+              data.debugInfo.length > 1500 ? data.debugInfo.substring(0, 1500) + "..." : data.debugInfo,
             ),
             ephemeral: true,
           });
@@ -2099,10 +2024,7 @@ ${any}
 
         case "show_code":
           await interaction.followUp({
-            content: codeBlock(
-              "js",
-              data.code.length > 1500 ? data.code.substring(0, 1500) + "..." : data.code,
-            ),
+            content: codeBlock("js", data.code.length > 1500 ? data.code.substring(0, 1500) + "..." : data.code),
             ephemeral: true,
           });
           break;

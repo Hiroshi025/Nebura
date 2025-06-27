@@ -1,11 +1,16 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, Message,
-	MessageActionRowComponentBuilder, StringSelectMenuBuilder
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
+  Message,
+  MessageActionRowComponentBuilder,
+  StringSelectMenuBuilder,
 } from "discord.js";
 
 import { GiveawayManager } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const GiveawayEnd: Precommand = {
   name: "giveaway-end",
@@ -36,9 +41,7 @@ const GiveawayEnd: Precommand = {
 
       if (activeGiveaways.length === 0) {
         return message.reply({
-          embeds: [
-            new ErrorEmbed().setDescription("There are no active giveaways to end in this server."),
-          ],
+          embeds: [new ErrorEmbed().setDescription("There are no active giveaways to end in this server.")],
           allowedMentions: { repliedUser: false },
         });
       }
@@ -61,9 +64,7 @@ const GiveawayEnd: Precommand = {
           })),
         );
 
-      const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-        selectMenu,
-      );
+      const actionRow = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(selectMenu);
 
       const embed = new ErrorEmbed()
         .setTitle("🎉 End a Giveaway Early")
@@ -105,9 +106,7 @@ const GiveawayEnd: Precommand = {
     } catch (error) {
       console.error("Error in giveaway end command:", error);
       await message.reply({
-        embeds: [
-          new ErrorEmbed().setDescription("An error occurred while processing the command."),
-        ],
+        embeds: [new ErrorEmbed().setDescription("An error occurred while processing the command.")],
         allowedMentions: { repliedUser: false },
       });
     }
@@ -125,22 +124,14 @@ async function endSpecificGiveaway(message: Message, giveawayId: string) {
 
     if (!giveaway) {
       return message.reply({
-        embeds: [
-          new ErrorEmbed().setDescription(
-            `No active giveaway found with ID \`${giveawayId}\` in this server.`,
-          ),
-        ],
+        embeds: [new ErrorEmbed().setDescription(`No active giveaway found with ID \`${giveawayId}\` in this server.`)],
         allowedMentions: { repliedUser: false },
       });
     }
 
     if (giveaway.ended) {
       return message.reply({
-        embeds: [
-          new ErrorEmbed().setDescription(
-            `The giveaway for **${giveaway.prize}** has already ended.`,
-          ),
-        ],
+        embeds: [new ErrorEmbed().setDescription(`The giveaway for **${giveaway.prize}** has already ended.`)],
         allowedMentions: { repliedUser: false },
       });
     }
@@ -206,9 +197,7 @@ async function confirmGiveawayEnd(interaction: Message | any, giveaway: any) {
 
     collector.on(
       "collect",
-      async (
-        buttonInteraction: import("discord.js").ButtonInteraction<import("discord.js").CacheType>,
-      ) => {
+      async (buttonInteraction: import("discord.js").ButtonInteraction<import("discord.js").CacheType>) => {
         try {
           if (buttonInteraction.customId === `giveaway_end_confirm_${giveaway.messageId}`) {
             await buttonInteraction.deferReply();
@@ -251,18 +240,14 @@ async function confirmGiveawayEnd(interaction: Message | any, giveaway: any) {
           if ((buttonInteraction as any).replied || (buttonInteraction as any).deferred) {
             await buttonInteraction.followUp({
               embeds: [
-                new ErrorEmbed().setDescription(
-                  "Failed to end the giveaway. Please try again or check permissions.",
-                ),
+                new ErrorEmbed().setDescription("Failed to end the giveaway. Please try again or check permissions."),
               ],
               ephemeral: true,
             });
           } else {
             await buttonInteraction.reply({
               embeds: [
-                new ErrorEmbed().setDescription(
-                  "Failed to end the giveaway. Please try again or check permissions.",
-                ),
+                new ErrorEmbed().setDescription("Failed to end the giveaway. Please try again or check permissions."),
               ],
               ephemeral: true,
             });

@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const ChangePrefixCommand: Precommand = {
   name: "changeprefix",
@@ -14,8 +14,7 @@ const ChangePrefixCommand: Precommand = {
   botpermissions: ["SendMessages"],
   permissions: ["Administrator"],
   async execute(client, message, args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
     const data = await main.prisma.myGuild.findFirst({ where: { guildId: message.guild.id } });
     if (!data)
       return message.reply({

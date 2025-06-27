@@ -2,7 +2,7 @@ import { ChannelType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } f
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -63,9 +63,7 @@ export default new Command(
             .setRequired(true),
         ),
     )
-    .addSubcommand((subcommand) =>
-      subcommand.setName("delete").setDescription("Deletes config for the modlogs."),
-    ),
+    .addSubcommand((subcommand) => subcommand.setName("delete").setDescription("Deletes config for the modlogs.")),
   async (client, interaction) => {
     const getSubCommand = interaction.options.getSubcommand();
 

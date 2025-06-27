@@ -1,7 +1,7 @@
 import { main } from "@/main";
 import { clientID } from "@/shared/class/DB";
-import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Buttons } from "@typings/modules/discord";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 const deleteWebhookConfig: Buttons = {
   id: "button-delete-webhook-config",

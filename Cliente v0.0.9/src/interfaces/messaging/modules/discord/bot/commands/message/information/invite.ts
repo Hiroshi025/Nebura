@@ -1,9 +1,14 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, OAuth2Scopes, PermissionFlagsBits
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  OAuth2Scopes,
+  PermissionFlagsBits,
 } from "discord.js";
 
-import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 const invCommand: Precommand = {
   name: "invite",
@@ -16,15 +21,12 @@ const invCommand: Precommand = {
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],
   async execute(client, message) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
     const inviteURL = client.generateInvite({
       scopes: [OAuth2Scopes.Bot, OAuth2Scopes.ApplicationsCommands],
       permissions: [PermissionFlagsBits.Administrator, PermissionFlagsBits.ManageGuildExpressions],
     });
-    const embed = new EmbedCorrect()
-      .setTitle("Invite Me")
-      .setDescription(`[Click here](${inviteURL})`);
+    const embed = new EmbedCorrect().setTitle("Invite Me").setDescription(`[Click here](${inviteURL})`);
 
     const button = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Invite Me").setURL(inviteURL),

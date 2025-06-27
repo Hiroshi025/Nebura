@@ -2,9 +2,9 @@ import { GiveawaysManager } from "discord-giveaways";
 import { ChannelType, NewsChannel, TextChannel, ThreadChannel, User } from "discord.js";
 
 import { client, main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Prisma } from "@prisma/client";
 import { GiveawayInterface } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 /**
  * Service class for managing Discord giveaways using the [discord-giveaways](https://github.com/Androz2091/discord-giveaways) library.
@@ -130,10 +130,7 @@ export class GiveawayService {
           await this.manager.start(channel as any, options);
           console.log(`[GiveawayService] Successfully reloaded giveaway ${giveaway.messageId}`);
         } catch (error) {
-          console.error(
-            `[GiveawayService] Failed to reload giveaway ${giveaway.messageId}:`,
-            error,
-          );
+          console.error(`[GiveawayService] Failed to reload giveaway ${giveaway.messageId}:`, error);
         }
       });
 
@@ -152,9 +149,7 @@ export class GiveawayService {
    * @param channelId - The ID of the channel to fetch.
    * @returns The valid channel or null if invalid.
    */
-  private async getValidChannel(
-    channelId: string,
-  ): Promise<TextChannel | NewsChannel | ThreadChannel | null> {
+  private async getValidChannel(channelId: string): Promise<TextChannel | NewsChannel | ThreadChannel | null> {
     try {
       const channel = await client.channels.fetch(channelId);
 
@@ -249,20 +244,14 @@ export class GiveawayService {
           }
         }
       } catch (error) {
-        console.error(
-          `[GiveawayService] Error processing ended giveaway ${giveaway.messageId}:`,
-          error,
-        );
+        console.error(`[GiveawayService] Error processing ended giveaway ${giveaway.messageId}:`, error);
 
         // Additional error handling for specific cases
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === "P2025") {
             console.warn(`[GiveawayService] Record not found for giveaway ${giveaway.messageId}`);
           } else {
-            console.error(
-              `[GiveawayService] Database error for giveaway ${giveaway.messageId}:`,
-              error.meta,
-            );
+            console.error(`[GiveawayService] Database error for giveaway ${giveaway.messageId}:`, error.meta);
           }
         }
 
@@ -271,14 +260,9 @@ export class GiveawayService {
           await main.prisma.giveaway.deleteMany({
             where: { messageId: giveaway.messageId },
           });
-          console.warn(
-            `[GiveawayService] Performed cleanup deletion for giveaway ${giveaway.messageId}`,
-          );
+          console.warn(`[GiveawayService] Performed cleanup deletion for giveaway ${giveaway.messageId}`);
         } catch (cleanupError) {
-          console.error(
-            `[GiveawayService] Cleanup failed for giveaway ${giveaway.messageId}:`,
-            cleanupError,
-          );
+          console.error(`[GiveawayService] Cleanup failed for giveaway ${giveaway.messageId}:`, cleanupError);
         }
       }
     });
@@ -300,10 +284,7 @@ export class GiveawayService {
           });
         }
       } catch (error) {
-        console.error(
-          `[GiveawayService] Error handling reroll for giveaway ${giveaway.messageId}:`,
-          error,
-        );
+        console.error(`[GiveawayService] Error handling reroll for giveaway ${giveaway.messageId}:`, error);
       }
     });
 
@@ -325,9 +306,7 @@ export class GiveawayService {
 
           // Check required roles
           if (requirements.requiredRoles?.length) {
-            const hasRequiredRoles = requirements.requiredRoles.some((roleId) =>
-              guildMember.roles.cache.has(roleId),
-            );
+            const hasRequiredRoles = requirements.requiredRoles.some((roleId) => guildMember.roles.cache.has(roleId));
 
             if (!hasRequiredRoles) {
               await member.send({
@@ -352,10 +331,7 @@ export class GiveawayService {
                   await reaction.users.remove(member.id);
                 }
               } catch (err) {
-                console.error(
-                  `[GiveawayService] Error removing reaction for user ${member.id}:`,
-                  err,
-                );
+                console.error(`[GiveawayService] Error removing reaction for user ${member.id}:`, err);
               }
               return;
             }
@@ -363,8 +339,7 @@ export class GiveawayService {
 
           // Check minimum account age
           if (requirements.minAccountAge) {
-            const accountAgeDays =
-              (Date.now() - member.user.createdTimestamp) / (1000 * 60 * 60 * 24);
+            const accountAgeDays = (Date.now() - member.user.createdTimestamp) / (1000 * 60 * 60 * 24);
             if (accountAgeDays < requirements.minAccountAge) {
               await member.send({
                 embeds: [
@@ -388,10 +363,7 @@ export class GiveawayService {
                   await reaction.users.remove(member.id);
                 }
               } catch (err) {
-                console.error(
-                  `[GiveawayService] Error removing reaction for user ${member.id}:`,
-                  err,
-                );
+                console.error(`[GiveawayService] Error removing reaction for user ${member.id}:`, err);
               }
               return;
             }
@@ -426,24 +398,16 @@ export class GiveawayService {
                   await reaction.users.remove(member.id);
                 }
               } catch (err) {
-                console.error(
-                  `[GiveawayService] Error removing reaction for user ${member.id}:`,
-                  err,
-                );
+                console.error(`[GiveawayService] Error removing reaction for user ${member.id}:`, err);
               }
               return;
             }
           }
         }
 
-        console.log(
-          `[GiveawayService] User ${member.user.tag} (${member.id}) entered giveaway ${giveaway.messageId}`,
-        );
+        console.log(`[GiveawayService] User ${member.user.tag} (${member.id}) entered giveaway ${giveaway.messageId}`);
       } catch (error) {
-        console.error(
-          `[GiveawayService] Error handling giveaway reaction added for ${giveaway.messageId}:`,
-          error,
-        );
+        console.error(`[GiveawayService] Error handling giveaway reaction added for ${giveaway.messageId}:`, error);
       }
     });
 
@@ -459,22 +423,15 @@ export class GiveawayService {
               ),
           ],
         });
-        console.log(
-          `[GiveawayService] User ${member.user.tag} tried to enter ended giveaway ${giveaway.messageId}`,
-        );
+        console.log(`[GiveawayService] User ${member.user.tag} tried to enter ended giveaway ${giveaway.messageId}`);
       } catch (error) {
-        console.error(
-          `[GiveawayService] Error handling ended giveaway reaction for ${giveaway.messageId}:`,
-          error,
-        );
+        console.error(`[GiveawayService] Error handling ended giveaway reaction for ${giveaway.messageId}:`, error);
       }
     });
 
     this.manager.on("giveawayReactionRemoved", async (giveaway, member) => {
       try {
-        console.log(
-          `[GiveawayService] User ${member.user.tag} (${member.id}) left giveaway ${giveaway.messageId}`,
-        );
+        console.log(`[GiveawayService] User ${member.user.tag} (${member.id}) left giveaway ${giveaway.messageId}`);
 
         // Optional: Send confirmation DM
         await member.send({
@@ -488,10 +445,7 @@ export class GiveawayService {
           ],
         });
       } catch (error) {
-        console.error(
-          `[GiveawayService] Error handling giveaway reaction removed for ${giveaway.messageId}:`,
-          error,
-        );
+        console.error(`[GiveawayService] Error handling giveaway reaction removed for ${giveaway.messageId}:`, error);
       }
     });
 
@@ -502,9 +456,7 @@ export class GiveawayService {
           where: { messageId: giveaway.messageId },
         });
 
-        console.log(
-          `[GiveawayService] Giveaway ${giveaway.messageId} was deleted and removed from DB`,
-        );
+        console.log(`[GiveawayService] Giveaway ${giveaway.messageId} was deleted and removed from DB`);
 
         // Optional: Notify in the original channel if possible
         const channel = await this.getValidChannel(giveaway.channelId);
@@ -514,17 +466,13 @@ export class GiveawayService {
               new ErrorEmbed()
                 .setTitle("Giveaway Cancelled")
                 .setDescription(
-                  `The giveaway for **${giveaway.prize}** has been cancelled. ` +
-                    "All entries have been voided.",
+                  `The giveaway for **${giveaway.prize}** has been cancelled. ` + "All entries have been voided.",
                 ),
             ],
           });
         }
       } catch (error) {
-        console.error(
-          `[GiveawayService] Error handling deleted giveaway ${giveaway.messageId}:`,
-          error,
-        );
+        console.error(`[GiveawayService] Error handling deleted giveaway ${giveaway.messageId}:`, error);
       }
     });
   }
@@ -604,10 +552,7 @@ export class GiveawayService {
    * @param options - Optional reroll options (e.g., new winner count).
    * @throws Error if the reroll fails.
    */
-  public async rerollGiveaway(
-    messageId: string,
-    options?: { winnerCount?: number },
-  ): Promise<void> {
+  public async rerollGiveaway(messageId: string, options?: { winnerCount?: number }): Promise<void> {
     try {
       await this.manager.reroll(messageId, options);
     } catch (error) {

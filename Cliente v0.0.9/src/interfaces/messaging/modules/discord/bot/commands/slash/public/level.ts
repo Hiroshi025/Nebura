@@ -2,11 +2,9 @@ import { Profile } from "discord-arts";
 import { AttachmentBuilder, EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
-import {
-	getTopUsers
-} from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
+import { getTopUsers } from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -52,8 +50,7 @@ export default new Command(
         }),
     ),
   async (client, interaction) => {
-    if (!interaction.guild || !interaction.channel || !(interaction.member instanceof GuildMember))
-      return;
+    if (!interaction.guild || !interaction.channel || !(interaction.member instanceof GuildMember)) return;
 
     await interaction.deferReply(); // Ensure the response doesn't take too long
 
@@ -62,8 +59,7 @@ export default new Command(
     switch (subcommand) {
       case "view": {
         try {
-          const targetMember =
-            (interaction.options.getMember("member") as GuildMember) || interaction.member;
+          const targetMember = (interaction.options.getMember("member") as GuildMember) || interaction.member;
 
           // Get user data from the database
           const user = await main.prisma.userLevel.findFirst({
@@ -109,9 +105,7 @@ export default new Command(
             embeds: [
               new EmbedCorrect()
                 .setColor("Blue")
-                .setDescription(
-                  `> **Level:** ${user.level || 1}\n> **Experience:** ${user.xp || 0}`,
-                )
+                .setDescription(`> **Level:** ${user.level || 1}\n> **Experience:** ${user.xp || 0}`)
                 .setImage(`attachment://profile.png`),
             ],
             files: [attachment],
@@ -169,9 +163,7 @@ export default new Command(
             .map(
               (entry: any) =>
                 `**#${entry.position}** ${entry.member ? entry.member.user.tag : `<@${entry.user.userId}>`} - Level: **${entry.user.level}**${entry.user.prestige > 0 ? ` (P${entry.user.prestige})` : ""} - XP: **${entry.user.xp}**\nAchievements: ${
-                  entry.achievements.length > 0
-                    ? entry.achievements.map(() => `🏅`).join("")
-                    : "None"
+                  entry.achievements.length > 0 ? entry.achievements.map(() => `🏅`).join("") : "None"
                 }`,
             )
             .join("\n\n");

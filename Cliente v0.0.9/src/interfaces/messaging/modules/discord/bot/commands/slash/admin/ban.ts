@@ -1,11 +1,17 @@
 import {
-	ChannelType, EmbedBuilder, GuildMember, GuildMemberRoleManager, PermissionFlagsBits,
-	SlashCommandBuilder, TextChannel, userMention
+  ChannelType,
+  EmbedBuilder,
+  GuildMember,
+  GuildMemberRoleManager,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  TextChannel,
+  userMention,
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { ErrorEmbed } from "@extenders/embeds.extend";
+import { ErrorEmbed } from "@utils/extenders/embeds.extend";
 import { logWithLabel } from "@utils/functions/console";
 
 export default new Command(
@@ -89,9 +95,7 @@ export default new Command(
     // Validación de permisos del usuario ejecutor
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.BanMembers)) {
       return interaction.followUp({
-        embeds: [
-          embed.setColor("Red").setDescription("You do not have permission to ban members."),
-        ],
+        embeds: [embed.setColor("Red").setDescription("You do not have permission to ban members.")],
       });
     }
 
@@ -118,9 +122,7 @@ export default new Command(
         } catch (err: any) {
           logWithLabel("error", err);
           return interaction.followUp({
-            embeds: [
-              embed.setColor("Red").setDescription("Failed to fetch target user information."),
-            ],
+            embeds: [embed.setColor("Red").setDescription("Failed to fetch target user information.")],
           });
         }
 
@@ -136,23 +138,17 @@ export default new Command(
           });
         }
 
-        if (
-          target.roles.highest.position >= (member.roles as GuildMemberRoleManager).highest.position
-        ) {
+        if (target.roles.highest.position >= (member.roles as GuildMemberRoleManager).highest.position) {
           return interaction.followUp({
             embeds: [
-              embed
-                .setColor("Red")
-                .setDescription("The member has a higher role than you, so you cannot ban them."),
+              embed.setColor("Red").setDescription("The member has a higher role than you, so you cannot ban them."),
             ],
           });
         }
 
         if (!guild.members.me?.permissions.has("BanMembers")) {
           return interaction.followUp({
-            embeds: [
-              embed.setColor("Red").setDescription("I do not have permission to ban members."),
-            ],
+            embeds: [embed.setColor("Red").setDescription("I do not have permission to ban members.")],
           });
         }
 
@@ -247,9 +243,7 @@ export default new Command(
               embeds: [
                 embed
                   .setColor("Red")
-                  .setDescription(
-                    "Failed to send a direct message to the banned user. They might have DMs disabled.",
-                  ),
+                  .setDescription("Failed to send a direct message to the banned user. They might have DMs disabled."),
               ],
             });
           }
@@ -277,9 +271,7 @@ export default new Command(
             embeds: [
               new ErrorEmbed()
                 .setTitle("Error Ban Command")
-                .setDescription(
-                  `${client.getEmoji(interaction.guild.id, "error")} Please provide a valid channel.`,
-                ),
+                .setDescription(`${client.getEmoji(interaction.guild.id, "error")} Please provide a valid channel.`),
             ],
           });
         }
@@ -292,9 +284,7 @@ export default new Command(
           });
 
           const successEmbed = new EmbedBuilder()
-            .setDescription(
-              `${client.getEmoji(guild.id, "correct")} Ban logs are now enabled in <#${channel.id}>!`,
-            )
+            .setDescription(`${client.getEmoji(guild.id, "correct")} Ban logs are now enabled in <#${channel.id}>!`)
             .setColor("#00ff00");
 
           interaction.followUp({

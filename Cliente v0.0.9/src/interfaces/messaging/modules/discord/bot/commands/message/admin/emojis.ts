@@ -1,10 +1,18 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, Collection, EmbedBuilder, GuildEmoji,
-	Message, MessageComponentInteraction, TextChannel
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  Collection,
+  EmbedBuilder,
+  GuildEmoji,
+  Message,
+  MessageComponentInteraction,
+  TextChannel,
 } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 // Dummy logger para evitar error de símbolo no encontrado
 function logWithLabel(label: string, message: string) {
@@ -36,8 +44,7 @@ const emojisCommand: Precommand = {
   ],
   permissions: ["ManageEmojisAndStickers"],
   async execute(client, message, args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     const subcommand = args[0]?.toLowerCase() || "help";
 
@@ -72,12 +79,7 @@ const emojisCommand: Precommand = {
  * Handles adding an emoji to the server
  */
 async function handleEmojiAdd(message: Message, args: string[], prefix: string) {
-  if (
-    !message.guild ||
-    !message.channel ||
-    message.author.bot ||
-    message.channel.type !== ChannelType.GuildText
-  )
+  if (!message.guild || !message.channel || message.author.bot || message.channel.type !== ChannelType.GuildText)
     return;
   const emojiInput = args[0];
   const customName = args[1]; // Optional custom name
@@ -87,9 +89,7 @@ async function handleEmojiAdd(message: Message, args: string[], prefix: string) 
       embeds: [
         new ErrorEmbed()
           .setTitle("Missing Emoji")
-          .setDescription(
-            `Please provide an emoji to add.\nExample: \`${prefix}emoji add :thumbsup:\``,
-          ),
+          .setDescription(`Please provide an emoji to add.\nExample: \`${prefix}emoji add :thumbsup:\``),
       ],
     });
   }
@@ -184,14 +184,8 @@ async function handleEmojiAdd(message: Message, args: string[], prefix: string) 
     embeds: [confirmationEmbed],
     components: [
       new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("emoji-add-confirm")
-          .setLabel("Confirm")
-          .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-          .setCustomId("emoji-add-cancel")
-          .setLabel("Cancel")
-          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId("emoji-add-confirm").setLabel("Confirm").setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId("emoji-add-cancel").setLabel("Cancel").setStyle(ButtonStyle.Danger),
       ),
     ],
   });
@@ -262,9 +256,7 @@ async function handleEmojiInfo(message: Message, args: string[], prefix: string)
       embeds: [
         new ErrorEmbed()
           .setTitle("Missing Emoji")
-          .setDescription(
-            `Please provide an emoji to inspect.\nExample: \`${prefix}emoji info :thumbsup:\``,
-          ),
+          .setDescription(`Please provide an emoji to inspect.\nExample: \`${prefix}emoji info :thumbsup:\``),
       ],
     });
   }
@@ -280,9 +272,7 @@ async function handleEmojiInfo(message: Message, args: string[], prefix: string)
   if (!customEmojiMatch && !isDefaultEmoji) {
     return (message.channel as TextChannel).send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Invalid Emoji")
-          .setDescription("Please provide a valid emoji (custom or default)."),
+        new ErrorEmbed().setTitle("Invalid Emoji").setDescription("Please provide a valid emoji (custom or default)."),
       ],
     });
   }
@@ -361,12 +351,7 @@ async function handleEmojiInfo(message: Message, args: string[], prefix: string)
  * Creates a jumbo (large) version of an emoji
  */
 async function handleEmojiJumbo(message: Message, args: string[], prefix: string) {
-  if (
-    !message.guild ||
-    !message.channel ||
-    message.author.bot ||
-    message.channel.type !== ChannelType.GuildText
-  )
+  if (!message.guild || !message.channel || message.author.bot || message.channel.type !== ChannelType.GuildText)
     return;
   const emojiInput = args[0];
 
@@ -375,9 +360,7 @@ async function handleEmojiJumbo(message: Message, args: string[], prefix: string
       embeds: [
         new ErrorEmbed()
           .setTitle("Missing Emoji")
-          .setDescription(
-            `Please provide an emoji to enlarge.\nExample: \`${prefix}emoji jumbo :thumbsup:\``,
-          ),
+          .setDescription(`Please provide an emoji to enlarge.\nExample: \`${prefix}emoji jumbo :thumbsup:\``),
       ],
     });
   }
@@ -391,9 +374,7 @@ async function handleEmojiJumbo(message: Message, args: string[], prefix: string
   if (!customEmojiMatch && !isDefaultEmoji) {
     return message.channel.send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Invalid Emoji")
-          .setDescription("Please provide a valid emoji (custom or default)."),
+        new ErrorEmbed().setTitle("Invalid Emoji").setDescription("Please provide a valid emoji (custom or default)."),
       ],
     });
   }
@@ -406,10 +387,7 @@ async function handleEmojiJumbo(message: Message, args: string[], prefix: string
     const extension = isAnimated ? "gif" : "png";
     const emojiUrl = `https://cdn.discordapp.com/emojis/${emojiId}.${extension}`;
 
-    const jumboEmbed = new EmbedBuilder()
-      .setTitle(`Jumbo Emoji: ${emojiName}`)
-      .setImage(emojiUrl)
-      .setColor("Random");
+    const jumboEmbed = new EmbedBuilder().setTitle(`Jumbo Emoji: ${emojiName}`).setImage(emojiUrl).setColor("Random");
 
     await message.channel.send({ embeds: [jumboEmbed] });
   } else {
@@ -444,9 +422,7 @@ async function handleEmojiList(client: any, message: any, args: string[]) {
   if (emojis.size === 0) {
     return message.channel.send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("No Emojis Found")
-          .setDescription("This server doesn't have any custom emojis."),
+        new ErrorEmbed().setTitle("No Emojis Found").setDescription("This server doesn't have any custom emojis."),
       ],
     });
   }
@@ -454,9 +430,7 @@ async function handleEmojiList(client: any, message: any, args: string[]) {
   if (page < 1 || page > totalPages) {
     return message.channel.send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Invalid Page")
-          .setDescription(`Please select a page between 1 and ${totalPages}`),
+        new ErrorEmbed().setTitle("Invalid Page").setDescription(`Please select a page between 1 and ${totalPages}`),
       ],
     });
   }
@@ -486,10 +460,7 @@ async function handleEmojiList(client: any, message: any, args: string[]) {
       .setLabel("Next")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(page >= totalPages),
-    new ButtonBuilder()
-      .setCustomId("emoji-list-close")
-      .setLabel("Close")
-      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId("emoji-list-close").setLabel("Close").setStyle(ButtonStyle.Danger),
   );
 
   const listMessage = await message.channel.send({
@@ -540,18 +511,13 @@ async function handleEmojiDelete(message: Message, args: string[]) {
   let emoji = message.guild.emojis.cache.get(emojiInput) as GuildEmoji | undefined;
   if (!emoji) {
     emoji = message.guild.emojis.cache.find(
-      (e: GuildEmoji) =>
-        e.name?.toLowerCase() === emojiInput.toLowerCase() || e.toString() === emojiInput,
+      (e: GuildEmoji) => e.name?.toLowerCase() === emojiInput.toLowerCase() || e.toString() === emojiInput,
     );
   }
 
   if (!emoji) {
     return message.channel.send({
-      embeds: [
-        new ErrorEmbed()
-          .setTitle("Emoji Not Found")
-          .setDescription("Couldn't find that emoji in this server."),
-      ],
+      embeds: [new ErrorEmbed().setTitle("Emoji Not Found").setDescription("Couldn't find that emoji in this server.")],
     });
   }
 
@@ -575,14 +541,8 @@ async function handleEmojiDelete(message: Message, args: string[]) {
     embeds: [confirmationEmbed],
     components: [
       new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("emoji-delete-confirm")
-          .setLabel("Delete")
-          .setStyle(ButtonStyle.Danger),
-        new ButtonBuilder()
-          .setCustomId("emoji-delete-cancel")
-          .setLabel("Cancel")
-          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("emoji-delete-confirm").setLabel("Delete").setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId("emoji-delete-cancel").setLabel("Cancel").setStyle(ButtonStyle.Secondary),
       ),
     ],
   });
@@ -611,9 +571,7 @@ async function handleEmojiDelete(message: Message, args: string[]) {
         logWithLabel("error", `Emoji delete error: ${error}`);
         await interaction.update({
           embeds: [
-            new ErrorEmbed()
-              .setTitle("Deletion Failed")
-              .setDescription("An error occurred while deleting the emoji."),
+            new ErrorEmbed().setTitle("Deletion Failed").setDescription("An error occurred while deleting the emoji."),
           ],
           components: [],
         });
@@ -651,9 +609,7 @@ async function handleEmojiRename(message: Message, args: string[]) {
       embeds: [
         new ErrorEmbed()
           .setTitle("Missing Arguments")
-          .setDescription(
-            "Please provide an emoji and a new name.\nExample: `emoji rename :oldname: newname`",
-          ),
+          .setDescription("Please provide an emoji and a new name.\nExample: `emoji rename :oldname: newname`"),
       ],
     });
   }
@@ -672,27 +628,18 @@ async function handleEmojiRename(message: Message, args: string[]) {
   let emoji = message.guild.emojis.cache.get(emojiInput) as GuildEmoji | undefined;
   if (!emoji) {
     emoji = message.guild.emojis.cache.find(
-      (e: GuildEmoji) =>
-        e.name?.toLowerCase() === emojiInput.toLowerCase() || e.toString() === emojiInput,
+      (e: GuildEmoji) => e.name?.toLowerCase() === emojiInput.toLowerCase() || e.toString() === emojiInput,
     );
   }
 
   if (!emoji) {
     return message.channel.send({
-      embeds: [
-        new ErrorEmbed()
-          .setTitle("Emoji Not Found")
-          .setDescription("Couldn't find that emoji in this server."),
-      ],
+      embeds: [new ErrorEmbed().setTitle("Emoji Not Found").setDescription("Couldn't find that emoji in this server.")],
     });
   }
 
   // Check if new name already exists
-  if (
-    message.guild.emojis.cache.some(
-      (e: GuildEmoji) => e.name?.toLowerCase() === newName.toLowerCase(),
-    )
-  ) {
+  if (message.guild.emojis.cache.some((e: GuildEmoji) => e.name?.toLowerCase() === newName.toLowerCase())) {
     return message.channel.send({
       embeds: [
         new ErrorEmbed()
@@ -723,9 +670,7 @@ async function handleEmojiRename(message: Message, args: string[]) {
     logWithLabel("error", `Emoji rename error: ${error}`);
     message.channel.send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Rename Failed")
-          .setDescription("An error occurred while renaming the emoji."),
+        new ErrorEmbed().setTitle("Rename Failed").setDescription("An error occurred while renaming the emoji."),
       ],
     });
   }

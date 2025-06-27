@@ -1,8 +1,8 @@
 import { AttachmentBuilder, ChannelType } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const fbiCommand: Precommand = {
   name: "fbi",
@@ -15,8 +15,7 @@ const fbiCommand: Precommand = {
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],
   async execute(client, message, args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
     const text = args.join(" ");
     if (!text)
       return message.channel.send({

@@ -1,7 +1,7 @@
 import { scheduleJob } from "node-schedule";
 
 import { client, main } from "@/main";
-import { EmbedCorrect } from "@extenders/embeds.extend";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 /**
  * Loads pending reminders from the database and schedules them.
@@ -19,9 +19,7 @@ export async function loadPendingReminders(): Promise<void> {
 
   for (const reminder of pendingReminders) {
     scheduleJob(new Date(reminder.remindAt), async () => {
-      const member = await client.guilds.cache
-        .get(reminder.guildId)
-        ?.members.fetch(reminder.userId);
+      const member = await client.guilds.cache.get(reminder.guildId)?.members.fetch(reminder.userId);
 
       if (member) {
         await member

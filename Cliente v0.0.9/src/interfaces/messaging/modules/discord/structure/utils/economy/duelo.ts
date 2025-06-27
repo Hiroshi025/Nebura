@@ -1,11 +1,20 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType,
-	ChatInputCommandInteraction, MessageFlags, StringSelectMenuBuilder, StringSelectMenuInteraction,
-	StringSelectMenuOptionBuilder, TextChannel, User
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  CacheType,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
+  StringSelectMenuOptionBuilder,
+  TextChannel,
+  User,
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance } from "../functions";
@@ -203,9 +212,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
 
   if (!opponent || opponent.bot || opponent.id === challenger.id) {
     return interaction.reply({
-      embeds: [
-        new ErrorEmbed().setDescription("You must mention a valid user to challenge to a duel."),
-      ],
+      embeds: [new ErrorEmbed().setDescription("You must mention a valid user to challenge to a duel.")],
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -222,9 +229,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
 
   if (challengerBalance.balance < bet || opponentBalance.balance < bet) {
     return interaction.reply({
-      embeds: [
-        new ErrorEmbed().setDescription("Both users must have enough balance to cover the bet."),
-      ],
+      embeds: [new ErrorEmbed().setDescription("Both users must have enough balance to cover the bet.")],
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -235,10 +240,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
     .setPlaceholder("Select a battle terrain")
     .addOptions(
       Object.entries(TERRAINS).map(([key, terrain]) =>
-        new StringSelectMenuOptionBuilder()
-          .setLabel(terrain.name)
-          .setDescription(terrain.description)
-          .setValue(key),
+        new StringSelectMenuOptionBuilder().setLabel(terrain.name).setDescription(terrain.description).setValue(key),
       ),
     );
 
@@ -276,10 +278,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
     .setPlaceholder("Select your class")
     .addOptions(
       Object.entries(CLASSES).map(([key, cls]) =>
-        new StringSelectMenuOptionBuilder()
-          .setLabel(cls.name)
-          .setDescription(cls.description)
-          .setValue(key),
+        new StringSelectMenuOptionBuilder().setLabel(cls.name).setDescription(cls.description).setValue(key),
       ),
     );
 
@@ -444,9 +443,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
     if (isDivine) return "∞ " + "✨".repeat(totalBars) + " (Divine)";
 
     const filledBars = Math.round((hp / BASE_HP) * totalBars);
-    return (
-      "❤️ " + "🟥".repeat(filledBars) + "⬛".repeat(totalBars - filledBars) + ` ${hp}/${BASE_HP}`
-    );
+    return "❤️ " + "🟥".repeat(filledBars) + "⬛".repeat(totalBars - filledBars) + ` ${hp}/${BASE_HP}`;
   };
 
   // Función para añadir historia al duelo
@@ -460,12 +457,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
   const getVisibleStory = () => duelSettings.duelStory.slice(-10).join("\n");
 
   // Función para calcular daño con todas las modificaciones
-  const calculateDamage = (
-    baseDamage: number,
-    attackerStatus: any,
-    defenderStatus: any,
-    isStrongAttack = false,
-  ) => {
+  const calculateDamage = (baseDamage: number, attackerStatus: any, defenderStatus: any, isStrongAttack = false) => {
     let damage = baseDamage;
 
     // Modificador de ataque
@@ -553,25 +545,18 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
   // Componentes de los botones
   const createActionRows = () => {
     const isChallengerTurn = duelSettings.currentTurn.id === challenger.id;
-    const playerStatus = isChallengerTurn
-      ? duelSettings.challengerStatus
-      : duelSettings.opponentStatus;
+    const playerStatus = isChallengerTurn ? duelSettings.challengerStatus : duelSettings.opponentStatus;
     const hasEnoughForSacrifice = isChallengerTurn
       ? duelSettings.challengerMoney >= 1000
       : duelSettings.opponentMoney >= 1000;
 
     const buttons = [
-      new ButtonBuilder()
-        .setCustomId("basic_attack")
-        .setLabel("Basic Attack ⚔️")
-        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId("basic_attack").setLabel("Basic Attack ⚔️").setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
         .setCustomId("strong_attack")
         .setLabel("Strong Attack 🔥 ($200)")
         .setStyle(ButtonStyle.Danger)
-        .setDisabled(
-          isChallengerTurn ? duelSettings.challengerMoney < 200 : duelSettings.opponentMoney < 200,
-        ),
+        .setDisabled(isChallengerTurn ? duelSettings.challengerMoney < 200 : duelSettings.opponentMoney < 200),
       new ButtonBuilder().setCustomId("defend").setLabel("Defend 🛡️").setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
         .setCustomId("class_ability")
@@ -585,10 +570,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
         .setLabel("Sacrifice Ritual ☠️ ($1000)")
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(!hasEnoughForSacrifice || duelSettings.sacrificeActive),
-      new ButtonBuilder()
-        .setCustomId("meteor_strike")
-        .setLabel("Meteor Strike ☄️")
-        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId("meteor_strike").setLabel("Meteor Strike ☄️").setStyle(ButtonStyle.Danger),
     ];
 
     // Dividir botones en filas de máximo 5
@@ -649,10 +631,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
     try {
       const dmChannel = await target.createDM();
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("stop_sacrifice")
-          .setLabel("STOP SACRIFICE")
-          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId("stop_sacrifice").setLabel("STOP SACRIFICE").setStyle(ButtonStyle.Danger),
       );
 
       const message = await dmChannel.send({
@@ -688,9 +667,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
 
           // Dar beneficios al sacrificador
           const sacrificerStatus =
-            sacrificer.id === challenger.id
-              ? duelSettings.challengerStatus
-              : duelSettings.opponentStatus;
+            sacrificer.id === challenger.id ? duelSettings.challengerStatus : duelSettings.opponentStatus;
 
           sacrificerStatus.divine = true;
           sacrificerStatus.divineTurns = 2;
@@ -699,9 +676,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
             sacrificerStatus.attackBoost *= 10;
           }
 
-          addToStory(
-            `💀 ${target.username} has been sacrificed! ${sacrificer.username} becomes divine for 2 turns!`,
-          );
+          addToStory(`💀 ${target.username} has been sacrificed! ${sacrificer.username} becomes divine for 2 turns!`);
 
           try {
             await dmChannel.send({
@@ -723,10 +698,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
 
   // Mensaje inicial del duelo
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId("accept_duel")
-      .setLabel("Accept Duel")
-      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId("accept_duel").setLabel("Accept Duel").setStyle(ButtonStyle.Success),
   );
 
   const duelMessage = await interaction.followUp({
@@ -766,14 +738,9 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
       const duelCollector = (i.channel as TextChannel).createMessageComponentCollector({
         filter: (btn) =>
           [challenger.id, opponent.id].includes(btn.user.id) &&
-          [
-            "basic_attack",
-            "strong_attack",
-            "defend",
-            "class_ability",
-            "sacrifice",
-            "meteor_strike",
-          ].includes(btn.customId),
+          ["basic_attack", "strong_attack", "defend", "class_ability", "sacrifice", "meteor_strike"].includes(
+            btn.customId,
+          ),
         time: 120000,
         idle: 120000,
       });
@@ -792,12 +759,8 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
           duelCollector.resetTimer();
 
           const isChallenger = btn.user.id === challenger.id;
-          const playerStatus = isChallenger
-            ? duelSettings.challengerStatus
-            : duelSettings.opponentStatus;
-          const opponentStatus = isChallenger
-            ? duelSettings.opponentStatus
-            : duelSettings.challengerStatus;
+          const playerStatus = isChallenger ? duelSettings.challengerStatus : duelSettings.opponentStatus;
+          const opponentStatus = isChallenger ? duelSettings.opponentStatus : duelSettings.challengerStatus;
 
           let actionMessage = "";
           let attackMissed = false;
@@ -807,15 +770,9 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
           if (playerStatus.regeneration > 0) {
             const healAmount = Math.floor(duelSettings.BASE_HP * (playerStatus.regeneration / 100));
             if (isChallenger) {
-              duelSettings.challengerHP = Math.min(
-                duelSettings.BASE_HP,
-                duelSettings.challengerHP + healAmount,
-              );
+              duelSettings.challengerHP = Math.min(duelSettings.BASE_HP, duelSettings.challengerHP + healAmount);
             } else {
-              duelSettings.opponentHP = Math.min(
-                duelSettings.BASE_HP,
-                duelSettings.opponentHP + healAmount,
-              );
+              duelSettings.opponentHP = Math.min(duelSettings.BASE_HP, duelSettings.opponentHP + healAmount);
             }
             addToStory(`🌿 ${btn.user.username} regeneró ${healAmount} HP!`);
           }
@@ -878,8 +835,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
               }
 
               // Verificar crítico o fallo
-              const { isCritical: strongCrit, isMiss: strongMiss } =
-                checkCriticalOrMiss(playerStatus);
+              const { isCritical: strongCrit, isMiss: strongMiss } = checkCriticalOrMiss(playerStatus);
               isCritical = strongCrit;
               attackMissed = strongMiss;
 
@@ -906,12 +862,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
                   addToStory(`💫 ${btn.user.username} landed a powerful critical hit!`);
                 }
 
-                const finalStrongDamage = calculateDamage(
-                  strongDamage,
-                  playerStatus,
-                  opponentStatus,
-                  true,
-                );
+                const finalStrongDamage = calculateDamage(strongDamage, playerStatus, opponentStatus, true);
 
                 if (isChallenger) {
                   duelSettings.opponentHP -= finalStrongDamage;
@@ -963,9 +914,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
               playerStatus.specialCooldown = classAbility.cooldown;
 
               actionMessage = `✨ ${btn.user.username} used ${classAbility.name}!`;
-              addToStory(
-                `🌟 ${btn.user.username} activated their class ability: ${classAbility.name}!`,
-              );
+              addToStory(`🌟 ${btn.user.username} activated their class ability: ${classAbility.name}!`);
               break;
 
             case "sacrifice":
@@ -990,10 +939,8 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
                 flags: MessageFlags.SuppressEmbeds,
               });
 
-              const filter = (m: {
-                author: { id: string };
-                mentions: { users: { size: number } };
-              }) => m.author.id === btn.user.id && m.mentions.users.size > 0;
+              const filter = (m: { author: { id: string }; mentions: { users: { size: number } } }) =>
+                m.author.id === btn.user.id && m.mentions.users.size > 0;
 
               try {
                 const collected = await (i.channel as TextChannel).awaitMessages({
@@ -1018,9 +965,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
                   duelSettings.sacrificeTarget = target;
                   handleSacrifice(btn.user, target);
                   actionMessage = `☠️ ${btn.user.username} started a sacrifice ritual on ${target.username}!`;
-                  addToStory(
-                    `💀 ${btn.user.username} began a dark ritual targeting ${target.username}!`,
-                  );
+                  addToStory(`💀 ${btn.user.username} began a dark ritual targeting ${target.username}!`);
                 }
               } catch {
                 actionMessage = "❌ No valid target mentioned for sacrifice!";
@@ -1078,8 +1023,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
             duelSettings.challengerStatus.divineTurns--;
             if (duelSettings.challengerStatus.divineTurns <= 0) {
               duelSettings.challengerStatus.divine = false;
-              duelSettings.challengerStatus.attackBoost =
-                duelSettings.challengerStatus.originalAttackBoost || 1;
+              duelSettings.challengerStatus.attackBoost = duelSettings.challengerStatus.originalAttackBoost || 1;
               addToStory(`☁️ ${challenger.username}'s divine power fades!`);
             }
           }
@@ -1171,8 +1115,7 @@ export async function DueloCommand(interaction: ChatInputCommandInteraction, _cl
 
           // Cambiar turno (a menos que tenga turno extra)
           if (!hasExtraTurn) {
-            duelSettings.currentTurn =
-              duelSettings.currentTurn.id === challenger.id ? opponent : challenger;
+            duelSettings.currentTurn = duelSettings.currentTurn.id === challenger.id ? opponent : challenger;
           } else {
             addToStory(`⏳ ${btn.user.username} gets another turn!`);
           }

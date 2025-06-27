@@ -1,11 +1,9 @@
 import axios from "axios";
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder } from "discord.js";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ErrorEmbed } from "@utils/extenders/embeds.extend";
 import { logWithLabel } from "@utils/functions/console";
 
 const pokedexCommand: Precommand = {
@@ -20,8 +18,7 @@ const pokedexCommand: Precommand = {
   permissions: ["SendMessages"],
   subcommands: ["pokedex info <name>"],
   async execute(client, message, args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
     const subcommand = args[0];
     switch (subcommand) {
       case "info":

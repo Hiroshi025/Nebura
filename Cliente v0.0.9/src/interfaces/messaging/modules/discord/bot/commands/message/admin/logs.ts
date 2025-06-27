@@ -1,10 +1,8 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const logAdminCommand: Precommand = {
   name: "logs",
@@ -17,8 +15,7 @@ const logAdminCommand: Precommand = {
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],
   async execute(client, message) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     const args = message.content.split(/\s+/).slice(1); // Extrae los argumentos del mensaje
     const subCommand = args[0]?.toLowerCase();
@@ -69,9 +66,7 @@ const logAdminCommand: Precommand = {
                 embeds: [
                   new ErrorEmbed()
                     .setTitle("Invalid Page Number")
-                    .setDescription(
-                      `The page number must be between 1 and ${Math.ceil(userWarnings.length / 5)}.`,
-                    ),
+                    .setDescription(`The page number must be between 1 and ${Math.ceil(userWarnings.length / 5)}.`),
                 ],
               });
             }

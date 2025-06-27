@@ -1,16 +1,24 @@
 import { stripIndent } from "common-tags";
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ComponentType, EmbedBuilder,
-	Message, ModalSubmitInteraction, PermissionResolvable, StringSelectMenuBuilder,
-	StringSelectMenuInteraction
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+  EmbedBuilder,
+  Message,
+  ModalSubmitInteraction,
+  PermissionResolvable,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
 import { MyClient } from "@/interfaces/messaging/modules/discord/client";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
 import { config } from "@utils/config";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import packages from "../../../../../../../../../package.json";
 
@@ -48,12 +56,7 @@ function getCommandsFromFolder(path: string): string[] {
   return commands;
 }
 
-function createCommandEmbed(
-  command: Precommand,
-  prefix: string,
-  client: MyClient,
-  message: Message,
-) {
+function createCommandEmbed(command: Precommand, prefix: string, client: MyClient, message: Message) {
   const embed = new EmbedCorrect()
     .setAuthor({
       name: `Command: ${command.name}`,
@@ -150,7 +153,7 @@ const helpCommand: Precommand = {
   permissions: ["SendMessages"],
   async execute(client: MyClient, message: Message, args: string[], prefix: string) {
     const categories = readdirSync(
-      config.modules.discord.configs.default + config.modules.discord.configs.precommands,
+      config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands,
     );
     const isOwner = config.modules.discord.owners.includes(message.author.id);
 
@@ -171,9 +174,7 @@ const helpCommand: Precommand = {
       if (matchedCommands.length === 0) {
         return message.reply({
           embeds: [
-            new ErrorEmbed()
-              .setTitle("No Results Found")
-              .setDescription(`No commands found matching \`${query}\``),
+            new ErrorEmbed().setTitle("No Results Found").setDescription(`No commands found matching \`${query}\``),
           ],
         });
       }
@@ -229,7 +230,7 @@ const helpCommand: Precommand = {
         });
       } else if (category) {
         const categoryCommands = getCommandsFromFolder(
-          `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`,
+          `${config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands}${category}`,
         );
 
         const categoryEmbed = new EmbedBuilder()
@@ -348,12 +349,7 @@ const helpCommand: Precommand = {
         },
       )
       .setFooter(
-        getPageFooter(
-          1,
-          categories.length + 1,
-          prefix,
-          message.guild.iconURL({ forceStatic: true }) as string,
-        ),
+        getPageFooter(1, categories.length + 1, prefix, message.guild.iconURL({ forceStatic: true }) as string),
       )
       .setTitle(`📄 Página 1/${categories.length + 1}`);
 
@@ -361,7 +357,7 @@ const helpCommand: Precommand = {
     const categoryEmbeds = categories.map((category, index) => {
       // Filtrar comandos de la categoría si hay filtros activos
       let commands = getCommandsFromFolder(
-        `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`,
+        `${config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands}${category}`,
       );
       if (filterPermissions.length > 0 || filterNSFW !== null) {
         commands = commands.filter((cmdName) => {
@@ -370,9 +366,7 @@ const helpCommand: Precommand = {
           if (
             filterPermissions.length > 0 &&
             (!cmdObj.permissions ||
-              !filterPermissions.every((p) =>
-                cmdObj.permissions?.includes(p as PermissionResolvable),
-              ))
+              !filterPermissions.every((p) => cmdObj.permissions?.includes(p as PermissionResolvable)))
           ) {
             return false;
           }
@@ -387,8 +381,7 @@ const helpCommand: Precommand = {
         .setColor("#5865F2")
         .setDescription(
           commands.length > 0
-            ? `**${commands.length} commands available:**\n` +
-                commands.map((cmd) => `• \`${cmd}\``).join("\n")
+            ? `**${commands.length} commands available:**\n` + commands.map((cmd) => `• \`${cmd}\``).join("\n")
             : currentLanguage === "es"
               ? "No hay comandos en esta categoría aún"
               : "No commands in this category yet",
@@ -417,7 +410,7 @@ const helpCommand: Precommand = {
           categories.map((category) => ({
             label: category,
             value: category,
-            description: `${getCommandsFromFolder(`${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`).length} commands`,
+            description: `${getCommandsFromFolder(`${config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands}${category}`).length} commands`,
             emoji: "📁",
           })),
         ),
@@ -425,54 +418,26 @@ const helpCommand: Precommand = {
 
     // Create navigation buttons
     const navButtonsRow1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId("help_prev")
-        .setLabel("Previous")
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji("⬅️"),
-      new ButtonBuilder()
-        .setCustomId("help_home")
-        .setLabel("Home")
-        .setStyle(ButtonStyle.Primary)
-        .setEmoji("🏠"),
-      new ButtonBuilder()
-        .setCustomId("help_next")
-        .setLabel("Next")
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji("➡️"),
-      new ButtonBuilder()
-        .setCustomId("help_jump")
-        .setLabel("Jump")
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji("🔢"),
-      new ButtonBuilder()
-        .setCustomId("help_search")
-        .setLabel("Search")
-        .setStyle(ButtonStyle.Success)
-        .setEmoji("🔍"),
+      new ButtonBuilder().setCustomId("help_prev").setLabel("Previous").setStyle(ButtonStyle.Secondary).setEmoji("⬅️"),
+      new ButtonBuilder().setCustomId("help_home").setLabel("Home").setStyle(ButtonStyle.Primary).setEmoji("🏠"),
+      new ButtonBuilder().setCustomId("help_next").setLabel("Next").setStyle(ButtonStyle.Secondary).setEmoji("➡️"),
+      new ButtonBuilder().setCustomId("help_jump").setLabel("Jump").setStyle(ButtonStyle.Secondary).setEmoji("🔢"),
+      new ButtonBuilder().setCustomId("help_search").setLabel("Search").setStyle(ButtonStyle.Success).setEmoji("🔍"),
     );
 
     const navButtonsRow2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId("help_close")
-        .setLabel("Close")
-        .setStyle(ButtonStyle.Danger)
-        .setEmoji("❌"),
-    );
-
-    // Owner tools button (only visible to owners)
-    const ownerToolsButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
         .setCustomId("owner_tools_menu")
-        .setLabel("Owner Tools")
+        .setLabel("Owner")
         .setStyle(ButtonStyle.Danger)
         .setEmoji("⚙️")
         .setDisabled(!isOwner),
+      new ButtonBuilder().setCustomId("help_close").setLabel("Close").setStyle(ButtonStyle.Danger).setEmoji("❌"),
     );
 
     // Send the initial message with conditional components
     const components = isOwner
-      ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+      ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2]
       : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2];
 
     const helpMessage = await message.reply({
@@ -517,7 +482,7 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2]
                 : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
             break;
@@ -527,7 +492,7 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2]
                 : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
             break;
@@ -537,7 +502,7 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2]
                 : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
             break;
@@ -638,7 +603,7 @@ const helpCommand: Precommand = {
           await modalInteraction.reply({
             embeds: [allEmbeds[currentPage]],
             components: isOwner
-              ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+              ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2]
               : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             ephemeral: false,
           });
@@ -660,7 +625,7 @@ const helpCommand: Precommand = {
             await interaction.editReply({
               embeds: [allEmbeds[currentPage]],
               components: isOwner
-                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+                ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2]
                 : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
             });
           }
@@ -675,7 +640,7 @@ const helpCommand: Precommand = {
           await interaction.editReply({
             embeds: [allEmbeds[currentPage]],
             components: isOwner
-              ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2, ownerToolsButton]
+              ? [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2]
               : [languageSelect, categorySelect, navButtonsRow1, navButtonsRow2],
           });
         }

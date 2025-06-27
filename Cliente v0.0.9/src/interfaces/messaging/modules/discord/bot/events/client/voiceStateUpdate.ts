@@ -2,7 +2,7 @@ import { ChannelType } from "discord.js";
 
 import { Event } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { client, main } from "@/main";
-import { DiscordError } from "@/shared/infrastructure/extends/error.extend";
+import { DiscordError } from "@utils/extenders/error.extend";
 
 /**
  * Utility function to pause execution for a specified amount of milliseconds.
@@ -48,9 +48,7 @@ export default new Event("voiceStateUpdate", async (oldState, newState) => {
 
   // Validate configuration and user presence
   if (!joinToCreate || joinToCreate === "" || !data.roomcategory) {
-    console.debug(
-      `[voiceStateUpdate] joinToCreate or roomcategory not set for guildId: ${guild.id}`,
-    );
+    console.debug(`[voiceStateUpdate] joinToCreate or roomcategory not set for guildId: ${guild.id}`);
     return;
   }
   if (!user) {
@@ -127,9 +125,7 @@ export default new Event("voiceStateUpdate", async (oldState, newState) => {
     return member?.voice
       .setChannel(voiceChannel)
       .then(() => {
-        console.debug(
-          `[voiceStateUpdate] Member ${member?.id} moved to voice channel ${voiceChannel.id}`,
-        );
+        console.debug(`[voiceStateUpdate] Member ${member?.id} moved to voice channel ${voiceChannel.id}`);
       })
       .catch((err) => {
         console.error(`[voiceStateUpdate] Failed to move the member to the voice channel:`, err);

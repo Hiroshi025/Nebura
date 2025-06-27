@@ -1,9 +1,9 @@
 import { readdirSync, statSync, unlinkSync } from "fs";
 import { join } from "path";
 
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Modals } from "@typings/modules/discord";
 import { config } from "@utils/config";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 import { logWithLabel } from "@utils/functions/console";
 
 function getCommandsFromFolder(path: string): string[] {
@@ -21,10 +21,7 @@ function getCommandsFromFolder(path: string): string[] {
       }
     }
   } catch (error) {
-    logWithLabel(
-      "error",
-      [`Error reading commands from folder: ${path}`, `Error: ${error}`].join("\n"),
-    );
+    logWithLabel("error", [`Error reading commands from folder: ${path}`, `Error: ${error}`].join("\n"));
   }
   return commands;
 }
@@ -39,13 +36,13 @@ const ModalDeleteCommand: Modals = {
     if (!interaction.guild || !interaction.channel) return;
     const commandName = interaction.fields.getTextInputValue("command_to_delete");
     const categories = readdirSync(
-      config.modules.discord.configs.default + config.modules.discord.configs.precommands,
+      config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands,
     );
 
     try {
       let found = false;
       for (const category of categories) {
-        const categoryPath = `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}${category}`;
+        const categoryPath = `${config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands}${category}`;
         const commands = getCommandsFromFolder(categoryPath);
 
         if (commands.includes(commandName)) {

@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "login": {
+      "success": "Inicio de sesión exitoso."
+    },
+    "register": {
+      "success": "Registro exitoso."
+    },
+    "profile": {
+      "success": "Perfil de usuario obtenido exitosamente."
+    }
+  },
+  "status": {
+    "operational": "Operativo",
+    "error": "Error",
+    "failed_to_retrieve": "No se pudo obtener el estado del sistema",
+    "ip_blocked_successfully": "IP bloqueada exitosamente.",
+    "ip_unblocked_successfully": "IP desbloqueada exitosamente.",
+    "task_created_successfully": "Tarea creada exitosamente.",
+    "license_created_successfully": "Licencia creada exitosamente.",
+    "discord_status_fetched_successfully": "Estado de Discord obtenido exitosamente.",
+    "discord_updates_fetched_successfully": "Actualizaciones de Discord obtenidas exitosamente.",
+    "discord_incidents_fetched_successfully": "Incidentes de Discord obtenidos exitosamente.",
+    "reminders_fetched_successfully": "Recordatorios obtenidos exitosamente."
+  }
+}

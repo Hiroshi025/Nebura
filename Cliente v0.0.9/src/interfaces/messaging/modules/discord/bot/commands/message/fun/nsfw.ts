@@ -1,8 +1,8 @@
 import { ChannelType, codeBlock } from "discord.js";
 import { Nsfw } from "eternal-support";
 
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const nsfwCommands: Precommand = {
   name: "nsfw",
@@ -37,8 +37,7 @@ const nsfwCommands: Precommand = {
     "succubus",
   ],
   async execute(client, message, args) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
     const subcommands = args[0];
     const types = [
       "doujin",

@@ -2,9 +2,9 @@ import { ChannelType, PermissionFlagsBits, SlashCommandBuilder } from "discord.j
 import Parser from "rss-parser";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { channelId } from "@gonetone/get-youtube-id-by-url";
 import { Command } from "@modules/discord/structure/utils/builders";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const fetch = new Parser();
 export default new Command(
@@ -32,24 +32,16 @@ export default new Command(
             .setRequired(true),
         )
         .addStringOption((opt) =>
-          opt
-            .setName("message")
-            .setDescription("Custom notification message, {user} = youtuber")
-            .setRequired(false),
+          opt.setName("message").setDescription("Custom notification message, {user} = youtuber").setRequired(false),
         ),
     )
     .addSubcommand((sub) =>
       sub
         .setName("edit")
         .setDescription("Edit the notification message or channel")
+        .addStringOption((opt) => opt.setName("link").setDescription("YouTube channel link to edit").setRequired(true))
         .addStringOption((opt) =>
-          opt.setName("link").setDescription("YouTube channel link to edit").setRequired(true),
-        )
-        .addStringOption((opt) =>
-          opt
-            .setName("message")
-            .setDescription("New custom message, {user} = youtuber")
-            .setRequired(true),
+          opt.setName("message").setDescription("New custom message, {user} = youtuber").setRequired(true),
         )
         .addChannelOption((opt) =>
           opt
@@ -108,10 +100,7 @@ export default new Command(
           const channel = options.getChannel("channel", true);
           const message = options.getString("message") || "{user} has uploaded a new video!";
 
-          if (
-            (link && !link.toLowerCase().includes("http")) ||
-            !link.toLowerCase().includes("youtube")
-          ) {
+          if ((link && !link.toLowerCase().includes("http")) || !link.toLowerCase().includes("youtube")) {
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
@@ -164,111 +153,111 @@ export default new Command(
           }
 
           await channelId(link).then(async (id) => {
-            await fetch
-              .parseURL(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`)
-              .then(async (response) => {
-                const name = response.title;
-                const url = response.link;
-                if (!message) {
-                  if (youtubers.some((u) => u.userId?.toLowerCase() === id.toLowerCase())) {
-                    await interaction.reply({
-                      embeds: [
-                        new ErrorEmbed()
-                          .setTitle("Channel Already Exists")
-                          .setDescription(
-                            [
-                              `${client.getEmoji(guild.id as string, "error")} This YouTube channel is already configured for notifications.`,
-                              `Please use the edit command to modify the existing channel.`,
-                            ].join("\n"),
-                          ),
-                      ],
-                    });
-                  }
-
-                  await main.prisma.youtuber.create({
-                    data: {
-                      name: name,
-                      userId: id,
-                      channelId: channel.id,
-                      channelName: channel.name,
-                      url: url,
-                    },
-                  });
-
+            await fetch.parseURL(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`).then(async (response) => {
+              const name = response.title;
+              const url = response.link;
+              if (!message) {
+                if (youtubers.some((u) => u.userId?.toLowerCase() === id.toLowerCase())) {
                   await interaction.reply({
                     embeds: [
-                      new EmbedCorrect()
-                        .setTitle("YouTube Channel Added")
+                      new ErrorEmbed()
+                        .setTitle("Channel Already Exists")
                         .setDescription(
                           [
-                            `${client.getEmoji(guild.id as string, "success")} Successfully added YouTube channel notifications.`,
-                            `Channel: ${channel.name}`,
-                            `User: ${name}`,
-                            `URL: ${url}`,
-                          ].join("\n"),
-                        ),
-                    ],
-                  });
-                } else if (message) {
-                  if (message.length > 1024) {
-                    await interaction.reply({
-                      embeds: [
-                        new ErrorEmbed()
-                          .setTitle("Message Too Long")
-                          .setDescription(
-                            [
-                              `${client.getEmoji(guild?.id as string, "error")} The custom message exceeds the maximum length of 1024 characters.`,
-                              `Please shorten the message and try again.`,
-                            ].join("\n"),
-                          ),
-                      ],
-                    });
-                    return;
-                  }
-
-                  if (youtubers.some((u) => u.userId?.toLowerCase() === id.toLowerCase())) {
-                    await interaction.reply({
-                      embeds: [
-                        new ErrorEmbed()
-                          .setTitle("Channel Already Exists")
-                          .setDescription(
-                            [
-                              `${client.getEmoji(guild?.id as string, "error")} This YouTube channel is already configured for notifications.`,
-                              `Please use the edit command to modify the existing channel.`,
-                            ].join("\n"),
-                          ),
-                      ],
-                    });
-                  }
-
-                  await main.prisma.youtuber.create({
-                    data: {
-                      name: name,
-                      userId: id,
-                      channelId: channel.id,
-                      channelName: channel.name,
-                      url: url,
-                      message: message,
-                    },
-                  });
-
-                  await interaction.reply({
-                    embeds: [
-                      new EmbedCorrect()
-                        .setTitle("YouTube Channel Added")
-                        .setDescription(
-                          [
-                            `${client.getEmoji(guild?.id as string, "success")} Successfully added YouTube channel notifications.`,
-                            `Channel: ${channel.name}`,
-                            `User: ${name}`,
-                            `URL: ${url}`,
-                            `Message: ${message}`,
+                            `${client.getEmoji(guild.id as string, "error")} This YouTube channel is already configured for notifications.`,
+                            `Please use the edit command to modify the existing channel.`,
                           ].join("\n"),
                         ),
                     ],
                   });
                 }
-              });
+
+                await main.prisma.youtuber.create({
+                  data: {
+                    name: name,
+                    userId: id,
+                    channelId: channel.id,
+                    guildId: guild.id,
+                    channelName: channel.name,
+                    url: url,
+                  },
+                });
+
+                await interaction.reply({
+                  embeds: [
+                    new EmbedCorrect()
+                      .setTitle("YouTube Channel Added")
+                      .setDescription(
+                        [
+                          `${client.getEmoji(guild.id as string, "success")} Successfully added YouTube channel notifications.`,
+                          `Channel: ${channel.name}`,
+                          `User: ${name}`,
+                          `URL: ${url}`,
+                        ].join("\n"),
+                      ),
+                  ],
+                });
+              } else if (message) {
+                if (message.length > 1024) {
+                  await interaction.reply({
+                    embeds: [
+                      new ErrorEmbed()
+                        .setTitle("Message Too Long")
+                        .setDescription(
+                          [
+                            `${client.getEmoji(guild?.id as string, "error")} The custom message exceeds the maximum length of 1024 characters.`,
+                            `Please shorten the message and try again.`,
+                          ].join("\n"),
+                        ),
+                    ],
+                  });
+                  return;
+                }
+
+                if (youtubers.some((u) => u.userId?.toLowerCase() === id.toLowerCase())) {
+                  await interaction.reply({
+                    embeds: [
+                      new ErrorEmbed()
+                        .setTitle("Channel Already Exists")
+                        .setDescription(
+                          [
+                            `${client.getEmoji(guild?.id as string, "error")} This YouTube channel is already configured for notifications.`,
+                            `Please use the edit command to modify the existing channel.`,
+                          ].join("\n"),
+                        ),
+                    ],
+                  });
+                }
+
+                await main.prisma.youtuber.create({
+                  data: {
+                    name: name,
+                    userId: id,
+                    channelId: channel.id,
+                    channelName: channel.name,
+                    guildId: guild.id,
+                    url: url,
+                    message: message,
+                  },
+                });
+
+                await interaction.reply({
+                  embeds: [
+                    new EmbedCorrect()
+                      .setTitle("YouTube Channel Added")
+                      .setDescription(
+                        [
+                          `${client.getEmoji(guild?.id as string, "success")} Successfully added YouTube channel notifications.`,
+                          `Channel: ${channel.name}`,
+                          `User: ${name}`,
+                          `URL: ${url}`,
+                          `Message: ${message}`,
+                        ].join("\n"),
+                      ),
+                  ],
+                });
+              }
+            });
           });
         }
         break;
@@ -290,7 +279,7 @@ export default new Command(
                     ].join("\n"),
                   ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
             return;
           }
@@ -309,7 +298,7 @@ export default new Command(
                     ].join("\n"),
                   ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
             return;
           }
@@ -326,7 +315,7 @@ export default new Command(
                     ].join("\n"),
                   ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
             return;
           }
@@ -349,7 +338,7 @@ export default new Command(
                       ].join("\n"),
                     ),
                 ],
-                ephemeral: true,
+                flags: "Ephemeral",
               });
               return;
             }
@@ -377,7 +366,7 @@ export default new Command(
                     ].join("\n"),
                   ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           } else {
             await main.prisma.youtuber.update({
@@ -400,7 +389,7 @@ export default new Command(
                     ].join("\n"),
                   ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
         }
@@ -423,7 +412,7 @@ export default new Command(
                     ].join("\n"),
                   ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
             return;
           }
@@ -445,7 +434,7 @@ export default new Command(
                   ].join("\n"),
                 ),
             ],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
         break;
@@ -464,7 +453,7 @@ export default new Command(
                     ].join("\n"),
                   ),
               ],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
             return;
           }
@@ -492,7 +481,7 @@ export default new Command(
                 })
                 .setTimestamp(),
             ],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
         break;

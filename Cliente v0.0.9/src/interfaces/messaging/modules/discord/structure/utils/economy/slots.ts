@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -110,9 +110,7 @@ export async function SlotsCommand(interaction: ChatInputCommandInteraction, _cl
         `**Your Bet:** $${bet}`,
         `**Result:**`,
         `\`\`\`\n${gridDisplay}\n\`\`\``,
-        winningsMultiplier > 0
-          ? `🎉 **You won:** $${winnings} (x${winningsMultiplier})`
-          : `😢 **You lost your bet.**`,
+        winningsMultiplier > 0 ? `🎉 **You won:** $${winnings} (x${winningsMultiplier})` : `😢 **You lost your bet.**`,
         `**New Balance:** $${newBalance}`,
       ].join("\n"),
     )

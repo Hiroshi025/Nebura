@@ -13,10 +13,10 @@ import { v4 as uuidv4 } from "uuid";
 
 import { main } from "@/main";
 import i18next from "@/shared/i18n";
-import { DomainError } from "@/shared/infrastructure/extends/error.extend";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
+import { DomainError } from "@utils/extenders/error.extend";
 
 import { passport } from "./adapters/external/passport";
 import swaggerSetup from "./adapters/external/swagger";
@@ -35,7 +35,6 @@ import { router } from "./shared/utils/routes";
  * @see [TypeDoc Documentation](https://typedoc.org/)
  */
 
-// Extending the Express Request interface to include a custom 'id' property.
 /**
  * @interface Request
  * @description
@@ -114,10 +113,10 @@ export class API {
     this.server = createServer(this.app);
     this.io = new Server(this.server, {
       transports: ["websocket", "polling"],
-      connectTimeout: 25000, 
+      connectTimeout: 25000,
       //--- SOCKET.IO OPTIONS ---//
       pingInterval: 20000,
-      pingTimeout: 15000
+      pingTimeout: 15000,
     });
     this.routes();
     this.middleware();
@@ -254,11 +253,7 @@ export class API {
      *
      * @see [Swagger UI Express](https://www.npmjs.com/package/swagger-ui-express)
      */
-    this.app.use(
-      config.environments.default.api.swagger.docs,
-      swaggerUi.serve,
-      swaggerUi.setup(swaggerSetup),
-    );
+    this.app.use(config.environments.default.api.swagger.docs, swaggerUi.serve, swaggerUi.setup(swaggerSetup));
 
     /**
      * IP blocking middleware.
@@ -295,12 +290,15 @@ export class API {
         secret: process.env.WEB_SECRET as string,
         resave: false,
         saveUninitialized: false,
-        cookie: { maxAge: 3600000 / 2 },
+        cookie: { maxAge: 3600000 / 2, secure: false },
         rolling: true,
         store: new (require("connect-sqlite3")(session))({
           db: `${environments.database.sessions.name}.sqlite`,
           dir: `${environments.database.sessions.url}`,
         }),
+        genid() {
+          return uuidv4();
+        },
       }),
     );
 

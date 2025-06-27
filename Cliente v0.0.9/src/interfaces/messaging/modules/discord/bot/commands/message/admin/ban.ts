@@ -1,11 +1,20 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, GuildMember,
-	GuildMemberRoleManager, Message, MessageComponentInteraction, PermissionFlagsBits, TextChannel
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  EmbedBuilder,
+  GuildMember,
+  GuildMemberRoleManager,
+  Message,
+  MessageComponentInteraction,
+  PermissionFlagsBits,
+  TextChannel,
 } from "discord.js";
 
 import { main } from "@/main";
-import { ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { ErrorEmbed } from "@utils/extenders/embeds.extend";
 import { logWithLabel } from "@utils/functions/console";
 
 // Asume que existe un modelo separado para la configuración de ban logs, por ejemplo: banConfig
@@ -20,12 +29,7 @@ const adminBanCommand: Precommand = {
   aliases: ["adminban"],
   botpermissions: ["BanMembers"],
   permissions: ["BanMembers"],
-  subcommands: [
-    "ban member <user> [reason]",
-    "ban list [page]",
-    "ban remove <case_id>",
-    "ban info <case_id>",
-  ],
+  subcommands: ["ban member <user> [reason]", "ban list [page]", "ban remove <case_id>", "ban info <case_id>"],
   async execute(client, message, args, prefix) {
     if (!message.guild || message.channel.type !== ChannelType.GuildText) return;
 
@@ -35,9 +39,7 @@ const adminBanCommand: Precommand = {
     // Permission check for all subcommands except 'help'
     if (subcommand !== "help" && !message.member?.permissions.has(PermissionFlagsBits.BanMembers)) {
       return message.channel.send({
-        embeds: [
-          embed.setColor("Red").setDescription("❌ You don't have permission to use ban commands."),
-        ],
+        embeds: [embed.setColor("Red").setDescription("❌ You don't have permission to use ban commands.")],
       });
     }
 
@@ -72,11 +74,7 @@ async function handleBanMember(client: any, message: any, args: string[]) {
 
   if (!target) {
     return message.channel.send({
-      embeds: [
-        new ErrorEmbed()
-          .setTitle("Ban Command Error")
-          .setDescription("Please mention a valid user to ban."),
-      ],
+      embeds: [new ErrorEmbed().setTitle("Ban Command Error").setDescription("Please mention a valid user to ban.")],
     });
   }
 
@@ -93,16 +91,9 @@ async function handleBanMember(client: any, message: any, args: string[]) {
     });
   }
 
-  if (
-    target.roles.highest.position >=
-    (message.member.roles as GuildMemberRoleManager).highest.position
-  ) {
+  if (target.roles.highest.position >= (message.member.roles as GuildMemberRoleManager).highest.position) {
     return message.channel.send({
-      embeds: [
-        new ErrorEmbed().setDescription(
-          "The member has a higher role than you, so you cannot ban them.",
-        ),
-      ],
+      embeds: [new ErrorEmbed().setDescription("The member has a higher role than you, so you cannot ban them.")],
     });
   }
 
@@ -123,16 +114,11 @@ async function handleBanMember(client: any, message: any, args: string[]) {
       embeds: [
         new ErrorEmbed()
           .setTitle("Configuration Required")
-          .setDescription(
-            "The ban system needs to be configured first. Use `/ban setup` to set up the logs channel.",
-          ),
+          .setDescription("The ban system needs to be configured first. Use `/ban setup` to set up the logs channel."),
       ],
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setLabel("Setup Ban System")
-            .setStyle(ButtonStyle.Primary)
-            .setCustomId("ban-setup-init"),
+          new ButtonBuilder().setLabel("Setup Ban System").setStyle(ButtonStyle.Primary).setCustomId("ban-setup-init"),
         ),
       ],
     });
@@ -156,14 +142,8 @@ async function handleBanMember(client: any, message: any, args: string[]) {
     embeds: [confirmationEmbed],
     components: [
       new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("ban-confirm")
-          .setLabel("Confirm Ban")
-          .setStyle(ButtonStyle.Danger),
-        new ButtonBuilder()
-          .setCustomId("ban-cancel")
-          .setLabel("Cancel")
-          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("ban-confirm").setLabel("Confirm Ban").setStyle(ButtonStyle.Danger),
+        new ButtonBuilder().setCustomId("ban-cancel").setLabel("Cancel").setStyle(ButtonStyle.Secondary),
       ),
     ],
   });
@@ -206,9 +186,7 @@ async function executeBan(message: Message, target: GuildMember, reason: string)
     logWithLabel("error", "Invalid guild or target member for ban operation.");
     return (message.channel as TextChannel).send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Ban Error")
-          .setDescription("An error occurred while trying to ban the user."),
+        new ErrorEmbed().setTitle("Ban Error").setDescription("An error occurred while trying to ban the user."),
       ],
     });
   }
@@ -278,19 +256,14 @@ async function executeBan(message: Message, target: GuildMember, reason: string)
       .setTitle("✅ Ban Successful")
       .setColor("Green")
       .setDescription(`${target.user.tag} has been banned from the server.`)
-      .addFields(
-        { name: "Reason", value: reason },
-        { name: "Case ID", value: banRecord.id.toString() },
-      );
+      .addFields({ name: "Reason", value: reason }, { name: "Case ID", value: banRecord.id.toString() });
 
     await (message.channel as TextChannel).send({ embeds: [successEmbed] });
   } catch (error) {
     logWithLabel("error", `Ban error: ${error}`);
     (message.channel as TextChannel).send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Ban Failed")
-          .setDescription("An error occurred while trying to ban the user."),
+        new ErrorEmbed().setTitle("Ban Failed").setDescription("An error occurred while trying to ban the user."),
       ],
     });
   }
@@ -386,9 +359,7 @@ async function handleBanList(client: any, message: any, args: string[]) {
     if (page < 1 || page > totalPages) {
       return message.channel.send({
         embeds: [
-          new ErrorEmbed()
-            .setTitle("Invalid Page")
-            .setDescription(`Please select a page between 1 and ${totalPages}`),
+          new ErrorEmbed().setTitle("Invalid Page").setDescription(`Please select a page between 1 and ${totalPages}`),
         ],
       });
     }
@@ -402,11 +373,7 @@ async function handleBanList(client: any, message: any, args: string[]) {
 
     if (bans.length === 0) {
       return message.channel.send({
-        embeds: [
-          new ErrorEmbed()
-            .setTitle("No Bans Found")
-            .setDescription("There are no ban records in this server."),
-        ],
+        embeds: [new ErrorEmbed().setTitle("No Bans Found").setDescription("There are no ban records in this server.")],
       });
     }
 
@@ -443,10 +410,7 @@ async function handleBanList(client: any, message: any, args: string[]) {
         .setLabel("Next")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(page >= totalPages),
-      new ButtonBuilder()
-        .setCustomId("ban-list-close")
-        .setLabel("Close")
-        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId("ban-list-close").setLabel("Close").setStyle(ButtonStyle.Danger),
     );
 
     const listMessage = await message.channel.send({
@@ -504,9 +468,7 @@ async function handleBanRemove(message: Message, args: string[]) {
     logWithLabel("error", "Invalid guild or channel for ban removal.");
     return (message.channel as TextChannel).send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Unban Error")
-          .setDescription("An error occurred while trying to unban the user."),
+        new ErrorEmbed().setTitle("Unban Error").setDescription("An error occurred while trying to unban the user."),
       ],
     });
   }
@@ -515,11 +477,7 @@ async function handleBanRemove(message: Message, args: string[]) {
 
   if (!userId) {
     return message.channel.send({
-      embeds: [
-        new ErrorEmbed()
-          .setTitle("Invalid Case ID")
-          .setDescription("Please provide a valid ban case ID."),
-      ],
+      embeds: [new ErrorEmbed().setTitle("Invalid Case ID").setDescription("Please provide a valid ban case ID.")],
     });
   }
 
@@ -530,11 +488,7 @@ async function handleBanRemove(message: Message, args: string[]) {
 
     if (!banRecord) {
       return message.channel.send({
-        embeds: [
-          new ErrorEmbed()
-            .setTitle("Case Not Found")
-            .setDescription("No ban record found with that ID."),
-        ],
+        embeds: [new ErrorEmbed().setTitle("Case Not Found").setDescription("No ban record found with that ID.")],
       });
     }
 
@@ -543,11 +497,7 @@ async function handleBanRemove(message: Message, args: string[]) {
       await message.guild.bans.fetch(banRecord.userId!);
     } catch {
       return message.channel.send({
-        embeds: [
-          new ErrorEmbed()
-            .setTitle("User Not Banned")
-            .setDescription("This user is not currently banned."),
-        ],
+        embeds: [new ErrorEmbed().setTitle("User Not Banned").setDescription("This user is not currently banned.")],
       });
     }
 
@@ -566,14 +516,8 @@ async function handleBanRemove(message: Message, args: string[]) {
       embeds: [confirmEmbed],
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId("unban-confirm")
-            .setLabel("Confirm Unban")
-            .setStyle(ButtonStyle.Success),
-          new ButtonBuilder()
-            .setCustomId("unban-cancel")
-            .setLabel("Cancel")
-            .setStyle(ButtonStyle.Danger),
+          new ButtonBuilder().setCustomId("unban-confirm").setLabel("Confirm Unban").setStyle(ButtonStyle.Success),
+          new ButtonBuilder().setCustomId("unban-cancel").setLabel("Cancel").setStyle(ButtonStyle.Danger),
         ),
       ],
     });
@@ -694,11 +638,7 @@ async function handleBanInfo(client: any, message: any, args: string[]) {
 
   if (!userId) {
     return message.channel.send({
-      embeds: [
-        new ErrorEmbed()
-          .setTitle("Invalid Case ID")
-          .setDescription("Please provide a valid ban case ID."),
-      ],
+      embeds: [new ErrorEmbed().setTitle("Invalid Case ID").setDescription("Please provide a valid ban case ID.")],
     });
   }
 
@@ -709,11 +649,7 @@ async function handleBanInfo(client: any, message: any, args: string[]) {
 
     if (!banRecord) {
       return message.channel.send({
-        embeds: [
-          new ErrorEmbed()
-            .setTitle("Case Not Found")
-            .setDescription("No ban record found with that ID."),
-        ],
+        embeds: [new ErrorEmbed().setTitle("Case Not Found").setDescription("No ban record found with that ID.")],
       });
     }
 
@@ -760,9 +696,7 @@ async function showBanHelp(message: Message, prefix: string) {
     logWithLabel("error", "Invalid guild or channel for ban help.");
     return (message.channel as TextChannel).send({
       embeds: [
-        new ErrorEmbed()
-          .setTitle("Help Error")
-          .setDescription("An error occurred while trying to show the ban help."),
+        new ErrorEmbed().setTitle("Help Error").setDescription("An error occurred while trying to show the ban help."),
       ],
     });
   }

@@ -1,10 +1,17 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionFlagsBits,
-	SlashCommandBuilder
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
+import { clientID } from "@/shared/class/DB";
+import { ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -19,21 +26,25 @@ export default new Command(
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async (client, interaction) => {
     try {
-      if (
-        !interaction.guild ||
-        !interaction.channel ||
-        interaction.channel.type !== ChannelType.GuildText
-      )
-        return;
+      if (!interaction.guild || !interaction.channel || interaction.channel.type !== ChannelType.GuildText) return;
 
       const guildId = interaction.guild.id;
+
+      const dataClient = await main.DB.findClient(clientID);
+      if (!dataClient || dataClient.maintenance) {
+        return interaction.reply({
+          embeds: [
+            new ErrorEmbed()
+              .setTitle("Maintenance Mode")
+              .setDescription("The bot is currently under maintenance. Please try again later."),
+          ],
+        });
+      }
 
       // Initial embed for configuration
       const embed = new EmbedBuilder()
         .setTitle("🎭 Reaction Role Configuration")
-        .setDescription(
-          "Please provide the ID of the message where you want to configure reaction roles.",
-        )
+        .setDescription("Please provide the ID of the message where you want to configure reaction roles.")
         .setColor("Blue")
         .setFooter({ text: "You can cancel at any time using the cancel button." });
 
@@ -64,12 +75,7 @@ export default new Command(
       });
 
       collector?.on("collect", async (componentInteraction) => {
-        if (
-          !interaction.guild ||
-          !interaction.channel ||
-          interaction.channel.type !== ChannelType.GuildText
-        )
-          return;
+        if (!interaction.guild || !interaction.channel || interaction.channel.type !== ChannelType.GuildText) return;
 
         if (componentInteraction.user.id !== interaction.user.id) {
           return componentInteraction.reply({
@@ -98,12 +104,7 @@ export default new Command(
       });
 
       messageCollector?.on("collect", async (msg) => {
-        if (
-          !interaction.guild ||
-          !interaction.channel ||
-          interaction.channel.type !== ChannelType.GuildText
-        )
-          return;
+        if (!interaction.guild || !interaction.channel || interaction.channel.type !== ChannelType.GuildText) return;
 
         try {
           if (!messageId) {
@@ -116,17 +117,13 @@ export default new Command(
           } else {
             const role = msg.mentions.roles.first();
             if (!role) {
-              await msg.reply(
-                `${client.getEmoji(interaction.guild.id, "error")} Please mention a valid role.`,
-              );
+              await msg.reply(`${client.getEmoji(interaction.guild.id, "error")} Please mention a valid role.`);
               return;
             }
 
             const lastReaction = msg.reactions.cache.last();
             if (!lastReaction || !lastReaction.emoji.name) {
-              await msg.reply(
-                `${client.getEmoji(interaction.guild.id, "error")} Please react with a valid emoji.`,
-              );
+              await msg.reply(`${client.getEmoji(interaction.guild.id, "error")} Please react with a valid emoji.`);
               return;
             }
 
@@ -146,12 +143,7 @@ export default new Command(
       });
 
       messageCollector?.on("end", async () => {
-        if (
-          !interaction.guild ||
-          !interaction.channel ||
-          interaction.channel.type !== ChannelType.GuildText
-        )
-          return;
+        if (!interaction.guild || !interaction.channel || interaction.channel.type !== ChannelType.GuildText) return;
 
         if (reactionRoles.length === 0) {
           await interaction.editReply({
@@ -174,10 +166,7 @@ export default new Command(
           .setLabel("Restrict to One Role")
           .setStyle(ButtonStyle.Secondary);
 
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          multipleButton,
-          singleButton,
-        );
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(multipleButton, singleButton);
 
         await interaction.editReply({
           embeds: [embed],
@@ -189,12 +178,7 @@ export default new Command(
         });
 
         roleCollector?.on("collect", async (componentInteraction) => {
-          if (
-            !interaction.guild ||
-            !interaction.channel ||
-            interaction.channel.type !== ChannelType.GuildText
-          )
-            return;
+          if (!interaction.guild || !interaction.channel || interaction.channel.type !== ChannelType.GuildText) return;
 
           if (componentInteraction.user.id !== interaction.user.id) {
             return componentInteraction.reply({
@@ -237,12 +221,7 @@ export default new Command(
         });
       });
     } catch (error) {
-      if (
-        !interaction.guild ||
-        !interaction.channel ||
-        interaction.channel.type !== ChannelType.GuildText
-      )
-        return;
+      if (!interaction.guild || !interaction.channel || interaction.channel.type !== ChannelType.GuildText) return;
 
       console.error(error);
       await interaction.reply({
@@ -250,5 +229,7 @@ export default new Command(
         flags: "Ephemeral",
       });
     }
+
+    return;
   },
 );

@@ -1,45 +1,30 @@
 {
-  // Opciones del compilador TypeScript
   "compilerOptions": {
-    // === Reglas de Estricta Tipificación y Seguridad ===
-    "strict": true, // Habilita todas las comprobaciones estrictas
-    "noImplicitAny": true, // Error cuando una variable tiene tipo 'any' implícito
-    "strictNullChecks": true, // Variables no pueden ser null/undefined a menos que se especifique
-    "strictFunctionTypes": true, // Chequeo estricto de tipos en funciones
-    "strictBindCallApply": true, // Chequeo estricto en métodos bind, call y apply
-    "strictPropertyInitialization": true, // Propiedades deben ser inicializadas en el constructor
-
-    // === Limpieza de Código ===
-    "noUnusedLocals": true, // Error si hay variables locales no usadas
-    "noUnusedParameters": true, // Error si hay parámetros no usados en funciones
-    "noImplicitReturns": true, // Error si no se retorna valor en todas las ramas de una función
-    "noFallthroughCasesInSwitch": true, // Error si un case de switch cae al siguiente sin break
-
-    // === Configuración de Módulos y Resolución ===
-    "module": "CommonJS", // Sistema de módulos a usar (CommonJS para Node.js)
-    "moduleResolution": "node10", // Estrategia de resolución de módulos (Node.js v10)
-    "esModuleInterop": true, // Permite importar módulos CommonJS usando sintaxis ES6
-    "resolveJsonModule": true, // Permite importar archivos .json como módulos
-
-    // === Objetivo y Librerías ===
-    "target": "ESNext", // Versión de ECMAScript a la que se compila
-    "lib": ["ES2022", "DOM"], // Librerías incluidas (ES2022 y APIs del DOM)
-
-    // === Decoradores (para frameworks como Angular, TypeORM, etc.) ===
-    "experimentalDecorators": true, // Habilita decoradores experimentales
-    "emitDecoratorMetadata": true, // Emite metadatos para decoradores
-
-    // === Salida de la Compilación ===
-    "outDir": "./build", // Carpeta de salida de archivos compilados
-
-    // === Resolución de Rutas y Alias ===
-    "baseUrl": "./", // Base para la resolución de rutas relativas
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "CommonJS",
+    "moduleResolution": "node10",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "./build",
+    "baseUrl": "./",
     "paths": {
-      // Alias para rutas de importación
-      "@constants/*": ["src/shared/infrastructure/constants/*"],
-      "@extenders/*": ["src/shared/infrastructure/extends/*"],
+      "@constants/*": ["src/shared/adapters/constants/*"],
+      "@extenders/*": ["src/shared/utils/extenders/*"],
       "@modules/*": ["src/interfaces/messaging/modules/*"],
-      "@services/*": ["src/application/services/*"],
+      "@services/*": ["src/domain/use-cases/*"],
       "@domain/services/*": ["src/domain/*"],
       "@dtos/*": ["src/application/dtos/*"],
       "@utils/*": ["src/shared/utils/*"],
@@ -48,35 +33,14 @@
       "@config/*": ["./config/*"],
       "@/*": ["./src/*"]
     },
-
-    // === Raíz del Proyecto ===
-    "rootDir": "./", // Carpeta raíz de los archivos fuente
-
-    // === Tipos Globales ===
-    "types": ["node"], // Tipos incluidos globalmente (Node.js y Jest para testing)
-
-    // === Otras Opciones ===
-    "skipLibCheck": true, // Omite la comprobación de tipos en archivos de definición de librerías
-    "forceConsistentCasingInFileNames": true, // Fuerza el uso consistente de mayúsculas/minúsculas en los nombres de archivos
-    "sourceMap": true, // Genera archivos .map para depuración
-    "inlineSources": true, // Incluye el código fuente original en los archivos .map
-    "sourceRoot": "/" // Raíz para los archivos fuente en los mapas de fuente
+    "rootDir": "./",
+    "types": ["node", "jest"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "sourceRoot": "/"
   },
-
-  // === Inclusión de Archivos en la Compilación ===
-  "include": [
-    "**/*.ts", // Todos los archivos TypeScript
-    "tsconfig.json", // Este archivo de configuración
-    "config/json/*.json", // Archivos JSON de configuración
-    "src/typings/.d.ts", // Definiciones de tipos personalizadas
-    "src/**/*", // Todo el contenido de la carpeta src
-    "./**/*.json" // Todos los archivos JSON del proyecto
-  ],
-
-  // === Exclusión de Archivos/Carpetas de la Compilación ===
-  "exclude": [
-    "node_modules", // Dependencias externas
-    "dist", // Carpeta de salida de la compilación
-    "build"
-  ]
+  "include": ["**/*.ts", "tsconfig.json", "config/json/*.json", "src/typings/.d.ts", "src/**/*", "./**/*.json"],
+  "exclude": ["node_modules", "dist", "build"]
 }

@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%- title %></title>
+
+  <!-- CDNs -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+  <link rel="icon" href="https://i.pinimg.com/736x/a4/cd/2d/a4cd2d77f3cfd12e8ca30f66f58782f6.jpg" type="image/png">
+  <link rel="stylesheet" href="/css/nsfw.css">
+</head>
+
+<body>
+  <div id="particles-js"></div>
+
+  <!-- Notificaciones -->
+  <div id="notification-container"></div>
+
+  <!-- Selector de idioma flotante -->
+  <div class="lang-selector" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+    <select id="langSelect" class="form-select form-select-sm hover-glow">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="ja">日本語</option>
+    </select>
+  </div>
+
+  <!-- Toggle de tema -->
+  <div class="theme-toggle" id="themeToggle">
+    <i class="fas fa-moon"></i>
+  </div>
+
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="#"><i class="fas fa-ghost me-2"></i><span data-i18n="brand">Hentai - Nebura</span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-home me-1"></i> <span data-i18n="home">Home</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-images me-1"></i> <span data-i18n="gallery">Gallery</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-tags me-1"></i> <span data-i18n="categories">Categories</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-info-circle me-1"></i> <span data-i18n="about">About</span></a></li>
+          <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-cog me-1"></i> <span data-i18n="settings">Settings</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header con efecto parallax -->
+  <div class="parallax-header">
+    <div class="parallax-content">
+      <h1 class="anime-title neon-text"><i class="fas fa-images"></i> <span data-i18n="galleryTitle">Hentai Galery</span></h1>
+      <p class="subtitle" data-i18n="gallerySubtitle">Explore our exclusive collection. Filter, search and download high quality content.</p>
+    </div>
+  </div>
+
+  <div class="container my-4">
+    <!-- Filtros avanzados -->
+    <div class="filter-section">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="filter-group">
+            <h5 class="filter-title"><i class="fas fa-search"></i> <span data-i18n="searchFilters">Search Filters</span></h5>
+            <input type="text" id="searchInput" class="form-control hover-glow" data-i18n-placeholder="searchPlaceholder" placeholder="Search by name, tags...">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="filter-group">
+            <h5 class="filter-title"><i class="fas fa-sort"></i> <span data-i18n="sortBy">Sort By</span></h5>
+            <select id="sortSelect" class="form-select hover-glow">
+              <option value="date-desc" data-i18n="sortNewest">Newest</option>
+              <option value="date-asc" data-i18n="sortOldest">Oldest</option>
+              <option value="name-asc" data-i18n="sortNameAZ">Name (A-Z)</option>
+              <option value="name-desc" data-i18n="sortNameZA">Name (Z-A)</option>
+              <option value="rating-desc" data-i18n="sortRating">Highest Rated</option>
+              <option value="views-desc" data-i18n="sortPopular">Most Popular</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="filter-group">
+            <h5 class="filter-title"><i class="fas fa-tags"></i> <span data-i18n="categories">Categories</span></h5>
+            <div class="filter-tags">
+              <div class="filter-tag" data-category="all">All</div>
+              <div class="filter-tag" data-category="waifu">Waifu</div>
+              <div class="filter-tag" data-category="neko">Neko</div>
+              <div class="filter-tag" data-category="ecchi">Ecchi</div>
+              <div class="filter-tag" data-category="hentai">Hentai</div>
+              <div class="filter-tag" data-category="cosplay">Cosplay</div>
+              <div class="filter-tag" data-category="anime">Anime</div>
+              <div class="filter-tag" data-category="manga">Manga</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles principales -->
+    <div class="row g-3 mb-4 align-items-center">
+      <div class="col-lg-4">
+        <div class="d-flex align-items-center">
+          <span class="me-2" data-i18n="itemsPerPage">Items per page:</span>
+          <select id="perPageSelect" class="form-select form-select-sm hover-glow" style="width: 80px;">
+            <option value="12">12</option>
+            <option value="24">24</option>
+            <option value="48">48</option>
+            <option value="96">96</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-lg-4 text-center">
+        <div id="totalItems" class="text-muted">0 items</div>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <button class="btn btn-primary-custom me-2" id="downloadAllBtn"><i class="fas fa-file-zipper me-2"></i><span data-i18n="downloadAll">Download All (.zip)</span></button>
+        <span id="zipProgress" class="ms-2 text-muted" style="display: none;"></span>
+      </div>
+    </div>
+
+    <!-- Galería -->
+    <div class="row" id="galleryContainer">
+      <div class="col-12 text-center py-5">
+        <div class="spinner-grow text-primary" role="status"></div>
+        <p class="mt-3" data-i18n="loadingImages">Loading images...</p>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <nav aria-label="Page navigation" class="mt-5">
+      <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox">
+    <div id="lightboxContent">
+      <img id="lightboxImage" src="" alt="Enlarged image" style="display:none;">
+      <video id="lightboxVideo" controls style="display:none;"></video>
+      <div class="lightbox-info" id="lightboxInfo"></div>
+
+      <div class="lightbox-controls">
+        <button class="lightbox-btn" id="favoriteLightboxBtn" title="Add to favorites" data-i18n-title="favorite"><i class="far fa-heart"></i></button>
+        <button class="lightbox-btn" id="zoomInBtn" title="Zoom in" data-i18n-title="zoomIn"><i class="fas fa-search-plus"></i></button>
+        <button class="lightbox-btn" id="zoomOutBtn" title="Zoom out" data-i18n-title="zoomOut"><i class="fas fa-search-minus"></i></button>
+        <a href="#" id="downloadBtn" download class="lightbox-btn" title="Download" data-i18n-title="download"><i class="fas fa-download"></i></a>
+        <button class="lightbox-btn" id="shareBtn" title="Share" data-i18n-title="share"><i class="fas fa-share-alt"></i></button>
+        <button class="lightbox-btn" id="closeLightboxBtn" title="Close (Esc)" data-i18n-title="close"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="lightbox-nav">
+        <button class="lightbox-btn" id="prevBtn" title="Previous" data-i18n-title="previous"><i class="fas fa-chevron-left"></i></button>
+        <button class="lightbox-btn" id="nextBtn" title="Next" data-i18n-title="next"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-white py-4 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 text-center text-md-start">
+          <p class="mb-0">&copy; 2025 <span class="neon-text" data-i18n="brand">Hentai - Nebura</span>. <span data-i18n="rights">All rights reserved.</span></p>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+          <div class="d-flex justify-content-center justify-content-md-end gap-3">
+            <a href="#" class="text-white hover-glow"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-white hover-glow"><i class="fab fa-discord"></i></a>
+            <a href="#" class="text-white hover-glow"><i class="fab fa-github"></i></a>
+            <a href="#" class="text-white hover-glow"><i class="fab fa-patreon"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CDNs -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      console.info("[NSFW] Script iniciado");
+      // --- Estado de la Aplicación ---
+      const state = {
+        allImages: [],
+        filteredImages: [],
+        currentPage: 1,
+        imagesPerPage: 12,
+        currentLightboxIndex: 0,
+        zoomLevel: 1,
+        favorites: JSON.parse(localStorage.getItem('favorites')) || [],
+        ratings: JSON.parse(localStorage.getItem('ratings')) || {},
+        activeCategory: 'all',
+        theme: localStorage.getItem('theme') || 'dark'
+      };
+      console.debug("[NSFW] Estado inicial:", state);
+
+      // --- URLs de los endpoints ---
+      const API = {
+        getImages: '/dashboard/utils/nsfw-images',
+        getImage: (name) => `/dashboard/utils/nsfw-images/${encodeURIComponent(name)}`
+      };
+      console.debug("[NSFW] Endpoints configurados:", API);
+
+      // --- Efectos de sonido ---
+      const sounds = {
+        click: new Howl({
+          src: ['https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa.mp3']
+        }),
+        hover: new Howl({
+          src: ['https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa.mp3']
+        }),
+        success: new Howl({
+          src: ['https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa.mp3']
+        }),
+        error: new Howl({
+          src: ['https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa.mp3']
+        }),
+        open: new Howl({
+          src: ['https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa.mp3']
+        }),
+        close: new Howl({
+          src: ['https://cdn.pixabay.com/audio/2022/07/26/audio_124bfa.mp3']
+        })
+      };
+
+      // --- Selectores del DOM ---
+      const gallery = $('#galleryContainer');
+      const pagination = $('#pagination');
+      const searchInput = $('#searchInput');
+      const sortSelect = $('#sortSelect');
+      const perPageSelect = $('#perPageSelect');
+      const downloadAllBtn = $('#downloadAllBtn');
+      const zipProgress = $('#zipProgress');
+      const themeToggle = $('#themeToggle');
+      const totalItems = $('#totalItems');
+
+      // --- Inicialización ---
+      console.time("[NSFW] Tiempo de carga total");
+      applyTheme(state.theme);
+      loadImages();
+      setupEventListeners();
+      initParticles();
+      setupHoverSounds();
+
+      // --- Temas ---
+      function applyTheme(theme) {
+        console.log("[NSFW] Cambiando tema a:", theme);
+        state.theme = theme;
+        localStorage.setItem('theme', theme);
+        $('body').attr('data-theme', theme);
+
+        if (theme === 'dark') {
+          themeToggle.html('<i class="fas fa-moon"></i>');
+        } else {
+          themeToggle.html('<i class="fas fa-sun"></i>');
+        }
+      }
+
+      // --- Carga de Datos ---
+      function loadImages() {
+        console.time("[NSFW] Carga de imágenes");
+        showLoading(true);
+
+        $.ajax({
+          url: API.getImages,
+          method: 'GET',
+          success: function(data) {
+            console.info("[NSFW] Imágenes recibidas:", data);
+            if (!Array.isArray(data)) {
+              console.error("[NSFW] Error: El endpoint no devolvió un array", data);
+              showError("Error: Incorrect data format.");
+              return;
+            }
+
+            // Procesamos los datos del endpoint
+            state.allImages = data.map((img) => {
+              const fileName = img.name.toLowerCase();
+              let category = 'general';
+              let tags = [];
+
+              // Detección de categorías
+              const categories = ['waifu', 'neko', 'ecchi', 'hentai', 'cosplay', 'anime', 'manga'];
+              categories.forEach(cat => {
+                if (fileName.includes(cat)) category = cat;
+              });
+
+              // Extraer tags del nombre del archivo
+              const nameParts = img.name.replace(/\.[^/.]+$/, "").split(/[_\-\s]+/);
+              if (nameParts.length > 1) {
+                tags = nameParts.slice(1)
+                  .filter(tag => tag.length > 2)
+                  .map(tag => tag.toLowerCase());
+              }
+
+              return {
+                id: img.name, // Nombre del archivo como ID único
+                url: img.url,
+                path: img.path,
+                name: formatImageName(img.name),
+                date: img.date || new Date().toISOString(),
+                views: Math.floor(Math.random() * 1000), // Temporal - debería venir del backend
+                size: img.size,
+                category: category,
+                tags: tags,
+                type: isVideo(img.url) ? 'video' : 'image'
+              };
+            });
+            console.debug("[NSFW] Imágenes procesadas:", state.allImages);
+
+            state.filteredImages = [...state.allImages];
+            updateTotalItems();
+            sortImages();
+            displayPage();
+            showLoading(false);
+            console.timeEnd("[NSFW] Carga de imágenes");
+          },
+          error: function(xhr, status, error) {
+            console.error("[NSFW] Error al cargar imágenes:", error);
+            showError("Could not load images. Please try again later.");
+            showLoading(false);
+            console.timeEnd("[NSFW] Carga de imágenes");
+          }
+        });
+      }
+
+      function showLoading(show) {
+        console.debug("[NSFW] showLoading:", show);
+        if (show) {
+          gallery.html(`
+        <div class="col-12 text-center py-5">
+          <div class="spinner-grow text-primary" role="status"></div>
+          <p class="mt-3" data-i18n="loadingImages">Loading images...</p>
+        </div>
+      `);
+        }
+      }
+
+      function formatImageName(filename) {
+        return filename
+          .replace(/\.[^/.]+$/, "") // Eliminar extensión
+          .replace(/[_\-\s]+/g, ' ') // Reemplazar guiones/underscores con espacios
+          .replace(/\b\w/g, l => l.toUpperCase()); // Capitalizar palabras
+      }
+
+      // --- Lógica de Renderizado ---
+      function displayPage() {
+        console.log("[NSFW] Renderizando página:", state.currentPage);
+        gallery.empty();
+        pagination.empty();
+
+        if (state.filteredImages.length === 0) {
+          console.warn("[NSFW] No hay imágenes para mostrar");
+          gallery.html(`<div class="col-12 text-center mt-5"><p class="fs-4 text-muted" data-i18n="noImages">${translations[lang].noImages}</p></div>`);
+          setLang($('#langSelect').val());
+          return;
+        }
+
+        const startIndex = (state.currentPage - 1) * state.imagesPerPage;
+        const endIndex = startIndex + state.imagesPerPage;
+        const pageImages = state.filteredImages.slice(startIndex, endIndex);
+
+        console.debug("[NSFW] Imágenes en la página actual:", pageImages);
+
+        pageImages.forEach(image => {
+          const isFavorite = state.favorites.includes(image.id);
+          const rating = state.ratings[image.id] || 0;
+
+          //image.url devuelve un ednpoint /dashboard/utils/nsfw-images/${file}
+
+          const mediaHtml = isVideo(image.url) ? `
+  <video class="gallery-card-video" data-src="${image.path}" preload="none" muted loop playsinline></video>
+` : `
+  <img data-src="${image.url}" alt="${image.path}" class="gallery-card-img" loading="lazy">
+`;
+
+          const card = $(`
+        <div class="col-6 col-md-4 col-lg-3 mb-4">
+          <div class="gallery-card" data-id="${image.id}" data-category="${image.category}">
+            <div class="img-wrapper" style="position:relative;">
+              <div class="skeleton"></div>
+              ${mediaHtml}
+              
+              <div class="card-actions">
+                <button class="card-btn favorite-btn ${isFavorite ? 'active' : ''}" title="${translations[lang].favorite}">
+                  <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
+                </button>
+                <button class="card-btn info-btn" title="${translations[lang].info}">
+                  <i class="fas fa-info-circle"></i>
+                </button>
+                <button class="card-btn download-btn-card" title="${translations[lang].download}" 
+                  data-url="${API.getImage(image.id)}" data-name="${image.name}">
+                  <i class="fas fa-download"></i>
+                </button>
+              </div>
+              
+              <div class="card-overlay">
+                <h5 class="card-title">${image.name}</h5>
+                <div class="card-meta">
+                  <span><i class="fas fa-eye"></i> ${image.views}</span>
+                  <span><i class="fas fa-tag"></i> ${image.category}</span>
+                  <span><i class="fas fa-file"></i> ${image.size} KB</span>
+                </div>
+                ${image.tags.length > 0 ? `
+                <div class="card-tags">
+                  ${image.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('')}
+                </div>
+                ` : ''}
+                <div class="rating-stars" data-id="${image.id}">
+                  ${[1, 2, 3, 4, 5].map(i => `
+                    <i class="fas fa-star rating-star ${i <= rating ? 'active' : ''}" data-rating="${i}"></i>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `);
+          gallery.append(card);
+        });
+
+        lazyLoadImages();
+        setupPagination();
+        setLang($('#langSelect').val());
+        setTimeout(lazyLoadImages, 100);
+        console.timeEnd("[NSFW] Tiempo de carga total");
+      }
+
+      // --- Notificaciones ---
+      function showNotification(message, type = "success", duration = 3000) {
+        console.info(`[NSFW] Notificación (${type}):`, message);
+
+        const notif = $(`
+      <div class="notification ${type}">
+        <i class="fas fa-${type === "success" ? "check-circle" : type === "error" ? "exclamation-triangle" : "info-circle"}"></i>
+        ${message}
+      </div>
+    `);
+
+        $('#notification-container').append(notif);
+        setTimeout(() => {
+          notif.css('animation', 'notif-out 0.4s forwards');
+          setTimeout(() => notif.remove(), 400);
+        }, duration);
+      }
+
+      function showError(message) {
+        console.error("[NSFW] showError:", message);
+        gallery.html(`
+      <div class="col-12 text-center py-5">
+        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+        <p class="fs-4">${message}</p>
+        <button class="btn btn-primary-custom mt-3" onclick="location.reload()">
+          <i class="fas fa-sync-alt me-2"></i> ${translations[lang].tryAgain}
+        </button>
+      </div>
+    `);
+      }
+
+      // --- Utilidades multimedia ---
+      function isVideo(url) {
+        return /\.(mp4|webm|ogg)$/i.test(url);
+      }
+
+      function isGif(url) {
+        return /\.gif$/i.test(url);
+      }
+
+      // --- Filtros y Ordenación ---
+      function applyFilters() {
+        console.log("[NSFW] Aplicando filtros");
+        const searchTerm = searchInput.val().toLowerCase();
+        state.filteredImages = state.allImages.filter(image => {
+          const matchesSearch = image.name.toLowerCase().includes(searchTerm) ||
+            image.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+          const matchesCategory = state.activeCategory === 'all' || image.category === state.activeCategory;
+          return matchesSearch && matchesCategory;
+        });
+
+        updateTotalItems();
+        sortImages();
+        state.currentPage = 1;
+        displayPage();
+      }
+
+      function sortImages() {
+        console.debug("[NSFW] Ordenando imágenes por:", sortSelect.val());
+        const sortValue = sortSelect.val();
+        state.filteredImages.sort((a, b) => {
+          switch (sortValue) {
+            case 'name-asc':
+              return a.name.localeCompare(b.name);
+            case 'name-desc':
+              return b.name.localeCompare(a.name);
+            case 'date-asc':
+              return new Date(a.date) - new Date(b.date);
+            case 'date-desc':
+              return new Date(b.date) - new Date(a.date);
+            case 'rating-desc':
+              return (state.ratings[b.id] || 0) - (state.ratings[a.id] || 0);
+            case 'views-desc':
+              return b.views - a.views;
+            case 'size-asc':
+              return a.size - b.size;
+            case 'size-desc':
+              return b.size - a.size;
+            default:
+              return b.id.localeCompare(a.id);
+          }
+        });
+      }
+
+      function updateTotalItems() {
+        console.debug("[NSFW] Total de imágenes filtradas:", state.filteredImages.length);
+        totalItems.text(`${state.filteredImages.length} ${translations[lang].items}`);
+      }
+
+      // --- Lightbox ---
+      function openLightbox(index) {
+        console.log("[NSFW] Abriendo lightbox para índice:", index);
+        sounds.open.play();
+        state.currentLightboxIndex = index;
+        const image = state.filteredImages[index];
+        if (!image) return;
+
+        const $img = $('#lightboxImage');
+        const $vid = $('#lightboxVideo');
+        const $info = $('#lightboxInfo');
+        const isFavorite = state.favorites.includes(image.id);
+
+        $img.hide().removeClass('loaded');
+        $vid.hide().removeClass('loaded').attr('src', '').get(0).pause?.();
+
+        if (isVideo(image.url)) {
+          $vid.attr('src', image.url).show().addClass('loaded');
+          $img.hide();
+        } else {
+          $img.attr('src', image.url).show().addClass('loaded');
+          $vid.hide();
+        }
+
+        $info.html(`
+      <h5>${image.name}</h5>
+      <div class="d-flex justify-content-center gap-3">
+        <span><i class="fas fa-tag"></i> ${image.category}</span>
+        <span><i class="fas fa-eye"></i> ${image.views}</span>
+        <span><i class="fas fa-file"></i> ${image.size} KB</span>
+        <span><i class="fas fa-star"></i> ${state.ratings[image.id] || 'Not rated'}</span>
+      </div>
+    `);
+
+        $('#downloadBtn').attr('href', API.getImage(image.id)).attr('download', image.name);
+        $('#favoriteLightboxBtn').toggleClass('active', isFavorite).html(`<i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>`);
+        $('#lightbox').addClass('show');
+
+        updateLightboxNav();
+        resetZoom();
+      }
+
+      // ... (las funciones closeLightbox, changeLightboxImage, updateLightboxNav, zoom, resetZoom se mantienen igual)
+
+      function updateLightboxNav() {
+        const idx = state.currentLightboxIndex;
+        $('#prevBtn').prop('disabled', idx <= 0);
+        $('#nextBtn').prop('disabled', idx >= state.filteredImages.length - 1);
+      }
+
+      function closeLightbox() {
+        console.log("[NSFW] Cerrando lightbox");
+        sounds.close.play();
+        $('#lightbox').removeClass('show');
+      }
+
+      function changeLightboxImage(direction) {
+        console.log("[NSFW] Cambiando imagen en lightbox. Dirección:", direction);
+        sounds.click.play();
+        const newIndex = state.currentLightboxIndex + direction;
+        if (newIndex >= 0 && newIndex < state.filteredImages.length) {
+          openLightbox(newIndex);
+        }
+      }
+
+      function updateLightboxNav() {
+        $('#prevBtn').prop('disabled', state.currentLightboxIndex === 0);
+        $('#nextBtn').prop('disabled', state.currentLightboxIndex === state.filteredImages.length - 1);
+      }
+
+      function zoom(factor) {
+        console.log("[NSFW] Zoom en lightbox. Factor:", factor);
+        state.zoomLevel = Math.max(0.5, Math.min(state.zoomLevel * factor, 5));
+        $('#lightboxImage').css('transform', `scale(${state.zoomLevel})`);
+        sounds.click.play();
+      }
+
+      function resetZoom() {
+        console.debug("[NSFW] Reset zoom en lightbox");
+        state.zoomLevel = 1;
+        $('#lightboxImage').css('transform', 'scale(1)');
+      }
+
+      // --- Favoritos ---
+      function toggleFavorite(imageId) {
+        console.info("[NSFW] Toggle favorito para:", imageId);
+        const index = state.favorites.indexOf(imageId);
+        if (index === -1) {
+          state.favorites.push(imageId);
+          showNotification(translations[lang].addedToFavorites, "success");
+        } else {
+          state.favorites.splice(index, 1);
+          showNotification(translations[lang].removedFromFavorites, "warning");
+        }
+        localStorage.setItem('favorites', JSON.stringify(state.favorites));
+
+        // Actualizar botones de favorito
+        $(`.favorite-btn[data-id="${imageId}"]`).toggleClass('active')
+          .find('i').toggleClass('far fas');
+
+        // Actualizar en lightbox si está abierto
+        if ($('#lightbox').hasClass('show') && state.filteredImages[state.currentLightboxIndex]?.id === imageId) {
+          $('#favoriteLightboxBtn').toggleClass('active', index === -1)
+            .html(`<i class="${index === -1 ? 'fas' : 'far'} fa-heart"></i>`);
+        }
+      }
+
+      // --- Rating ---
+      function rateImage(imageId, rating) {
+        console.info("[NSFW] Valorando imagen:", imageId, "con", rating);
+        state.ratings[imageId] = rating;
+        localStorage.setItem('ratings', JSON.stringify(state.ratings));
+
+        // Actualizar estrellas
+        $(`.rating-stars[data-id="${imageId}"] .rating-star`).each(function() {
+          const starValue = parseInt($(this).data('rating'));
+          $(this).toggleClass('active', starValue <= rating);
+        });
+
+        showNotification(translations[lang].ratingSaved, "success");
+      }
+
+      // --- Descarga ZIP ---
+      async function downloadAllAsZip() {
+        console.info("[NSFW] Descarga masiva ZIP iniciada");
+        const lang = $('#langSelect').val();
+        if (state.allImages.length === 0) {
+          showNotification(translations[lang].downloadNone, "error");
+          return;
+        }
+
+        downloadAllBtn.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${translations[lang].compressing}`);
+        zipProgress.show().text(translations[lang].starting);
+
+        const zip = new JSZip();
+        let count = 0;
+        const total = state.allImages.length;
+
+        for (const image of state.allImages) {
+          try {
+            console.debug("[NSFW] Descargando para ZIP:", image.id);
+            const response = await fetch(API.getImage(image.id));
+            if (!response.ok) throw new Error(`Failed to download ${image.name}`);
+            const blob = await response.blob();
+            zip.file(image.id, blob);
+
+            count++;
+            const percent = Math.floor((count / total) * 100);
+            zipProgress.text(`(${count}/${total}) ${percent}% - ${image.name}`);
+          } catch (error) {
+            console.error("[NSFW] Error en ZIP con:", image.name, error);
+            zipProgress.text(`Error with: ${image.name}`);
+          }
+        }
+
+        zipProgress.text(translations[lang].generatingZip);
+        zip.generateAsync({
+            type: "blob",
+            compression: "DEFLATE",
+            compressionOptions: {
+              level: 6
+            }
+          })
+          .then(function(content) {
+            saveAs(content, "Hentai-Nebura.zip");
+            zipProgress.hide();
+            downloadAllBtn.prop('disabled', false).html(`<i class="fas fa-file-zipper me-2"></i>${translations[lang].downloadAll}`);
+            showNotification(translations[lang].downloadedZip, "success");
+            console.info("[NSFW] ZIP generado y descarga iniciada");
+          });
+      }
+
+      // --- Carga diferida de imágenes ---
+      function lazyLoadImages() {
+        console.debug("[NSFW] Ejecutando lazyLoadImages");
+        const lazyImages = $('.gallery-card-img[data-src], .gallery-card-video[data-src]');
+
+        const observer = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const media = entry.target;
+              media.src = media.dataset.src;
+
+              if (media.tagName === 'IMG') {
+                media.onload = () => {
+                  media.classList.add('loaded');
+                  observer.unobserve(media);
+                };
+              } else if (media.tagName === 'VIDEO') {
+                media.onloadeddata = () => {
+                  media.classList.add('loaded');
+                  media.play();
+                };
+              }
+            }
+          });
+        }, {
+          rootMargin: '100px'
+        });
+
+        lazyImages.each(function() {
+          observer.observe(this);
+        });
+
+        if ('IntersectionObserver' in window) {
+          lazyImages.each(function() {
+            observer.observe(this);
+          });
+        } else {
+          // Fallback para navegadores antiguos o si el observer falla
+          lazyImages.each(function() {
+            this.src = this.dataset.src;
+            if (this.tagName === 'IMG') {
+              this.onload = () => this.classList.add('loaded');
+            } else if (this.tagName === 'VIDEO') {
+              this.onloadeddata = () => {
+                this.classList.add('loaded');
+                this.play();
+              };
+            }
+          });
+        }
+      }
+
+      // --- Paginación ---
+      function setupPagination() {
+        console.debug("[NSFW] Configurando paginación");
+        const totalPages = Math.ceil(state.filteredImages.length / state.imagesPerPage);
+
+        if (totalPages <= 1) return;
+
+        let html = '';
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, state.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+          startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // Botón Anterior
+        html += `
+      <li class="page-item ${state.currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" data-page="${state.currentPage - 1}">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+      </li>
+    `;
+
+        // Primera página
+        if (startPage > 1) {
+          html += `
+        <li class="page-item">
+          <a class="page-link" href="#" data-page="1">1</a>
+        </li>
+        ${startPage > 2 ? '<li class="page-item disabled"><span class="page-link">...</span></li>' : ''}
+      `;
+        }
+
+        // Páginas visibles
+        for (let i = startPage; i <= endPage; i++) {
+          html += `
+        <li class="page-item ${i === state.currentPage ? 'active' : ''}">
+          <a class="page-link" href="#" data-page="${i}">${i}</a>
+        </li>
+      `;
+        }
+
+        // Última página
+        if (endPage < totalPages) {
+          html += `
+        ${endPage < totalPages - 1 ? '<li class="page-item disabled"><span class="page-link">...</span></li>' : ''}
+        <li class="page-item">
+          <a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a>
+        </li>
+      `;
+        }
+
+        // Botón Siguiente
+        html += `
+      <li class="page-item ${state.currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" data-page="${state.currentPage + 1}">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </li>
+    `;
+
+        pagination.html(html);
+      }
+
+      // --- Compartir ---
+      function shareMedia(url, name, type = 'twitter') {
+        console.info("[NSFW] Compartiendo media:", {
+          url,
+          name,
+          type
+        });
+        let shareUrl = '';
+        const text = `Check out this awesome anime image: ${name}`;
+
+        switch (type) {
+          case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+            break;
+          case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            break;
+          case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
+            break;
+          default:
+            if (navigator.share) {
+              navigator.share({
+                title: name,
+                text: text,
+                url: url
+              }).catch(() => {
+                window.open(url, '_blank');
+              });
+              return;
+            }
+            window.open(url, '_blank');
+            return;
+        }
+
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+      }
+
+      // --- Efectos de sonido ---
+      function setupHoverSounds() {
+        console.debug("[NSFW] setupHoverSounds inicializado");
+        $('.btn, .card-btn, .lightbox-btn, .nav-link, .filter-tag').on('mouseenter', function() {
+          if (!$(this).hasClass('disabled')) {
+            sounds.hover.play();
+          }
+        });
+      }
+
+      // --- Event Listeners ---
+      function setupEventListeners() {
+        console.debug("[NSFW] setupEventListeners inicializado");
+        // Filtros
+        searchInput.on('input', applyFilters);
+        sortSelect.on('change', applyFilters);
+        perPageSelect.on('change', function() {
+          state.imagesPerPage = parseInt(this.value);
+          state.currentPage = 1;
+          displayPage();
+        });
+
+        // Filtros por categoría
+        $('.filter-tag').on('click', function() {
+          $('.filter-tag').removeClass('active');
+          $(this).addClass('active');
+          state.activeCategory = $(this).data('category');
+          applyFilters();
+        });
+
+        // Paginación
+        pagination.on('click', '.page-link', function(e) {
+          e.preventDefault();
+          const page = $(this).data('page');
+          if (page && page !== state.currentPage) {
+            state.currentPage = page;
+            displayPage();
+            $('html, body').animate({
+              scrollTop: 0
+            }, 'fast');
+          }
+        });
+
+        // Abrir Lightbox
+        gallery.on('click', '.gallery-card', function() {
+          const imageId = $(this).data('id');
+          const index = state.filteredImages.findIndex(img => img.id === imageId);
+          if (index !== -1) {
+            openLightbox(index);
+          }
+        });
+
+        // Botón de información
+        gallery.on('click', '.info-btn', function(e) {
+          e.stopPropagation();
+          const card = $(this).closest('.gallery-card');
+          const imageId = card.data('id');
+          const index = state.filteredImages.findIndex(img => img.id === imageId);
+          if (index !== -1) {
+            openLightbox(index);
+          }
+        });
+
+        // Controles Lightbox
+        $('#closeLightboxBtn').on('click', closeLightbox);
+        $('#prevBtn').on('click', () => changeLightboxImage(-1));
+        $('#nextBtn').on('click', () => changeLightboxImage(1));
+        $(document).on('keydown', function(e) {
+          if ($('#lightbox').hasClass('show')) {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') changeLightboxImage(-1);
+            if (e.key === 'ArrowRight') changeLightboxImage(1);
+          }
+        });
+
+        // Zoom Lightbox
+        $('#zoomInBtn').on('click', () => zoom(1.2));
+        $('#zoomOutBtn').on('click', () => zoom(0.8));
+        $('#lightboxImage').on('wheel', function(e) {
+          e.preventDefault();
+          zoom(e.originalEvent.deltaY > 0 ? 0.9 : 1.1);
+        });
+
+        // Favoritos
+        gallery.on('click', '.favorite-btn', function(e) {
+          e.stopPropagation();
+          const card = $(this).closest('.gallery-card');
+          toggleFavorite(card.data('id'));
+        });
+
+        $('#favoriteLightboxBtn').on('click', function(e) {
+          e.stopPropagation();
+          const image = state.filteredImages[state.currentLightboxIndex];
+          if (image) {
+            toggleFavorite(image.id);
+          }
+        });
+
+        // Rating
+        gallery.on('click', '.rating-star', function(e) {
+          e.stopPropagation();
+          const stars = $(this).closest('.rating-stars');
+          const imageId = stars.data('id');
+          const rating = parseInt($(this).data('rating'));
+          rateImage(imageId, rating);
+        });
+
+        // Descarga ZIP
+        downloadAllBtn.on('click', downloadAllAsZip);
+
+        // Multilenguaje
+        $('#langSelect').on('change', function() {
+          setLang(this.value);
+          displayPage();
+        });
+
+        // Compartir
+        $('#shareBtn').on('click', function() {
+          const idx = state.currentLightboxIndex;
+          const img = state.filteredImages[idx];
+          if (img) {
+            shareMedia(img.url, img.name, 'twitter');
+          }
+        });
+
+        // Toggle de tema
+        themeToggle.on('click', function() {
+          const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+          applyTheme(newTheme);
+        });
+
+        // Descarga individual
+        gallery.on('click', '.download-btn-card', function(e) {
+          e.stopPropagation();
+          const url = $(this).data('url');
+          const name = $(this).data('name');
+
+          // Usamos el endpoint directo para descargar
+          window.location.href = url;
+
+          showNotification(translations[lang].downloaded, "success");
+        });
+      }
+
+      // --- Fondo de Partículas ---
+      function initParticles() {
+        console.debug("[NSFW] initParticles inicializado");
+        particlesJS('particles-js', {
+          "particles": {
+            "number": {
+              "value": 80,
+              "density": {
+                "enable": true,
+                "value_area": 800
+              }
+            },
+            "color": {
+              "value": ["#ff2a6d", "#05d9e8", "#d300c5"]
+            },
+            "shape": {
+              "type": "circle",
+              "stroke": {
+                "width": 0,
+                "color": "#000000"
+              }
+            },
+            "opacity": {
+              "value": 0.3,
+              "random": true,
+              "anim": {
+                "enable": true,
+                "speed": 1,
+                "opacity_min": 0.1,
+                "sync": false
+              }
+            },
+            "size": {
+              "value": 3,
+              "random": true,
+              "anim": {
+                "enable": false
+              }
+            },
+            "line_linked": {
+              "enable": true,
+              "distance": 150,
+              "color": "#ffffff",
+              "opacity": 0.1,
+              "width": 1
+            },
+            "move": {
+              "enable": true,
+              "speed": 1.5,
+              "direction": "none",
+              "random": true,
+              "straight": false,
+              "out_mode": "out",
+              "bounce": false,
+              "attract": {
+                "enable": true,
+                "rotateX": 600,
+                "rotateY": 1200
+              }
+            }
+          },
+          "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+              "onhover": {
+                "enable": true,
+                "mode": "bubble"
+              },
+              "onclick": {
+                "enable": true,
+                "mode": "push"
+              },
+              "resize": true
+            },
+            "modes": {
+              "bubble": {
+                "distance": 200,
+                "size": 6,
+                "duration": 2,
+                "opacity": 0.2,
+                "speed": 3
+              },
+              "push": {
+                "particles_nb": 4
+              }
+            }
+          },
+          "retina_detect": true
+        });
+      }
+
+      // --- Traducciones ---
+      const translations = {
+        en: {
+          brand: "Hentai - Nebura",
+          home: "Home",
+          about: "About",
+          gallery: "Gallery",
+          categories: "Categories",
+          settings: "Settings",
+          galleryTitle: "Hentai Galery",
+          gallerySubtitle: "Explore our exclusive collection. Filter, search and download high quality content.",
+          searchPlaceholder: "Search by name, tags...",
+          sortNewest: "Newest",
+          sortOldest: "Oldest",
+          sortNameAZ: "Name (A-Z)",
+          sortNameZA: "Name (Z-A)",
+          sortRating: "Highest Rated",
+          sortPopular: "Most Popular",
+          sortSizeAsc: "Size (Small-Large)",
+          sortSizeDesc: "Size (Large-Small)",
+          downloadAll: "Download All (.zip)",
+          loadingImages: "Loading images...",
+          noImages: "No images found.",
+          items: "items",
+          errorFormat: "Error: Incorrect data format.",
+          errorLoad: "Could not load images. Please try again later.",
+          tryAgain: "Try Again",
+          downloadNone: "There are no images to download.",
+          compressing: "Compressing...",
+          starting: "Starting...",
+          generatingZip: "Generating ZIP file...",
+          zoomIn: "Zoom in",
+          zoomOut: "Zoom out",
+          download: "Download",
+          close: "Close (Esc)",
+          previous: "Previous",
+          next: "Next",
+          rights: "All rights reserved.",
+          share: "Share",
+          favorite: "Add to favorites",
+          info: "View details",
+          rating: "Rating",
+          addedToFavorites: "Added to favorites!",
+          removedFromFavorites: "Removed from favorites",
+          ratingSaved: "Rating saved!",
+          downloaded: "Downloaded!",
+          errorDownload: "Download failed.",
+          downloadedZip: "ZIP ready! Download started.",
+          searchFilters: "Search Filters",
+          sortBy: "Sort By"
+        },
+        es: {
+          brand: "Hentai - Nebura",
+          home: "Inicio",
+          about: "Acerca de",
+          gallery: "Galería",
+          categories: "Categorías",
+          settings: "Configuración",
+          galleryTitle: "Galería Hentai",
+          gallerySubtitle: "Explora nuestra colección exclusiva. Filtra, busca y descarga contenido de alta calidad.",
+          searchPlaceholder: "Buscar por nombre, etiquetas...",
+          sortNewest: "Más recientes",
+          sortOldest: "Más antiguas",
+          sortNameAZ: "Nombre (A-Z)",
+          sortNameZA: "Nombre (Z-A)",
+          sortRating: "Mejor valoradas",
+          sortPopular: "Más populares",
+          sortSizeAsc: "Tamaño (Peq-Grande)",
+          sortSizeDesc: "Tamaño (Grande-Peq)",
+          downloadAll: "Descargar Todo (.zip)",
+          loadingImages: "Cargando imágenes...",
+          noImages: "No se encontraron imágenes.",
+          items: "elementos",
+          errorFormat: "Error: Formato de datos incorrecto.",
+          errorLoad: "No se pudieron cargar las imágenes. Inténtalo de nuevo más tarde.",
+          tryAgain: "Intentar de nuevo",
+          downloadNone: "No hay imágenes para descargar.",
+          compressing: "Comprimiendo...",
+          starting: "Iniciando...",
+          generatingZip: "Generando archivo ZIP...",
+          zoomIn: "Acercar",
+          zoomOut: "Alejar",
+          download: "Descargar",
+          close: "Cerrar (Esc)",
+          previous: "Anterior",
+          next: "Siguiente",
+          rights: "Todos los derechos reservados.",
+          share: "Compartir",
+          favorite: "Añadir a favoritos",
+          info: "Ver detalles",
+          rating: "Valoración",
+          addedToFavorites: "¡Añadido a favoritos!",
+          removedFromFavorites: "Eliminado de favoritos",
+          ratingSaved: "¡Valoración guardada!",
+          downloaded: "¡Descargado!",
+          errorDownload: "Error al descargar.",
+          downloadedZip: "¡ZIP listo! Descarga iniciada.",
+          searchFilters: "Filtros de Búsqueda",
+          sortBy: "Ordenar por"
+        },
+        ja: {
+          brand: "ヘンタイ - ネブラ",
+          home: "ホーム",
+          about: "約",
+          gallery: "ギャラリー",
+          categories: "カテゴリー",
+          settings: "設定",
+          galleryTitle: "プレミアムアニメギャラリー",
+          gallerySubtitle: "独占コレクションを探索します。 フィルタリング、検索、高品質のコンテンツをダウンロードします。",
+          searchPlaceholder: "名前、タグで検索...",
+          sortNewest: "最新",
+          sortOldest: "最古",
+          sortNameAZ: "名前 (A-Z)",
+          sortNameZA: "名前 (Z-A)",
+          sortRating: "最高評価",
+          sortPopular: "最も人気のある",
+          sortSizeAsc: "サイズ (小-大)",
+          sortSizeDesc: "サイズ (大-小)",
+          downloadAll: "すべてダウンロード (.zip)",
+          loadingImages: "画像を読み込んでいます...",
+          noImages: "画像が見つかりませんでした。",
+          items: "アイテム",
+          errorFormat: "エラー：データ形式が正しくありません。",
+          errorLoad: "画像を読み込めませんでした。 後でもう一度試してください。",
+          tryAgain: "再試行",
+          downloadNone: "ダウンロードする画像がありません。",
+          compressing: "圧縮中...",
+          starting: "開始...",
+          generatingZip: "ZIPファイルを生成しています...",
+          zoomIn: "ズームイン",
+          zoomOut: "ズームアウト",
+          download: "ダウンロード",
+          close: "閉じる (Esc)",
+          previous: "前",
+          next: "次",
+          rights: "全著作権所有。",
+          share: "シェア",
+          favorite: "お気に入りに追加",
+          info: "詳細を見る",
+          rating: "評価",
+          addedToFavorites: "お気に入りに追加されました！",
+          removedFromFavorites: "お気に入りから削除されました",
+          ratingSaved: "評価が保存されました！",
+          downloaded: "ダウンロードしました！",
+          errorDownload: "ダウンロードに失敗しました。",
+          downloadedZip: "ZIPの準備ができました！ ダウンロードが開始されました。",
+          searchFilters: "検索フィルター",
+          sortBy: "並び替え"
+        }
+      };
+
+      function setLang(lang) {
+        localStorage.setItem('lang', lang);
+        document.documentElement.lang = lang;
+
+        // Textos normales
+        $('[data-i18n]').each(function() {
+          const key = $(this).data('i18n');
+          if (translations[lang][key]) $(this).text(translations[lang][key]);
+        });
+
+        // Placeholders
+        $('[data-i18n-placeholder]').each(function() {
+          const key = $(this).data('i18n-placeholder');
+          if (translations[lang][key]) $(this).attr('placeholder', translations[lang][key]);
+        });
+
+        // Titles
+        $('[data-i18n-title]').each(function() {
+          const key = $(this).data('i18n-title');
+          if (translations[lang][key]) $(this).attr('title', translations[lang][key]);
+        });
+
+        // Select options
+        $('#sortSelect option').each(function() {
+          const key = $(this).data('i18n');
+          if (key && translations[lang][key]) $(this).text(translations[lang][key]);
+        });
+      }
+
+      // Multilenguaje inicial
+      const lang = localStorage.getItem('lang') || 'en';
+      $('#langSelect').val(lang);
+      setLang(lang);
+
+      // Funciones de Lightbox que faltaban
+      function closeLightbox() {
+        console.log("[NSFW] Cerrando lightbox");
+        sounds.close.play();
+        $('#lightbox').removeClass('show');
+      }
+
+      function changeLightboxImage(direction) {
+        console.log("[NSFW] Cambiando imagen en lightbox. Dirección:", direction);
+        sounds.click.play();
+        const newIndex = state.currentLightboxIndex + direction;
+        if (newIndex >= 0 && newIndex < state.filteredImages.length) {
+          openLightbox(newIndex);
+        }
+      }
+
+      function zoom(factor) {
+        console.log("[NSFW] Zoom en lightbox. Factor:", factor);
+        state.zoomLevel = Math.max(0.5, Math.min(state.zoomLevel * factor, 5));
+        $('#lightboxImage').css('transform', `scale(${state.zoomLevel})`);
+        sounds.click.play();
+      }
+
+      function resetZoom() {
+        console.debug("[NSFW] Reset zoom en lightbox");
+        state.zoomLevel = 1;
+        $('#lightboxImage').css('transform', 'scale(1)');
+      }
+    });
+  </script>
+</body>
+
+</html>

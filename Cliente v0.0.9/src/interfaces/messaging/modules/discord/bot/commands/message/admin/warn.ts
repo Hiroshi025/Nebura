@@ -1,8 +1,8 @@
 import { ChannelType, TextChannel } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const warnAdminCommand: Precommand = {
   name: "warn",
@@ -14,16 +14,13 @@ const warnAdminCommand: Precommand = {
   botpermissions: ["ModerateMembers"],
   permissions: ["ModerateMembers"],
   async execute(client, message, args) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     const subCommand = args[0];
     if (!subCommand || !["add", "remove"].includes(subCommand)) {
       return message.reply({
         embeds: [
-          new ErrorEmbed().setDescription(
-            "Invalid subcommand. Use `warn add @user reason` or `warn remove warn_id`.",
-          ),
+          new ErrorEmbed().setDescription("Invalid subcommand. Use `warn add @user reason` or `warn remove warn_id`."),
         ],
       });
     }

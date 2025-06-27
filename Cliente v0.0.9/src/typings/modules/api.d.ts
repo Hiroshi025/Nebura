@@ -1,5 +1,7 @@
 import { Request } from "express";
 
+import { LicenseType } from "@prisma/client";
+
 /**
  * Options for configuring the Gemini API.
  *
@@ -205,4 +207,42 @@ export interface AuthenticatedRequest extends Request {
      */
     apiKeyHash: string;
   };
+}
+
+export type LicenseDataToCreate = {
+  key: string;
+  type: LicenseType;
+  userId: string;
+  adminId: string;
+  hwid: string[];
+  requestLimit: number;
+  requestCount: number;
+  validUntil?: Date;
+  // Si hay otros campos opcionales en ...licenseData, puedes agregarlos aquí
+  [key: string]: any;
+};
+
+// Tipos y filtros para TaskRepository
+export interface TaskQueryFilters {
+  status?: string;
+  priority?: string;
+  createdBy?: string;
+  tag?: string;
+}
+
+export type CreateTask = import("@/application/entities/tasks/create-task.dto").CreateTaskDto & {
+  recurrence?: import("@domain/services/entities/tasks/task.entity").Recurrence;
+  reminder?: import("@domain/services/entities/tasks/task.entity").Reminder;
+};
+
+export type UpdateTask = Partial<CreateTask>;
+
+// Interfaz del repositorio de tareas
+export interface TaskRepositoryInterface {
+  create(data: CreateTask): Promise<import("@domain/services/entities/tasks/task.entity").Task>;
+  findById(id: string): Promise<import("@domain/services/entities/tasks/task.entity").Task | null>;
+  findMany(filters?: TaskQueryFilters): Promise<import("@domain/services/entities/tasks/task.entity").Task[]>;
+  update(id: string, data: UpdateTask): Promise<import("@domain/services/entities/tasks/task.entity").Task>;
+  delete(id: string): Promise<void>;
+  deleteManyAutoDeleteBefore(date: Date): Promise<number>;
 }

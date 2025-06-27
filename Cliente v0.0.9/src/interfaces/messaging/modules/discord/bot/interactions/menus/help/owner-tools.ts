@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Menus } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const OwnerSelectMenu: Menus = {
   id: "owner_tools_select",
@@ -14,9 +14,7 @@ const OwnerSelectMenu: Menus = {
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel || !interaction.member) return;
     if (interaction.values.includes("reload_command")) {
-      const reloadModal = new ModalBuilder()
-        .setCustomId("reload_command_modal")
-        .setTitle("Reload Command");
+      const reloadModal = new ModalBuilder().setCustomId("reload_command_modal").setTitle("Reload Command");
 
       const commandInput = new TextInputBuilder()
         .setCustomId("command_name")
@@ -60,9 +58,7 @@ const OwnerSelectMenu: Menus = {
         });
       }
     } else if (interaction.values.includes("delete_command")) {
-      const deleteModal = new ModalBuilder()
-        .setCustomId("delete_command_modal")
-        .setTitle("Delete Command");
+      const deleteModal = new ModalBuilder().setCustomId("delete_command_modal").setTitle("Delete Command");
 
       const deleteInput = new TextInputBuilder()
         .setCustomId("command_to_delete")
@@ -76,9 +72,7 @@ const OwnerSelectMenu: Menus = {
 
       await interaction.showModal(deleteModal);
     } else if (interaction.values.includes("download_command")) {
-      const downloadModal = new ModalBuilder()
-        .setCustomId("download_command_modal")
-        .setTitle("Download Command");
+      const downloadModal = new ModalBuilder().setCustomId("download_command_modal").setTitle("Download Command");
 
       const downloadInput = new TextInputBuilder()
         .setCustomId("command_to_download")

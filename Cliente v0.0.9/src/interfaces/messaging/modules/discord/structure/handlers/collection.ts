@@ -1,364 +1,360 @@
 import chalk from "chalk";
 import { ClientEvents, REST, Routes } from "discord.js";
 import { Discord } from "eternal-support";
-import { readdirSync, statSync } from "fs";
+import { readdirSync } from "fs";
 import fs from "fs/promises";
 import path from "path";
 
-import { filesLoaded } from "@/shared/infrastructure/constants/tools";
-import { DiscordError } from "@/shared/infrastructure/extends/error.extend";
+import { main } from "@/main";
+import { clientID } from "@/shared/class/DB";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { getFiles } from "@modules/discord/structure/utils/files";
 import { FileType } from "@typings/modules/discord";
+import { DiscordError } from "@utils/extenders/error.extend";
 
 import { MyClient } from "../../client";
 import { Addons } from "../addons";
 import { Command, Event } from "../utils/builders";
 
 /**
- * Handles the core functionality for managing Discord commands, events, and addons.
- *
- * This class is responsible for:
- * - Loading and initializing commands, events, and addons.
- * - Deploying slash commands to the Discord API.
- * - Managing interactive components like buttons, modals, and menus.
+ * A list of file paths that have been loaded.
+ * Each entry in the array represents the path of a loaded file or `undefined` if no file was loaded.
+ */
+const filesLoaded: (string | undefined)[] = [];
+
+/**
+ * Core handler for Discord module functionality.
+ * Manages command, event, and addon loading, deployment, and component management.
  */
 export class DiscordHandler {
-  /**
-   * Configuration settings for the Discord module.
-   * @private
-   */
-  private settings: typeof config.modules.discord;
+  private readonly settings: typeof config.modules.discord;
+  private readonly client: MyClient;
+  private readonly rest: REST;
 
   /**
-   * The main Discord client instance.
-   * @private
-   */
-  private client: MyClient;
-
-  /**
-   * Initializes the `DiscordHandler` with the provided client instance.
-   *
-   * @param client - The `MyClient` client instance used to interact with Discord.
+   * Initializes the Discord handler with the client instance.
+   * @param client - The Discord client instance
    */
   constructor(client: MyClient) {
     this.settings = config.modules.discord;
     this.client = client;
+    this.rest = new REST({ version: "10" }).setToken(process.env.TOKEN_DISCORD as string);
   }
 
   /**
-   * Loads commands, events, and addons from their respective directories and initializes them.
-   *
-   * ### Commands:
-   * - Reads command directories specified in the configuration.
-   * - Loads command modules and registers them in the client's command collection.
-   * - Categorizes commands based on their directory structure.
-   *
-   * ### Events:
-   * - Reads event directories specified in the configuration.
-   * - Loads event modules and binds them to the client.
-   * - Supports both `once` and `on` event listeners.
-   *
-   * ### Addons:
-   * - Reads addon files from the configured addons path.
-   * - Initializes and registers addons in the client's addon collection.
-   *
-   * Logs the loading status of each module and handles errors gracefully.
-   *
-   * @async
-   * @throws {Error} If there is an issue loading commands, events, or addons.
+   * Loads all Discord components (commands, events, addons, precommands) asynchronously.
+   * @throws {Error} If any component fails to load
    */
-  public async _load() {
-    // --- DEBUG AND OPTIMIZED COMMAND LOADING ---
-    for (const dir of readdirSync(
-      this.settings.configs.default + this.settings.configs.commandpath,
-    )) {
-      this.client.categories.set(dir, []);
-
-      const files = getFiles(
-        this.settings.configs.default + this.settings.configs.commandpath + dir,
-        this.settings.configs["bot-extensions"],
-      );
-      for (const [_index, file] of files.entries()) {
-        const module: Command = require(file).default;
-
-        this.client.commands.set(module.structure.name, module);
-        const data = this.client.categories.get(dir);
-        data?.push(module.structure.name);
-        this.client.categories.set(dir, data!);
-      }
+  public async loadAll(): Promise<void> {
+    try {
+      await Promise.all([this.loadCommands(), this.loadEvents(), this.loadAddons(), this.loadPrecommands()]);
+    } catch (error) {
+      throw new Error(`Failed to load Discord components: ${error}`);
     }
+  }
 
-    for (const dir of readdirSync(
-      this.settings.configs.default + this.settings.configs.eventpath,
-    )) {
-      const files = getFiles(
-        this.settings.configs.default + this.settings.configs.eventpath + dir,
-        this.settings.configs["bot-extensions"],
-      );
-      for (const file of files) {
-        const module: Event<keyof ClientEvents> = require(file).default;
-        filesLoaded.push(file.split("\\").pop());
-        if (module.once) {
-          this.client.once(module.event, (...args): void => module.run(...args));
-        } else {
-          this.client.on(module.event, (...args): void => module.run(...args));
+  /**
+   * Loads commands from the configured commands directory.
+   * Organizes commands by category and registers them in the client.
+   * @private
+   */
+  private async loadCommands(): Promise<void> {
+    const commandsPath = path.join(this.settings.configs.default, this.settings.configs.paths.commands);
+
+    for (const category of readdirSync(commandsPath)) {
+      this.client.categories.set(category, []);
+
+      const commandFiles = getFiles(path.join(commandsPath, category), this.settings.configs["bot-extensions"]);
+
+      for (const file of commandFiles) {
+        try {
+          const command: Command = (await import(file)).default;
+          this.registerCommand(command, category);
+        } catch (error) {
+          logWithLabel("error", `Failed to load command ${file}: ${error}`);
         }
       }
     }
+  }
 
-    // --- DEBUG AND OPTIMIZED ADDON LOADING ---
-    const addonBasePath = this.settings.configs.default + this.settings.configs.addonspath;
-    const addonDirs = (await fs.readdir(addonBasePath, { withFileTypes: true }))
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name);
+  /**
+   * Registers a single command in the client's collections.
+   * @param command - The command to register
+   * @param category - The command category
+   * @private
+   */
+  private registerCommand(command: Command, category: string): void {
+    this.client.commands.set(command.structure.name, command);
+    const categoryCommands = this.client.categories.get(category) || [];
+    categoryCommands.push(command.structure.name);
+    this.client.categories.set(category, categoryCommands);
+  }
 
-    let totalAddonFiles = 0;
-    let totalAddonCode = 0;
-    let loadedAddons: string[] = [];
+  /**
+   * Loads events from the configured events directory.
+   * Binds events to the client with appropriate once/on handlers.
+   * @private
+   */
+  private async loadEvents(): Promise<void> {
+    const eventsPath = path.join(this.settings.configs.default, this.settings.configs.paths.events);
 
-    console.log("\n[DEBUG] Starting general Addon loading...");
-    console.time("Total Addon Loading Time");
+    for (const category of readdirSync(eventsPath)) {
+      const eventFiles = getFiles(path.join(eventsPath, category), this.settings.configs["bot-extensions"]);
+
+      for (const file of eventFiles) {
+        try {
+          const event: Event<keyof ClientEvents> = (await import(file)).default;
+          filesLoaded.push(path.basename(file));
+          this.registerEvent(event);
+        } catch (error) {
+          logWithLabel("error", `Failed to load event ${file}: ${error}`);
+        }
+      }
+    }
+  }
+
+  /**
+   * Registers a single event in the client.
+   * @param event - The event to register
+   * @private
+   */
+  private registerEvent(event: Event<keyof ClientEvents>): void {
+    if (event.once) {
+      this.client.once(event.event, (...args) => event.run(...args));
+    } else {
+      this.client.on(event.event, (...args) => event.run(...args));
+    }
+  }
+
+  /**
+   * Loads addons from the configured addons directory.
+   * Initializes each addon and registers it in the client.
+   * @private
+   */
+  private async loadAddons(): Promise<void> {
+    // Verificar si el cliente está en mantenimiento antes de cargar addons
+    const data = await main.DB.findClient(clientID);
+    if (data?.maintenance) {
+      console.log("[DEBUG] The bot is in maintenance mode. Skipping addon loading.");
+      return;
+    }
+
+    const addonBasePath = path.join(this.settings.configs.default, this.settings.configs.paths.addons);
+
+    console.log("\n[DEBUG] Starting Addon loading...");
+    console.time("Addon Loading Time");
+
+    try {
+      const addonDirs = (await fs.readdir(addonBasePath, { withFileTypes: true }))
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name);
+
+      const loadResults = await Promise.all(addonDirs.map(async (dir) => this.loadAddonFromDir(addonBasePath, dir)));
+
+      const stats = {
+        files: loadResults.filter(Boolean).length,
+        loaded: loadResults.filter((r) => r?.loaded).length,
+        code: loadResults.reduce((sum, r) => sum + (r?.codeLength || 0), 0),
+      };
+
+      console.timeEnd("Addon Loading Time");
+      console.log(
+        `[DEBUG] Addons: Files read: ${stats.files}, ` +
+          `Addons loaded: ${stats.loaded}, ` +
+          `Code read: ${stats.code} characters`,
+      );
+    } catch (error) {
+      console.error("[DEBUG] Error loading addons:", error);
+    }
+  }
+
+  /**
+   * Loads an addon from a specific directory.
+   * @param basePath - Base addons directory path
+   * @param dir - Specific addon directory name
+   * @returns Loading statistics or null if failed
+   * @private
+   */
+  private async loadAddonFromDir(
+    basePath: string,
+    dir: string,
+  ): Promise<{ loaded: boolean; codeLength: number } | null> {
+    const addonFolderPath = path.join(basePath, dir);
+    const filesInFolder = await fs.readdir(addonFolderPath);
+    const addonFile = filesInFolder.find((file) => file.endsWith(".addon.ts") || file.endsWith(".addon.js"));
+
+    if (!addonFile) return null;
+
+    try {
+      const addonPath = path.join(addonFolderPath, addonFile);
+      const code = await fs.readFile(addonPath, "utf8");
+      const addonModule = (await import(path.resolve(addonPath))).default;
+
+      if (addonModule instanceof Addons) {
+        this.client.addons.set(addonModule.structure.name, addonModule);
+        await addonModule.initialize(this.client, config);
+        return { loaded: true, codeLength: code.length };
+      }
+    } catch (error) {
+      logWithLabel("error", `Failed to load addon ${dir}: ${error}`);
+    }
+
+    return { loaded: false, codeLength: 0 };
+  }
+
+  /**
+   * Loads precommands (prefix commands) from the configured directory.
+   * @private
+   */
+  private async loadPrecommands(): Promise<void> {
+    console.log("\n[DEBUG] Starting Precommand loading...");
+    console.time("Precommand Loading Time");
+
+    const stats = { files: 0, loaded: 0, code: 0 };
+    const componentsDir = path.resolve(
+      path.join(config.modules.discord.configs.default, config.modules.discord.configs.paths.precommands),
+    );
+
+    try {
+      await this.readComponentsRecursively(componentsDir, stats);
+      console.timeEnd("Precommand Loading Time");
+      console.log(
+        `[DEBUG] Precommands: Files read: ${stats.files}, ` +
+          `Precommands loaded: ${stats.loaded}, ` +
+          `Code read: ${stats.code} characters`,
+      );
+    } catch (error) {
+      console.error("[DEBUG] Error loading precommands:", error);
+    }
+  }
+
+  /**
+   * Recursively reads components from a directory.
+   * @param directory - Directory to scan
+   * @param stats - Statistics object to update
+   * @private
+   */
+  private async readComponentsRecursively(
+    directory: string,
+    stats: { files: number; loaded: number; code: number },
+  ): Promise<void> {
+    const items = await fs.readdir(directory, { withFileTypes: true });
 
     await Promise.all(
-      addonDirs.map(async (dir) => {
-        const addonFolderPath = path.join(addonBasePath, dir);
-        const filesInFolder = await fs.readdir(addonFolderPath);
-        const addonFile = filesInFolder.find(
-          (file) => file.endsWith(".addon.ts") || file.endsWith(".addon.js"),
-        );
-        if (addonFile) {
-          totalAddonFiles++;
-          const addonPath = path.join(addonFolderPath, addonFile);
-          const code = await fs.readFile(addonPath, "utf8");
-          totalAddonCode += code.length;
-          const resolvedPath = path.resolve(addonPath);
-          const addonModule = (await import(resolvedPath)).default;
-          if (addonModule instanceof Addons) {
-            this.client.addons.set(addonModule.structure.name, addonModule);
-            await addonModule.initialize(this.client, config);
-            loadedAddons.push(addonModule.structure.name);
-          }
+      items.map(async (item) => {
+        const fullPath = path.join(directory, item.name);
+        if (item.isDirectory()) {
+          await this.readComponentsRecursively(fullPath, stats);
+        } else if (item.name.endsWith(".ts") || item.name.endsWith(".js")) {
+          stats.files++;
+          await this.loadPrecommandFile(fullPath, stats);
         }
       }),
     );
+  }
 
-    console.timeEnd("Total Addon Loading Time");
-    console.log(
-      `[DEBUG] Addons: Files read: ${totalAddonFiles}, Addons loaded: ${loadedAddons.length}, Code read: ${totalAddonCode} characters`,
+  /**
+   * Attempts to load a precommand from a file.
+   * @param filePath - Path to the precommand file
+   * @param stats - Statistics object to update
+   * @private
+   */
+  private async loadPrecommandFile(
+    filePath: string,
+    stats: { files: number; loaded: number; code: number },
+  ): Promise<void> {
+    try {
+      const code = await fs.readFile(filePath, "utf8");
+      stats.code += code.length;
+      const commandModule = (await import(filePath)).default;
+
+      if (commandModule.name && commandModule.execute) {
+        commandModule.path = filePath;
+        this.client.precommands.set(commandModule.name, commandModule);
+
+        if (Array.isArray(commandModule.aliases)) {
+          commandModule.aliases.forEach((alias: string) => {
+            this.client.aliases.set(alias, commandModule.name);
+          });
+        }
+        stats.loaded++;
+      }
+    } catch (error) {
+      logWithLabel("error", `Failed to load precommand ${filePath}: ${error}`);
+    }
+  }
+
+  /**
+   * Deploys slash commands to Discord's API.
+   * @throws {Error} If deployment fails
+   */
+  public async deployCommands(): Promise<void> {
+    const startTime = performance.now();
+    const commands = [...this.client.commands.values()].map((cmd) => cmd.structure);
+
+    try {
+      await this.rest.put(Routes.applicationCommands(this.settings.id), { body: commands });
+      const duration = Math.round(performance.now() - startTime);
+
+      logWithLabel(
+        "info",
+        [
+          `Loaded Bot Events:\n`,
+          filesLoaded.map((file) => chalk.grey(`  ✅  Template-Typescript-Loaded: ${file}`)).join("\n"),
+        ].join("\n"),
+      );
+
+      logWithLabel(
+        "info",
+        [
+          `Deployed Slash Commands:\n`,
+          chalk.grey(`  ✅  Successfully deployed ${commands.length} commands`),
+          chalk.grey(`  🕛  Took: ${duration}ms`),
+        ].join("\n"),
+      );
+    } catch (error) {
+      throw new Error(`Failed to deploy commands: ${error}`);
+    }
+  }
+
+  /**
+   * Loads and registers interactive components (buttons, modals, menus).
+   * @param fileType - Type of component to load
+   * @throws {DiscordError} If loading fails
+   */
+  public async loadComponents(fileType: FileType): Promise<void> {
+    const folderPath = path.join(
+      this.settings.configs.default,
+      `${config.modules.discord.configs.paths.components}/${fileType}`,
     );
 
-    // --- DEBUG AND OPTIMIZED PRECOMMAND LOADING ---
-    let precommandStats = { files: 0, cargados: 0, code: 0 };
-
-    async function readComponentsRecursively(
-      directory: string,
-      client: MyClient,
-      stats: { files: number; cargados: number; code: number },
-    ) {
-      const filesAndFolders = await fs.readdir(directory, { withFileTypes: true });
+    try {
+      const files = await Discord.loadFiles(folderPath);
       await Promise.all(
-        filesAndFolders.map(async (item) => {
-          const fullPath = path.join(directory, item.name);
-          if (item.isDirectory()) {
-            await readComponentsRecursively(fullPath, client, stats);
-          } else if (item.name.endsWith(".ts") || item.name.endsWith(".js")) {
-            stats.files++;
-            try {
-              const code = await fs.readFile(fullPath, "utf8");
-              stats.code += code.length;
-              const commandModule = (await import(fullPath)).default;
-              if (commandModule.name && commandModule.execute) {
-                commandModule.path = fullPath;
-                client.precommands.set(commandModule.name, commandModule);
-                if (commandModule.aliases && Array.isArray(commandModule.aliases)) {
-                  commandModule.aliases.forEach((alias: string): void => {
-                    client.aliases.set(alias, commandModule.name);
-                  });
-                }
-                stats.cargados++;
-              }
-            } catch (error) {
-              // Loading error, does not count as loaded
+        files.map(async (file) => {
+          try {
+            const component = (await import(file)).default;
+            if (!component.id) return;
+
+            switch (fileType) {
+              case "buttons":
+                this.client.buttons.set(component.id, component);
+                break;
+              case "modals":
+                this.client.modals.set(component.id, component);
+                break;
+              case "menus":
+                this.client.menus.set(component.id, component);
+                break;
             }
+          } catch (error) {
+            logWithLabel("error", `Failed to load component ${file}: ${error}`);
           }
         }),
       );
-    }
-
-    console.log("\n[DEBUG] Starting general Precommand loading...");
-    console.time("Total Precommand Loading Time");
-    try {
-      const componentsDir = path.resolve(
-        `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}`,
-      );
-      await readComponentsRecursively(componentsDir, this.client, precommandStats);
     } catch (error) {
-      console.error(`[DEBUG] Global error in precommand loading:`, error);
+      throw new DiscordError(`Error loading ${fileType}: ${error}`);
     }
-    console.timeEnd("Total Precommand Loading Time");
-    console.log(
-      `[DEBUG] Precommands: Files read: ${precommandStats.files}, Precommands loaded: ${precommandStats.cargados}, Code read: ${precommandStats.code} characters`,
-    );
-
-    // ...logWithLabel summary if desired...
-  }
-
-  /**
-   * Deploys the bot's slash commands to the Discord API.
-   *
-   * ### Features:
-   * - Uses the Discord REST API to register slash commands globally.
-   * - Handles API rate limits and logs detailed information about rate-limiting events.
-   * - Logs invalid request warnings and debug messages for troubleshooting.
-   *
-   * ### Process:
-   * - Collects all commands from the client's command collection.
-   * - Sends a PUT request to the Discord API to register the commands.
-   * - Logs the time taken and the number of commands deployed.
-   *
-   * @async
-   * @throws {Error} If there is an issue deploying the commands to the Discord API.
-   */
-  public async deploy() {
-    const startTime = performance.now();
-    const rest = new REST({ version: "10" }).setToken(process.env.TOKEN_DISCORD as string);
-    const commands = [...this.client.commands.values()];
-    await rest.put(Routes.applicationCommands(config.modules.discord.id), {
-      body: commands.map((s) => s.structure),
-    });
-
-    const endTime = performance.now();
-
-    logWithLabel(
-      "info",
-      [
-        `loading Bot-Events:\n`,
-        filesLoaded
-          .map((file): string => chalk.grey(`  ✅  Templete-Typescript-Loaded: ${file}`))
-          .join("\n"),
-      ].join("\n"),
-    );
-
-    logWithLabel(
-      "info",
-      [
-        `loaded the Slash-Commands:\n`,
-        chalk.grey(`  ✅  Finished Loading the Slash-Commands`),
-        chalk.grey(`  🟢  Slash-Loaded Successfully: ${commands.length}`),
-        chalk.grey(`  🕛  Took: ${Math.round((endTime - startTime) / 100)}s`),
-      ].join("\n"),
-    );
-  }
-
-  /**
-   * Loads and sets interactive components (e.g., buttons, modals, menus) into the client.
-   *
-   * ### Features:
-   * - Dynamically loads files from the specified folder based on the component type.
-   * - Registers each component in the corresponding client map (e.g., buttons, modals, menus).
-   *
-   * ### Supported Component Types:
-   * - `buttons`: Interactive buttons for Discord messages.
-   * - `modals`: Modal dialogs for user input.
-   * - `menus`: Dropdown menus for user selection.
-   *
-   * @param client - The `MyClient` client instance.
-   * @param fileType - The type of file to load (`buttons`, `modals`, `menus`).
-   * @async
-   * @throws {DiscordError} If there is an issue loading the components.
-   */
-  async loadAndSet(client: MyClient, fileType: FileType) {
-    const folderPath =
-      this.settings.configs.default +
-      `${config.modules.discord.configs.componentspath}/${fileType}`;
-    const files = await Discord.loadFiles(folderPath);
-    try {
-      files.forEach(async (file: string) => {
-        const item = (await import(file)).default;
-        if (!item.id) return;
-        switch (fileType) {
-          case "buttons":
-            client.buttons.set(item.id, item);
-            break;
-          case "modals":
-            client.modals.set(item.id, item);
-            break;
-          case "menus":
-            client.menus.set(item.id, item);
-            break;
-          default:
-            break;
-        }
-      });
-    } catch (e) {
-      throw new DiscordError(`Error loading ${fileType}: ${e}`);
-    }
-  }
-
-  /**
-   * Recursively loads and sets command components (prefix-based) into the client.
-   *
-   * - Reads the components from the specified directory and its subdirectories.
-   * - Ensures each component has a valid `name` and `execute` function before loading.
-   *
-   * Logs the process of loading and the number of components successfully loaded.
-   *
-   * @param client - The BotCore instance.
-   * @throws {InternalError} If there is an issue loading the components.
-   */
-  async components(client: MyClient) {
-    const startTime = performance.now();
-
-    function readComponentsRecursively(directory: string) {
-      const filesAndFolders = readdirSync(directory);
-      for (const item of filesAndFolders) {
-        const fullPath = path.join(directory, item);
-        if (statSync(fullPath).isDirectory()) {
-          readComponentsRecursively(fullPath);
-        } else if (item.endsWith(".ts") || item.endsWith(".js")) {
-          try {
-            const commandModule = require(fullPath);
-            if (commandModule.name && commandModule.execute) {
-              commandModule.path = fullPath;
-              client.precommands.set(commandModule.name, commandModule);
-              if (commandModule.aliases && Array.isArray(commandModule.aliases)) {
-                commandModule.aliases.forEach((alias: string): void => {
-                  client.aliases.set(alias, commandModule.name);
-                });
-              }
-            } else {
-              logWithLabel(
-                "error",
-                `Error loading component ${item}: missing name or execute function`,
-              );
-            }
-          } catch (error) {
-            logWithLabel("error", `Error loading component ${item}: ${error}`);
-          }
-        }
-      }
-    }
-
-    try {
-      const componentsDir = path.resolve(
-        `${config.modules.discord.configs.default + config.modules.discord.configs.precommands}`,
-      );
-      await readComponentsRecursively(componentsDir);
-    } catch (error) {
-      throw new Error(`Error loading components: ${error}`);
-    }
-
-    const endTime = performance.now();
-    logWithLabel(
-      "info",
-      [
-        `Loaded the Prefix-Commands:\n`,
-        `${chalk.grey(`✅ Finished Loading the Prefix-Commands`)}`,
-        `${chalk.grey(`🟢 Prefix-Loaded Successfully: ${client.precommands.size}`)}`,
-        `${chalk.grey(`🕛 Took: ${Math.round((endTime - startTime) / 1000)}s`)}`,
-      ].join("\n"),
-    );
   }
 }

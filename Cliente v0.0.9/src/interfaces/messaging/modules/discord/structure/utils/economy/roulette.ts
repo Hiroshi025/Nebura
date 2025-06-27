@@ -1,9 +1,7 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
@@ -71,18 +69,9 @@ export async function RouletteCommand(interaction: ChatInputCommandInteraction, 
   const chosenColor = interaction.options.getString("color");
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId("stop_roulette")
-      .setLabel("🛑 Stop Roulette")
-      .setStyle(ButtonStyle.Danger),
-    new ButtonBuilder()
-      .setCustomId("bet_all")
-      .setLabel("💰 Bet All")
-      .setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder()
-      .setCustomId("withdraw_winnings")
-      .setLabel("🏦 Withdraw")
-      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId("stop_roulette").setLabel("🛑 Stop Roulette").setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId("bet_all").setLabel("💰 Bet All").setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("withdraw_winnings").setLabel("🏦 Withdraw").setStyle(ButtonStyle.Success),
   );
 
   const updateAccumulatedMessage = async () => {
@@ -117,9 +106,7 @@ export async function RouletteCommand(interaction: ChatInputCommandInteraction, 
 
   const embed = new EmbedCorrect()
     .setTitle("🎡 Roulette Game")
-    .setDescription(
-      `**Your Bet:** $${bet}\n\nThe roulette is spinning... Press "Stop Roulette" to stop it!`,
-    )
+    .setDescription(`**Your Bet:** $${bet}\n\nThe roulette is spinning... Press "Stop Roulette" to stop it!`)
     .setColor("Orange");
 
   const message = await interaction.reply({
@@ -129,9 +116,7 @@ export async function RouletteCommand(interaction: ChatInputCommandInteraction, 
   });
 
   const collector = message.createMessageComponentCollector({
-    filter: (i) =>
-      i.user.id === user.id &&
-      ["stop_roulette", "bet_all", "withdraw_winnings"].includes(i.customId),
+    filter: (i) => i.user.id === user.id && ["stop_roulette", "bet_all", "withdraw_winnings"].includes(i.customId),
     time: 15000,
   });
 

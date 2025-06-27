@@ -1,0 +1,843 @@
+<style>
+  /* Variables CSS actualizadas */
+  :root {
+    --card-bg-dark: #1e1e2d;
+    --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --primary-color: #6a5af9;
+    --primary-color-hover: #1e1e2d;
+    --primary-color-rgb: 106, 90, 249;
+    --text-color-dark: #a1a5b7;
+    --input-border-dark: rgba(255, 255, 255, 0.1);
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --transition-speed: 0.3s;
+    --accent-color: #00c9a7;
+    --notification-color: #ff5e5e;
+  }
+
+  /* Sidebar flexible */
+  .sidebar {
+    background: #1e1e2d;
+    box-shadow: var(--box-shadow);
+    border-radius: 1rem 0 0 1rem;
+    width: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow-y: auto;
+    top: 0;
+    max-height: 100vh;
+    height: auto;
+    overflow-y: auto;
+    position: sticky;
+    transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+      max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Efecto de vidrio para modo claro */
+  [data-bs-theme="light"] .sidebar {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* El contenedor principal es una columna y ocupa toda la pantalla */
+  #app-container {
+    flex-direction: column;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* El contenido principal crece y ocupa el resto del espacio */
+  .main-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    /* ...otros estilos... */
+  }
+
+  .d-flex {
+    height: auto;
+  }
+
+  .sidebar-inner {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1.5rem 1rem 1rem 1rem;
+    scrollbar-width: thin;
+  }
+
+  /* Usuario mejorado */
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--input-border-dark);
+    position: relative;
+  }
+
+  .sidebar-user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+    background: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-user-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+  }
+
+  .sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar-user-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.2rem;
+  }
+
+  .sidebar-user-tag {
+    font-size: 0.85rem;
+    color: var(--text-color-dark);
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+  }
+
+  .sidebar-user-tag .badge {
+    margin-left: 0.5rem;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+    background: var(--accent-color);
+  }
+
+  .sidebar-user-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    border: none;
+  }
+
+  .sidebar-user:hover .sidebar-user-btn {
+    opacity: 1;
+    right: 10px;
+  }
+
+  /* Secciones mejoradas */
+  .sidebar-section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin: 1.5rem 0 0.8rem 0.5rem;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-section-title i {
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-section-title:hover {
+    opacity: 1;
+  }
+
+  .sidebar-section-title:hover i {
+    transform: rotate(15deg);
+  }
+
+  /* Navegación mejorada con efectos */
+  .sidebar-nav {
+    margin-bottom: 1.5rem;
+  }
+
+  .sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: var(--text-color-dark);
+    border: none;
+    background: none;
+    font-weight: 500;
+    font-size: 1rem;
+    border-radius: 0.6rem;
+    margin-bottom: 0.3rem;
+    padding: 0.8rem 1rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar-nav .nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 0;
+    background: var(--primary-color);
+    transition: height 0.3s ease;
+  }
+
+  .sidebar-nav .nav-link:hover {
+    background: rgba(var(--primary-color-rgb), 0.08);
+    color: var(--primary-color);
+    transform: translateX(3px);
+  }
+
+  .sidebar-nav .nav-link:hover::before {
+    height: 100%;
+  }
+
+  .sidebar-nav .nav-link.active,
+  .sidebar-nav .nav-link:focus {
+    background: linear-gradient(90deg,
+        rgba(var(--primary-color-rgb), 0.15),
+        transparent);
+    color: var(--primary-color);
+    font-weight: 600;
+    transform: translateX(5px);
+  }
+
+  .sidebar-nav .nav-link.active::before,
+  .sidebar-nav .nav-link:focus::before {
+    height: 100%;
+  }
+
+  .sidebar-nav .nav-link .fa {
+    min-width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+  }
+
+  .sidebar-nav .nav-link:hover .fa {
+    transform: scale(1.1);
+  }
+
+  /* Badge para notificaciones mejorado */
+  .nav-badge {
+    position: absolute;
+    right: 1rem;
+    background: var(--notification-color);
+    color: white;
+    border-radius: 10px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 0 0.3rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.1);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Sección de Links mejorada */
+  .sidebar-links {
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .sidebar-links .link-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.8rem 0.5rem;
+    border-radius: 0.6rem;
+    color: var(--text-color-dark);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar-links .link-item:hover {
+    background: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-color: rgba(var(--primary-color-rgb), 0.2);
+  }
+
+  .sidebar-links .link-icon {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-links .link-item:hover .link-icon {
+    transform: scale(1.2);
+  }
+
+  .sidebar-links .link-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  /* Divider mejorado */
+  .sidebar-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--input-border-dark), transparent);
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .sidebar-divider::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 5px;
+    background: var(--primary-color);
+    border-radius: 3px;
+  }
+
+  /* Footer mejorado */
+  .sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--input-border-dark);
+    background: rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+  }
+
+  .sidebar-footer::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.1));
+  }
+
+  .sidebar-footer .btn {
+    width: 100%;
+    font-size: 0.95rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar-footer .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar-footer .btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+  }
+
+  .sidebar-footer .theme-switcher {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .sidebar-footer .form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.3em;
+    margin-left: 0;
+    cursor: pointer;
+    background-color: var(--text-color-dark);
+    border-color: var(--text-color-dark);
+  }
+
+  .sidebar-footer .form-switch .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .sidebar-footer .form-check-label {
+    font-size: 1rem;
+    color: var(--text-color-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Language switcher mejorado */
+  .language-switcher {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50px;
+    padding: 0.3rem;
+  }
+
+  .lang-link {
+    color: var(--text-color-dark);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+  }
+
+  .lang-link:hover {
+    color: var(--primary-color);
+    background: rgba(var(--primary-color-rgb), 0.1);
+  }
+
+  .lang-link.active {
+    color: white;
+    background: var(--primary-color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .language-separator {
+    color: var(--text-color-dark);
+    opacity: 0.3;
+  }
+
+  /* Botón de collapse para sidebar */
+  .sidebar-collapse-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: rgba(var(--primary-color-rgb), 0.1);
+    border: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    opacity: 0;
+  }
+
+  .sidebar:hover .sidebar-collapse-btn {
+    opacity: 1;
+  }
+
+  .sidebar-collapse-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: rotate(180deg);
+  }
+
+  /* Estado colapsado */
+  .sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+  }
+
+  .sidebar.collapsed .sidebar-user-info,
+  .sidebar.collapsed .nav-link span,
+  .sidebar.collapsed .link-text,
+  .sidebar.collapsed .sidebar-section-title span,
+  .sidebar.collapsed .btn span,
+  .sidebar.collapsed .form-check-label,
+  .sidebar.collapsed .language-switcher {
+    display: none;
+  }
+
+  .sidebar.collapsed .sidebar-section-title {
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .sidebar.collapsed .sidebar-user {
+    justify-content: center;
+    padding-bottom: 1rem;
+  }
+
+  .sidebar.collapsed .sidebar-user-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sidebar.collapsed .nav-link {
+    justify-content: center;
+    padding: 0.8rem 0.5rem;
+  }
+
+  .sidebar.collapsed .sidebar-links {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar.collapsed .sidebar-footer {
+    padding: 0.5rem;
+  }
+
+  .sidebar.collapsed .sidebar-collapse-btn {
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .sidebar.collapsed .sidebar-collapse-btn:hover {
+    transform: translateX(50%) rotate(180deg);
+  }
+
+  /* Tooltips para modo colapsado */
+  .sidebar.collapsed .nav-link,
+  .sidebar.collapsed .link-item,
+  .sidebar.collapsed .sidebar-user {
+    position: relative;
+  }
+
+  .sidebar.collapsed .nav-link::after,
+  .sidebar.collapsed .link-item::after,
+  .sidebar.collapsed .sidebar-user::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--card-bg-dark);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    margin-left: 10px;
+  }
+
+  .sidebar.collapsed .nav-link:hover::after,
+  .sidebar.collapsed .link-item:hover::after,
+  .sidebar.collapsed .sidebar-user:hover::after {
+    opacity: 1;
+    margin-left: 15px;
+  }
+
+  /* Responsive Design Mejorado */
+  @media (max-width: 1200px) {
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform var(--transition-speed) ease;
+    }
+
+    .sidebar.show {
+      transform: translateX(0);
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      left: 10px;
+      top: 10px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 0;
+    }
+
+    .sidebar-links {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Scrollbar personalizado mejorado */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+    transition: background 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color-hover);
+  }
+</style>
+
+<!-- Botón para mostrar/ocultar sidebar en móvil -->
+<button class="sidebar-toggle d-lg-none">
+  <i class="fas fa-bars"></i>
+</button>
+
+<aside class="sidebar">
+  <!-- Botón para colapsar/expandir sidebar -->
+  <button class="sidebar-collapse-btn" title="Colapsar menú">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+
+  <div class="sidebar-inner">
+    <!-- Usuario mejorado -->
+    <div class="sidebar-user" data-tooltip="Mi perfil">
+      <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=128" alt="Avatar"
+        class="sidebar-user-avatar">
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">
+          <%= user.global_name || user.username %>
+        </div>
+        <div class="sidebar-user-tag">@<%= user.username %>
+            <span class="badge">PRO</span>
+        </div>
+      </div>
+      <button class="sidebar-user-btn" title="Editar perfil">
+        <i class="fas fa-pencil-alt"></i>
+      </button>
+    </div>
+
+    <!-- Navegación principal mejorada -->
+    <div class="sidebar-section-title">
+      <i class="fas fa-th-large"></i>
+      <span>Panel Principal</span>
+    </div>
+    <ul class="nav flex-column sidebar-nav">
+      <% if (typeof panelPrincipalHtml !=='undefined' && panelPrincipalHtml) { %>
+        <%- panelPrincipalHtml %>
+          <% } else { %>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-tooltip="Configuración">
+                <i class="fas fa-cog"></i> <span>Configuracion</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/dashboard" data-tooltip="Dashboard">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard/support" data-tooltip="Soporte">
+                <i class="fas fa-headset"></i> <span>Soporte</span>
+              </a>
+            </li>
+            <% } %>
+    </ul>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Sección de Herramientas -->
+    <div class="sidebar-section-title">
+      <i class="fas fa-tools"></i>
+      <span>Herramientas</span>
+    </div>
+    <div class="sidebar-links">
+      <a href="/api/v1/api-docs" target="_blank" class="link-item" title="API Docs" data-tooltip="API Docs">
+        <i class="fas fa-code link-icon"></i>
+        <span class="link-text">API Docs</span>
+      </a>
+      <a href="https://github.com/Hiroshi025" target="_blank" class="link-item" title="GitHub" data-tooltip="GitHub">
+        <i class="fab fa-github link-icon"></i>
+        <span class="link-text">GitHub</span>
+      </a>
+      <a href="https://host.hiroshi-dev.me/dashboard/status" target="_blank" class="link-item" title="Status" data-tooltip="Status">
+        <i class="fas fa-heartbeat link-icon"></i>
+        <span class="link-text">Estado</span>
+      </a>
+      <a href="https://help.hiroshi-dev.me/" target="_blank" class="link-item" title="Docs"
+        data-tooltip="Documentación">
+        <i class="fas fa-book link-icon"></i>
+        <span class="link-text">Documentación</span>
+      </a>
+      <a href="https://www.hiroshi-dev.me/" target="_blank" class="link-item" title="Portfolio"
+        data-tooltip="Portfolio">
+        <i class="fas fa-briefcase link-icon"></i>
+        <span class="link-text">Portfolio</span>
+      </a>
+      <a href="/dashboard/cdn" class="link-item" title="CDN" data-tooltip="File CDN">
+        <i class="fas fa-cloud-upload-alt link-icon"></i>
+        <span class="link-text">File CDN</span>
+      </a>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- Sección de Administración -->
+    <div class="sidebar-section-title">
+      <i class="fas fa-shield-alt"></i>
+      <span>Administración</span>
+    </div>
+    <ul class="nav flex-column sidebar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboard/auth/administrator" data-tooltip="Admin Panel">
+          <i class="fas fa-chart-line"></i> <span>Panel Admin</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboard/agent" data-tooltip="Agente">
+          <i class="fas fa-user-shield"></i>
+          <span>Agente</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" data-tooltip="Analíticas">
+          <i class="fas fa-chart-pie"></i>
+          <span>Analíticas</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    <!-- Selector de idioma mejorado -->
+    <div class="language-switcher">
+      <a href="#" class="lang-link active" data-lang="es">ES</a>
+      <span class="language-separator">|</span>
+      <a href="#" class="lang-link" data-lang="en">EN</a>
+    </div>
+
+    <!-- Switcher de tema mejorado -->
+    <div class="theme-switcher form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" id="themeSwitch" checked>
+      <label class="form-check-label" for="themeSwitch">
+        <i class="fas fa-moon"></i> <span>Modo Oscuro</span>
+      </label>
+    </div>
+
+    <!-- Botón de logout con efecto -->
+    <a href="/dashboard/auth" class="btn btn-outline-danger logout-btn">
+      <i class="fas fa-sign-out-alt"></i> <span>Cerrar sesión</span>
+    </a>
+  </div>
+</aside>
+
+<script>
+  // Funcionalidad para colapsar/expandir el sidebar
+  document.querySelector('.sidebar-collapse-btn').addEventListener('click', function () {
+    document.querySelector('.sidebar').classList.toggle('collapsed');
+    this.querySelector('i').classList.toggle('fa-chevron-left');
+    this.querySelector('i').classList.toggle('fa-chevron-right');
+  });
+
+  // Funcionalidad para mostrar/ocultar sidebar en móvil
+  document.querySelector('.sidebar-toggle').addEventListener('click', function () {
+    document.querySelector('.sidebar').classList.toggle('show');
+  });
+
+  // Cambiar tema
+  document.getElementById('themeSwitch').addEventListener('change', function () {
+    if (this.checked) {
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    }
+  });
+
+  // Cambiar idioma
+  document.querySelectorAll('.lang-link').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelectorAll('.lang-link').forEach(el => el.classList.remove('active'));
+      this.classList.add('active');
+      // Aquí iría la lógica para cambiar el idioma
+    });
+  });
+
+  // Tooltips dinámicos
+  document.querySelectorAll('.nav-link, .link-item').forEach(item => {
+    if (!item.getAttribute('data-tooltip')) {
+      const text = item.querySelector('span')?.textContent || item.title;
+      if (text) item.setAttribute('data-tooltip', text);
+    }
+  });
+
+  // Efecto hover para botones
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('mouseenter', function () {
+      this.style.transform = 'translateY(-2px)';
+    });
+    btn.addEventListener('mouseleave', function () {
+      this.style.transform = '';
+    });
+  });
+</script>

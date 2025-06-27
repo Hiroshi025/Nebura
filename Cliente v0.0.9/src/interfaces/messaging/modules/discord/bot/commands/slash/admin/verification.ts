@@ -3,7 +3,7 @@ import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 export default new Command(
   new SlashCommandBuilder()
@@ -51,9 +51,7 @@ export default new Command(
             .setRequired(true),
         ),
     )
-    .addSubcommand((subcommand) =>
-      subcommand.setName("delete").setDescription("🧶 Delete the verification data."),
-    ),
+    .addSubcommand((subcommand) => subcommand.setName("delete").setDescription("🧶 Delete the verification data.")),
   async (client, interaction) => {
     if (!interaction.guild || !interaction.channel || !interaction.member || !client.user) return;
     const subcommand = interaction.options.getSubcommand();

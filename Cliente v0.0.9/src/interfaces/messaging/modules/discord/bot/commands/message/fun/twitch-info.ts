@@ -1,8 +1,8 @@
 import axios from "axios";
 import { ChannelType } from "discord.js";
 
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const twitchInfo: Precommand = {
   name: "twitch-info",
@@ -14,8 +14,7 @@ const twitchInfo: Precommand = {
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],
   async execute(client, message, args) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     const user = args[0];
     if (!user) {
@@ -34,24 +33,12 @@ const twitchInfo: Precommand = {
     }
 
     try {
-      const Response = await axios.get(
-        `https://api.crunchprank.net/twitch/followcount/${user.toLowerCase()}`,
-      );
-      const upTime = await axios.get(
-        `https://api.crunchprank.net/twitch/uptime/${user.toLowerCase()}`,
-      );
-      const totalViews = await axios.get(
-        `https://api.crunchprank.net/twitch/total_views/${user.toLowerCase()}`,
-      );
-      const accountage = await axios.get(
-        `https://api.crunchprank.net/twitch/creation/${user.toLowerCase()}`,
-      );
-      const lastGame = await axios.get(
-        `https://api.crunchprank.net/twitch/game/${user.toLowerCase()}`,
-      );
-      const avatarimg = await axios.get(
-        `https://api.crunchprank.net/twitch/avatar/${user.toLowerCase()}`,
-      );
+      const Response = await axios.get(`https://api.crunchprank.net/twitch/followcount/${user.toLowerCase()}`);
+      const upTime = await axios.get(`https://api.crunchprank.net/twitch/uptime/${user.toLowerCase()}`);
+      const totalViews = await axios.get(`https://api.crunchprank.net/twitch/total_views/${user.toLowerCase()}`);
+      const accountage = await axios.get(`https://api.crunchprank.net/twitch/creation/${user.toLowerCase()}`);
+      const lastGame = await axios.get(`https://api.crunchprank.net/twitch/game/${user.toLowerCase()}`);
+      const avatarimg = await axios.get(`https://api.crunchprank.net/twitch/avatar/${user.toLowerCase()}`);
 
       if (upTime.data === `${user} is offline`) {
         upTime.data = "esta Offline";

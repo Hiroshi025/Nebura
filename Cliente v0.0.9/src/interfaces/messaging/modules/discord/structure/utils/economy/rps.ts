@@ -1,9 +1,7 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance } from "../functions";
@@ -18,9 +16,7 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
   if (!bet || bet < 200) {
     if (!interaction.replied) {
       return interaction.reply({
-        embeds: [
-          new ErrorEmbed().setDescription("The minimum bet for Rock, Paper, Scissors is $200."),
-        ],
+        embeds: [new ErrorEmbed().setDescription("The minimum bet for Rock, Paper, Scissors is $200.")],
         flags: "Ephemeral",
       });
     }
@@ -71,10 +67,7 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
     }
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId("accept_rps")
-        .setLabel("Accept")
-        .setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId("accept_rps").setLabel("Accept").setStyle(ButtonStyle.Success),
       new ButtonBuilder().setCustomId("reject_rps").setLabel("Reject").setStyle(ButtonStyle.Danger),
     );
 
@@ -121,19 +114,11 @@ export async function RPSCommand(interaction: ChatInputCommandInteraction, _clie
   return;
 }
 
-async function startGame(
-  interaction: ChatInputCommandInteraction,
-  challenger: any,
-  opponent: any | null,
-  bet: number,
-) {
+async function startGame(interaction: ChatInputCommandInteraction, challenger: any, opponent: any | null, bet: number) {
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder().setCustomId("rock").setLabel("🪨 Rock").setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId("paper").setLabel("📄 Paper").setStyle(ButtonStyle.Primary),
-    new ButtonBuilder()
-      .setCustomId("scissors")
-      .setLabel("✂️ Scissors")
-      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId("scissors").setLabel("✂️ Scissors").setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId("forfeit").setLabel("🚪 Forfeit").setStyle(ButtonStyle.Danger),
   );
 
@@ -149,8 +134,7 @@ async function startGame(
 
   const collector = gameMessage.createMessageComponentCollector({
     filter: (i) =>
-      players.some((p) => p.id === i.user.id) &&
-      ["rock", "paper", "scissors", "forfeit"].includes(i.customId),
+      players.some((p) => p.id === i.user.id) && ["rock", "paper", "scissors", "forfeit"].includes(i.customId),
     time: 30000,
   });
 

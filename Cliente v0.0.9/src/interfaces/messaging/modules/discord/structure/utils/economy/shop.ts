@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction, PermissionFlagsBits, PermissionsBitField } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 import { MyClient } from "../../../client";
 import { fetchBalance, generateToken, toFixedNumber } from "../functions";
 
 export async function ShopEconomy(interaction: ChatInputCommandInteraction, client: MyClient) {
-  if (!interaction.guild || !interaction.channel || !interaction.user || !interaction.member)
-    return;
+  if (!interaction.guild || !interaction.channel || !interaction.user || !interaction.member) return;
   const tokenItem = await generateToken(5);
   const { options } = interaction;
 
@@ -50,11 +49,7 @@ export async function ShopEconomy(interaction: ChatInputCommandInteraction, clie
         let role = null;
         if (interaction.options.getRole("role")) role = roleOption?.id;
 
-        if (
-          !(interaction.member.permissions as PermissionsBitField).has(
-            PermissionFlagsBits.ManageGuild,
-          )
-        )
+        if (!(interaction.member.permissions as PermissionsBitField).has(PermissionFlagsBits.ManageGuild))
           return await interaction.reply({
             content: "You do not have enough permissions to use this command!",
           });
@@ -304,11 +299,7 @@ export async function ShopEconomy(interaction: ChatInputCommandInteraction, clie
 
       break;
     case "remove": {
-      if (
-        !(interaction.member.permissions as PermissionsBitField).has(
-          PermissionFlagsBits.ManageGuild,
-        )
-      ) {
+      if (!(interaction.member.permissions as PermissionsBitField).has(PermissionFlagsBits.ManageGuild)) {
         return await interaction.reply({
           embeds: [
             new ErrorEmbed()

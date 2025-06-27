@@ -1,5 +1,5 @@
-import { EmbedCorrect, ErrorEmbed } from "@extenders/embeds.extend";
 import { Modals, Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extenders/embeds.extend";
 
 const ModalSearch: Modals = {
   id: `search_modal`,

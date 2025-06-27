@@ -1,11 +1,16 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChannelType,
-	UserSelectMenuBuilder, UserSelectMenuInteraction
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ChannelType,
+  UserSelectMenuBuilder,
+  UserSelectMenuInteraction,
 } from "discord.js";
 
 import { main } from "@/main";
-import { EmbedCorrect } from "@extenders/embeds.extend";
 import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect } from "@utils/extenders/embeds.extend";
 
 const OwnerAddCommand: Precommand = {
   name: "addowners",
@@ -17,13 +22,7 @@ const OwnerAddCommand: Precommand = {
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],
   async execute(client, message) {
-    if (
-      !message.guild ||
-      !message.channel ||
-      message.channel.type !== ChannelType.GuildText ||
-      !client.user
-    )
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || !client.user) return;
     const data = await main.DB.findDiscord(client.user.id);
     if (!data)
       return message.reply({
