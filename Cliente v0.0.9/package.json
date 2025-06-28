@@ -1,6 +1,6 @@
 {
   "name": "nebura-assistent",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "main": "src/main.js",
   "scripts": {
     "lint": "eslint --ext .ts .",
@@ -108,7 +108,9 @@
     "swagger-stats": "^0.95.7",
     "swagger-ui-express": "^5.0.1",
     "tcp-ping": "^0.1.1",
+    "telegraf": "^4.16.3",
     "tesseract.js": "^4.1.1",
+    "typegram": "^5.2.0",
     "uuid": "^11.1.0",
     "whatsapp-web.js": "^1.23.0",
     "winston": "^3.17.0",
