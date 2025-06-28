@@ -1,13 +1,11 @@
 import { Profile } from "discord-arts";
-import {
-	AttachmentBuilder, GuildChannel, Message, PermissionFlagsBits, TextChannel
-} from "discord.js";
+import { AttachmentBuilder, GuildChannel, Message, PermissionFlagsBits, TextChannel } from "discord.js";
 
 import { client, main } from "@/main";
 import { LevelConfig, UserLevel } from "@prisma/client";
 import { logWithLabel } from "@utils/functions/console";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { ACHIEVEMENTS, DAILY_QUESTS, MAX_LEVEL, SPAM_PENALTY_XP } from "./constant";
 
 // Define Achievement type if not imported from elsewhere
@@ -28,7 +26,7 @@ const cooldown = new Set<string>();
  * @param client
  * @returns
  */
-export async function Ranking(message: Message, client: MyClient) {
+export async function Ranking(message: Message, client: MyDiscord) {
   if (!message.guild || !message.channel || message.author.bot || !client.user) return;
 
   const guildId = message.guild.id;
@@ -88,9 +86,7 @@ export async function Ranking(message: Message, client: MyClient) {
   // 2. Streak system (Sistema de rachas)
   const streakUpdate = await updateStreak(userId, guildId, currentDay);
   const streakBonus =
-    streakUpdate.currentStreak > 1
-      ? Math.floor(xpAmount * (0.1 * Math.min(streakUpdate.currentStreak, 10)))
-      : 0; // Max 100% bonus for 10-day streak
+    streakUpdate.currentStreak > 1 ? Math.floor(xpAmount * (0.1 * Math.min(streakUpdate.currentStreak, 10))) : 0; // Max 100% bonus for 10-day streak
 
   // 4. Check and update quests (Misiones o retos)
   const questUpdates = await updateQuests(userId, guildId, message);
@@ -369,7 +365,7 @@ async function getChannelBonus(channelId: string, rankingConfig: LevelConfig) {
 }
 
 // 6. Prestige system
-async function handlePrestige(user: UserLevel, message: Message, _client: MyClient) {
+async function handlePrestige(user: UserLevel, message: Message, _client: MyDiscord) {
   const prestige = user.prestige + 1;
   const newLevel = 0;
   const newXp = 0;
@@ -431,7 +427,7 @@ async function handlePrestige(user: UserLevel, message: Message, _client: MyClie
 }
 
 // 7. Anti-spam system
-async function handleSpamPenalty(message: Message, _client: MyClient) {
+async function handleSpamPenalty(message: Message, _client: MyDiscord) {
   const guildId = message.guild?.id;
   const userId = message.author.id;
 
@@ -457,12 +453,7 @@ async function handleSpamPenalty(message: Message, _client: MyClient) {
 }
 
 // 8. Achievement system
-async function checkAchievements(
-  userId: string,
-  guildId: string,
-  level: number,
-  messageCount: number,
-) {
+async function checkAchievements(userId: string, guildId: string, level: number, messageCount: number) {
   const unlockedAchievements = [];
   const userAchievements = await main.prisma.userAchievements.findUnique({
     where: { userId_guildId: { userId, guildId } },
@@ -502,10 +493,7 @@ function getWeekNumber(date: Date): number {
   d.setHours(0, 0, 0, 0);
   d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
   const week1 = new Date(d.getFullYear(), 0, 4);
-  return (
-    1 +
-    Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7)
-  );
+  return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
 }
 
 function isYesterday(lastDateStr: string, currentDateStr: string): boolean {
@@ -537,7 +525,7 @@ function isSpam(_message: Message): boolean {
  */
 async function sendLevelUpNotification(
   message: Message,
-  client: MyClient,
+  client: MyDiscord,
   rankingConfig: LevelConfig,
   details: {
     level: number;
@@ -619,11 +607,7 @@ async function sendLevelUpNotification(
 /**
  * Gets the top users for a specific XP category
  */
-export async function getTopUsers(
-  guildId: string,
-  xpField: "weeklyXp" | "monthlyXp" | "xp",
-  limit: number = 10,
-) {
+export async function getTopUsers(guildId: string, xpField: "weeklyXp" | "monthlyXp" | "xp", limit: number = 10) {
   return await main.prisma.userLevel.findMany({
     where: { guildId },
     orderBy: { [xpField]: "desc" },

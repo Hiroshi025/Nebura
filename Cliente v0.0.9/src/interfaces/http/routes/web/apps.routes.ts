@@ -20,12 +20,14 @@ type DiscordBody = {
   activity?: DiscordActivity;
 };
 
-const formatRoute = (path: string): string => `/dashboard/utils-clients/${path}`;
+const formatRoute = (path: string): string => `/dashboard/utils/clients/${path}`;
 export default ({ app }: TRoutesInput) => {
   console.debug("[apps.routes] Initializing routes for utils-clients");
 
+  // ===================== DISCORD =====================
+
   // Editar Discord config (solo username, avatar, activity)
-  app.put(formatRoute("discord/:id"), async (req: Request<{ id: string }, any, DiscordBody>, res: Response) => {
+  app.put(formatRoute(":id/discord"), async (req: Request<{ id: string }, any, DiscordBody>, res: Response) => {
     console.debug("[apps.routes] PUT /discord/:id called", { params: req.params, body: req.body });
     try {
       const { id } = req.params;
@@ -110,7 +112,7 @@ export default ({ app }: TRoutesInput) => {
   });
 
   // Eliminar Discord config (solo username, avatar, activity)
-  app.delete(formatRoute("discord/:id"), async (req: Request<{ id: string }>, res: Response) => {
+  app.delete(formatRoute(":id/discord"), async (req: Request<{ id: string }>, res: Response) => {
     console.debug("[apps.routes] DELETE /discord/:id called", { params: req.params });
     try {
       const { id } = req.params;
@@ -138,7 +140,7 @@ export default ({ app }: TRoutesInput) => {
     }
   });
 
-  app.get(formatRoute("discord/:id"), async (req: Request<{ id: string }>, res: Response) => {
+  app.get(formatRoute(":id/discord"), async (req: Request<{ id: string }>, res: Response) => {
     console.debug("[apps.routes] GET /discord/:id called", { params: req.params });
     try {
       const { id } = req.params;

@@ -1,7 +1,7 @@
 import { config } from "@/shared/utils/config";
 import { AddonConfig } from "@typings/modules/discord";
 
-import { MyClient } from "../client";
+import { MyDiscord } from "../client";
 
 /**
  * @name Addons
@@ -19,7 +19,7 @@ export class Addons {
    * @type {(client: BotCore, configuration: typeof config) => void}
    * @readonly
    */
-  readonly initialize: (client: MyClient, configuration: typeof config) => void;
+  readonly initialize: (client: MyDiscord, configuration: typeof config) => void;
 
   /**
    * The structure defining the configuration of the addon.
@@ -35,10 +35,7 @@ export class Addons {
    * @param structure - The configuration structure of the addon.
    * @param initialize - The initialization function that sets up the addon, which takes a `BotCore` client and a configuration object.
    */
-  constructor(
-    structure: AddonConfig,
-    initialize: (client: MyClient, configuration: typeof config) => void,
-  ) {
+  constructor(structure: AddonConfig, initialize: (client: MyDiscord, configuration: typeof config) => void) {
     this.structure = structure;
     this.initialize = initialize;
   }

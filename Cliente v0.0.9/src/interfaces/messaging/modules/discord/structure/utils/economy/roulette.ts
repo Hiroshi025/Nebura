@@ -1,11 +1,9 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction } from "discord.js";
 
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
 
 const rouletteNumbers = [
@@ -53,7 +51,7 @@ let riskMultiplier = 1;
 let greenStreak = 0;
 let accumulatedWinnings = 0;
 
-export async function RouletteCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {
+export async function RouletteCommand(interaction: ChatInputCommandInteraction, _client: MyDiscord) {
   if (!interaction.guild || !interaction.channel) return;
 
   const user = interaction.user;

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { CreateLicenseDto, UpdateLicenseDto } from "@/interfaces/http/dtos/license.dto";
-import { LicenseService } from "@domain/services/use-cases/license/license.service";
+import { LicenseService } from "@domain/use-cases/services/create-license.service";
 
 export class LicenseController extends LicenseService {
   constructor() {

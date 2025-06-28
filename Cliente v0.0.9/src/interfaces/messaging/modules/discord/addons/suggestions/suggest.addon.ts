@@ -3,8 +3,14 @@
  * @packageDocumentation
  */
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ColorResolvable, Colors, EmbedBuilder,
-	MessageFlags, PermissionFlagsBits
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ColorResolvable,
+  Colors,
+  EmbedBuilder,
+  MessageFlags,
+  PermissionFlagsBits,
 } from "discord.js";
 
 /**
@@ -15,7 +21,7 @@ import { Addons } from "@/interfaces/messaging/modules/discord/structure/addons"
  * Main application entry, used for accessing Prisma and client.
  */
 import { main } from "@/main";
-import { SuggestRepository } from "@domain/services/gateaway/suggest.repository";
+import { SuggestRepository } from "@domain/gateaway/shared/suggest.prisma.repository";
 
 /**
  * Type definition for embed configuration.

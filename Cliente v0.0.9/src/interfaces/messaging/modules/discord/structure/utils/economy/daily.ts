@@ -1,15 +1,13 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message } from "discord.js";
 
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
 
 export const DailyCommand = {
-  Interaction: async (interaction: ChatInputCommandInteraction, _client: MyClient) => {
+  Interaction: async (interaction: ChatInputCommandInteraction, _client: MyDiscord) => {
     if (!interaction.guild || !interaction.channel) return;
 
     const user = interaction.user;
@@ -122,7 +120,7 @@ export const DailyCommand = {
 
     return;
   },
-  Message: async (message: Message, _client: MyClient, args: string[]) => {
+  Message: async (message: Message, _client: MyDiscord, args: string[]) => {
     if (!message.guild || !message.channel || !message.member) return;
 
     const user = message.author;

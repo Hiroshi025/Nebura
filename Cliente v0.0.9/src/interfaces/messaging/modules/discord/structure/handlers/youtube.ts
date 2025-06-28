@@ -31,8 +31,9 @@ import ms from "ms";
 import { Innertube } from "youtubei.js";
 
 import { main } from "@/main";
-import { MyClient } from "@modules/discord/client";
 import { EmbedCorrect } from "@utils/extends/embeds.extension";
+
+import { MyDiscord } from "../../client";
 
 /**
  * Initializes the YouTube notification system for Discord servers.
@@ -43,7 +44,7 @@ import { EmbedCorrect } from "@utils/extends/embeds.extension";
  * @see https://ytjs.dev/guide/
  * @see https://www.npmjs.com/package/cron
  */
-export const YouTube = async (client: MyClient) => {
+export const YouTube = async (client: MyDiscord) => {
   console.info(
     `[YOUTUBE][INIT] | ${moment().format("YYYY-MM-DD HH:mm:ss")} :: Initializing YouTube notification system for Discord.`,
   );

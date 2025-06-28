@@ -1,16 +1,12 @@
 import {
-  ChatInputCommandInteraction,
-  ClientEvents,
-  ContextMenuCommandBuilder,
-  SlashCommandBuilder,
-  SlashCommandOptionsOnlyBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
+	ChatInputCommandInteraction, ClientEvents, ContextMenuCommandBuilder, SlashCommandBuilder,
+	SlashCommandOptionsOnlyBuilder, SlashCommandSubcommandsOnlyBuilder
 } from "discord.js";
 
 import { config } from "@/shared/utils/config";
 import { CommandOptions } from "@typings/modules/discord";
 
-import { MyClient } from "../../client";
+import { MyDiscord } from "../../client";
 
 /**
  * Class representing an event in the bot system.
@@ -96,7 +92,7 @@ export class Command {
    * @readonly
    */
   readonly run: (
-    client: MyClient,
+    client: MyDiscord,
     interaction: ChatInputCommandInteraction,
     configuration: typeof config,
   ) => void;
@@ -142,7 +138,7 @@ export class Command {
       | SlashCommandSubcommandsOnlyBuilder
       | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">,
     run: (
-      client: MyClient,
+      client: MyDiscord,
       interaction: ChatInputCommandInteraction,
       configuration: typeof config,
     ) => void,

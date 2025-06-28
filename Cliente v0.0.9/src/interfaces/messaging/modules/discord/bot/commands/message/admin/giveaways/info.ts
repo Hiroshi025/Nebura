@@ -17,7 +17,7 @@ const GiveawayInfo: Precommand = {
     if (!message.guild) return;
 
     const giveaways = await GiveawayManager.getManager().giveaways.filter(
-      (g) => g.guildId === message.guild?.id && !g.ended,
+      (g: { guildId: string; ended: any; }) => g.guildId === message.guild?.id && !g.ended,
     );
 
     if (giveaways.length === 0) {

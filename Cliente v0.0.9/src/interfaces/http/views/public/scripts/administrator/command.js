@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function loadCommands() {
-    fetch("/dashboard/utils/commands")
+    fetch("/dashboard/utils/discord/commands")
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -607,8 +607,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const method = commandData.id ? "PUT" : "POST";
     const url = commandData.id
-      ? `/dashboard/utils/commands/${commandData.id}`
-      : "/dashboard/utils/commands";
+      ? `/dashboard/utils/discord/commands/${commandData.id}`
+      : "/dashboard/utils/discord/commands";
 
     fetch(url, {
       method: method,
@@ -646,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function deleteCommand(commandId) {
     if (confirm("Are you sure you want to delete this command? This action cannot be undone.")) {
-      fetch(`/dashboard/utils/commands/${commandId}`, {
+      fetch(`/dashboard/utils/discord/commands/${commandId}`, {
         method: "DELETE",
       })
         .then((response) => response.json())
@@ -668,7 +668,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function toggleCommandStatus(commandId, currentStatus) {
     const newStatus = currentStatus === "true" ? false : true;
 
-    fetch(`/dashboard/utils/commands/${commandId}/toggle`, {
+    fetch(`/dashboard/utils/discord/commands/${commandId}/toggle`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

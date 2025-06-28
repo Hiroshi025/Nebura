@@ -1,13 +1,19 @@
 import {
-	ChannelType, ColorResolvable, Events, Guild, OverwriteType, roleMention, TextChannel,
-	userMention
+  ChannelType,
+  ColorResolvable,
+  Events,
+  Guild,
+  OverwriteType,
+  roleMention,
+  TextChannel,
+  userMention,
 } from "discord.js";
 
 import { main } from "@/main";
 import { Fields } from "@typings/utils";
 import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../client";
+import { MyDiscord } from "../../client";
 
 //TODO correjir a que solo los fields con datos se manden
 
@@ -18,7 +24,7 @@ export class LogClass {
   /**
    * The Discord client instance.
    */
-  private client: MyClient;
+  private client: MyDiscord;
 
   /**
    * List of guilds where the event logger is active.
@@ -37,7 +43,7 @@ export class LogClass {
    * @param guilds - Array of guilds where the logger will operate.
    * @param delay - Optional delay in milliseconds for event processing. Default is 500ms.
    */
-  constructor(client: MyClient, guilds: Guild[], delay: number = 500) {
+  constructor(client: MyDiscord, guilds: Guild[], delay: number = 500) {
     this.client = client;
     this.guilds = guilds;
     this.delay = delay;

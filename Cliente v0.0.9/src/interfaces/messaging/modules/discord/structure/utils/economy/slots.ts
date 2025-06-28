@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from "discord.js";
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
 
 type SymbolData = {
@@ -65,7 +65,7 @@ function calculateWinnings(grid: SymbolData[][]): number {
   return totalMultiplier;
 }
 
-export async function SlotsCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {
+export async function SlotsCommand(interaction: ChatInputCommandInteraction, _client: MyDiscord) {
   if (!interaction.guild || !interaction.channel) return;
 
   const user = interaction.user;

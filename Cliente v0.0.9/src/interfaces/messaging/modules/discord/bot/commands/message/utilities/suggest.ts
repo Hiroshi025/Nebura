@@ -1,11 +1,18 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, Message, ModalBuilder,
-	TextInputBuilder, TextInputStyle
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  EmbedBuilder,
+  Message,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 
 import { main } from "@/main";
 import { clientID } from "@/shared/class/DB";
-import { MyClient } from "@modules/discord/client";
+import { MyDiscord } from "@messaging/modules/discord/client";
 import { Precommand } from "@typings/modules/discord";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
@@ -176,7 +183,7 @@ const suggestCommand: Precommand = {
 } as Precommand;
 
 // Helper method to send the suggestion to the designated channel
-async function sendSuggestion(_client: MyClient, message: Message<boolean>, suggestionText: string) {
+async function sendSuggestion(_client: MyDiscord, message: Message<boolean>, suggestionText: string) {
   const myGuild = await main.prisma.myGuild.findUnique({
     where: { guildId: message.guild?.id },
   });

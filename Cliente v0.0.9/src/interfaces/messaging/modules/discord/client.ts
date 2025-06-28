@@ -17,7 +17,7 @@ import { Command } from "./structure/utils/builders";
  * Represents the main Discord client for the application.
  * Extends the `Client` class from `discord.js` to provide additional functionality.
  */
-export class MyClient extends Client {
+export class MyDiscord extends Client {
   /**
    * Configuration for the Discord module.
    * Loaded from the application's configuration file.
@@ -121,7 +121,7 @@ export class MyClient extends Client {
   Youtubelog: any;
 
   /**
-   * Initializes a new instance of the `MyClient` class.
+   * Initializes a new instance of the `MyDiscord` class.
    * Configures the client with specific intents and partials, and initializes handlers and settings.
    */
   constructor() {

@@ -1,7 +1,7 @@
 import { Response } from "express";
 import multer from "multer";
 
-import { GeminiService } from "@domain/services/use-cases/asistent/google.service";
+import { GeminiService } from "@domain/use-cases/services/fetch-google.service";
 import { AuthenticatedRequest } from "@typings/modules/api";
 
 import { GoogleBody } from "../../../../typings/services/google";

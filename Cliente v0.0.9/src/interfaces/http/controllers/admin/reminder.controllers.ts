@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { ReminderService } from "@domain/services/use-cases/utilities/reminder.service";
+import { ReminderService } from "@domain/use-cases/utilities/validate-reminder.service";
 
 /**
  * Controller for handling reminder-related HTTP requests.

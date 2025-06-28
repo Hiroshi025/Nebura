@@ -1,4 +1,4 @@
-import { Recurrence, Reminder } from "@domain/services/entities/tasks/task.entity";
+import { Recurrence, Reminder } from "@domain/entities/tasks/task.entity";
 
 export class CreateTaskDto {
   title: string = "";

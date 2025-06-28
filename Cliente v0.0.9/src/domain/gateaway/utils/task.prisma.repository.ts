@@ -1,12 +1,13 @@
 import { main } from "@/main";
-import { Recurrence, Reminder, Task } from "@domain/services/entities/tasks/task.entity";
-import { TaskQueryFilters, TaskRepositoryInterface } from "@typings/modules/api";
+import { Recurrence, Reminder, Task } from "@domain/entities/tasks/task.entity";
+import { ITaskPort } from "@domain/ports/services/task.repository.port"; // Importa el puerto
+import { TaskQueryFilters } from "@typings/modules/api";
 import { CreateTask } from "@typings/services/tasks";
 
 /**
- * Implementación de TaskRepositoryInterface usando Prisma.
+ * Implementación de ITaskPort usando Prisma.
  */
-export class TaskRepository implements TaskRepositoryInterface {
+export class TaskRepository implements ITaskPort {
   async create(data: CreateTask) {
     const task = await main.prisma.task.create({ data });
     return {

@@ -3,9 +3,9 @@ import { ChatInputCommandInteraction } from "discord.js";
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 
-export async function StateCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {
+export async function StateCommand(interaction: ChatInputCommandInteraction, _client: MyDiscord) {
   if (!interaction.guild || !interaction.channel) return;
 
   const targetUser = interaction.options.getUser("user") || interaction.user;

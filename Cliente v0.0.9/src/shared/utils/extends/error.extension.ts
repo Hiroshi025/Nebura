@@ -32,3 +32,10 @@ export class RepositoryError extends Error {
     this.name = "RepositoryError";
   }
 }
+
+export class TelegramError extends Error {
+  constructor(message: string) {
+    super(message) 
+      this.name = "TelegramError"
+  }
+}

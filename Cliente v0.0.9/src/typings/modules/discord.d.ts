@@ -1,18 +1,23 @@
 import { GiveawayStartOptions } from "discord-giveaways";
 import {
-	AutocompleteInteraction, ButtonInteraction, ChannelSelectMenuInteraction, Message,
-	ModalSubmitInteraction, PermissionResolvable, RoleSelectMenuInteraction,
-	StringSelectMenuInteraction
+  AutocompleteInteraction,
+  ButtonInteraction,
+  ChannelSelectMenuInteraction,
+  Message,
+  ModalSubmitInteraction,
+  PermissionResolvable,
+  RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
-import { MyClient } from "@/interfaces/messaging/modules/discord/client";
+import { MyDiscord } from "@/interfaces/messaging/modules/discord/client";
 
 //----------------- DISCORD INTERFACES --------------------//
 
 export interface Fields {
-  name: string,
-  value: string,
-  inline: boolean
+  name: string;
+  value: string;
+  inline: boolean;
 }
 
 /**
@@ -53,11 +58,7 @@ export interface CommandOptions {
    * @param configuration - The bot's configuration object, containing global settings.
    * @see {@link https://discord.js.org/#/docs/discord.js/main/class/AutocompleteInteraction Discord.js AutocompleteInteraction}
    */
-  autocomplete?: (
-    client: MyClient,
-    interaction: AutocompleteInteraction,
-    configuration: typeof config,
-  ) => void;
+  autocomplete?: (client: MyDiscord, interaction: AutocompleteInteraction, configuration: typeof config) => void;
 }
 
 /**
@@ -137,12 +138,7 @@ export interface Buttons extends componentData {
    * @param configuration - The bot's configuration object, containing global settings.
    * @see {@link https://discord.js.org/#/docs/discord.js/main/class/ButtonInteraction Discord.js ButtonInteraction}
    */
-  execute: (
-    interaction: ButtonInteraction,
-    client: MyClient,
-    language: string,
-    configuration: typeof config,
-  ) => void;
+  execute: (interaction: ButtonInteraction, client: MyDiscord, language: string, configuration: typeof config) => void;
 }
 
 /**
@@ -169,11 +165,8 @@ export interface Menus extends componentData {
    * @see {@link https://discord.js.org/#/docs/discord.js/main/class/RoleSelectMenuInteraction Discord.js RoleSelectMenuInteraction}
    */
   execute: (
-    interaction:
-      | StringSelectMenuInteraction
-      | ChannelSelectMenuInteraction
-      | RoleSelectMenuInteraction,
-    client: MyClient,
+    interaction: StringSelectMenuInteraction | ChannelSelectMenuInteraction | RoleSelectMenuInteraction,
+    client: MyDiscord,
     language: string,
     configuration: typeof config,
   ) => void;
@@ -199,7 +192,7 @@ export interface Modals extends componentData {
    */
   execute: (
     interaction: ModalSubmitInteraction,
-    client: MyClient,
+    client: MyDiscord,
     language: string,
     configuration: typeof config,
   ) => void;
@@ -348,7 +341,7 @@ export interface Precommand {
    * @see {@link https://discord.js.org/#/docs/discord.js/main/class/Message Discord.js Message}
    */
   execute: (
-    client: MyClient,
+    client: MyDiscord,
     message: Message,
     args: string[],
     prefix: string,
@@ -569,11 +562,10 @@ export interface RoleAssignmentConfig {
   logChannel: string | null;
 }
 
-
 export interface ButtonFormat {
   customId: string;
   label: string;
-  url?: string
+  url?: string;
   style: ButtonStyle;
 }
 
@@ -688,7 +680,6 @@ namespace GiveawayInterface {
   export interface Data extends GiveawayData {}
 }
 
-
 //----------------- EXPORTS --------------------//
 
 export interface MinecraftServer {
@@ -800,10 +791,10 @@ export interface Suggest {
   downvotes: number;
   voters: string[];
   downvoters: string[];
-  lastVoter: string
+  lastVoter: string;
 }
 
-export type CustomInteraction = 
+export type CustomInteraction =
   | ButtonInteraction
   | StringSelectMenuInteraction
   | ChannelSelectMenuInteraction

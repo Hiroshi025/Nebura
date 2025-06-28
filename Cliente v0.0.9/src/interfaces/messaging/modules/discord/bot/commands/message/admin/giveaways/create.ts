@@ -1,11 +1,20 @@
 // src/commands/giveaway/create.ts
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
-	ComponentType, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, User
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelSelectMenuBuilder,
+  ChannelType,
+  ComponentType,
+  EmbedBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  User,
 } from "discord.js";
 
 import { GiveawayManager, main } from "@/main"; // Ajusta la ruta según tu estructura
-import { MyClient } from "@modules/discord/client";
+import { MyDiscord } from "@messaging/modules/discord/client";
 import { GiveawayInterface, Precommand } from "@typings/modules/discord";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
@@ -332,7 +341,7 @@ async function handleRequirementsSetup(interaction: any, _giveawayData: Giveaway
   await interaction.showModal(modal);
 }
 
-async function handleGiveawayCreation(interaction: any, giveawayData: GiveawayInterface.Data, _client: MyClient) {
+async function handleGiveawayCreation(interaction: any, giveawayData: GiveawayInterface.Data, _client: MyDiscord) {
   // Validate all required fields
   if (!giveawayData.prize || !giveawayData.duration || !giveawayData.channelId) {
     await interaction.reply({

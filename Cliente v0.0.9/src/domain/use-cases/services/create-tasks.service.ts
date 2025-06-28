@@ -1,9 +1,9 @@
 import { CreateTaskDto } from "@/interfaces/http/dtos/tasks/create-task.dto";
 import { TaskRecurrence, TaskReminder } from "@/interfaces/http/middlewares/validators/task";
 import { Notification } from "@/interfaces/messaging/broker/notification"; // Importa Notification
-import { Recurrence, Reminder, Task } from "@domain/services/entities/tasks/task.entity";
-import { UpdateTaskDto } from "@domain/services/entities/tasks/update-task.dto";
-import { TaskRepository } from "@domain/services/gateaway/task.repository";
+import { Recurrence, Reminder, Task } from "@domain/entities/tasks/task.entity";
+import { UpdateTaskDto } from "@domain/entities/tasks/update-task.dto";
+import { TaskRepository } from "@domain/gateaway/utils/task.prisma.repository";
 import { CreateTask } from "@typings/services/tasks";
 
 /**

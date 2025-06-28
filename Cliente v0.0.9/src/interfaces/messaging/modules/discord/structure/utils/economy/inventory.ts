@@ -1,15 +1,13 @@
-import {
-	ChannelType, ChatInputCommandInteraction, GuildMemberRoleManager, Message
-} from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, GuildMemberRoleManager, Message } from "discord.js";
 
 import { main } from "@/main";
 import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
 
 export const InventoryCommand = {
-  Interaction: async (interaction: ChatInputCommandInteraction, client: MyClient) => {
+  Interaction: async (interaction: ChatInputCommandInteraction, client: MyDiscord) => {
     if (!interaction.guild || !interaction.channel || !interaction.member) return;
     switch (interaction.options.getSubcommand()) {
       case "view":
@@ -207,7 +205,7 @@ export const InventoryCommand = {
 
     return;
   },
-  Message: async (message: Message, client: MyClient, args: string[]) => {
+  Message: async (message: Message, client: MyDiscord, args: string[]) => {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
     const guild = message.guild;
     const user = message.author;

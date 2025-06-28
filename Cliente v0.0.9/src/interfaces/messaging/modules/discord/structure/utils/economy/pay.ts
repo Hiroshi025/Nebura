@@ -3,10 +3,10 @@ import { ChatInputCommandInteraction } from "discord.js";
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
 
-export async function PayEconomy(interaction: ChatInputCommandInteraction, client: MyClient) {
+export async function PayEconomy(interaction: ChatInputCommandInteraction, client: MyDiscord) {
   if (!interaction.guild || !interaction.channel || !interaction.member) return;
   const user = interaction.options.getUser("user") || interaction.user;
 

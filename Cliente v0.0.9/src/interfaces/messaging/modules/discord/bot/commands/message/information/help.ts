@@ -1,13 +1,21 @@
 import { stripIndent } from "common-tags";
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ComponentType, EmbedBuilder,
-	Message, ModalSubmitInteraction, PermissionResolvable, StringSelectMenuBuilder,
-	StringSelectMenuInteraction
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+  EmbedBuilder,
+  Message,
+  ModalSubmitInteraction,
+  PermissionResolvable,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
 import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
-import { MyClient } from "@/interfaces/messaging/modules/discord/client";
+import { MyDiscord } from "@/interfaces/messaging/modules/discord/client";
 import { Precommand } from "@typings/modules/discord";
 import { config } from "@utils/config";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
@@ -48,7 +56,7 @@ function getCommandsFromFolder(path: string): string[] {
   return commands;
 }
 
-function createCommandEmbed(command: Precommand, prefix: string, client: MyClient, message: Message) {
+function createCommandEmbed(command: Precommand, prefix: string, client: MyDiscord, message: Message) {
   const embed = new EmbedCorrect()
     .setAuthor({
       name: `Command: ${command.name}`,
@@ -143,7 +151,7 @@ const helpCommand: Precommand = {
   aliases: ["h", "commands", "command", "cmds"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
-  async execute(client: MyClient, message: Message, args: string[], prefix: string) {
+  async execute(client: MyDiscord, message: Message, args: string[], prefix: string) {
     const categories = readdirSync(
       config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands,
     );

@@ -3,7 +3,7 @@ import axios from "axios";
 import { AuthLogin } from "@/interfaces/http/middlewares/validators/user";
 import { Notification } from "@/interfaces/messaging/broker/notification"; // Importa Notification
 import { User } from "@/typings/utils";
-import { AuthRepository } from "@domain/services/gateaway/auth.repository";
+import { AuthRepository } from "@domain/gateaway/shared/auth.repository";
 import { Prisma } from "@prisma/client";
 import { logWithLabel } from "@utils/functions/console";
 import { encrypt, signToken, verified } from "@utils/token";

@@ -21,17 +21,34 @@
     "outDir": "./build",
     "baseUrl": "./",
     "paths": {
-      "@constants/*": ["src/shared/adapters/constants/*"],
-      "@extenders/*": ["src/shared/utils/extends/*"],
-      "@modules/*": ["src/interfaces/messaging/modules/*"],
-      "@services/*": ["src/domain/use-cases/*"],
-      "@domain/services/*": ["src/domain/*"],
-      "@dtos/*": ["src/application/dtos/*"],
-      "@utils/*": ["src/shared/utils/*"],
-      "@typings/*": ["src/typings/*"],
+      // Dominio y Core
       "@domain/*": ["src/domain/*"],
+      "@entities/*": ["src/domain/entities/*"],
+      "@ports/*": ["src/domain/ports/*"],
+      "@use-cases/*": ["src/domain/use-cases/*"],
+
+      // Infraestructura
+      "@adapters/*": ["src/adapters/*"],
+      "@database/*": ["src/adapters/database/*"],
+      "@external/*": ["src/adapters/external/*"],
+
+      // Interfaces
+      "@http/*": ["src/interfaces/http/*"],
+      "@controllers/*": ["src/interfaces/http/controllers/*"],
+      "@middlewares/*": ["src/interfaces/http/middlewares/*"],
+      "@messaging/*": ["src/interfaces/messaging/*"],
+
+      // Shared y Utils
+      "@shared/*": ["src/shared/*"],
+      "@utils/*": ["src/shared/utils/*"],
+      "@constants/*": ["src/shared/constants/*"],
+
+      // Configuración y Tipos
       "@config/*": ["./config/*"],
-      "@/*": ["./src/*"]
+      "@typings/*": ["src/typings/*"],
+
+      // Root
+      "@/*": ["src/*"]
     },
     "rootDir": "./",
     "types": ["node", "jest"],

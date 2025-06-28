@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Función para cargar configuraciones de Discord
   function loadDiscordConfigs(page = 1) {
     currentPage.discord = page;
-    fetch("/dashboard/utils/discord")
+    fetch("/dashboard/utils/discord/config")
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -374,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function editDiscord(id) {
-    fetch(`/dashboard/utils/discord/${id}`)
+    fetch(`/dashboard/utils/discord/config/${id}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -451,7 +451,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!form) return;
     const id = document.getElementById("discordId").value;
     const method = id ? "PUT" : "POST";
-    const url = id ? `/dashboard/utils/discord/${id}` : "/dashboard/utils/discord";
+    const url = id ? `/dashboard/utils/discord/config/${id}` : "/dashboard/utils/discord/config";
 
     const discordData = {
       token: document.getElementById("discordToken").value,
@@ -582,7 +582,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function deleteDiscord(id) {
-    fetch(`/dashboard/utils/discord/${id}`, {
+    fetch(`/dashboard/utils/discord/config/${id}`, {
       method: "DELETE",
     })
       .then((response) => response.json())

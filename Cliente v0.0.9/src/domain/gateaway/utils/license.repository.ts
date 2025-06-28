@@ -1,36 +1,37 @@
 import { UpdateLicenseDto } from "@/interfaces/http/dtos/license.dto";
 import { main } from "@/main";
+import { ILicenseRepositoryPort } from "@domain/ports/services/license.repository.port";
 import { LicenseDataToCreate } from "@typings/modules/api";
 
-export class LicenseRepository {
+export class LicenseRepository implements ILicenseRepositoryPort {
   constructor() {}
-  public async findLicenseMany() {
+  public async findMany() {
     const data = await main.prisma.license.findMany();
     return data;
   }
 
-  public async findLicenseById(id: string) {
+  public async findById(id: string) {
     const data = await main.prisma.license.findUnique({
       where: { id },
     });
     return data ? data : false;
   }
 
-  public async findLicenseByKey(key: string) {
+  public async findByKey(key: string) {
     const data = await main.prisma.license.findUnique({
       where: { key },
     });
     return data ? data : false;
   }
 
-  public async findLicenseByUserId(userId: string) {
+  public async findByUserId(userId: string) {
     const data = await main.prisma.license.findMany({
       where: { userId },
     });
     return data;
   }
 
-  public async updateLicenseById(id: string, data: UpdateLicenseDto) {
+  public async updateLic(id: string, data: UpdateLicenseDto) {
     try {
       const updatedData = await main.prisma.license.update({
         where: { id },
@@ -42,7 +43,7 @@ export class LicenseRepository {
     }
   }
 
-  public async deleteLicenseById(id: string) {
+  public async deleteById(id: string) {
     try {
       const data = await main.prisma.license.delete({
         where: { id },
@@ -53,7 +54,7 @@ export class LicenseRepository {
     }
   }
 
-  public async updateRequestLicenseById(id: string) {
+  public async updateByIdRequest(id: string) {
     try {
       const data = await main.prisma.license.update({
         where: { id },
@@ -65,7 +66,7 @@ export class LicenseRepository {
     }
   }
 
-  public async createLicence(data: LicenseDataToCreate) {
+  public async createLic(data: LicenseDataToCreate) {
     try {
       if (data.validUntil === undefined) {
         throw new Error("validUntil is required and cannot be undefined");

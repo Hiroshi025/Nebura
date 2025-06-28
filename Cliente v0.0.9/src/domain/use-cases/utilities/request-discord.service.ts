@@ -3,7 +3,7 @@ import { load } from "cheerio";
 
 // src/services/discord.service.ts
 import { DiscordStatusResponseDTO } from "@/interfaces/http/dtos/discord.dto";
-import { DiscordStatusEntity, DiscordUpdateEntity } from "@domain/services/entities/discord.entity";
+import { DiscordStatusEntity, DiscordUpdateEntity } from "@domain/entities/discord.entity";
 
 /**
  * Service for interacting with Discord's status and blog APIs.

@@ -1,13 +1,11 @@
 import { userMention } from "discord.js";
 
 import { CreateLicenseDto, UpdateLicenseDto } from "@/interfaces/http/dtos/license.dto";
-import {
-	CreateLicenseSchema, UpdateLicenseSchema
-} from "@/interfaces/http/middlewares/validators/license";
+import { CreateLicenseSchema, UpdateLicenseSchema } from "@/interfaces/http/middlewares/validators/license";
 import { Notification } from "@/interfaces/messaging/broker/notification"; // Importa Notification
 import { client } from "@/main";
-import { LicenseEntity } from "@domain/services/entities/license.entity";
-import { LicenseRepository } from "@domain/services/gateaway/license.repository";
+import { LicenseEntity } from "@domain/entities/license.entity";
+import { LicenseRepository } from "@domain/gateaway/utils/license.repository";
 import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 /**
@@ -17,9 +15,8 @@ import { EmbedCorrect } from "@utils/extends/embeds.extension";
  *
  * @see [Prisma Documentation](https://www.prisma.io/docs/)
  */
-export class LicenseService {
+export class LicenseService extends LicenseRepository {
   private notifier = new Notification(); // Instancia de Notification
-  private licenseRepository = new LicenseRepository(); // Instancia del repositorio de licencias
 
   /**
    * Creates a new license in the system.
@@ -51,7 +48,7 @@ export class LicenseService {
 
     // Asegúrate de no enviar 'id' en el payload
     delete licenseDataToCreate.id;
-    const license = await this.licenseRepository.createLicence(licenseDataToCreate);
+    const license = await this.createLic(licenseDataToCreate);
 
     // Notificación detallada en inglés
     await this.notifier.sendWebhookNotification(
@@ -117,7 +114,7 @@ export class LicenseService {
    * ```
    */
   async findAllLicense(): Promise<LicenseEntity[]> {
-    const licenses = await this.licenseRepository.findLicenseMany();
+    const licenses = await this.findMany();
     return licenses.map((license) => new LicenseEntity(license));
   }
 
@@ -133,7 +130,7 @@ export class LicenseService {
    * ```
    */
   async findByIdLicense(id: string): Promise<LicenseEntity | null> {
-    const license = await this.licenseRepository.findLicenseById(id);
+    const license = await this.findById(id);
     return license ? new LicenseEntity(license) : null;
   }
 
@@ -149,7 +146,7 @@ export class LicenseService {
    * ```
    */
   async findByKeyLicense(key: string): Promise<LicenseEntity | null> {
-    const license = await this.licenseRepository.findLicenseByKey(key);
+    const license = await this.findByKey(key);
     return license ? new LicenseEntity(license) : null;
   }
 
@@ -165,7 +162,7 @@ export class LicenseService {
    * ```
    */
   async findByUserIdLicense(userId: string): Promise<LicenseEntity[]> {
-    const licenses = await this.licenseRepository.findLicenseByUserId(userId);
+    const licenses = await this.findByUserId(userId);
     return licenses.map((license) => new LicenseEntity(license));
   }
 
@@ -186,7 +183,7 @@ export class LicenseService {
     UpdateLicenseSchema.parse(updateDto);
 
     // Permite actualizar por id (ObjectId)
-    const license = await this.licenseRepository.updateLicenseById(id, updateDto);
+    const license = await this.updateLicense(id, updateDto);
     await this.notifier.sendWebhookNotification(
       "License Updated",
       `License with ID: \`${id}\` has been updated.`,
@@ -221,9 +218,9 @@ export class LicenseService {
     UpdateLicenseSchema.parse(updateDto);
 
     // Permite actualizar por key (clave de licencia)
-    const data = await this.licenseRepository.findLicenseByKey(key);
+    const data = await this.findByKey(key);
     if (!data) return null;
-    const license = await this.licenseRepository.updateLicenseById(data.id, updateDto);
+    const license = await this.updateLicense(data.id, updateDto);
     await this.notifier.sendWebhookNotification(
       "License Updated by Key",
       `License with key: \`${key}\` has been updated.`,
@@ -253,10 +250,10 @@ export class LicenseService {
    * ```
    */
   async deleteLicense(id: string) {
-    const data = await this.licenseRepository.findLicenseById(id);
+    const data = await this.findById(id);
     if (!data) return false;
 
-    const deleted = await this.licenseRepository.deleteLicenseById(id);
+    const deleted = await this.deleteById(id);
     if (!deleted) return false;
 
     await this.notifier.sendWebhookNotification(
@@ -285,11 +282,11 @@ export class LicenseService {
    * ```
    */
   async deleteByKeyLicense(key: string) {
-    const data = await this.licenseRepository.findLicenseByKey(key);
+    const data = await this.findByKey(key);
 
     if (!data) return false;
 
-    const deleted = await this.licenseRepository.deleteLicenseById(data.id);
+    const deleted = await this.deleteById(data.id);
     if (!deleted) return false;
     await this.notifier.sendWebhookNotification(
       "License Deleted by Key",
@@ -323,7 +320,7 @@ export class LicenseService {
    * ```
    */
   async validateLicense(key: string, hwid: string): Promise<boolean> {
-    const license = await this.licenseRepository.findLicenseByKey(key);
+    const license = await this.findByKey(key);
     let valid = false;
     let reason = "";
 
@@ -340,7 +337,7 @@ export class LicenseService {
     }
 
     if (valid && license) {
-      await this.licenseRepository.updateRequestLicenseById(license.id);
+      await this.updateByIdRequest(license.id);
     }
 
     await this.notifier.sendWebhookNotification(

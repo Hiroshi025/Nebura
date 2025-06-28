@@ -1,4 +1,4 @@
-import { Task } from "@domain/services/entities/tasks/task.entity";
+import { Task } from "@domain/entities/tasks/task.entity";
 
 //TODO Agregar la parte de la logica de los recordatorios
 export class ReminderService {

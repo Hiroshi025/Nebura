@@ -4,7 +4,7 @@ import { inspect } from "util";
 
 import { main } from "@/main";
 
-import { MyClient } from "../../client";
+import { MyDiscord } from "../../client";
 
 /**
  * Sets up advanced error handling and logging for the Discord client and Node.js process.
@@ -22,7 +22,7 @@ import { MyClient } from "../../client";
  * ErrorConsole(client);
  * ```
  */
-export async function ErrorConsole(client: MyClient) {
+export async function ErrorConsole(client: MyDiscord) {
   // Fetch Discord-specific configuration from the database.
   const data = await main.DB.findDiscord(client.user?.id as string);
 

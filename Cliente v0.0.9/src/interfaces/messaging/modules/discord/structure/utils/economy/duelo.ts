@@ -1,13 +1,22 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CacheType,
-	ChatInputCommandInteraction, MessageFlags, StringSelectMenuBuilder, StringSelectMenuInteraction,
-	StringSelectMenuOptionBuilder, TextChannel, User
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  CacheType,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
+  StringSelectMenuOptionBuilder,
+  TextChannel,
+  User,
 } from "discord.js";
 
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance } from "../functions";
 
 // Tipos y constantes para las nuevas mecánicas
@@ -194,7 +203,7 @@ const CLASSES: Record<CharacterClass, ClassAbilities> = {
   },
 };
 
-export async function DueloCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {
+export async function DueloCommand(interaction: ChatInputCommandInteraction, _client: MyDiscord) {
   if (!interaction.guild || !interaction.channel) return;
 
   const challenger = interaction.user;

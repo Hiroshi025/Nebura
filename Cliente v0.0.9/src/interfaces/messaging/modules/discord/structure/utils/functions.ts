@@ -2,11 +2,30 @@ import axios from "axios";
 import { createHash } from "crypto";
 import { format } from "date-fns";
 import {
-	ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChannelType, codeBlock, Colors,
-	ComponentType, EmbedBuilder, Guild, GuildDefaultMessageNotifications,
-	GuildExplicitContentFilter, GuildFeature, GuildMember, GuildNSFWLevel, GuildPremiumTier,
-	GuildVerificationLevel, Message, MessageEditAttachmentData, StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder, TextChannel, User, UserFlagsBitField
+  ActionRowBuilder,
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  codeBlock,
+  Colors,
+  ComponentType,
+  EmbedBuilder,
+  Guild,
+  GuildDefaultMessageNotifications,
+  GuildExplicitContentFilter,
+  GuildFeature,
+  GuildMember,
+  GuildNSFWLevel,
+  GuildPremiumTier,
+  GuildVerificationLevel,
+  Message,
+  MessageEditAttachmentData,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+  TextChannel,
+  User,
+  UserFlagsBitField,
 } from "discord.js";
 import moment from "moment";
 import { promisify } from "util";
@@ -17,7 +36,7 @@ import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/dis
 import { config } from "@utils/config";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../client";
+import { MyDiscord } from "../../client";
 
 const sleep = promisify(setTimeout);
 const MAX_OUTPUT_LENGTH = 1000;
@@ -360,7 +379,7 @@ export async function createUser(userId: string) {
   return dbUser;
 }
 
-export async function createGuild(guildId: string, client: MyClient) {
+export async function createGuild(guildId: string, client: MyDiscord) {
   if (!guildId || !client.user) return false;
 
   const guild = await main.prisma.myGuild.findFirst({

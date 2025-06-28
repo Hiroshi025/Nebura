@@ -5,7 +5,7 @@ import {
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { client, main } from "@/main";
 import { config } from "@/shared/utils/config";
-import { Ranking } from "@modules/discord/structure/utils/ranking/helpers";
+import { Ranking } from "@messaging/modules/discord/structure/utils/ranking/helpers";
 import { ButtonFormat, Fields, Precommand } from "@typings/modules/discord";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 

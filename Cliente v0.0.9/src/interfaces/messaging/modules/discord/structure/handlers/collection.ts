@@ -9,13 +9,13 @@ import { main } from "@/main";
 import { clientID } from "@/shared/class/DB";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
-import { getFiles } from "@modules/discord/structure/utils/files";
 import { FileType } from "@typings/modules/discord";
 import { DiscordError } from "@utils/extends/error.extension";
 
-import { MyClient } from "../../client";
+import { MyDiscord } from "../../client";
 import { Addons } from "../addons";
 import { Command, Event } from "../utils/builders";
+import { getFiles } from "../utils/files";
 
 /**
  * A list of file paths that have been loaded.
@@ -29,14 +29,14 @@ const filesLoaded: (string | undefined)[] = [];
  */
 export class DiscordHandler {
   private readonly settings: typeof config.modules.discord;
-  private readonly client: MyClient;
+  private readonly client: MyDiscord;
   private readonly rest: REST;
 
   /**
    * Initializes the Discord handler with the client instance.
    * @param client - The Discord client instance
    */
-  constructor(client: MyClient) {
+  constructor(client: MyDiscord) {
     this.settings = config.modules.discord;
     this.client = client;
     this.rest = new REST({ version: "10" }).setToken(process.env.TOKEN_DISCORD as string);

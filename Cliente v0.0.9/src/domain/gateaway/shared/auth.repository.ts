@@ -2,8 +2,12 @@ import { AuthRegisterType } from "@/interfaces/http/middlewares/validators/user"
 import { main } from "@/main";
 import { RepositoryError } from "@utils/extends/error.extension";
 
-export class AuthRepository {
+import { IAuthPort } from "../../ports/auth.service.port";
+
+export class AuthRepository implements IAuthPort {
+  // Implementa el puerto
   constructor() {}
+
   public async createAuth(
     data: AuthRegisterType,
     discord?: { id: string; avatar: string; username: string; global_name: string },

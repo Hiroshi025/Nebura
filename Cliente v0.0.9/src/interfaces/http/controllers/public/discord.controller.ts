@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { DiscordStatusOutputDTO, DiscordUpdateOutputDTO } from "@/interfaces/http/dtos/discord.dto";
-import { DiscordService } from "@domain/services/use-cases/utilities/discord.service";
+import { DiscordService } from "@domain/use-cases/utilities/request-discord.service";
 
 /**
  * Controller for handling Discord status, updates, and incidents endpoints.

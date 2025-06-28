@@ -17,7 +17,7 @@ import emojis from "@config/json/emojis.json";
  * - Provides a private `/status` command for the bot number to get runtime statistics.
  * - Generates a daily Excel backup with client and chat statistics.
  */
-export class MyApp {
+export class MyWhatsApp {
   /**
    * Instance of the WhatsApp client.
    */
@@ -129,7 +129,7 @@ export class MyApp {
    */
   private async generateStatusBackup() {
     // Solo generar backup si la variable de entorno está activada
-    if (process.env.WHATSAPP_BACKUPS !== "true") {
+    if (process.env.WHATSAPP_BACKUPS === "false") {
       return;
     }
     this.ensureStatusBackupDirExists();

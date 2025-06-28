@@ -15,15 +15,16 @@ import chalk from "chalk";
 
 import { Utils } from "@/shared/class/utils";
 import emojis from "@config/json/emojis.json";
-import { GiveawayService } from "@modules/discord/structure/giveaway";
+import { GiveawayService } from "@messaging/modules/discord/structure/giveaway";
+import { MyTelegram } from "@messaging/modules/telegram/client";
 import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
 import { ProyectError } from "@utils/extends/error.extension"; // Custom error handling class
 import { loadPendingReminders } from "@utils/functions/reminders"; // Function to load pending reminders
 
 import { API } from "./";
-import { MyClient } from "./interfaces/messaging/modules/discord/client"; // Custom Discord client implementation
+import { MyDiscord } from "./interfaces/messaging/modules/discord/client"; // Custom Discord client implementation
 import { ErrorConsole } from "./interfaces/messaging/modules/discord/structure/handlers/errors"; // Error handling for Discord
-import { MyApp } from "./interfaces/messaging/modules/whatsapp"; // WhatsApp module
+import { MyWhatsApp } from "./interfaces/messaging/modules/whatsapp/client"; // WhatsApp module
 import { Backups } from "./shared/class/backups";
 import { DBPrisma } from "./shared/class/DB";
 import { config } from "./shared/utils/config"; // Application configuration
@@ -78,13 +79,15 @@ export class Engine {
    * Discord client instance.
    * @readonly
    */
-  public readonly discord: MyClient;
+  public readonly discord: MyDiscord;
+
+  public readonly telegram: MyTelegram;
 
   /**
    * WhatsApp module instance.
    * @readonly
    */
-  public readonly whatsapp: MyApp;
+  public readonly whatsapp: MyWhatsApp;
 
   /**
    * API server instance.
@@ -116,20 +119,22 @@ export class Engine {
    * @param config - Configuration object for the application. Defaults to the loaded configuration.
    * @param utils - Utility functions for Discord. Defaults to a new Utils instance.
    * @param DB - Database operations instance. Defaults to a new DBPrisma instance.
-   * @param discord - Instance of the Discord client. Defaults to a new MyClient instance.
+   * @param discord - Instance of the Discord client. Defaults to a new MyDiscord instance.
    * @param whatsapp - Instance of the WhatsApp module. Defaults to a new MyApp instance.
    * @param api - Instance of the API server. Defaults to a new API instance.
    */
   constructor(
     prisma: PrismaClient = Engine.createDefaultPrismaClient(),
+    whatsapp: MyWhatsApp = new MyWhatsApp(),
+    telegram: MyTelegram = new MyTelegram(),
     config: ProyectConfig = defaultConfig,
-    discord: MyClient = new MyClient(),
+    discord: MyDiscord = new MyDiscord(),
     DB: DBPrisma = new DBPrisma(),
-    whatsapp: MyApp = new MyApp(),
     utils: Utils = new Utils(),
     api: API = new API(),
   ) {
     console.debug("[Engine][constructor] Initializing Engine with provided modules.");
+    this.telegram = telegram;
     this.whatsapp = whatsapp;
     this.discord = discord;
     this.prisma = prisma;
@@ -260,13 +265,9 @@ export class Engine {
     console.debug("[Engine][start] Starting application engine.");
     try {
       await ErrorConsole(this.discord);
-      console.debug("[Engine][start] ErrorConsole initialized.");
       await this.initializeModules();
-      console.debug("[Engine][start] Core modules initialized.");
       await this.clientCreate();
-      console.debug("[Engine][start] Discord client created in DB.");
       await loadPendingReminders();
-      console.debug("[Engine][start] Pending reminders loaded.");
     } catch (err) {
       console.error(err);
       console.debug("[Engine][start] Error during startup:", err);
@@ -281,13 +282,9 @@ export class Engine {
    * @throws {ProyectError} If any module fails to initialize.
    */
   private async initializeModules(): Promise<void> {
-    console.debug(
-      "[Engine][initializeModules] Initializing core modules (Discord, API, WhatsApp, Backups, Monitoring).",
-    );
     try {
       // Arranca Discord y API en paralelo
-      await Promise.all([this.discord.start(), this.api.start()]);
-      console.debug("[Engine][initializeModules] Discord and API started.");
+      await Promise.all([this.discord.start(), this.api.start(), this.telegram.start()]);
 
       // Valid licence product
       /*       if (!this.LicenceValid) {
@@ -296,7 +293,6 @@ export class Engine {
 
       // WhatsApp y backups después (si dependen de los anteriores)
       await Promise.all([this.conditionallyStartWhatsApp(), this.configureMonitoring(), this.setupBackupService()]);
-      console.debug("[Engine][initializeModules] WhatsApp, Monitoring, and Backups initialized.");
     } catch (err) {
       console.trace("Error in initializeModules:", err);
       console.debug("[Engine][initializeModules] Error initializing modules:", err);
@@ -352,9 +348,11 @@ const main: Engine = new Engine();
 
 /**
  * Discord client instance exported for external usage.
- * @type {MyClient}
+ * @type {MyDiscord}
  */
-const client: MyClient = main.discord;
+const client: MyDiscord = main.discord;
+const mywhatsapp: MyWhatsApp = main.whatsapp;
+const mytelegram: MyTelegram = main.telegram;
 const GiveawayManager = new GiveawayService();
 
 /**
@@ -374,7 +372,7 @@ main.start().catch((err) => {
 
 /**
  * Exports the Discord client and main engine instance for external usage.
- * @see {@link MyClient}
+ * @see {@link MyDiscord}
  * @see {@link Engine}
  */
-export { client, GiveawayManager, main };
+export { client, GiveawayManager, main, mytelegram, mywhatsapp };

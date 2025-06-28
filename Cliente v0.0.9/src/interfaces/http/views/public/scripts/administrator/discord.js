@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Solo permite ver (GET) por ID si existe, si no, deja el formulario vacío
     const id = $id.value.trim();
     if (id) {
-      fetch(`/dashboard/utils-clients/discord/${id}`)
+      fetch(`/dashboard/utils/clients/${id}/discord`)
         .then((r) => r.json())
         .then((res) => {
           if (res.success && res.data) {
@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const activity = { status, name, url };
     const body = { username, avatar, activity };
 
-    fetch(`/dashboard/utils-clients/discord/${id}`, {
+    fetch(`/dashboard/utils/clients/${id}/discord`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       if (!confirm("¿Seguro que deseas eliminar esta configuración de Discord?")) return;
-      fetch(`/dashboard/utils-clients/discord/${id}`, {
+      fetch(`/dashboard/utils/clients/${id}/discord`, {
         method: "DELETE",
       })
         .then((r) => r.json())

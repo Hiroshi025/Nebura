@@ -3,11 +3,11 @@ import { Message } from "discord.js";
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance } from "../functions";
 
 export const RobCommand = {
-  Message: async (message: Message, client: MyClient, args: string[]) => {
+  Message: async (message: Message, client: MyDiscord, args: string[]) => {
     if (!message.guild || !message.channel || !message.member) return;
     const user = message.mentions.users.first() || message.guild.members.cache.get(args[0])?.user;
     if (!user) {

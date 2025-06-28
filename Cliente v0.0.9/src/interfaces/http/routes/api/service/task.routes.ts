@@ -5,7 +5,7 @@ import { authenticateToken } from "@/interfaces/http/middlewares/jwt/token.middl
 import { RateLimitManager } from "@/interfaces/messaging/broker/rateLimit";
 import { TRoutesInput } from "@/typings/utils";
 
-import { ReminderController } from "../../../controllers/services/reminder.controllers";
+import { ReminderController } from "../../../controllers/admin/reminder.controllers";
 import { TaskController } from "../../../controllers/services/tasks.controllers";
 
 // Constantes para paths base y versionado

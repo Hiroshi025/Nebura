@@ -3,10 +3,10 @@ import { ChatInputCommandInteraction, PermissionFlagsBits, PermissionsBitField }
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance, generateToken, toFixedNumber } from "../functions";
 
-export async function ShopEconomy(interaction: ChatInputCommandInteraction, client: MyClient) {
+export async function ShopEconomy(interaction: ChatInputCommandInteraction, client: MyDiscord) {
   if (!interaction.guild || !interaction.channel || !interaction.user || !interaction.member) return;
   const tokenItem = await generateToken(5);
   const { options } = interaction;

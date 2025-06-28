@@ -31,8 +31,8 @@ const GiveawayEnd: Precommand = {
       }
 
       const activeGiveaways = await GiveawayManager.getManager()
-        .giveaways.filter((g) => g.guildId === message.guild?.id && !g.ended)
-        .sort((a, b) => a.endAt - b.endAt); // Sort by soonest to end
+        .giveaways.filter((g: { guildId: string; ended: any; }) => g.guildId === message.guild?.id && !g.ended)
+        .sort((a: { endAt: number; }, b: { endAt: number; }) => a.endAt - b.endAt); // Sort by soonest to end
 
       if (activeGiveaways.length === 0) {
         return message.reply({
@@ -51,7 +51,7 @@ const GiveawayEnd: Precommand = {
         .setCustomId(`giveaway_end_select_${message.id}`)
         .setPlaceholder("Select a giveaway to end")
         .addOptions(
-          activeGiveaways.slice(0, 25).map((g) => ({
+          activeGiveaways.slice(0, 25).map((g: { prize: string; remainingTime: number; winnerCount: number; messageId: string; }) => ({
             label: g.prize.length > 100 ? `${g.prize.substring(0, 97)}...` : g.prize,
             description: `Ends in ${formatDuration(g.remainingTime)} | ${g.winnerCount} winner(s)`,
             value: g.messageId,
@@ -81,7 +81,7 @@ const GiveawayEnd: Precommand = {
 
       collector.on("collect", async (selectInteraction) => {
         const selectedId = selectInteraction.values[0];
-        const selectedGiveaway = activeGiveaways.find((g) => g.messageId === selectedId);
+        const selectedGiveaway = activeGiveaways.find((g: { messageId: string; }) => g.messageId === selectedId);
 
         if (!selectedGiveaway) {
           await selectInteraction.reply({
@@ -114,7 +114,7 @@ const GiveawayEnd: Precommand = {
 async function endSpecificGiveaway(message: Message, giveawayId: string) {
   try {
     const giveaway = await GiveawayManager.getManager().giveaways.find(
-      (g) => g.messageId === giveawayId && g.guildId === message.guild?.id,
+      (g: { messageId: string; guildId: string; }) => g.messageId === giveawayId && g.guildId === message.guild?.id,
     );
 
     if (!giveaway) {

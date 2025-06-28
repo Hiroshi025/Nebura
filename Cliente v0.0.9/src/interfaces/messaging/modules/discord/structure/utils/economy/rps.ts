@@ -1,14 +1,12 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction } from "discord.js";
 
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance } from "../functions";
 
-export async function RPSCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {
+export async function RPSCommand(interaction: ChatInputCommandInteraction, _client: MyDiscord) {
   if (!interaction.guild || !interaction.channel) return;
 
   const challenger = interaction.user;

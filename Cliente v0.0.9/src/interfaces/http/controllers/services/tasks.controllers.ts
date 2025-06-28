@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 
 import { CreateTaskDto } from "@/interfaces/http/dtos/tasks/create-task.dto";
 import { TaskResponseDto } from "@/interfaces/http/dtos/tasks/task-response.dto";
-import { UpdateTaskDto } from "@domain/services/entities/tasks/update-task.dto";
-import { TaskService } from "@domain/services/use-cases/utilities/task.service";
+import { UpdateTaskDto } from "@domain/entities/tasks/update-task.dto";
+import { TaskService } from "@domain/use-cases/services/create-tasks.service";
 
 /**
  * Controller for handling task-related HTTP requests.

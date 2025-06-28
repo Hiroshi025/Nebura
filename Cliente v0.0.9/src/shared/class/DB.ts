@@ -1,7 +1,7 @@
 import { ObjectId } from "bson"; // BSON library for working with ObjectId: https://www.npmjs.com/package/bson
 
 import { main } from "@/main";
-import { MyClient } from "@modules/discord/client";
+import { MyDiscord } from "@messaging/modules/discord/client";
 import { config } from "@utils/config";
 
 /**
@@ -45,7 +45,7 @@ export class DBPrisma {
    * const client = await dbPrisma.createClient(discordClient, "session123");
    * ```
    */
-  public async createClient(discordClient: MyClient, session: string) {
+  public async createClient(discordClient: MyDiscord, session: string) {
     const discord = await main.prisma.discord.upsert({
       where: { clientId: discordClient.user?.id as string },
       update: {

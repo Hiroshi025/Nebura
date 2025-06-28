@@ -1,4 +1,5 @@
 import { main } from "@/main";
+import { ISuggestRepositoryPort } from "@domain/ports/utils/suggest.service.port";
 import { Suggest } from "@typings/modules/discord";
 import { DiscordError } from "@utils/extends/error.extension";
 
@@ -6,7 +7,7 @@ import { DiscordError } from "@utils/extends/error.extension";
  * Repository class for managing Suggestion entities in the database.
  * Provides methods to create, update, and retrieve suggestions, as well as manage upvotes, downvotes, and status changes.
  */
-export class SuggestRepository {
+export class SuggestRepository implements ISuggestRepositoryPort {
   constructor() {}
 
   /**

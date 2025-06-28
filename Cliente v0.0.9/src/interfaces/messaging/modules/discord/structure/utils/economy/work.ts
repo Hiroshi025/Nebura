@@ -1,12 +1,18 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction,
-	EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
-import { MyClient } from "../../../client";
+import { MyDiscord } from "../../../client";
 import { fetchBalance, toFixedNumber } from "../functions";
 
 type Job = {
@@ -41,7 +47,7 @@ const FREELANCE_JOBS: Job[] = [
   { name: "Event Staff", emoji: "🎤", dailyPay: 150 + Math.floor(Math.random() * 250), minDays: 1 },
 ];
 
-export async function WorkCommand(interaction: ChatInputCommandInteraction, _client: MyClient) {
+export async function WorkCommand(interaction: ChatInputCommandInteraction, _client: MyDiscord) {
   if (!interaction.guild || !interaction.channel) return;
 
   const user = interaction.user;
