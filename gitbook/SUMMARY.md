@@ -4,20 +4,20 @@
 
 ## Proyectos
 
-* [Nebura Client](proyectos/nebura-client/README.md)
-  * [Modulos](proyectos/nebura-client/modulos/README.md)
-    * [Discord Client](proyectos/nebura-client/modulos/discord-client/README.md)
-      * [Economia](proyectos/nebura-client/modulos/discord-client/economia.md)
-      * [Sistemas](proyectos/nebura-client/modulos/discord-client/sistemas.md)
-      * [Juegos](proyectos/nebura-client/modulos/discord-client/juegos/README.md)
-        * [Sistema de Duelos](proyectos/nebura-client/modulos/discord-client/juegos/sistema-de-duelos.md)
-        * [Sistema de Inventario y Tienda](proyectos/nebura-client/modulos/discord-client/juegos/sistema-de-inventario-y-tienda.md)
-  * [API](proyectos/nebura-client/api/README.md)
-    * [Seguridad](proyectos/nebura-client/api/seguridad/README.md)
-      * [IP Administrador](proyectos/nebura-client/api/seguridad/ip-administrador.md)
-    * [Routes API](proyectos/nebura-client/api/routes-api.md)
-    * [RateLimit](proyectos/nebura-client/api/ratelimit.md)
-    * [Licencias](proyectos/nebura-client/api/licencias.md)
+* [Nebura](proyectos/nebura/README.md)
+  * [Modulos](proyectos/nebura/modulos/README.md)
+    * [Discord Client](proyectos/nebura/modulos/discord-client/README.md)
+      * [Economia](proyectos/nebura/modulos/discord-client/economia.md)
+      * [Sistemas](proyectos/nebura/modulos/discord-client/sistemas.md)
+      * [Juegos](proyectos/nebura/modulos/discord-client/juegos/README.md)
+        * [Sistema de Duelos](proyectos/nebura/modulos/discord-client/juegos/sistema-de-duelos.md)
+        * [Sistema de Inventario y Tienda](proyectos/nebura/modulos/discord-client/juegos/sistema-de-inventario-y-tienda.md)
+  * [API](proyectos/nebura/api/README.md)
+    * [Seguridad](proyectos/nebura/api/seguridad/README.md)
+      * [IP Administrador](proyectos/nebura/api/seguridad/ip-administrador.md)
+    * [Routes API](proyectos/nebura/api/routes-api.md)
+    * [RateLimit](proyectos/nebura/api/ratelimit.md)
+    * [Licencias](proyectos/nebura/api/licencias.md)
 
 ## TUTORIALES
 
