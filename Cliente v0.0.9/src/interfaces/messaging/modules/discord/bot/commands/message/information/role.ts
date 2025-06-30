@@ -11,6 +11,8 @@ const roleInfo: Precommand = {
   description: "Shows detailed information about a role with interactive components",
   examples: ["roleinfo @Moderator", "roleinfo Admins", "/roleinfo role: Moderator"],
   nsfw: false,
+  category: "Information",
+  cooldown: 10,
   owner: false,
   aliases: ["r-info", "role-info"],
   botpermissions: ["SendMessages", "EmbedLinks", "ManageMessages"],

@@ -13,6 +13,8 @@ const OwnerAddCommand: Precommand = {
   examples: ["addowners"],
   nsfw: false,
   owner: true,
+  cooldown: 5,
+  category: "Developers",
   aliases: ["ao", "addowner", "add-owners"],
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],

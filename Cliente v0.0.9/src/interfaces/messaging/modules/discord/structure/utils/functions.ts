@@ -2,30 +2,11 @@ import axios from "axios";
 import { createHash } from "crypto";
 import { format } from "date-fns";
 import {
-  ActionRowBuilder,
-  AttachmentBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  codeBlock,
-  Colors,
-  ComponentType,
-  EmbedBuilder,
-  Guild,
-  GuildDefaultMessageNotifications,
-  GuildExplicitContentFilter,
-  GuildFeature,
-  GuildMember,
-  GuildNSFWLevel,
-  GuildPremiumTier,
-  GuildVerificationLevel,
-  Message,
-  MessageEditAttachmentData,
-  StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
-  TextChannel,
-  User,
-  UserFlagsBitField,
+	ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChannelType, codeBlock, Colors,
+	ComponentType, EmbedBuilder, Guild, GuildDefaultMessageNotifications,
+	GuildExplicitContentFilter, GuildFeature, GuildMember, GuildNSFWLevel, GuildPremiumTier,
+	GuildVerificationLevel, Message, MessageEditAttachmentData, StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder, TextChannel, User, UserFlagsBitField
 } from "discord.js";
 import moment from "moment";
 import { promisify } from "util";
@@ -397,6 +378,7 @@ export async function createGuild(guildId: string, client: MyDiscord) {
         prefix: config.modules.discord.prefix,
         guildId: guildId,
         discordId: data.clientId as string,
+        lenguage: client.guilds.cache.get(guildId)?.preferredLocale || "en-US",
       },
     });
   }

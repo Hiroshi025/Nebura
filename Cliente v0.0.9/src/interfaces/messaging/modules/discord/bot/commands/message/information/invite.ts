@@ -10,6 +10,7 @@ const invCommand: Precommand = {
   description: "Sends the invite link of the bot",
   examples: ["invite"],
   nsfw: false,
+  category: "Information",
   owner: false,
   cooldown: 50,
   aliases: ["inv"],

@@ -23,6 +23,14 @@
 </head>
 
 <body class="dark-theme">
+  <!-- Selector de idioma -->
+  <div style="position: absolute; top: 18px; right: 24px; z-index: 10;">
+    <div class="language-switcher">
+      <a href="#" class="lang-link active" data-lang="es">ES</a>
+      <span style="color:var(--text-muted-dark);">|</span>
+      <a href="#" class="lang-link" data-lang="en">EN</a>
+    </div>
+  </div>
   <!-- Preloader -->
   <div class="preloader">
     <div class="spinner">
@@ -45,13 +53,16 @@
           <div class="d-flex align-items-center">
             <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
             <div>
-              <strong>¡Atención!</strong> Actualmente la sección de <b>administración del servidor</b> está en mantenimiento.<br>
-              Algunas funciones avanzadas de gestión y configuración pueden no estar disponibles temporalmente.<br>
-              Por favor, mantente pendiente a futuras notificaciones y actualizaciones.<br>
-              Si tienes dudas o necesitas soporte, contacta con el equipo de Nebura a través de nuestros canales oficiales.
+              <strong data-key="maintenanceAlertTitle">¡Atención!</strong>
+              <span data-key="maintenanceAlertText">
+                Actualmente la sección de <b>administración del servidor</b> está en mantenimiento.<br>
+                Algunas funciones avanzadas de gestión y configuración pueden no estar disponibles temporalmente.<br>
+                Por favor, mantente pendiente a futuras notificaciones y actualizaciones.<br>
+                Si tienes dudas o necesitas soporte, contacta con el equipo de Nebura a través de nuestros canales oficiales.
+              </span>
             </div>
           </div>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar" data-key="close"></button>
         </div>
 
         <!-- HEADER MEJORADO CON MÁS INFORMACIÓN -->
@@ -65,33 +76,33 @@
             </div>
             <% } %>
             <div>
-              <h1 class="welcome-title mb-1">Servidor: <strong><%= serverData.name %></strong></h1>
+              <h1 class="welcome-title mb-1" data-key="serverTitle">Servidor: <strong><%= serverData.name %></strong></h1>
               <div class="d-flex align-items-center flex-wrap">
                 <div class="me-3">
                   <span class="badge bg-dark text-light me-1">
                     <i class="fas fa-hashtag me-1"></i>ID: <%= serverData.id %>
                   </span>
                   <span class="badge bg-primary me-1">
-                    <i class="fas fa-users me-1"></i>Miembros: 1,245
+                    <i class="fas fa-users me-1"></i><span data-key="members">Miembros</span>: 1,245
                   </span>
                   <span class="badge bg-secondary me-1">
-                    <i class="fas fa-calendar-alt me-1"></i>Registrado: 05/06/2025
+                    <i class="fas fa-calendar-alt me-1"></i><span data-key="registered">Registrado</span>: 05/06/2025
                   </span>
                 </div>
               </div>
               <div class="admin-badges mt-2">
                 <% if (serverData.levelConfig) { %>
                 <span class="badge bg-success-gradient me-2">
-                  <i class="fas fa-signal me-1"></i>Sistema de Niveles
+                  <i class="fas fa-signal me-1"></i><span data-key="levelSystem">Sistema de Niveles</span>
                 </span>
                 <% } %>
                 <% if (serverData.modLog) { %>
                 <span class="badge bg-warning-gradient me-2">
-                  <i class="fas fa-clipboard-list me-1"></i>ModLog Activo
+                  <i class="fas fa-clipboard-list me-1"></i><span data-key="modLogActive">ModLog Activo</span>
                 </span>
                 <% } else { %>
                 <span class="badge bg-danger-gradient me-2">
-                  <i class="fas fa-exclamation-circle me-1"></i>ModLog No Configurado
+                  <i class="fas fa-exclamation-circle me-1"></i><span data-key="modLogInactive">ModLog No Configurado</span>
                 </span>
                 <% } %>
                 <span class="badge bg-info-gradient">
@@ -102,20 +113,20 @@
           </div>
           <div class="ms-auto d-flex">
             <button class="btn btn-primary-gradient me-2 hover-scale" data-bs-toggle="modal" data-bs-target="#quickActionsModal">
-              <i class="fas fa-bolt me-1"></i>Acciones Rápidas
+              <i class="fas fa-bolt me-1"></i><span data-key="quickActions">Acciones Rápidas</span>
             </button>
             <div class="dropdown">
               <button class="btn btn-secondary dropdown-toggle hover-scale" type="button" id="serverActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-cog me-1"></i>Configuración
+                <i class="fas fa-cog me-1"></i><span data-key="settings">Configuración</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="serverActionsDropdown">
-                <li><a class="dropdown-item" href="#"><i class="fas fa-sliders-h me-2"></i>Ajustes Generales</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-signal me-2"></i>Sistema de Niveles</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-gavel me-2"></i>Moderación</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-sliders-h me-2"></i><span data-key="generalSettings">Ajustes Generales</span></a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-signal me-2"></i><span data-key="levelSystem">Sistema de Niveles</span></a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-gavel me-2"></i><span data-key="moderation">Moderación</span></a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>Salir del Servidor</a></li>
+                <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i><span data-key="leaveServer">Salir del Servidor</span></a></li>
               </ul>
             </div>
           </div>
@@ -887,6 +898,75 @@
       // Mostrar toast
       toast.show();
     }
+
+    // MULTILENGUAJE
+    const translations = {
+      es: {
+        maintenanceAlertTitle: "¡Atención!",
+        maintenanceAlertText: "Actualmente la sección de <b>administración del servidor</b> está en mantenimiento.<br>Algunas funciones avanzadas de gestión y configuración pueden no estar disponibles temporalmente.<br>Por favor, mantente pendiente a futuras notificaciones y actualizaciones.<br>Si tienes dudas o necesitas soporte, contacta con el equipo de Nebura a través de nuestros canales oficiales.",
+        close: "Cerrar",
+        serverTitle: "Servidor:",
+        members: "Miembros",
+        registered: "Registrado",
+        levelSystem: "Sistema de Niveles",
+        modLogActive: "ModLog Activo",
+        modLogInactive: "ModLog No Configurado",
+        quickActions: "Acciones Rápidas",
+        settings: "Configuración",
+        generalSettings: "Ajustes Generales",
+        moderation: "Moderación",
+        leaveServer: "Salir del Servidor",
+        // Agrega aquí más claves según lo que marques con data-key
+      },
+      en: {
+        maintenanceAlertTitle: "Attention!",
+        maintenanceAlertText: "The <b>server administration</b> section is currently under maintenance.<br>Some advanced management and configuration features may be temporarily unavailable.<br>Please stay tuned for future notifications and updates.<br>If you have questions or need support, contact the Nebura team through our official channels.",
+        close: "Close",
+        serverTitle: "Server:",
+        members: "Members",
+        registered: "Registered",
+        levelSystem: "Level System",
+        modLogActive: "ModLog Active",
+        modLogInactive: "ModLog Not Configured",
+        quickActions: "Quick Actions",
+        settings: "Settings",
+        generalSettings: "General Settings",
+        moderation: "Moderation",
+        leaveServer: "Leave Server",
+        // Add more keys as needed
+      }
+    };
+
+    function setLanguage(lang) {
+      localStorage.setItem('serverLang', lang);
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (translations[lang][key]) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = translations[lang][key];
+          } else {
+            el.innerHTML = translations[lang][key];
+          }
+        }
+      });
+      // Actualiza el estado visual del selector
+      document.querySelectorAll('.lang-link').forEach(link => {
+        link.classList.toggle('active', link.dataset.lang === lang);
+      });
+    }
+
+    // Inicialización de idioma
+    const savedLang = localStorage.getItem('serverLang') || (navigator.language.startsWith('en') ? 'en' : 'es');
+    setLanguage(savedLang);
+
+    // Eventos de cambio de idioma
+    document.querySelectorAll('.lang-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        setLanguage(this.getAttribute('data-lang'));
+      });
+    });
   </script>
 </body>
 

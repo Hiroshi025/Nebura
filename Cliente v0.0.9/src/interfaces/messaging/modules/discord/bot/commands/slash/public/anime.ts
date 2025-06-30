@@ -17,6 +17,14 @@ export default new Command(
   async (client, interaction) => {
     const { user, options, guild } = interaction;
 
+    // Obtener idioma preferido del usuario o guild
+    const lang =
+      (guild &&
+        (await (await import("@/main")).main.prisma.myGuild.findUnique({ where: { guildId: guild.id } }))?.lenguage) ||
+      interaction.locale ||
+      "es-ES";
+    const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+
     const searchQuery = options.getString("search", true);
     if (!guild) return;
 
@@ -24,9 +32,10 @@ export default new Command(
       await interaction.reply({
         embeds: [
           new EmbedCorrect().setDescription(
-            [`${client.getEmoji(guild.id, "loading")} Searching for anime...`, `**Search Query:** ${searchQuery}`].join(
-              "\n",
-            ),
+            [
+              `${client.getEmoji(guild.id, "loading")} ${t("anime.searching")}`,
+              `**${t("anime.query")}:** ${searchQuery}`,
+            ].join("\n"),
           ),
         ],
       });
@@ -40,12 +49,7 @@ export default new Command(
       if (!anime) {
         return interaction.editReply({
           embeds: [
-            new ErrorEmbed().setDescription(
-              [
-                "⚠️ | Sorry, I couldn't find any anime with that name!",
-                "Please check if the name is spelled correctly or try again later.",
-              ].join("\n"),
-            ),
+            new ErrorEmbed().setDescription([t("anime.errors.notFound"), t("anime.errors.checkName")].join("\n")),
           ],
         });
       }
@@ -55,9 +59,7 @@ export default new Command(
       if (!relatedGenresUrl) {
         return interaction.editReply({
           embeds: [
-            new ErrorEmbed().setDescription(
-              ["⚠️ | No genres found for this anime!", "Please check if the anime is listed on Kitsu.io."].join("\n"),
-            ),
+            new ErrorEmbed().setDescription([t("anime.errors.noGenres"), t("anime.errors.checkKitsu")].join("\n")),
           ],
         });
       }
@@ -65,23 +67,25 @@ export default new Command(
       const genreResponse = await axios.get<Entretenment.Genre>(relatedGenresUrl);
       const genres = genreResponse.data.data.map((genre) => genre.attributes.name).join(", ");
 
-      const [translatedSynopsis] = await Promise.all([translate(anime.attributes.synopsis, { to: "en" })]);
+      const [translatedSynopsis] = await Promise.all([
+        translate(anime.attributes.synopsis, { to: lang.startsWith("es") ? "es" : "en" }),
+      ]);
 
       const statusMap: Record<string, string> = {
-        finished: "Finished",
-        current: "Currently Airing",
-        upcoming: "Upcoming",
-        unreleased: "Unreleased",
+        finished: t("anime.status.finished"),
+        current: t("anime.status.current"),
+        upcoming: t("anime.status.upcoming"),
+        unreleased: t("anime.status.unreleased"),
       };
 
       const animeStatus = statusMap[anime.attributes.status.toLowerCase()] || anime.attributes.status;
 
       const animeEmbed = new EmbedCorrect()
         .setAuthor({
-          name: `Requested by ${user.tag}`,
+          name: t("anime.requestedBy", { user: user.tag }),
           iconURL: user.displayAvatarURL(),
         })
-        .setTitle(anime.attributes.titles.en_jp || "Untitled Anime")
+        .setTitle(anime.attributes.titles.en_jp || t("anime.untitled"))
         .setURL(`https://kitsu.io/anime/${anime.id}`)
         .setThumbnail(anime.attributes.posterImage.small)
         .setImage(anime.attributes.coverImage.tiny)
@@ -91,45 +95,48 @@ export default new Command(
             : translatedSynopsis.text,
         )
         .addFields([
-          { name: "⌛ Status", value: animeStatus, inline: true },
-          { name: "🗃 Type", value: anime.attributes.subtype || "Unknown", inline: true },
+          { name: "⌛ " + t("anime.statusField"), value: animeStatus, inline: true },
+          { name: "🗃 " + t("anime.type"), value: anime.attributes.subtype || t("anime.unknown"), inline: true },
           {
-            name: "🏆 Rank",
-            value: anime.attributes.ratingRank?.toString() || "Unranked",
+            name: "🏆 " + t("anime.rank"),
+            value: anime.attributes.ratingRank?.toString() || t("anime.unranked"),
             inline: true,
           },
           {
-            name: "📀 Episodes",
-            value: anime.attributes.episodeCount?.toString() || "Unknown",
+            name: "📀 " + t("anime.episodes"),
+            value: anime.attributes.episodeCount?.toString() || t("anime.unknown"),
             inline: true,
           },
           {
-            name: "🥇 Popularity",
-            value: anime.attributes.popularityRank?.toString() || "Unknown",
+            name: "🥇 " + t("anime.popularity"),
+            value: anime.attributes.popularityRank?.toString() || t("anime.unknown"),
             inline: true,
           },
-          { name: "❓ Category", value: anime.type, inline: true },
+          { name: "❓ " + t("anime.category"), value: anime.type, inline: true },
           {
-            name: "⭐ Rating",
+            name: "⭐ " + t("anime.rating"),
             value: `${anime.attributes.averageRating || "N/A"}/100`,
             inline: true,
           },
           {
-            name: "⌚ Duration",
-            value: anime.attributes.episodeLength ? `${anime.attributes.episodeLength} minutes` : "Unknown",
+            name: "⌚ " + t("anime.duration"),
+            value: anime.attributes.episodeLength
+              ? `${anime.attributes.episodeLength} ${t("anime.minutes")}`
+              : t("anime.unknown"),
             inline: true,
           },
           {
-            name: "📖 Kitsu Page",
-            value: `[View on Kitsu](https://kitsu.io/anime/${anime.id})`,
+            name: "📖 " + t("anime.kitsuPage"),
+            value: `[${t("anime.viewOnKitsu")}](${`https://kitsu.io/anime/${anime.id}`})`,
             inline: true,
           },
-          { name: "💠 Genres", value: genres || "Not specified", inline: false },
+          { name: "💠 " + t("anime.genres"), value: genres || t("anime.notSpecified"), inline: false },
           {
-            name: "📅 Air Dates",
-            value: `From **${moment(anime.attributes.startDate).format("LL")}** to **${
-              anime.attributes.endDate ? moment(anime.attributes.endDate).format("LL") : "Present"
-            }**`,
+            name: "📅 " + t("anime.airDates"),
+            value: t("anime.airDatesValue", {
+              from: moment(anime.attributes.startDate).format("LL"),
+              to: anime.attributes.endDate ? moment(anime.attributes.endDate).format("LL") : t("anime.present"),
+            }),
             inline: false,
           },
         ])
@@ -143,14 +150,7 @@ export default new Command(
     } catch (error) {
       console.error("Anime command error:", error);
       await interaction.editReply({
-        embeds: [
-          new ErrorEmbed().setDescription(
-            [
-              "⚠️ | An error occurred while fetching anime data.",
-              "Please try again later or check if the anime name is correct.",
-            ].join("\n"),
-          ),
-        ],
+        embeds: [new ErrorEmbed().setDescription([t("anime.errors.fetch"), t("anime.errors.tryAgain")].join("\n"))],
       });
     }
 

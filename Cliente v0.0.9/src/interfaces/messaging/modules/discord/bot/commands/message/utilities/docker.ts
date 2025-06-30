@@ -11,6 +11,7 @@ const commandDocker: Precommand = {
   description: "Search for Docker images and display detailed information",
   examples: ["docker <image-name>", "docker nginx", "docker postgres"],
   nsfw: false,
+  category: "Utilities",
   owner: false,
   aliases: ["dockerhub", "docker-image"],
   botpermissions: ["SendMessages", "EmbedLinks"],

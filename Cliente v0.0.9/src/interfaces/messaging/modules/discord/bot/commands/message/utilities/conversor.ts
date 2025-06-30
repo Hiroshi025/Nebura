@@ -17,6 +17,7 @@ const precommandConversor: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 5,
+  category: "Utilities",
   aliases: ["converter", "currency"],
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],

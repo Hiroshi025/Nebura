@@ -9,19 +9,21 @@ const commandPing: Precommand = {
   description: "Shows the bot and Discord API latency",
   examples: ["ping", "pong"],
   nsfw: false,
+  category: "Information",
   owner: false,
   aliases: ["pong", "latency"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(client, message) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+
+    const t = client.translations.getFixedT(message.guild.preferredLocale || "es-ES", "discord");
 
     const sent = await message.reply({
       embeds: [
         new EmbedBuilder()
-          .setTitle("🏓 Pong!")
-          .setDescription("Calculating latency...")
+          .setTitle("🏓 " + t("ping.title"))
+          .setDescription(t("ping.calculating"))
           .setColor(0x5865f2),
       ],
     });
@@ -30,18 +32,18 @@ const commandPing: Precommand = {
     const apiLatency = Math.round(client.ws.ping);
 
     const embed = new EmbedBuilder()
-      .setTitle("🏓 Pong!")
+      .setTitle("🏓 " + t("ping.title"))
       .setColor(0x5865f2)
       .addFields(
-        { name: "Bot Latency", value: `\`${latency}ms\``, inline: true },
-        { name: "API Latency", value: `\`${apiLatency}ms\``, inline: true },
+        { name: t("ping.botLatency"), value: `\`${latency}ms\``, inline: true },
+        { name: t("ping.apiLatency"), value: `\`${apiLatency}ms\``, inline: true },
       )
-      .setFooter({ text: "Click 'Refresh' to update the latency." });
+      .setFooter({ text: t("ping.refreshFooter") });
 
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("refresh_ping")
-        .setLabel("Refresh")
+        .setLabel(t("ping.refresh"))
         .setStyle(ButtonStyle.Primary)
         .setEmoji("🔄"),
     );
@@ -60,13 +62,13 @@ const commandPing: Precommand = {
         const newApiLatency = Math.round(client.ws.ping);
 
         const refreshedEmbed = new EmbedBuilder()
-          .setTitle("🏓 Pong!")
+          .setTitle("🏓 " + t("ping.title"))
           .setColor(0x5865f2)
           .addFields(
-            { name: "Bot Latency", value: `\`${newLatency}ms\``, inline: true },
-            { name: "API Latency", value: `\`${newApiLatency}ms\``, inline: true },
+            { name: t("ping.botLatency"), value: `\`${newLatency}ms\``, inline: true },
+            { name: t("ping.apiLatency"), value: `\`${newApiLatency}ms\``, inline: true },
           )
-          .setFooter({ text: "Click 'Refresh' to update the latency." });
+          .setFooter({ text: t("ping.refreshFooter") });
 
         await interaction.editReply({ embeds: [refreshedEmbed], components: [buttons] });
       }

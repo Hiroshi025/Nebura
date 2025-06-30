@@ -9,6 +9,8 @@ const warnAdminCommand: Precommand = {
   description: "Warn a member via text commands!",
   examples: ["warn add @user reason", "warn remove warn_id"],
   nsfw: false,
+  category: "Admin",
+  cooldown: 5,
   owner: false,
   subcommands: ["warn add @user reason", "warn remove warnId"],
   botpermissions: ["ModerateMembers"],

@@ -10,6 +10,7 @@ const ytCommand: Precommand = {
   examples: ["yt-comment @User I love this image!", "yt-comment @User I hate this image!"],
   nsfw: false,
   owner: false,
+  category: "images",
   cooldown: 5,
   aliases: ["yt-comment", "youtube-comment", "ytcomment", "yt"],
   botpermissions: ["SendMessages"],

@@ -1,19 +1,10 @@
-// src/commands/giveaway/create.ts
+/* // src/commands/giveaway/create.ts
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelSelectMenuBuilder,
-  ChannelType,
-  ComponentType,
-  EmbedBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  User,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
+	ComponentType, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, User
 } from "discord.js";
 
-import { GiveawayManager, main } from "@/main"; // Ajusta la ruta según tu estructura
+import { main } from "@/main"; // Ajusta la ruta según tu estructura
 import { MyDiscord } from "@messaging/modules/discord/client";
 import { GiveawayInterface, Precommand } from "@typings/modules/discord";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
@@ -26,6 +17,9 @@ const GiveawayCreate: Precommand = {
   examples: ["/giveaway create"],
   nsfw: false,
   owner: false,
+  category: "Giveaways",
+  aliases: ["giveaway-create", "giveawaycreate", "giveawaycreate"],
+  cooldown: 5,
   permissions: ["Administrator"],
   botpermissions: ["SendMessages", "EmbedLinks", "AddReactions", "ManageMessages", "ViewChannel"],
   async execute(client, message) {
@@ -352,8 +346,7 @@ async function handleGiveawayCreation(interaction: any, giveawayData: GiveawayIn
   }
 
   try {
-    await GiveawayManager.waitUntilReady(); // Espera a que el manager esté listo
-
+    await _client.giveaways.waitUntilReady(); // Espera a que el manager esté listo
     const channel = await interaction.guild?.channels.fetch(giveawayData.channelId);
     if (!channel?.isTextBased()) {
       await interaction.reply({
@@ -392,7 +385,7 @@ async function handleGiveawayCreation(interaction: any, giveawayData: GiveawayIn
     };
 
     // Start the giveaway
-    const giveaway = await GiveawayManager.startGiveaway(channel, giveawayOptions);
+    const giveaway = await _client.giveaways.startGiveaway(channel, giveawayOptions);
 
     // Prepare database data
     const dbData = {
@@ -589,3 +582,4 @@ function formatDuration(ms: number): string {
 }
 
 export = GiveawayCreate;
+ */

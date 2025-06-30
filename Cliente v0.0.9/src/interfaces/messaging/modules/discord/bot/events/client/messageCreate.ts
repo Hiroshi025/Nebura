@@ -6,41 +6,28 @@ import {
 import { client, main } from "@/main";
 import { config } from "@/shared/utils/config";
 import { Ranking } from "@messaging/modules/discord/structure/utils/ranking/helpers";
+import { AIGemini } from "@shared/functions";
+import { DiscordError } from "@shared/utils/extends/error.extension";
 import { ButtonFormat, Fields, Precommand } from "@typings/modules/discord";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import { Event } from "../../../structure/utils/builders";
-
-function escapeRegex(str: string) {
-  try {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, `\\$&`);
-  } catch (e: any) {
-    console.log(String(e.stack));
-    return str;
-  }
-}
 
 export default new Event("messageCreate", async (message) => {
   if (!message.guild || !message.channel || message.author.bot || !client.user) return;
   await countMessage(message.author.id, message.guild.id, message);
   await createGuild(message.guild.id, client);
   await createUser(message.author.id);
-  //await Asistent(message, client);
   await Ranking(message, client);
+  await AIGemini(message);
   await Economy(message);
 
   const guildData = await main.prisma.myGuild.findFirst({ where: { guildId: message.guild.id } });
   const dataPrefix = guildData?.prefix ? guildData.prefix : config.modules.discord.prefix;
-  const prefixRegex = new RegExp(`^(<@!?${client.user.id}>|${escapeRegex(dataPrefix)})\\s*`);
-  //if its not that then return
-  if (!prefixRegex.test(message.content)) return;
-  //now define the right prefix either ping or not ping
-  const match = message.content.match(prefixRegex);
-  if (!match) return;
-  const [, matchedPrefix] = match;
+  const prefix = dataPrefix;
 
-  const language: string = message.guild.preferredLocale;
-  if (!message.content.startsWith(matchedPrefix)) return;
+  const language: string = message.guild.preferredLocale || "en-US";
+  if (!message.content.startsWith(prefix)) return;
 
   const data = await main.prisma.userDiscord.findFirst({
     where: {
@@ -54,17 +41,17 @@ export default new Event("messageCreate", async (message) => {
     return message.channel.send({
       embeds: [
         new ErrorEmbed()
-          .setTitle("Error Client Data")
+          .setTitle(client.translations.t("discord:errors.clientDataTitle", { lng: language }))
           .setDescription(
             [
-              `${client.getEmoji(message.guild.id, "error")} The bot is not set up in this server.`,
-              `Use the command \`${matchedPrefix}setup\` to set up the bot.`,
+              `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.clientDataDesc", { lng: language })}`,
+              client.translations.t("discord:errors.setupInstruction", { lng: language, prefix }),
             ].join("\n"),
           ),
       ],
     });
 
-  const args: string[] = message.content.slice(matchedPrefix.length).trim().split(/ +/);
+  const args: string[] = message.content.slice(prefix.length).trim().split(/ +/);
   const cmd: string = args.shift()?.toLowerCase() ?? "";
   if (!cmd || !data) return;
 
@@ -85,7 +72,9 @@ export default new Event("messageCreate", async (message) => {
     if (data.embed) {
       const embed = new EmbedCorrect()
         .setTitle(data.embedTitle || data.name)
-        .setDescription(data.response || "Sin respuesta configurada.")
+        .setDescription(
+          data.response || client.translations.t("discord:help.notFoundDesc", { lng: language, arg: cmd, prefix }),
+        )
         .setColor((data.embedColor as ColorResolvable) || "Red");
 
       if (data.embedFooter) {
@@ -95,7 +84,7 @@ export default new Event("messageCreate", async (message) => {
         });
       } else {
         embed.setFooter({
-          text: `${data.isEnabled ? "Enabled" : "Disabled"} | ${data.name}`,
+          text: `${data.isEnabled ? client.translations.t("discord:common.enabled", { lng: language }) : client.translations.t("discord:common.disabled", { lng: language })} | ${data.name}`,
           iconURL: client.user?.displayAvatarURL(),
         });
       }
@@ -172,8 +161,8 @@ export default new Event("messageCreate", async (message) => {
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(message.guild.id, "error")} You do not have permission to use this command as it is reserved for the bot owner.`,
-              `If you believe this is a mistake, please contact the bot owner.`,
+              `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.ownerOnly", { lng: language })}`,
+              client.translations.t("discord:errors.contactOwner", { lng: language }),
             ].join("\n"),
           ),
         ],
@@ -186,9 +175,9 @@ export default new Event("messageCreate", async (message) => {
           embeds: [
             new ErrorEmbed().setDescription(
               [
-                `${client.getEmoji(message.guild.id, "error")} This command is currently under maintenance.`,
-                `Command Name: \`${command.name}\``,
-                `Description: ${command.description || "No description available."}`,
+                `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.maintenance", { lng: language })}`,
+                `${client.translations.t("discord:common.commandName", { lng: language })}: \`${command.name}\``,
+                `${client.translations.t("discord:common.description", { lng: language })}: ${command.description || client.translations.t("discord:common.noDescription", { lng: language })}`,
               ].join("\n"),
             ),
           ],
@@ -201,8 +190,8 @@ export default new Event("messageCreate", async (message) => {
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(message.guild.id, "error")} You can only use this command in a NSFW channel.`,
-              `If you believe this is a mistake, please contact the server staff.`,
+              `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.nsfw", { lng: language })}`,
+              client.translations.t("discord:errors.contactStaff", { lng: language }),
             ].join("\n"),
           ),
         ],
@@ -214,8 +203,8 @@ export default new Event("messageCreate", async (message) => {
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(message.guild.id, "error")} You do not have permission to use this command.`,
-              `If you believe this is a mistake, please contact the server staff.`,
+              `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.noPermission", { lng: language })}`,
+              client.translations.t("discord:errors.contactStaff", { lng: language }),
             ].join("\n"),
           ),
         ],
@@ -227,17 +216,16 @@ export default new Event("messageCreate", async (message) => {
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(message.guild.id, "error")} I do not have permission to execute this command.`,
-              `If you believe this is a mistake, please contact the server staff.`,
+              `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.botNoPermission", { lng: language })}`,
+              client.translations.t("discord:errors.contactStaff", { lng: language }),
             ].join("\n"),
           ),
         ],
       });
     }
 
-    /*    if (command.cooldown) {
-      const cooldown =
-        (client.cooldown.get(command.name) as Map<string, number>) || new Map<string, number>();
+    if (command.cooldown) {
+      const cooldown = (client.cooldown.get(command.name) as Map<string, number>) || new Map<string, number>();
       const now = Date.now();
       const cooldownAmount = command.cooldown * 1000;
 
@@ -249,8 +237,8 @@ export default new Event("messageCreate", async (message) => {
             embeds: [
               new ErrorEmbed().setDescription(
                 [
-                  `${client.getEmoji(message.guild.id, "error")} You are on cooldown for this command.`,
-                  `Please wait ${timeLeft} seconds before using it again.`,
+                  `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.cooldownActive", { lng: language })}`,
+                  client.translations.t("discord:errors.cooldown", { lng: language, timeLeft }),
                 ].join("\n"),
               ),
             ],
@@ -260,9 +248,41 @@ export default new Event("messageCreate", async (message) => {
 
       cooldown.set(message.author.id, now);
       client.cooldown.set(command.name, cooldown);
-    } */
+    }
 
-    await command.execute(client, message, args, matchedPrefix, language, config);
+    if (command.category) {
+      const categories = await main.prisma.commandCategory.findMany();
+      const category = categories.find(
+        (c) => c.name && command.category && c.name.toLowerCase() === command.category.toLowerCase(),
+      );
+      if (!category) {
+        return message.channel.send({
+          embeds: [
+            new ErrorEmbed().setDescription(
+              [
+                `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.categoryNotExist", { lng: language, category: command.category })}`,
+                client.translations.t("discord:errors.checkCategory", { lng: language }),
+              ].join("\n"),
+            ),
+          ],
+        });
+      }
+
+      if (category.enabled === false) {
+        return message.channel.send({
+          embeds: [
+            new ErrorEmbed().setDescription(
+              [
+                `${client.getEmoji(message.guild.id, "error")} ${client.translations.t("discord:errors.categoryDisabled", { lng: language, category: command.category })}`,
+                client.translations.t("discord:errors.checkCategory", { lng: language }),
+              ].join("\n"),
+            ),
+          ],
+        });
+      }
+    }
+
+    await command.execute(client, message, args, prefix, language, config);
     try {
       const guildId = message.guild.id;
       const commandName = command.name;
@@ -279,10 +299,7 @@ export default new Event("messageCreate", async (message) => {
       console.debug("[DEBUG] Error updating command usage:", err);
     }
   } catch (error: any) {
-    const errorEmbed = new ErrorEmbed().setError(true).setTitle("Command Execution Error").setErrorFormat(error);
-
-    await message.channel.send({ embeds: [errorEmbed] });
+    throw new DiscordError(`Error executing command \`${command.name}\`: ${error.message || error}`);
   }
-
   return;
 });

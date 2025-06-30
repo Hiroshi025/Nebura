@@ -1,6 +1,4 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
@@ -68,19 +66,27 @@ export default new Command(
     try {
       if (!interaction.guild || !interaction.channel || !interaction.user) return;
 
+      // Obtener idioma preferido del usuario o guild
+      const lang =
+        (interaction.guild &&
+          (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
+        interaction.locale ||
+        "es-ES";
+      const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+
       switch (interaction.options.getSubcommand()) {
         case "warns":
           {
             const user = interaction.options.getUser("user");
-            const page = interaction.options.getInteger("page") || 1; // Default to page 1 if not provided
+            const page = interaction.options.getInteger("page") || 1;
 
             if (!user)
               return interaction.reply({
                 embeds: [
                   new ErrorEmbed().setDescription(
                     [
-                      `${client.getEmoji(interaction.guildId as string, "error")} User Not Found`,
-                      `Please provide a valid user.`,
+                      `${client.getEmoji(interaction.guildId as string, "error")} ${t("logs.errors.userNotFound")}`,
+                      t("logs.errors.provideValidUser"),
                     ].join("\n"),
                   ),
                 ],
@@ -98,11 +104,11 @@ export default new Command(
               return interaction.reply({
                 embeds: [
                   new ErrorEmbed()
-                    .setTitle("No Warnings Found")
+                    .setTitle(t("logs.warns.noWarningsTitle"))
                     .setDescription(
                       [
-                        `${client.getEmoji(interaction.guildId as string, "error")} No warnings found for this user.`,
-                        `Please check the server settings or try again later.`,
+                        `${client.getEmoji(interaction.guildId as string, "error")} ${t("logs.warns.noWarningsDesc")}`,
+                        t("logs.warns.checkSettings"),
                       ].join("\n"),
                     ),
                 ],
@@ -113,20 +119,20 @@ export default new Command(
               return interaction.reply({
                 embeds: [
                   new ErrorEmbed()
-                    .setTitle("Invalid Page Number")
-                    .setDescription(`The page number must be between 1 and ${Math.ceil(userWarnings.length / 5)}.`),
+                    .setTitle(t("logs.errors.invalidPageTitle"))
+                    .setDescription(t("logs.errors.invalidPageDesc", { total: Math.ceil(userWarnings.length / 5) })),
                 ],
                 flags: "Ephemeral",
               });
             }
 
-            const embed = new EmbedCorrect().setTitle(`${user.tag}'s Warning Logs`);
+            const embed = new EmbedCorrect().setTitle(t("logs.warns.title", { user: user.tag }));
 
             const pageNum = 5 * (page - 1);
 
             if (userWarnings.length >= 6) {
               embed.setFooter({
-                text: `Page ${page} of ${Math.ceil(userWarnings.length / 5)}`,
+                text: t("logs.pagination", { page, total: Math.ceil(userWarnings.length / 5) }),
               });
             }
 
@@ -134,12 +140,12 @@ export default new Command(
               const moderator = interaction.guild.members.cache.get(warnings.moderator);
 
               embed.addFields({
-                name: `ID: ${warnings.id}`,
+                name: t("logs.warns.fieldId", { id: warnings.id }),
                 value: [
-                  `> Moderator: ${moderator || "Moderator left"}`,
-                  `> User: ${warnings.userId}`,
-                  `> Reason: \`${warnings.warnReason}\``,
-                  `> Date: ${warnings.warnDate}`,
+                  `> ${t("logs.warns.fieldModerator")}: ${moderator || t("logs.warns.moderatorLeft")}`,
+                  `> ${t("logs.warns.fieldUser")}: ${warnings.userId}`,
+                  `> ${t("logs.warns.fieldReason")}: \`${warnings.warnReason}\``,
+                  `> ${t("logs.warns.fieldDate")}: ${warnings.warnDate}`,
                 ].join("\n"),
               });
             }
@@ -154,11 +160,11 @@ export default new Command(
               return interaction.reply({
                 embeds: [
                   new ErrorEmbed()
-                    .setTitle("No Bans Found")
+                    .setTitle(t("logs.bans.noBansTitle"))
                     .setDescription(
                       [
-                        `${client.getEmoji(interaction.guildId as string, "error")} No bans found in this guild.`,
-                        `Please check the server settings or try again later.`,
+                        `${client.getEmoji(interaction.guildId as string, "error")} ${t("logs.bans.noBansDesc")}`,
+                        t("logs.bans.checkSettings"),
                       ].join("\n"),
                     ),
                 ],
@@ -167,35 +173,35 @@ export default new Command(
             }
 
             const bansArray = Array.from(bans.values());
-            const maxFieldsPerPage = 10; // Limite de fields por página
+            const maxFieldsPerPage = 10;
             const totalPages = Math.ceil(bansArray.length / maxFieldsPerPage);
             let currentPage = 1;
 
             const generateEmbed = (page: number) => {
-              const embed = new EmbedCorrect().setTitle("Bans List");
+              const embed = new EmbedCorrect().setTitle(t("logs.bans.title"));
               const start = (page - 1) * maxFieldsPerPage;
               const end = start + maxFieldsPerPage;
 
               bansArray.slice(start, end).forEach((ban) => {
                 embed.addFields({
-                  name: `User: ${ban.user.tag}`,
-                  value: `ID: ${ban.user.id}`,
+                  name: t("logs.bans.fieldUser", { user: ban.user.tag }),
+                  value: t("logs.bans.fieldId", { id: ban.user.id }),
                 });
               });
 
-              embed.setFooter({ text: `Page ${page} of ${totalPages}` });
+              embed.setFooter({ text: t("logs.pagination", { page, total: totalPages }) });
               return embed;
             };
 
             const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
                 .setCustomId("prev_page")
-                .setLabel("Previous")
+                .setLabel(t("logs.paginationPrev"))
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(currentPage === 1),
               new ButtonBuilder()
                 .setCustomId("next_page")
-                .setLabel("Next")
+                .setLabel(t("logs.paginationNext"))
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(currentPage === totalPages),
             );
@@ -209,13 +215,13 @@ export default new Command(
             if (totalPages > 1) {
               const collector = message.createMessageComponentCollector({
                 componentType: ComponentType.Button,
-                time: 60000, // 1 minuto
+                time: 60000,
               });
 
               collector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
                   return i.reply({
-                    content: "You cannot interact with this pagination.",
+                    content: t("logs.errors.cannotInteract"),
                     flags: "Ephemeral",
                   });
                 }
@@ -232,12 +238,12 @@ export default new Command(
                     new ActionRowBuilder<ButtonBuilder>().addComponents(
                       new ButtonBuilder()
                         .setCustomId("prev_page")
-                        .setLabel("Previous")
+                        .setLabel(t("logs.paginationPrev"))
                         .setStyle(ButtonStyle.Primary)
                         .setDisabled(currentPage === 1),
                       new ButtonBuilder()
                         .setCustomId("next_page")
-                        .setLabel("Next")
+                        .setLabel(t("logs.paginationNext"))
                         .setStyle(ButtonStyle.Primary)
                         .setDisabled(currentPage === totalPages),
                     ),
@@ -262,8 +268,8 @@ export default new Command(
             .setTitle("Unexpected Error")
             .setDescription(
               [
-                `${client.getEmoji(interaction.guildId as string, "error")} An unexpected error occurred.`,
-                `Please try again later or contact support.`,
+                `${client.getEmoji(interaction.guildId as string, "error")} ${client.translations.t("logs.errors.unexpected")}`,
+                client.translations.t("logs.errors.tryAgain"),
               ].join("\n"),
             ),
         ],

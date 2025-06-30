@@ -12,12 +12,12 @@ const commandNpm: Precommand = {
   examples: ["npm-version <package-name>", "npm-version discord.js"],
   nsfw: false,
   owner: false,
+  category: "Utilities",
   aliases: ["npmv", "npm-info", "npmpkg"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(client, message, args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     if (!args[0]) {
       return message.reply({
@@ -81,8 +81,7 @@ const commandNpm: Precommand = {
         },
         {
           name: "Author",
-          value:
-            typeof pkgData.author === "object" ? pkgData.author.name : pkgData.author || "Unknown",
+          value: typeof pkgData.author === "object" ? pkgData.author.name : pkgData.author || "Unknown",
           inline: true,
         },
       );
@@ -132,18 +131,9 @@ const commandNpm: Precommand = {
         .setLabel("View on NPM")
         .setURL(`https://www.npmjs.com/package/${pkgData.name}`)
         .setStyle(ButtonStyle.Link),
-      new ButtonBuilder()
-        .setLabel("View Dependencies")
-        .setCustomId("view_deps")
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setLabel("View Versions")
-        .setCustomId("view_versions")
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setLabel("View README")
-        .setCustomId("view_readme")
-        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setLabel("View Dependencies").setCustomId("view_deps").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View Versions").setCustomId("view_versions").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View README").setCustomId("view_readme").setStyle(ButtonStyle.Secondary),
     );
 
     // Create versions select menu
@@ -186,9 +176,7 @@ const commandNpm: Precommand = {
           const dependencies = pkgData.dependencies || {};
           const devDependencies = pkgData.devDependencies || {};
 
-          const depsEmbed = new EmbedBuilder()
-            .setTitle(`Dependencies for ${pkgData.name}`)
-            .setColor(0xcb3837);
+          const depsEmbed = new EmbedBuilder().setTitle(`Dependencies for ${pkgData.name}`).setColor(0xcb3837);
 
           if (Object.keys(dependencies).length > 0) {
             depsEmbed.addFields({
@@ -237,9 +225,7 @@ const commandNpm: Precommand = {
           const readmeEmbed = new EmbedBuilder()
             .setTitle(`README for ${pkgData.name}`)
             .setColor(0xcb3837)
-            .setDescription(
-              readmeText.length > 2000 ? `${readmeText.substring(0, 2000)}...` : readmeText,
-            );
+            .setDescription(readmeText.length > 2000 ? `${readmeText.substring(0, 2000)}...` : readmeText);
 
           await interaction.editReply({ embeds: [mainEmbed, readmeEmbed] });
           break;

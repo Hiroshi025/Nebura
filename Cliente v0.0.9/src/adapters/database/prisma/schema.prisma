@@ -116,7 +116,7 @@ model Task {
   tags        String[]
   reminder    Json?
   recurrence  Json?
-  autoDelete  String @default("never") /// Opciones: "never", "afterCompletion", "afterDueDate"
+  autoDelete  String    @default("never") /// Opciones: "never", "afterCompletion", "afterDueDate"
   updatedAt   DateTime  @updatedAt @map("updated_at")
   completedAt DateTime? @map("completed_at")
   UserAPI     UserAPI?  @relation("UserTasks", fields: [userAPIId], references: [id])
@@ -138,9 +138,9 @@ model MyGuild {
   nsfwChannel     String?
   commandUsage    Json? // { commandName: usageCount }
   channelActivity Json? // { channelId: activityCount }
-  lenguage        String? @default("en")
+  lenguage        String  @default("en-US")
 
-  bans      BanUser[]
+  bans BanUser[]
 
   eventlogs EventLogs?
   economy   Economy?
@@ -168,42 +168,42 @@ model MyGuild {
 }
 
 model Giveaway {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  messageId    String   @unique
+  id           String                @id @default(auto()) @map("_id") @db.ObjectId
+  messageId    String                @unique
   channelId    String
   guildId      String
   prize        String
   winnerCount  Int
-  endsAt      DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  hostedBy    String
+  endsAt       DateTime
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  hostedBy     String
   requirements GiveawayRequirements?
 }
 
 model GiveawayRequirements {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  giveawayId  String   @unique @db.ObjectId
-  giveaway    Giveaway @relation(fields: [giveawayId], references: [id])
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  giveawayId    String   @unique @db.ObjectId
+  giveaway      Giveaway @relation(fields: [giveawayId], references: [id])
   requiredRoles String[]
   minAccountAge Int?
-  minMessages  Int?
+  minMessages   Int?
 }
 
 model BanUser {
-  id            String       @id @default(cuid()) @map("_id")
-  guildId       String       @db.ObjectId
-  guild         MyGuild      @relation(fields: [guildId], references: [id])
-  userId        String       
-  banReason     String?
-  banTime       DateTime?
-  createdAt     DateTime     @default(now())
+  id        String    @id @default(cuid()) @map("_id")
+  guildId   String    @db.ObjectId
+  guild     MyGuild   @relation(fields: [guildId], references: [id])
+  userId    String
+  banReason String?
+  banTime   DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model UserWarn {
-  id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  guildId    String       
-  userId     String       
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String
+  userId     String
   warnReason String
   warnDate   String
   moderator  String
@@ -220,7 +220,7 @@ model ServerModlog {
 model Reminder {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String
-  guildId   String  
+  guildId   String
   message   String
   remindAt  DateTime
   createdAt DateTime @default(now())
@@ -249,6 +249,22 @@ model Command {
   isEnabled      Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model CommandCategory {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String      @unique
+  description String?
+  enabled     Boolean     @default(true)
+  commands    Component[]
+}
+
+model Component {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String
+  name       String
+  categoryId String?          @db.ObjectId
+  category   CommandCategory? @relation(fields: [categoryId], references: [id])
 }
 
 /// ------------------------------------------------------------
@@ -327,9 +343,9 @@ model UserLoan {
 /// MODELOS DE NIVELES DE DISCORD
 /// ------------------------------------------------------------
 model UserDiscord {
-  id     String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId String     @unique
-  guilds Int?       @default(0)
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique
+  guilds Int?   @default(0)
 }
 
 model LevelConfig {
@@ -466,19 +482,19 @@ model WhatsApp {
 }
 
 model Discord {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  avatar       String    @default("https://i.pinimg.com/736x/38/c2/83/38c283baebbc461a062a2992ae438fbe.jpg")
-  username     String    @default("Nebura")
-  activity     Json      @default("{\"name\": \"Nebura AI Client\", \"url\": \"https://www.hiroshi-dev.me\", \"status\": \"idle\"}")
-  clientId     String    @unique
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  avatar       String   @default("https://i.pinimg.com/736x/38/c2/83/38c283baebbc461a062a2992ae438fbe.jpg")
+  username     String   @default("Nebura")
+  activity     Json     @default("{\"name\": \"Nebura AI Client\", \"url\": \"https://www.hiroshi-dev.me\", \"status\": \"idle\"}")
+  clientId     String   @unique
   clientSecret String
   token        String
-  logconsole   Boolean   @default(false)
-  errorlog     Boolean   @default(false)
+  logconsole   Boolean  @default(false)
+  errorlog     Boolean  @default(false)
   webhookURL   String?
   logchannel   String?
-  owners       String[]  @default([])
-  createdAt    DateTime  @default(now())
+  owners       String[] @default([])
+  createdAt    DateTime @default(now())
   modules      Modules?
 }
 
@@ -683,12 +699,6 @@ type EventLogs {
   enabled   Boolean
   channelId String?
   events    String[]
-}
-
-type Activity {
-  status String @default("idle") /// Estado del bot (ej. "online", "idle", "dnd")
-  name   String @default("Nebura AI Client")
-  url    String @default("https://www.hiroshi-dev.me")
 }
 
 /// ------------------------------------------------------------

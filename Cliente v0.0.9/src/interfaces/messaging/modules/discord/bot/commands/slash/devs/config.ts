@@ -24,6 +24,14 @@ export default new Command(
   async (client, interaction) => {
     try {
       if (!interaction.guild || !interaction.channel || !client.user) return;
+      // Traducción
+      const lang =
+        (interaction.guild &&
+          (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
+        interaction.locale ||
+        "es-ES";
+      const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+
       const guild = await main.prisma.myGuild.findUnique({
         where: { guildId: interaction.guild.id },
       });
@@ -32,11 +40,11 @@ export default new Command(
         return interaction.reply({
           embeds: [
             new ErrorEmbed()
-              .setTitle("Error Configuration")
+              .setTitle(t("config.errorTitle"))
               .setDescription(
                 [
-                  `${client.getEmoji(interaction.guild.id, "error")} **Error**`,
-                  `No valid configuration found for this server.`,
+                  `${client.getEmoji(interaction.guild.id, "error")} **${t("config.error")}**`,
+                  t("config.noValidConfig"),
                 ].join("\n"),
               ),
           ],
@@ -44,58 +52,58 @@ export default new Command(
       }
 
       const embed = new EmbedCorrect()
-        .setTitle("Configuration")
+        .setTitle(t("config.title"))
         .setDescription(
           [
-            `${client.getEmoji(interaction.guild.id, "correct")} **Configuration**`,
-            `To configure, select one of the following options:`,
+            `${client.getEmoji(interaction.guild.id, "correct")} **${t("config.title")}**`,
+            t("config.selectOption"),
           ].join("\n"),
         );
 
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
-          .setLabel(guild.eventlogs?.enabled ? "Disable Log Events" : "Enable Log Events")
+          .setLabel(guild.eventlogs?.enabled ? t("config.disableLogEvents") : t("config.enableLogEvents"))
           .setCustomId("button-enabled-logevents")
           .setStyle(guild.eventlogs?.enabled ? ButtonStyle.Success : ButtonStyle.Primary),
         new ButtonBuilder()
-          .setLabel("Cancel")
-          .setCustomId("button-set-config-cancel") // Fixed typo
+          .setLabel(t("config.cancel"))
+          .setCustomId("button-set-config-cancel")
           .setStyle(ButtonStyle.Danger),
       );
 
       const menus = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId("menu:config-panel")
-          .setPlaceholder("Select a configuration option")
+          .setPlaceholder(t("config.selectConfigOption"))
           .addOptions(
             new StringSelectMenuOptionBuilder()
-              .setLabel("Enabled Log Errors")
+              .setLabel(t("config.enabledLogErrors"))
               .setValue("log-errors")
               .setEmoji(
                 data.errorlog
                   ? client.getEmoji(interaction.guild.id, "circle_check")
                   : client.getEmoji(interaction.guild.id, "circle_x"),
               )
-              .setDescription("Enable or disable error logging"),
+              .setDescription(t("config.enableDisableErrorLog")),
             new StringSelectMenuOptionBuilder()
-              .setLabel("Enabled Log Debug")
+              .setLabel(t("config.enabledLogDebug"))
               .setValue("log-debug")
               .setEmoji(
                 data.logconsole
                   ? client.getEmoji(interaction.guild.id, "circle_check")
                   : client.getEmoji(interaction.guild.id, "circle_x"),
               )
-              .setDescription("Enable or disable debug logging"),
+              .setDescription(t("config.enableDisableDebugLog")),
             new StringSelectMenuOptionBuilder()
-              .setLabel("Set Webhook")
+              .setLabel(t("config.setWebhook"))
               .setValue("webhook-config")
               .setEmoji(client.getEmoji(interaction.guild.id, "settings"))
-              .setDescription("Set the webhook URL"),
+              .setDescription(t("config.setWebhookDesc")),
             new StringSelectMenuOptionBuilder()
-              .setLabel("Set Log Channel")
+              .setLabel(t("config.setLogChannel"))
               .setValue("log-channel-config")
               .setEmoji(client.getEmoji(interaction.guild.id, "folder"))
-              .setDescription("Set the channel for event and control logs"),
+              .setDescription(t("config.setLogChannelDesc")),
           ),
       );
 
@@ -118,10 +126,10 @@ export default new Command(
                 await i.update({
                   embeds: [
                     new EmbedCorrect()
-                      .setTitle("Configuration")
+                      .setTitle(t("config.title"))
                       .setDescription(
-                        `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-                          `The configuration has been cancelled.`,
+                        `${client.getEmoji(interaction.guildId as string, "correct")} **${t("config.title")}**\n` +
+                          t("config.cancelled"),
                       ),
                   ],
                   components: [],
@@ -132,9 +140,7 @@ export default new Command(
           } else if (i.isStringSelectMenu()) {
             switch (i.customId) {
               case "menu:config-panel":
-                switch (
-                  i.values[0] // <--- Mejor escalabilidad
-                ) {
+                switch (i.values[0]) {
                   case "log-errors": {
                     const newValue = !data.errorlog;
                     await main.prisma.discord.update({
@@ -147,10 +153,10 @@ export default new Command(
                       await i.update({
                         embeds: [
                           new EmbedCorrect()
-                            .setTitle("Configuration")
+                            .setTitle(t("config.title"))
                             .setDescription(
-                              `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-                                `The error log has been ${newValue ? "enabled" : "disabled"}.`,
+                              `${client.getEmoji(interaction.guildId as string, "correct")} **${t("config.title")}**\n` +
+                                t(newValue ? "config.errorLogEnabled" : "config.errorLogDisabled"),
                             ),
                         ],
                         components: [],
@@ -170,10 +176,10 @@ export default new Command(
                       await i.update({
                         embeds: [
                           new EmbedCorrect()
-                            .setTitle("Configuration")
+                            .setTitle(t("config.title"))
                             .setDescription(
-                              `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-                                `The debug log has been ${newValue ? "enabled" : "disabled"}.`,
+                              `${client.getEmoji(interaction.guildId as string, "correct")} **${t("config.title")}**\n` +
+                                t(newValue ? "config.debugLogEnabled" : "config.debugLogDisabled"),
                             ),
                         ],
                         components: [],
@@ -185,24 +191,24 @@ export default new Command(
                     await i.reply({
                       embeds: [
                         new EmbedCorrect()
-                          .setTitle("Configuration")
+                          .setTitle(t("config.title"))
                           .setDescription(
-                            `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-                              `You have selected the webhook configuration option.`,
+                            `${client.getEmoji(interaction.guildId as string, "correct")} **${t("config.title")}**\n` +
+                              t("config.webhookSelected"),
                           ),
                       ],
                       components: [
                         new ActionRowBuilder<ButtonBuilder>().addComponents(
                           new ButtonBuilder()
-                            .setLabel("Set URL")
+                            .setLabel(t("config.setUrl"))
                             .setCustomId("button-set-webhook-config")
                             .setStyle(ButtonStyle.Primary),
                           new ButtonBuilder()
-                            .setLabel("Create")
+                            .setLabel(t("config.create"))
                             .setCustomId("button-create-webhook-config")
                             .setStyle(ButtonStyle.Success),
                           new ButtonBuilder()
-                            .setLabel("Delete")
+                            .setLabel(t("config.delete"))
                             .setCustomId("button-delete-webhook-config")
                             .setStyle(ButtonStyle.Danger),
                         ),
@@ -215,18 +221,18 @@ export default new Command(
                     await i.reply({
                       embeds: [
                         new EmbedCorrect()
-                          .setTitle("Configuration")
+                          .setTitle(t("config.title"))
                           .setDescription(
-                            `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-                              `Please select the channel where event and control logs will be sent.`,
+                            `${client.getEmoji(interaction.guildId as string, "correct")} **${t("config.title")}**\n` +
+                              t("config.selectLogChannel"),
                           ),
                       ],
                       components: [
                         new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
                           new ChannelSelectMenuBuilder()
                             .setCustomId("select-log-channel")
-                            .setPlaceholder("Select a channel")
-                            .setChannelTypes([ChannelType.GuildText]), // <--- Mejor legibilidad
+                            .setPlaceholder(t("config.selectChannel"))
+                            .setChannelTypes([ChannelType.GuildText]),
                         ),
                       ],
                       flags: "Ephemeral",
@@ -256,12 +262,16 @@ export default new Command(
 
       return message;
     } catch (error) {
+      const lang =
+        (interaction.guild &&
+          (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
+        interaction.locale ||
+        "es-ES";
+      const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
       logWithLabel("error", ["Error in config command:", error].join("\n"));
       await interaction.reply({
         embeds: [
-          new ErrorEmbed()
-            .setTitle("Unexpected Error")
-            .setDescription("An unexpected error occurred. Please try again later."),
+          new ErrorEmbed().setTitle(t("config.unexpectedErrorTitle")).setDescription(t("config.unexpectedErrorDesc")),
         ],
         flags: "Ephemeral",
       });

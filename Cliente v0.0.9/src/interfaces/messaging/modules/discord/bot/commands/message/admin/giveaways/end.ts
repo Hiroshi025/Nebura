@@ -1,9 +1,9 @@
-import {
+/* import {
 	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, Message,
 	MessageActionRowComponentBuilder, StringSelectMenuBuilder
 } from "discord.js";
 
-import { GiveawayManager } from "@/main";
+import { MyDiscord } from "@messaging/modules/discord/client";
 import { Precommand } from "@typings/modules/discord";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
@@ -13,6 +13,9 @@ const GiveawayEnd: Precommand = {
   examples: ["giveaway end", "giveaway end <messageId>"],
   nsfw: false,
   owner: false,
+  category: "Giveaways",
+  cooldown: 5,
+  aliases: ["giveaway-end", "giveawayend", "giveawayend"],
   permissions: ["Administrator"],
   botpermissions: ["SendMessages", "EmbedLinks", "ManageMessages"],
   async execute(_client, message, args) {
@@ -27,10 +30,10 @@ const GiveawayEnd: Precommand = {
       // Check if a specific giveaway was mentioned
       const targetGiveawayId = args[0];
       if (targetGiveawayId) {
-        return endSpecificGiveaway(message, targetGiveawayId);
+        return endSpecificGiveaway(message, targetGiveawayId, _client);
       }
 
-      const activeGiveaways = await GiveawayManager.getManager()
+      const activeGiveaways = await _client.giveaways.getManager()
         .giveaways.filter((g: { guildId: string; ended: any; }) => g.guildId === message.guild?.id && !g.ended)
         .sort((a: { endAt: number; }, b: { endAt: number; }) => a.endAt - b.endAt); // Sort by soonest to end
 
@@ -43,7 +46,7 @@ const GiveawayEnd: Precommand = {
 
       // If only one active giveaway, skip selection
       if (activeGiveaways.length === 1) {
-        return confirmGiveawayEnd(message, activeGiveaways[0]);
+        return confirmGiveawayEnd(message, activeGiveaways[0], _client);
       }
 
       // Create selection menu for multiple giveaways
@@ -92,7 +95,7 @@ const GiveawayEnd: Precommand = {
         }
 
         collector.stop();
-        await confirmGiveawayEnd(selectInteraction, selectedGiveaway);
+        await confirmGiveawayEnd(selectInteraction, selectedGiveaway, _client);
       });
 
       collector.on("end", () => {
@@ -108,12 +111,9 @@ const GiveawayEnd: Precommand = {
   },
 };
 
-/**
- * Ends a specific giveaway by message ID
- */
-async function endSpecificGiveaway(message: Message, giveawayId: string) {
+async function endSpecificGiveaway(message: Message, giveawayId: string, _client: MyDiscord) {
   try {
-    const giveaway = await GiveawayManager.getManager().giveaways.find(
+    const giveaway = await _client.giveaways.getManager().giveaways.find(
       (g: { messageId: string; guildId: string; }) => g.messageId === giveawayId && g.guildId === message.guild?.id,
     );
 
@@ -131,7 +131,7 @@ async function endSpecificGiveaway(message: Message, giveawayId: string) {
       });
     }
 
-    return confirmGiveawayEnd(message, giveaway);
+    return confirmGiveawayEnd(message, giveaway, _client);
   } catch (error) {
     console.error("Error ending specific giveaway:", error);
     await message.reply({
@@ -141,10 +141,7 @@ async function endSpecificGiveaway(message: Message, giveawayId: string) {
   }
 }
 
-/**
- * Confirms and executes the ending of a giveaway
- */
-async function confirmGiveawayEnd(interaction: Message | any, giveaway: any) {
+async function confirmGiveawayEnd(interaction: Message | any, giveaway: any, _client: MyDiscord) {
   try {
     const isMessage = interaction instanceof Message;
     const userId = isMessage ? interaction.author.id : interaction.user.id;
@@ -198,7 +195,7 @@ async function confirmGiveawayEnd(interaction: Message | any, giveaway: any) {
             await buttonInteraction.deferReply();
 
             // End the giveaway
-            await GiveawayManager.getManager().end(giveaway.messageId);
+            await _client.giveaways.getManager().end(giveaway.messageId);
 
             await buttonInteraction.followUp({
               embeds: [
@@ -289,3 +286,4 @@ function formatDuration(remainingTime: number): string {
 }
 
 export = GiveawayEnd;
+ */

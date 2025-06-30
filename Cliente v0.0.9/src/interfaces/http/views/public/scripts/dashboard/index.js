@@ -81,6 +81,11 @@ document.addEventListener("DOMContentLoaded", function () {
       noLicenses: "You have no registered licenses.",
       licenseDetails: "License Details",
       close: "Close",
+      licensesTab: "Licenses",
+      infoadd: "Additional Information",
+      typeClan: "Clan",
+      Provider: "Provider",
+      Banner: "Banner",
     },
     es: {
       profileTab: "Perfil",
@@ -144,6 +149,11 @@ document.addEventListener("DOMContentLoaded", function () {
       noLicenses: "No tienes licencias registradas.",
       licenseDetails: "Detalles de la Licencia",
       close: "Cerrar",
+      licensesTab: "Licencias",
+      infoadd: "Información Adicional",
+      typeClan: "Clan",
+      Provider: "Proveedor",
+      Banner: "Banner",
     },
   };
 
@@ -193,6 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const updateTranslations = () => {
     document.querySelectorAll("[data-key]").forEach((element) => {
       const key = element.dataset.key;
+      // Traducción para placeholders y texto
       if (translations[currentLanguage][key]) {
         if (element.tagName === "INPUT" && element.placeholder) {
           element.placeholder = translations[currentLanguage][key];
@@ -206,7 +217,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Licenses tab
     const licensesTab = document.querySelector("#licenses-tab");
     if (licensesTab) {
-      licensesTab.querySelector("span").textContent = translations[currentLanguage].licensesTab;
+      const span = licensesTab.querySelector("span");
+      if (span) span.textContent = translations[currentLanguage].licensesTab;
     }
     // Licenses section title
     const licenseSectionTitle = document.querySelector("#userLicensesSection .section-title");
@@ -350,11 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const moved = filteredServers.splice(dragSrcIndex, 1)[0];
           filteredServers.splice(dropIndex, 0, moved);
           localStorage.setItem("serverOrder", JSON.stringify(filteredServers.map((s) => s.id)));
-          showToast(
-            translations[currentLanguage].toastSuccess,
-            translations[currentLanguage].dragInfo,
-            "success",
-          );
+          showToast(translations[currentLanguage].toastSuccess, translations[currentLanguage].dragInfo, "success");
           renderServers(filteredServers, currentPage);
         }
         dragSrcIndex = null;
@@ -481,14 +489,10 @@ document.addEventListener("DOMContentLoaded", function () {
       compactMode = !compactMode;
       localStorage.setItem("compactMode", compactMode);
       renderServers(filteredServers, currentPage);
-      toggleCompact.innerHTML = compactMode
-        ? '<i class="fas fa-th-list"></i>'
-        : '<i class="fas fa-th-large"></i>';
+      toggleCompact.innerHTML = compactMode ? '<i class="fas fa-th-list"></i>' : '<i class="fas fa-th-large"></i>';
     });
     // Inicializar icono
-    toggleCompact.innerHTML = compactMode
-      ? '<i class="fas fa-th-list"></i>'
-      : '<i class="fas fa-th-large"></i>';
+    toggleCompact.innerHTML = compactMode ? '<i class="fas fa-th-list"></i>' : '<i class="fas fa-th-large"></i>';
   }
 
   // Filtros avanzados
@@ -524,8 +528,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (themeSwitch) themeSwitch.checked = savedTheme === "dark";
 
     // Cargar idioma guardado o preferencia del navegador
-    const savedLanguage =
-      localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
+    const savedLanguage = localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
     currentLanguage = savedLanguage;
 
     // Activar pestaña de idioma correspondiente

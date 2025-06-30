@@ -7,16 +7,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- SEO Básico -->
-  <meta name="description"
-    content="Nebura Live Status: Dashboard de monitoreo en tiempo real del sistema, API, base de datos y servicios de la plataforma Nebura.">
-  <meta name="keywords"
-    content="Nebura, dashboard, status, monitoreo, API, sistema, base de datos, tiempo real, devops, server, health, discord">
+  <meta name="description" content="Nebura Live Status: Dashboard de monitoreo en tiempo real del sistema, API, base de datos y servicios de la plataforma Nebura.">
+  <meta name="keywords" content="Nebura, dashboard, status, monitoreo, API, sistema, base de datos, tiempo real, devops, server, health, discord">
   <meta name="author" content="Nebura">
 
   <!-- Open Graph para compartir en redes sociales -->
   <meta property="og:title" content="Nebura Live Status">
-  <meta property="og:description"
-    content="Monitorea el estado de Nebura en tiempo real: CPU, memoria, red, API, base de datos y más.">
+  <meta property="og:description" content="Monitorea el estado de Nebura en tiempo real: CPU, memoria, red, API, base de datos y más.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://host.hiroshi-dev.me/dashboard/status">
 
@@ -28,47 +25,39 @@
   <!-- ...existing code... -->
   <title><%- title %></title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
   <!-- Particles.js para fondo anime/hacker -->
   <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.1.0/tsparticles.bundle.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
   <link rel="shortcut icon" href="/images/logo.png" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=Press+Start+2P&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/status.css">
 </head>
 
 <body class="d-flex flex-column h-100">
   <div id="particles-bg"></div>
 
-  <img src="https://i.pinimg.com/736x/71/e3/ea/71e3ea330566746b24ce0909ab2fa6e2.jpg" class="character-img floating"
-    style="width: 200px; top: 10%; left: 5%; transform: rotate(-10deg);">
-  <img src="https://i.pinimg.com/736x/55/7a/32/557a3225643b6113f05dd8fe24c64a12.jpg" class="character-img floating"
-    style="width: 180px; bottom: 10%; right: 5%; transform: rotate(10deg); animation-delay: 0.5s;">
+  <img src="https://i.pinimg.com/736x/71/e3/ea/71e3ea330566746b24ce0909ab2fa6e2.jpg" class="character-img floating" style="width: 200px; top: 10%; left: 5%; transform: rotate(-10deg);">
+  <img src="https://i.pinimg.com/736x/55/7a/32/557a3225643b6113f05dd8fe24c64a12.jpg" class="character-img floating" style="width: 180px; bottom: 10%; right: 5%; transform: rotate(10deg); animation-delay: 0.5s;">
 
   <div class="header-controls">
     <button id="theme-toggle" class="control-btn" title="Toggle Theme">
       <i class="mdi mdi-brightness-4"></i>
     </button>
     <div class="dropdown lang-selector">
-      <button class="control-btn dropdown-toggle" type="button" id="lang-menu" data-bs-toggle="dropdown"
-        aria-expanded="false">
+      <button class="control-btn dropdown-toggle" type="button" id="lang-menu" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="mdi mdi-web"></i>
       </button>
       <ul class="dropdown-menu" aria-labelledby="lang-menu">
-        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')"><img src="https://flagcdn.com/w20/gb.png"
-              class="flag-icon me-2"> EN</a></li>
-        <li><a class="dropdown-item" href="#" onclick="switchLanguage('es')"><img src="https://flagcdn.com/w20/es.png"
-              class="flag-icon me-2"> ES</a></li>
+        <li><a class="dropdown-item" href="#" onclick="switchLanguage('en')"><img src="https://flagcdn.com/w20/gb.png" class="flag-icon me-2"> EN</a></li>
+        <li><a class="dropdown-item" href="#" onclick="switchLanguage('es')"><img src="https://flagcdn.com/w20/es.png" class="flag-icon me-2"> ES</a></li>
       </ul>
     </div>
   </div>
 
   <div class="container my-4">
-    <div id="offline-alert" class="alert alert-warning text-center d-none" role="alert"
-      style="position:fixed;top:0;left:0;width:100%;z-index:9999;">
+    <div id="offline-alert" class="alert alert-warning text-center d-none" role="alert" style="position:fixed;top:0;left:0;width:100%;z-index:9999;">
       <i class="mdi mdi-wifi-off me-2" aria-hidden="true"></i>
       <span data-lang-key="offline_alert">You are offline or the API is unreachable.</span>
     </div>
@@ -175,8 +164,7 @@
                   <i class="mdi mdi-api me-3" style="color: var(--accent-color);"></i>
                   <span data-lang-key="card_api_title">API STATUS</span>
                 </h3>
-                <span class="status-badge <%= status.status === 'Operational' ? 'bg-success' : 'bg-danger' %>"
-                  data-lang-key-conditional='{"key": "<%= status.status %>", "values": {"Operational": "status_operational", "Critical": "status_critical"}}'>
+                <span class="status-badge <%= status.status === 'Operational' ? 'bg-success' : 'bg-danger' %>" data-lang-key-conditional='{"key": "<%= status.status %>", "values": {"Operational": "status_operational", "Critical": "status_critical"}}'>
                   <%= status.status %>
                 </span>
               </div>
@@ -203,8 +191,7 @@
                   <i class="mdi mdi-database me-3" style="color: var(--accent-color);"></i>
                   <span data-lang-key="card_db_title">DATABASE STATUS</span>
                 </h3>
-                <span class="status-badge <%= status.database.status === 'healthy' ? 'bg-success' : 'bg-danger' %>"
-                  data-lang-key-conditional='{"key": "<%= status.database.status %>", "values": {"healthy": "status_healthy", "critical": "status_critical"}}'>
+                <span class="status-badge <%= status.database.status === 'healthy' ? 'bg-success' : 'bg-danger' %>" data-lang-key-conditional='{"key": "<%= status.database.status %>", "values": {"healthy": "status_healthy", "critical": "status_critical"}}'>
                   <%= status.database.status==='healthy' ? 'Healthy' : 'Critical' %>
                 </span>
               </div>
@@ -217,8 +204,7 @@
                   <div>• <span data-lang-key="db_mem_usage">Memory usage</span>: <span class="text-success">
                       <%= (status.system.memoryUsage.heapUsed / 1024 / 1024).toFixed(2) %>MB
                     </span></div>
-                  <div>• <span data-lang-key="db_connections">Connections</span>: <span class="text-warning"><span
-                        data-lang-key="active">12 active</span></span></div>
+                  <div>• <span data-lang-key="db_connections">Connections</span>: <span class="text-warning"><span data-lang-key="active">12 active</span></span></div>
                 </div>
               </div>
             </div>
@@ -241,21 +227,14 @@
       </section>
 
       <section class="mb-5">
-        <div class="anime-card p-5 text-center"
-          style="background: linear-gradient(135deg, var(--secondary-color), var(--dark-bg));">
-          <h3 class="mb-4" style="color: var(--accent-color); text-shadow: 2px 2px 0 var(--primary-color);"
-            data-lang-key="community_title">JOIN OUR COMMUNITY!</h3>
+        <div class="anime-card p-5 text-center" style="background: linear-gradient(135deg, var(--secondary-color), var(--dark-bg));">
+          <h3 class="mb-4" style="color: var(--accent-color); text-shadow: 2px 2px 0 var(--primary-color);" data-lang-key="community_title">JOIN OUR COMMUNITY!</h3>
           <p class="lead mb-4" data-lang-key="community_desc">Connect with other developers and get the latest updates
           </p>
           <div class="d-flex justify-content-center flex-wrap gap-3">
-            <a href="https://help.hiroshi-dev.me/" class="btn anime-btn anime-btn-primary"><i
-                class="mdi mdi-book-open me-2"></i>DOCS</a>
-            <a href="https://discord.gg/p6gZfY4jWm" class="btn"
-              style="background-color: #5865F2; border-color: #5865F2; color: white;"><i
-                class="mdi mdi-discord me-2"></i>DISCORD</a>
-            <a href="https://github.com/Hiroshi025" class="btn"
-              style="background-color: #333; border-color: #333; color: white;"><i
-                class="mdi mdi-github me-2"></i>GITHUB</a>
+            <a href="https://help.hiroshi-dev.me/" class="btn anime-btn anime-btn-primary"><i class="mdi mdi-book-open me-2"></i>DOCS</a>
+            <a href="https://discord.gg/p6gZfY4jWm" class="btn" style="background-color: #5865F2; border-color: #5865F2; color: white;"><i class="mdi mdi-discord me-2"></i>DISCORD</a>
+            <a href="https://github.com/Hiroshi025" class="btn" style="background-color: #333; border-color: #333; color: white;"><i class="mdi mdi-github me-2"></i>GITHUB</a>
           </div>
         </div>
       </section>
@@ -263,8 +242,7 @@
     </main>
   </div>
 
-  <footer class="mt-auto py-4 text-center"
-    style="background-color: rgba(0,0,0,0.3); border-top: 1px solid var(--primary-color);">
+  <footer class="mt-auto py-4 text-center" style="background-color: rgba(0,0,0,0.3); border-top: 1px solid var(--primary-color);">
     <div class="container">
       <p class="m-0" data-lang-key="footer_copy">© 2025 Nebura Project. All systems operational.</p>
     </div>
@@ -272,7 +250,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const CHART_COLORS = {
         primary: 'rgba(255, 110, 199, 0.8)',
         primaryLight: 'rgba(255, 110, 199, 0.5)',
@@ -414,11 +392,11 @@
         if (metricsHistory.length === 0) return;
         const csvRows = [
           'timestamp,cpuUser,cpuSystem,ramUsed,ramTotal',
-          ...metricsHistory.map(row =>
-            [row.timestamp, row.cpuUser, row.cpuSystem, row.ramUsed, row.ramTotal].join(',')
-          )
+          ...metricsHistory.map(row => [row.timestamp, row.cpuUser, row.cpuSystem, row.ramUsed, row.ramTotal].join(','))
         ];
-        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+        const blob = new Blob([csvRows.join('\n')], {
+          type: 'text/csv'
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -436,23 +414,23 @@
         const data = {
           labels,
           datasets: [{
-            label: 'User',
-            data: userData,
-            borderColor: CHART_COLORS.primary,
-            backgroundColor: CHART_COLORS.primaryLight,
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0
-          },
-          {
-            label: 'System',
-            data: sysData,
-            borderColor: CHART_COLORS.accent,
-            backgroundColor: CHART_COLORS.accentLight,
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0
-          }
+              label: 'User',
+              data: userData,
+              borderColor: CHART_COLORS.primary,
+              backgroundColor: CHART_COLORS.primaryLight,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0
+            },
+            {
+              label: 'System',
+              data: sysData,
+              borderColor: CHART_COLORS.accent,
+              backgroundColor: CHART_COLORS.accentLight,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0
+            }
           ]
         };
         if (!cpuHistoryChart) {
@@ -463,7 +441,9 @@
               responsive: true,
               maintainAspectRatio: false,
               plugins: {
-                legend: { display: true },
+                legend: {
+                  display: true
+                },
                 tooltip: {
                   enabled: true,
                   backgroundColor: 'rgba(26,26,46,0.95)',
@@ -473,7 +453,7 @@
                   borderWidth: 2,
                   padding: 12,
                   callbacks: {
-                    label: function (context) {
+                    label: function(context) {
                       // Personaliza el texto del tooltip
                       if (context.dataset.label) {
                         return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
@@ -484,8 +464,23 @@
                 }
               },
               scales: {
-                x: { type: 'time', time: { unit: 'minute' }, grid: { color: CHART_COLORS.grid } },
-                y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text } }
+                x: {
+                  type: 'time',
+                  time: {
+                    unit: 'minute'
+                  },
+                  grid: {
+                    color: CHART_COLORS.grid
+                  }
+                },
+                y: {
+                  grid: {
+                    color: CHART_COLORS.grid
+                  },
+                  ticks: {
+                    color: CHART_COLORS.text
+                  }
+                }
               }
             }
           });
@@ -502,23 +497,23 @@
         const data = {
           labels,
           datasets: [{
-            label: 'Heap Used (MB)',
-            data: used,
-            borderColor: CHART_COLORS.secondary,
-            backgroundColor: CHART_COLORS.secondaryLight,
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0
-          },
-          {
-            label: 'Heap Total (MB)',
-            data: total,
-            borderColor: CHART_COLORS.accent,
-            backgroundColor: CHART_COLORS.accentLight,
-            fill: false,
-            tension: 0.3,
-            pointRadius: 0
-          }
+              label: 'Heap Used (MB)',
+              data: used,
+              borderColor: CHART_COLORS.secondary,
+              backgroundColor: CHART_COLORS.secondaryLight,
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0
+            },
+            {
+              label: 'Heap Total (MB)',
+              data: total,
+              borderColor: CHART_COLORS.accent,
+              backgroundColor: CHART_COLORS.accentLight,
+              fill: false,
+              tension: 0.3,
+              pointRadius: 0
+            }
           ]
         };
         if (!memoryHistoryChart) {
@@ -529,7 +524,9 @@
               responsive: true,
               maintainAspectRatio: false,
               plugins: {
-                legend: { display: true },
+                legend: {
+                  display: true
+                },
                 tooltip: {
                   enabled: true,
                   backgroundColor: 'rgba(26,26,46,0.95)',
@@ -539,7 +536,7 @@
                   borderWidth: 2,
                   padding: 12,
                   callbacks: {
-                    label: function (context) {
+                    label: function(context) {
                       // Personaliza el texto del tooltip
                       if (context.dataset.label) {
                         return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
@@ -550,8 +547,24 @@
                 }
               },
               scales: {
-                x: { type: 'time', time: { unit: 'minute' }, grid: { color: CHART_COLORS.grid } },
-                y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text, callback: v => v + ' MB' } }
+                x: {
+                  type: 'time',
+                  time: {
+                    unit: 'minute'
+                  },
+                  grid: {
+                    color: CHART_COLORS.grid
+                  }
+                },
+                y: {
+                  grid: {
+                    color: CHART_COLORS.grid
+                  },
+                  ticks: {
+                    color: CHART_COLORS.text,
+                    callback: v => v + ' MB'
+                  }
+                }
               }
             }
           });
@@ -561,7 +574,10 @@
         }
       }
 
-      function updateCpuCharts({ cpuUsage, systemLoad }) {
+      function updateCpuCharts({
+        cpuUsage,
+        systemLoad
+      }) {
         // CPU Usage (User vs System)
         const cpuUsageData = {
           labels: ['User', 'System'],
@@ -581,7 +597,9 @@
               responsive: true,
               maintainAspectRatio: false,
               plugins: {
-                legend: { display: true },
+                legend: {
+                  display: true
+                },
                 tooltip: {
                   enabled: true,
                   backgroundColor: 'rgba(26,26,46,0.95)',
@@ -591,7 +609,7 @@
                   borderWidth: 2,
                   padding: 12,
                   callbacks: {
-                    label: function (context) {
+                    label: function(context) {
                       // Personaliza el texto del tooltip
                       if (context.dataset.label) {
                         return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
@@ -628,7 +646,9 @@
               maintainAspectRatio: false,
               indexAxis: 'y',
               plugins: {
-                legend: { display: false },
+                legend: {
+                  display: false
+                },
                 tooltip: {
                   enabled: true,
                   backgroundColor: 'rgba(26,26,46,0.95)',
@@ -638,7 +658,7 @@
                   borderWidth: 2,
                   padding: 12,
                   callbacks: {
-                    label: function (context) {
+                    label: function(context) {
                       // Personaliza el texto del tooltip
                       if (context.dataset.label) {
                         return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
@@ -656,7 +676,11 @@
         }
       }
 
-      function updateMemoryCharts({ freeMemory, totalMemory, memoryUsage }) {
+      function updateMemoryCharts({
+        freeMemory,
+        totalMemory,
+        memoryUsage
+      }) {
         // System Memory
         const usedMemory = totalMemory - freeMemory;
         const systemMemoryData = {
@@ -678,7 +702,9 @@
               maintainAspectRatio: false,
               cutout: '60%',
               plugins: {
-                legend: { display: true },
+                legend: {
+                  display: true
+                },
                 tooltip: {
                   enabled: true,
                   backgroundColor: 'rgba(26,26,46,0.95)',
@@ -688,7 +714,7 @@
                   borderWidth: 2,
                   padding: 12,
                   callbacks: {
-                    label: function (context) {
+                    label: function(context) {
                       // Personaliza el texto del tooltip
                       if (context.dataset.label) {
                         return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
@@ -726,7 +752,9 @@
               maintainAspectRatio: false,
               cutout: '60%',
               plugins: {
-                legend: { display: true },
+                legend: {
+                  display: true
+                },
                 tooltip: {
                   enabled: true,
                   backgroundColor: 'rgba(26,26,46,0.95)',
@@ -736,7 +764,7 @@
                   borderWidth: 2,
                   padding: 12,
                   callbacks: {
-                    label: function (context) {
+                    label: function(context) {
                       // Personaliza el texto del tooltip
                       if (context.dataset.label) {
                         return `${context.dataset.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
@@ -758,8 +786,7 @@
       function initNetworkChart() {
         const networkData = {
           labels: [],
-          datasets: [
-            {
+          datasets: [{
               label: 'Received',
               data: [],
               borderColor: CHART_COLORS.primary,
@@ -786,8 +813,27 @@
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              x: { type: 'time', time: { unit: 'second' }, grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text } },
-              y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text, callback: (value) => `${value} KB/s` } }
+              x: {
+                type: 'time',
+                time: {
+                  unit: 'second'
+                },
+                grid: {
+                  color: CHART_COLORS.grid
+                },
+                ticks: {
+                  color: CHART_COLORS.text
+                }
+              },
+              y: {
+                grid: {
+                  color: CHART_COLORS.grid
+                },
+                ticks: {
+                  color: CHART_COLORS.text,
+                  callback: (value) => `${value} KB/s`
+                }
+              }
             }
           }
         };
@@ -839,7 +885,7 @@
     });
   </script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
       // --- NEW: THEME SWITCHER LOGIC ---
       const themeToggle = document.getElementById('theme-toggle');
@@ -1056,11 +1102,93 @@
         }
       });
 
+      // --- MULTILANGUAGE: ACTUALIZAR AL CAMBIAR IDIOMA ---
+      function updateLangOnChange() {
+        const lang = localStorage.getItem('language') || 'en';
+        const langPack = translations[lang] || translations['en'];
+        // Actualiza todos los textos con data-lang-key
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+          const key = el.getAttribute('data-lang-key');
+          if (langPack[key]) el.innerText = langPack[key];
+        });
+        // Actualiza condicionales
+        document.querySelectorAll('[data-lang-key-conditional]').forEach(el => {
+          const config = JSON.parse(el.getAttribute('data-lang-key-conditional').replace(/&quot;/g, '"'));
+          if (config.values[config.key] && langPack[config.values[config.key]]) {
+            el.innerText = langPack[config.values[config.key]];
+          }
+        });
+        // Placeholders
+        document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+          const key = el.getAttribute('data-lang-placeholder');
+          if (langPack[key]) el.placeholder = langPack[key];
+        });
+        // Titles
+        document.querySelectorAll('[data-lang-title]').forEach(el => {
+          const key = el.getAttribute('data-lang-title');
+          if (langPack[key]) el.title = langPack[key];
+        });
+        // Botón CSV
+        const csvBtn = document.getElementById('export-csv');
+        if (csvBtn && langPack.export_csv) {
+          csvBtn.querySelector('span').innerText = langPack.export_csv;
+        }
+        // Offline alert
+        const offlineAlert = document.getElementById('offline-alert');
+        if (offlineAlert && langPack.offline_alert) {
+          offlineAlert.querySelector('span[data-lang-key="offline_alert"]').innerText = langPack.offline_alert;
+        }
+        // Discord status badge y contenido
+        fetch('https://discordstatus.com/api/v2/status.json')
+          .then(response => response.json())
+          .then(data => {
+            const badge = document.getElementById('discord-status-badge');
+            const content = document.getElementById('discord-status-content');
+            badge.className = `status-badge ${data.status.indicator === 'none' ? 'bg-success' : 'bg-warning'}`;
+            badge.textContent = data.status.description.toUpperCase();
+            content.innerHTML = `
+              <div class="terminal">
+                <div class="terminal-command">> discord-api --status</div>
+                <div class="terminal-response">
+                  <div>• <span data-lang-key="discord_status">${langPack.discord_status}</span>: <span class="${data.status.indicator === 'none' ? 'text-success' : 'text-warning'}">${data.status.description}</span></div>
+                  <div>• <span data-lang-key="discord_last_update">${langPack.discord_last_update}</span>: <span>${new Date(data.page.updated_at).toLocaleString()}</span></div>
+                  <div>• <span data-lang-key="discord_timezone">${langPack.discord_timezone}</span>: <span>${data.page.time_zone}</span></div>
+                </div>
+              </div>
+              <div class="text-center mt-3">
+                <a href="${data.page.url}" target="_blank" class="btn" style="background-color: #5865F2; border-color: #5865F2; color: white;">
+                  <i class="mdi mdi-open-in-new me-2"></i> <span data-lang-key="discord_official_page">${langPack.discord_official_page}</span>
+                </a>
+              </div>
+            `;
+          });
+      }
+
+      // Añadir listeners a los botones de idioma
+      document.querySelectorAll('.lang-selector .dropdown-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const lang = this.textContent.trim().toLowerCase().includes('es') ? 'es' :
+            this.textContent.trim().toLowerCase().includes('ja') ? 'ja' :
+            'en';
+          localStorage.setItem('language', lang);
+          updateLangOnChange();
+        });
+      });
+
+      // Inicializar idioma al cargar
+      updateLangOnChange();
+
+      // Si el idioma cambia en otra pestaña, actualizar aquí también
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'language') updateLangOnChange();
+      });
+
     });
   </script>
   <script>
     // --- TEMA OSCURO/CLARO MEJORADO ---
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const themeToggle = document.getElementById('theme-toggle');
       const htmlEl = document.documentElement;
 

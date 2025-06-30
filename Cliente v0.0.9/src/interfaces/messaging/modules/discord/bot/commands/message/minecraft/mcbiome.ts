@@ -13,6 +13,7 @@ const mcbiomeCommand: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 5,
+  category: "Minecraft",
   aliases: ["minecraftbiome"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],

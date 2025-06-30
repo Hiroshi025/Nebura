@@ -18,6 +18,7 @@ const nsfwCommands: Precommand = {
     "nsfw school",
     "nsfw succubus",
   ],
+  category: "Entertainment",
   nsfw: true,
   owner: false,
   cooldown: 5,

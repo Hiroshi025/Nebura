@@ -9,27 +9,24 @@ const commandPrefix: Precommand = {
   description: "Shows the current prefix configured for this server",
   examples: ["prefix", "/prefix"],
   nsfw: false,
+  category: "Information",
   owner: false,
   aliases: ["getprefix", "currentprefix"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
-  async execute(_client, message, _args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+  async execute(client, message, _args, prefix) {
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+
+    const t = client.translations.getFixedT(message.guild.preferredLocale || "es-ES", "discord");
 
     const embed = new EmbedBuilder()
-      .setTitle("Server Prefix")
+      .setTitle(t("prefix.title"))
       .setColor(0x5865f2)
       .setDescription(
-        [
-          `The current prefix for this server is: **\`${prefix}\`**`,
-          "",
-          `Use \`${prefix}help\` to see all available commands.`,
-          `You can mention the bot as a prefix as well.`,
-        ].join("\n"),
+        [t("prefix.current", { prefix }), "", t("prefix.help", { prefix }), t("prefix.mention")].join("\n"),
       )
       .setFooter({
-        text: `Requested by ${message.author.tag}`,
+        text: t("prefix.requestedBy", { user: message.author.tag }),
         iconURL: message.author.displayAvatarURL(),
       })
       .setTimestamp();
@@ -37,7 +34,7 @@ const commandPrefix: Precommand = {
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("copy_prefix")
-        .setLabel("Copy Prefix")
+        .setLabel(t("prefix.copyButton"))
         .setStyle(ButtonStyle.Primary)
         .setEmoji("📋"),
     );
@@ -52,8 +49,8 @@ const commandPrefix: Precommand = {
 
     collector.on("collect", async (interaction) => {
       await interaction.reply({
-        content: `Prefix: \`${prefix}\``,
-        flags: "Ephemeral"
+        content: t("prefix.copied", { prefix }),
+        flags: "Ephemeral",
       });
     });
 

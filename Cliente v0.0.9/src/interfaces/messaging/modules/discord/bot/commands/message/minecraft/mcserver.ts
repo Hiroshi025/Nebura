@@ -11,6 +11,7 @@ const commandMinecraft: Precommand = {
   description: "Check the status of a Minecraft server using API v3",
   examples: ["mcserver <ip>", "mcserver play.example.com", "mcserver 123.45.67.89:25565"],
   nsfw: false,
+  category: "Minecraft",
   owner: false,
   aliases: ["minecraft", "mcstatus", "mccheck"],
   botpermissions: ["SendMessages", "EmbedLinks"],

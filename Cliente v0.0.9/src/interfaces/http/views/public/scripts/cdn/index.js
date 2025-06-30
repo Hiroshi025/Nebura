@@ -217,8 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
       mimeType.includes("text")
     )
       return "document";
-    if (mimeType.includes("zip") || mimeType.includes("compressed") || mimeType.includes("archive"))
-      return "archive";
+    if (mimeType.includes("zip") || mimeType.includes("compressed") || mimeType.includes("archive")) return "archive";
     return "other";
   };
 
@@ -275,8 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     // Traducir modal de compartir
     if (document.getElementById("shareFileModalLabel"))
-      document.getElementById("shareFileModalLabel").textContent =
-        translations[currentLanguage].shareModalTitle;
+      document.getElementById("shareFileModalLabel").textContent = translations[currentLanguage].shareModalTitle;
     if (document.querySelector('[data-key="shareFileNameLabel"]'))
       document.querySelector('[data-key="shareFileNameLabel"]').textContent =
         translations[currentLanguage].shareFileNameLabel;
@@ -284,8 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelector('[data-key="shareFileDescLabel"]').textContent =
         translations[currentLanguage].shareFileDescLabel;
     if (document.querySelector('[data-key="shareLinkLabel"]'))
-      document.querySelector('[data-key="shareLinkLabel"]').textContent =
-        translations[currentLanguage].shareLinkLabel;
+      document.querySelector('[data-key="shareLinkLabel"]').textContent = translations[currentLanguage].shareLinkLabel;
     if (copyShareLinkBtn) copyShareLinkBtn.textContent = translations[currentLanguage].copyLinkBtn;
     if (shareLinkCopied) shareLinkCopied.textContent = translations[currentLanguage].copiedSuccess;
 
@@ -296,6 +293,54 @@ document.addEventListener("DOMContentLoaded", function () {
     const batchDownloadBtn = document.getElementById("batch-download-btn");
     if (batchDownloadBtn)
       batchDownloadBtn.innerHTML = `<i class="fas fa-download"></i> ${translations[currentLanguage].batchDownloadBtn}`;
+
+    // Traducir vista de archivo compartido si está activa
+    if (window.location.pathname.includes("/cdn/share") || window.location.search.includes("share?title=")) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("title") && params.has("url")) {
+        renderSharedFileView(params);
+        document.title = translations[currentLanguage].fileSharedTitle;
+      }
+    }
+  }
+
+  // --- VISTA DE ARCHIVO COMPARTIDO MULTILENGUAJE ---
+  function renderSharedFileView(params) {
+    const sharedFileContent = document.getElementById("shared-file-content");
+    if (!sharedFileContent) return;
+    const title = decodeURIComponent(params.get("title") || "");
+    const url = decodeURIComponent(params.get("url") || "");
+    const mime = decodeURIComponent(params.get("mime") || "");
+    const size = params.get("size") ? Number(params.get("size")) : 0;
+    const date = params.get("date") ? decodeURIComponent(params.get("date")) : "";
+
+    let previewHtml = "";
+    if (mime.startsWith("image/")) {
+      previewHtml = `<img src="${url}" alt="${title}" class="img-fluid mb-3" style="max-height: 60vh; object-fit: contain;">`;
+    } else if (mime.startsWith("video/")) {
+      previewHtml = `<video controls style="max-width:100%;max-height:60vh;"><source src="${url}" type="${mime}"></video>`;
+    } else if (mime.startsWith("audio/")) {
+      previewHtml = `<audio controls style="width:100%;"><source src="${url}" type="${mime}"></audio>`;
+    } else if (mime === "application/pdf") {
+      previewHtml = `<iframe src="${url}" style="width:100%;height:60vh;" frameborder="0"></iframe>`;
+    } else if (mime.startsWith("text/")) {
+      previewHtml = `<iframe src="${url}" style="width:100%;height:60vh;" frameborder="0"></iframe>`;
+    } else {
+      previewHtml = `<i class="${getFileIcon(mime)} fa-5x mb-3"></i>`;
+    }
+
+    sharedFileContent.innerHTML = `
+      <div class="card-body text-center">
+        ${previewHtml}
+        <h3 class="card-title mb-2">${title}</h3>
+        <p class="card-text text-muted mb-2">${translations[currentLanguage].fileType}: ${getFileTypeName(mime)}</p>
+        <p class="card-text mb-2">${translations[currentLanguage].fileSize}: ${formatSize(size)}</p>
+        <p class="card-text mb-2">${translations[currentLanguage].uploadDate}: ${date ? formatDate(date) : "-"}</p>
+        <a href="${url}" class="btn btn-primary" download>
+          <i class="fas fa-download me-2"></i> ${translations[currentLanguage].downloadBtn}
+        </a>
+      </div>
+    `;
   }
 
   // --- ELIMINAR ARCHIVO INDIVIDUAL ---
@@ -305,11 +350,7 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       const result = await api.deleteFile(USER_ID, fileName);
       if (result.success) {
-        showToast(
-          translations[currentLanguage].deleteSuccess,
-          translations[currentLanguage].deleteSuccess,
-          "success",
-        );
+        showToast(translations[currentLanguage].deleteSuccess, translations[currentLanguage].deleteSuccess, "success");
         if (cardElement && cardElement.parentElement) {
           cardElement.parentElement.remove();
         }
@@ -471,12 +512,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       card.querySelector(".preview-btn").addEventListener("click", () => handlePreview(file));
       card.querySelector(".share-btn").addEventListener("click", () => handleShare(file));
-      card
-        .querySelector(".delete-btn")
-        .addEventListener("click", () => handleDelete(file.fileName, card));
-      card
-        .querySelector(".file-checkbox")
-        .addEventListener("change", (e) => handleSelectFile(e, file.fileName));
+      card.querySelector(".delete-btn").addEventListener("click", () => handleDelete(file.fileName, card));
+      card.querySelector(".file-checkbox").addEventListener("change", (e) => handleSelectFile(e, file.fileName));
       fileGrid.appendChild(card);
     });
 
@@ -545,12 +582,8 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
       tr.querySelector(".preview-btn").addEventListener("click", () => handlePreview(file));
       tr.querySelector(".share-btn").addEventListener("click", () => handleShare(file));
-      tr.querySelector(".delete-btn").addEventListener("click", () =>
-        handleDelete(file.fileName, tr),
-      );
-      tr.querySelector(".file-checkbox").addEventListener("change", (e) =>
-        handleSelectFile(e, file.fileName),
-      );
+      tr.querySelector(".delete-btn").addEventListener("click", () => handleDelete(file.fileName, tr));
+      tr.querySelector(".file-checkbox").addEventListener("change", (e) => handleSelectFile(e, file.fileName));
       fileListBody.appendChild(tr);
     });
 
@@ -599,8 +632,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Alternar vista grid/lista
   toggleViewBtn.addEventListener("click", () => {
     currentView = currentView === "grid" ? "list" : "grid";
-    toggleViewBtn.querySelector("i").className =
-      currentView === "grid" ? "fas fa-th" : "fas fa-list";
+    toggleViewBtn.querySelector("i").className = currentView === "grid" ? "fas fa-th" : "fas fa-list";
     renderCurrentView();
   });
 
@@ -629,8 +661,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Actualizar select-all
     if (selectAllFiles) {
       const visibleCheckboxes = Array.from(document.querySelectorAll("#file-list .file-checkbox"));
-      selectAllFiles.checked =
-        visibleCheckboxes.length > 0 && visibleCheckboxes.every((cb) => cb.checked);
+      selectAllFiles.checked = visibleCheckboxes.length > 0 && visibleCheckboxes.every((cb) => cb.checked);
     }
   }
 
@@ -814,11 +845,7 @@ document.addEventListener("DOMContentLoaded", function () {
           void userAvatar.offsetWidth; // trigger reflow
           userAvatar.classList.add("pulse");
         }
-        showToast(
-          translations[currentLanguage].uploadSuccess,
-          translations[currentLanguage].uploadSuccess,
-          "success",
-        );
+        showToast(translations[currentLanguage].uploadSuccess, translations[currentLanguage].uploadSuccess, "success");
         uploadModal.hide();
         sessionStorage.removeItem(`files-${USER_ID}`);
         await fetchAndRenderFiles();
@@ -855,11 +882,7 @@ document.addEventListener("DOMContentLoaded", function () {
     navigator.clipboard
       .writeText(shareUrl)
       .then(() => {
-        showToast(
-          translations[currentLanguage].copiedSuccess,
-          translations[currentLanguage].copiedSuccess,
-          "success",
-        );
+        showToast(translations[currentLanguage].copiedSuccess, translations[currentLanguage].copiedSuccess, "success");
       })
       .catch((err) => {
         console.error("Could not copy text: ", err);
@@ -989,8 +1012,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- INICIALIZACIÓN ---
   const init = () => {
     const isSharedView =
-      window.location.pathname.includes("/cdn/share") ||
-      window.location.search.includes("share?title=");
+      window.location.pathname.includes("/cdn/share") || window.location.search.includes("share?title=");
 
     if (isSharedView) {
       if (mainView) mainView.style.display = "none";
@@ -1017,8 +1039,7 @@ document.addEventListener("DOMContentLoaded", function () {
     themeSwitch.checked = savedTheme === "dark";
     themeIcon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
     // Set language from localStorage or browser
-    const savedLanguage =
-      localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
+    const savedLanguage = localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
     currentLanguage = savedLanguage;
     document.querySelector(`.lang-link[data-lang="${savedLanguage}"]`).classList.add("active");
     updateTranslations();

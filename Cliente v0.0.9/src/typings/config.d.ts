@@ -67,6 +67,7 @@ export interface ProyectConfig {
   modules: {
     discord: {
       id: string;
+      token: string;
       callback: string;
       secret: string;
       channel: string;
@@ -80,8 +81,8 @@ export interface ProyectConfig {
           commands: string;
           components: string;
           addons: string;
-          precommands: string
-        }
+          precommands: string;
+        };
         "bot-extensions": string[];
       };
     };
@@ -111,6 +112,6 @@ export interface ProyectConfig {
       enabled: boolean;
       path: string;
       cron: string;
-    }
+    };
   };
 }

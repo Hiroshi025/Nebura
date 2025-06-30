@@ -1,13 +1,6 @@
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  EmbedBuilder,
-  Message,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, Message, ModalBuilder,
+	TextInputBuilder, TextInputStyle
 } from "discord.js";
 
 import { main } from "@/main";
@@ -23,6 +16,7 @@ const suggestCommand: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 30,
+  category: "Utilities",
   maintenance: true,
   aliases: ["suggestion", "proposal"],
   botpermissions: ["SendMessages", "EmbedLinks"],

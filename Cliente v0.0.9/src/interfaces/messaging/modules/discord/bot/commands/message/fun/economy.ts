@@ -12,6 +12,7 @@ const economyCommand: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 30,
+  category: "Entertainment",
   aliases: ["eco"],
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],

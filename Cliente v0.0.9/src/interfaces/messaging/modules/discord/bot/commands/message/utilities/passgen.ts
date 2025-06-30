@@ -13,6 +13,7 @@ const passwordCommand: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 20,
+  category: "Utilities",
   aliases: ["genpass", "generatepassword", "securepass"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],

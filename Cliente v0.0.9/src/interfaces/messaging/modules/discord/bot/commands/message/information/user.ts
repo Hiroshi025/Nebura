@@ -15,6 +15,7 @@ const commandUserInfo: Precommand = {
   description: "The command to get information about a user.",
   examples: ["userinfo @usuario", "userinfo 123456789012345678"],
   nsfw: false,
+  category: "Information",
   owner: false,
   aliases: ["user", "usuario", "uinfo"],
   botpermissions: ["SendMessages", "EmbedLinks"],

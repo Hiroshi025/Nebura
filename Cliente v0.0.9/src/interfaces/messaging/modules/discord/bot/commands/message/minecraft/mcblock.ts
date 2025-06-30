@@ -14,6 +14,7 @@ const mcblockCommand: Precommand = {
   description: "Get details about Minecraft blocks and items",
   examples: ["mcblock [name]", "mcblock list"],
   nsfw: false,
+  category: "Minecraft",
   owner: false,
   cooldown: 5,
   aliases: ["minecraftblock", "mcitem"],

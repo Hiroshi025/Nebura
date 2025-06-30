@@ -49,12 +49,12 @@ export class DBPrisma {
     const discord = await main.prisma.discord.upsert({
       where: { clientId: discordClient.user?.id as string },
       update: {
-        token: TOKEN_DISCORD as string,
+        token: TOKEN_DISCORD ? TOKEN_DISCORD : "",
         clientId: data.id,
         clientSecret: data.secret,
       },
       create: {
-        token: TOKEN_DISCORD as string,
+        token: TOKEN_DISCORD ? TOKEN_DISCORD : "",
         clientId: data.id,
         clientSecret: data.secret,
         owners: data.owners,

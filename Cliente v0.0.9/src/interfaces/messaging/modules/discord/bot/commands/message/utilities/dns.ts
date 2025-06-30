@@ -21,6 +21,7 @@ const dnsCommand: Precommand = {
   examples: ["dns [website]", "dns lookup google.com"],
   nsfw: false,
   owner: false,
+  category: "Utilities",
   cooldown: 10,
   aliases: ["dnslookup", "websiteinfo", "checkwebsite"],
   botpermissions: ["SendMessages", "EmbedLinks"],

@@ -17,6 +17,8 @@ const adminBanCommand: Precommand = {
   examples: ["ban member @user reason", "ban setup #channel", "ban list"],
   nsfw: false,
   owner: false,
+  category: "Admin",
+  cooldown: 5,
   aliases: ["adminban"],
   botpermissions: ["BanMembers"],
   permissions: ["BanMembers"],

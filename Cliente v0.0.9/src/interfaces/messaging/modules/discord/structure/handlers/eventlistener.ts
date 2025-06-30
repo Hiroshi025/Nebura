@@ -72,19 +72,23 @@ export class LogClass {
       const data = await main.prisma.myGuild.findUnique({ where: { guildId: guild.id } });
       if (!data) continue;
 
+      // Determinar el idioma del servidor, por defecto 'es-ES'
+      const lang = data.lenguage || "es-ES";
+      const t = (key: string, options?: any) => this.client.translations.t(key, { lng: lang, ...options });
+
       const events = data.eventlogs?.events;
       if (!events) {
-        console.log(`[DEBUG] No hay eventos configurados para el servidor: ${guild.id}`); // Log de depuración
+        console.log(`[DEBUG] No events configured for server: ${guild.id}`); // Debug log
         continue;
       }
 
-      console.log(`[DEBUG] Registrando eventos para el servidor: ${guild.id}, eventos: ${events.join(", ")}`); // Log de depuración
+      console.log(`[DEBUG] Registering events for server: ${guild.id}, events: ${events.join(", ")}`); // Debug log
 
       events.forEach((event) => {
         switch (event) {
           case "VoiceStateUpdate":
             this.client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-              console.log(`[DEBUG] Evento VoiceStateUpdate detectado para el usuario: ${newState.id}`); // Log de depuración
+              console.log(`[DEBUG] VoiceStateUpdate event detected for user: ${newState.id}`); // Debug log
               if (oldState.guild.id !== guild.id) return; // Ensure the event is for the current guild
 
               if (oldState.channelId === newState.channelId) return; // Ignore if the channel hasn't changed
@@ -92,13 +96,13 @@ export class LogClass {
                 setTimeout(async () => {
                   const fields: Fields[] = [
                     {
-                      name: "__Voice State Information__",
+                      name: t("eventLogger.voiceStateInfo"),
                       value: [
-                        `> **User:** ${userMention(newState.id)}`,
-                        `> **Old Channel:** ${oldState.channelId ? `<#${oldState.channelId}>` : "None"}`,
-                        `> **New Channel:** ${newState.channelId ? `<#${newState.channelId}>` : "None"}`,
-                        `> **Self Mute:** ${newState.selfMute ? "Yes" : "No"}`,
-                        `> **Self Deaf:** ${newState.selfDeaf ? "Yes" : "No"}`,
+                        `> **${t("eventLogger.user")}:** ${userMention(newState.id)}`,
+                        `> **${t("eventLogger.oldChannel")}:** ${oldState.channelId ? `<#${oldState.channelId}>` : t("eventLogger.none")}`,
+                        `> **${t("eventLogger.newChannel")}:** ${newState.channelId ? `<#${newState.channelId}>` : t("eventLogger.none")}`,
+                        `> **${t("eventLogger.selfMute")}:** ${newState.selfMute ? t("common.enabled") : t("common.disabled")}`,
+                        `> **${t("eventLogger.selfDeaf")}:** ${newState.selfDeaf ? t("common.enabled") : t("common.disabled")}`,
                       ].join("\n"),
                       inline: false,
                     },
@@ -107,11 +111,11 @@ export class LogClass {
                   this.send_log(
                     guild,
                     newState.selfMute || newState.selfDeaf ? "Red" : "Green",
-                    "Events Logger - Voice State Update",
+                    t("eventLogger.voiceStateUpdate"),
                     [
-                      `> **User ID:** \`${newState.id}\``,
-                      `> **Old Channel ID:** \`${oldState.channelId ?? "None"}\``,
-                      `> **New Channel ID:** \`${newState.channelId ?? "None"}\``,
+                      `> **${t("eventLogger.userId")}:** \`${newState.id}\``,
+                      `> **${t("eventLogger.oldChannelId")}:** \`${oldState.channelId ?? t("eventLogger.none")}\``,
+                      `> **${t("eventLogger.newChannelId")}:** \`${newState.channelId ?? t("eventLogger.none")}\``,
                     ].join("\n"),
                     guild.iconURL({ forceStatic: true }) as string,
                     fields,
@@ -123,10 +127,10 @@ export class LogClass {
                 setTimeout(async () => {
                   const fields: Fields[] = [
                     {
-                      name: "__Voice Channel Information__",
+                      name: t("eventLogger.voiceChannelInfo"),
                       value: [
-                        `> **User:** ${userMention(newState.id)}`,
-                        `> **Channel:** <#${newState.channelId}>`,
+                        `> **${t("eventLogger.user")}:** ${userMention(newState.id)}`,
+                        `> **${t("eventLogger.channel")}:** <#${newState.channelId}>`,
                       ].join("\n"),
                       inline: false,
                     },
@@ -135,8 +139,11 @@ export class LogClass {
                   this.send_log(
                     guild,
                     "Green",
-                    "Events Logger - Voice Channel Join",
-                    [`> **User ID:** \`${newState.id}\``, `> **Channel ID:** \`${newState.channelId}\``].join("\n"),
+                    t("eventLogger.voiceChannelJoin"),
+                    [
+                      `> **${t("eventLogger.userId")}:** \`${newState.id}\``,
+                      `> **${t("eventLogger.channelId")}:** \`${newState.channelId}\``,
+                    ].join("\n"),
                     guild.iconURL({ forceStatic: true }) as string,
                     fields,
                   );
@@ -146,16 +153,16 @@ export class LogClass {
             break;
           case "InviteDelete":
             this.client.on(Events.InviteDelete, async (invite) => {
-              console.log(`[DEBUG] Evento InviteDelete detectado para la invitación: ${invite.code}`); // Log de depuración
+              console.log(`[DEBUG] InviteDelete event detected for invite: ${invite.code}`); // Debug log
               if (!invite.guild || invite.guild.id !== guild.id) return; // Ensure the event is for the current guild
               setTimeout(async () => {
                 const fields: Fields[] = [
                   {
-                    name: "__Invite Information__",
+                    name: t("eventLogger.inviteInfo"),
                     value: [
-                      `> **Invite Created At:** ${invite.createdAt ? invite.createdAt.toLocaleString() : "Unknown"}`,
-                      `> **Invite Channel:** ${invite.channel ? `${invite.channel.name} (\`${invite.channel.id}\`)` : "Unknown"}`,
-                      `> **Invite Inviter:** ${userMention(invite.inviter?.id ?? "Unknown")}`,
+                      `> **${t("eventLogger.inviteCreatedAt")}:** ${invite.createdAt ? invite.createdAt.toLocaleString() : t("eventLogger.unknown")}`,
+                      `> **${t("eventLogger.inviteChannel")}:** ${invite.channel ? `${invite.channel.name} (\`${invite.channel.id}\`)` : t("eventLogger.unknown")}`,
+                      `> **${t("eventLogger.inviteInviter")}:** ${userMention(invite.inviter?.id ?? t("eventLogger.unknown"))}`,
                     ].join("\n"),
                     inline: false,
                   },
@@ -164,12 +171,12 @@ export class LogClass {
                 this.send_log(
                   guild,
                   "Red",
-                  "Events Logger - Invite Delete",
+                  t("eventLogger.inviteDelete"),
                   [
-                    `> **Invite Code:** \`${invite.code}\``,
-                    `> **Invite Uses:** ${invite.uses}`,
-                    `> **Invite Max Uses:** ${invite.maxUses ?? "Unlimited"}`,
-                    `> **Invite Max Age:** ${invite.maxAge ? `${invite.maxAge} seconds` : "No Limit"}`,
+                    `> **${t("eventLogger.inviteCode")}:** \`${invite.code}\``,
+                    `> **${t("eventLogger.inviteUses")}:** ${invite.uses}`,
+                    `> **${t("eventLogger.inviteMaxUses")}:** ${invite.maxUses ?? t("eventLogger.unlimited")}`,
+                    `> **${t("eventLogger.inviteMaxAge")}:** ${invite.maxAge ? `${invite.maxAge} ${t("eventLogger.seconds")}` : t("eventLogger.noLimit")}`,
                   ].join("\n"),
                   guild.iconURL({ forceStatic: true }) as string,
                   fields,
@@ -179,16 +186,16 @@ export class LogClass {
             break;
           case "InviteCreate":
             this.client.on(Events.InviteCreate, async (invite) => {
-              console.log(`[DEBUG] Evento InviteCreate detectado para la invitación: ${invite.code}`); // Log de depuración
+              console.log(`[DEBUG] InviteCreate event detected for invite: ${invite.code}`); // Debug log
               if (!invite.guild || invite.guild.id !== guild.id) return; // Ensure the event is for the current guild
               setTimeout(async () => {
                 const fields: Fields[] = [
                   {
-                    name: "__Invite Information__",
+                    name: t("eventLogger.inviteInfo"),
                     value: [
-                      `> **Invite Created At:** ${invite.createdAt ? invite.createdAt.toLocaleString() : "Unknown"}`,
-                      `> **Invite Channel:** ${invite.channel ? `${invite.channel.name} (\`${invite.channel.id}\`)` : "Unknown"}`,
-                      `> **Invite Inviter:** ${userMention(invite.inviter?.id ?? "Unknown")}`,
+                      `> **${t("eventLogger.inviteCreatedAt")}:** ${invite.createdAt ? invite.createdAt.toLocaleString() : t("eventLogger.unknown")}`,
+                      `> **${t("eventLogger.inviteChannel")}:** ${invite.channel ? `${invite.channel.name} (\`${invite.channel.id}\`)` : t("eventLogger.unknown")}`,
+                      `> **${t("eventLogger.inviteInviter")}:** ${userMention(invite.inviter?.id ?? t("eventLogger.unknown"))}`,
                     ].join("\n"),
                     inline: false,
                   },
@@ -197,12 +204,12 @@ export class LogClass {
                 this.send_log(
                   guild,
                   "Green",
-                  "Events Logger - Invite Create",
+                  t("eventLogger.inviteCreate"),
                   [
-                    `> **Invite Code:** \`${invite.code}\``,
-                    `> **Invite Uses:** ${invite.uses}`,
-                    `> **Invite Max Uses:** ${invite.maxUses ?? "Unlimited"}`,
-                    `> **Invite Max Age:** ${invite.maxAge ? `${invite.maxAge} seconds` : "No Limit"}`,
+                    `> **${t("eventLogger.inviteCode")}:** \`${invite.code}\``,
+                    `> **${t("eventLogger.inviteUses")}:** ${invite.uses}`,
+                    `> **${t("eventLogger.inviteMaxUses")}:** ${invite.maxUses ?? t("eventLogger.unlimited")}`,
+                    `> **${t("eventLogger.inviteMaxAge")}:** ${invite.maxAge ? `${invite.maxAge} ${t("eventLogger.seconds")}` : t("eventLogger.noLimit")}`,
                   ].join("\n"),
                   guild.iconURL({ forceStatic: true }) as string,
                   fields,
@@ -212,45 +219,48 @@ export class LogClass {
             break;
           case "ChannelCreate":
             this.client.on(Events.ChannelCreate, async (channel) => {
-              console.log(`[DEBUG] Evento ChannelCreate detectado para el canal: ${channel.id}`); // Log de depuración
+              console.log(`[DEBUG] ChannelCreate event detected for channel: ${channel.id}`); // Debug log
               if (channel.guild.id !== guild.id) return; // Ensure the event is for the current guild
               setTimeout(async () => {
                 const fields: Fields[] = [
                   {
-                    name: "__Channel Information__",
+                    name: t("eventLogger.channelInfo"),
                     value: [
-                      `> **Channel Created At:** ${channel.createdAt.toLocaleString()}`,
-                      `> **Voice Channel:** ${channel.isVoiceBased() ? "Yes" : "No"}`,
-                      `> **Category:** ${channel.isThread() ? "Yes" : "No"}`,
+                      `> **${t("eventLogger.channelCreatedAt")}:** ${channel.createdAt.toLocaleString()}`,
+                      `> **${t("eventLogger.voiceChannel")}:** ${channel.isVoiceBased() ? t("common.yes") : t("common.no")}`,
+                      `> **${t("eventLogger.category")}:** ${channel.isThread() ? t("common.yes") : t("common.no")}`,
                     ].join("\n"),
                     inline: false,
                   },
                   {
-                    name: "__Channel View Roles__",
-                    value: channel.permissionOverwrites.cache
-                      .filter((perm) => perm.type === OverwriteType.Role)
-                      .map((perm) => {
-                        return roleMention(perm.id);
-                      })
-                      .join(", "),
+                    name: t("eventLogger.channelViewRoles"),
+                    value:
+                      channel.permissionOverwrites.cache
+                        .filter((perm) => perm.type === OverwriteType.Role)
+                        .map((perm) => {
+                          return roleMention(perm.id);
+                        })
+                        .join(", ") || t("eventLogger.none"),
                   },
                   {
-                    name: "__Channel View Members__",
-                    value: channel.permissionOverwrites.cache
-                      .filter((perm) => perm.type === OverwriteType.Member)
-                      .map((perm) => {
-                        return `<@${perm.id}>`;
-                      })
-                      .join(", "),
+                    name: t("eventLogger.channelViewMembers"),
+                    value:
+                      channel.permissionOverwrites.cache
+                        .filter((perm) => perm.type === OverwriteType.Member)
+                        .map((perm) => {
+                          return `<@${perm.id}>`;
+                        })
+                        .join(", ") || t("eventLogger.none"),
                   },
                   {
-                    name: "__Permissions Channel__",
-                    value: channel.permissionOverwrites.cache
-                      .filter((perm) => perm.type === OverwriteType.Role)
-                      .map((perm) => {
-                        return `> **${roleMention(perm.id)}**: ${perm.allow.toArray().join(", ")}`;
-                      })
-                      .join("\n"),
+                    name: t("eventLogger.permissionsChannel"),
+                    value:
+                      channel.permissionOverwrites.cache
+                        .filter((perm) => perm.type === OverwriteType.Role)
+                        .map((perm) => {
+                          return `> **${roleMention(perm.id)}**: ${perm.allow.toArray().join(", ") || t("eventLogger.none")}`;
+                        })
+                        .join("\n") || t("eventLogger.none"),
                     inline: false,
                   },
                 ];
@@ -258,12 +268,12 @@ export class LogClass {
                 this.send_log(
                   guild,
                   "Green",
-                  "Events Logger - Channel Create",
+                  t("eventLogger.channelCreate"),
                   [
-                    `> **Channel Name:** ${channel.name} (\`${channel.id}\`)`,
-                    `> **Channel Type:** ${channel.type}`,
-                    `> **Channel Position:** ${channel.position}`,
-                    `> **Channel Parent:** ${channel.parentId ? channel.parentId : "No Parent"}`,
+                    `> **${t("eventLogger.channelName")}:** ${channel.name} (\`${channel.id}\`)`,
+                    `> **${t("eventLogger.channelType")}:** ${channel.type}`,
+                    `> **${t("eventLogger.channelPosition")}:** ${channel.position}`,
+                    `> **${t("eventLogger.channelParent")}:** ${channel.parentId ? channel.parentId : t("eventLogger.noParent")}`,
                   ].join("\n"),
                   guild.iconURL({ forceStatic: true }) as string,
                   fields,
@@ -273,53 +283,55 @@ export class LogClass {
             break;
           case "ChannelDelete":
             this.client.on(Events.ChannelDelete, async (channel) => {
-              console.log(`[DEBUG] Evento ChannelDelete detectado para el canal: ${channel.id}`); // Log de depuración
+              console.log(`[DEBUG] ChannelDelete event detected for channel: ${channel.id}`); // Debug log
               if (channel.type === ChannelType.DM || !channel.guild) return;
               if (channel.guild.id !== guild.id) {
-                console.log(`[DEBUG] El canal no pertenece al servidor configurado: ${guild.id}`); // Log de depuración
+                console.log(`[DEBUG] Channel does not belong to configured server: ${guild.id}`); // Debug log
                 return;
               }
               setTimeout(async () => {
-                console.log(`[DEBUG] Procesando evento ChannelDelete para el canal: ${channel.id}`); // Log de depuración
+                console.log(`[DEBUG] Processing ChannelDelete event for channel: ${channel.id}`); // Debug log
                 const fields: Fields[] = [
                   {
-                    name: "__Channel Information__",
+                    name: t("eventLogger.channelInfo"),
                     value: [
-                      `> **Channel Created At:** ${channel.createdAt.toLocaleString()}`,
-                      `> **Voice Channel:** ${channel.isVoiceBased() ? "Yes" : "No"}`,
-                      `> **Category:** ${channel.isThread() ? "Yes" : "No"}`,
+                      `> **${t("eventLogger.channelCreatedAt")}:** ${channel.createdAt.toLocaleString()}`,
+                      `> **${t("eventLogger.voiceChannel")}:** ${channel.isVoiceBased() ? t("common.yes") : t("common.no")}`,
+                      `> **${t("eventLogger.category")}:** ${channel.isThread() ? t("common.yes") : t("common.no")}`,
                     ].join("\n"),
                     inline: false,
                   },
                   {
-                    name: "__Channel View Roles__",
-                    value: channel.permissionOverwrites.cache
-                      .filter((perm) => perm.type === OverwriteType.Role)
-                      .map((perm) => {
-                        return roleMention(perm.id);
-                      })
-                      .join(", "),
+                    name: t("eventLogger.channelViewRoles"),
+                    value:
+                      channel.permissionOverwrites.cache
+                        .filter((perm) => perm.type === OverwriteType.Role)
+                        .map((perm) => {
+                          return roleMention(perm.id);
+                        })
+                        .join(", ") || t("eventLogger.none"),
                   },
                   {
-                    name: "__Channel View Members__",
-                    value: channel.permissionOverwrites.cache
-                      .filter((perm) => perm.type === OverwriteType.Member)
-                      .map((perm) => {
-                        return `<@${perm.id}>`;
-                      })
-                      .join(", "),
+                    name: t("eventLogger.channelViewMembers"),
+                    value:
+                      channel.permissionOverwrites.cache
+                        .filter((perm) => perm.type === OverwriteType.Member)
+                        .map((perm) => {
+                          return `<@${perm.id}>`;
+                        })
+                        .join(", ") || t("eventLogger.none"),
                   },
                 ];
 
                 this.send_log(
                   guild,
                   "Red",
-                  "Events Logger - Channel Delete",
+                  t("eventLogger.channelDelete"),
                   [
-                    `> **Channel Name:** ${channel.name} (\`${channel.id}\`)`,
-                    `> **Channel Type:** ${channel.type}`,
-                    `> **Channel Position:** ${channel.position}`,
-                    `> **Channel Parent:** ${channel.parentId ? channel.parentId : "No Parent"}`,
+                    `> **${t("eventLogger.channelName")}:** ${channel.name} (\`${channel.id}\`)`,
+                    `> **${t("eventLogger.channelType")}:** ${channel.type}`,
+                    `> **${t("eventLogger.channelPosition")}:** ${channel.position}`,
+                    `> **${t("eventLogger.channelParent")}:** ${channel.parentId ? channel.parentId : t("eventLogger.noParent")}`,
                   ].join("\n"),
                   guild.iconURL({ forceStatic: true }) as string,
                   fields,
@@ -332,10 +344,10 @@ export class LogClass {
               if (member.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Member Information__",
+                  name: t("eventLogger.memberInfo"),
                   value: [
-                    `> **Member Created At:** ${member.user.createdAt.toLocaleString()}`,
-                    `> **Member Joined At:** ${member.joinedAt?.toLocaleString()}`,
+                    `> **${t("eventLogger.memberCreatedAt")}:** ${member.user.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.memberJoinedAt")}:** ${member.joinedAt?.toLocaleString() || t("eventLogger.unknown")}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -344,10 +356,10 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Green",
-                "Events Logger - Member Add",
+                t("eventLogger.memberAdd"),
                 [
-                  `> **Member Name:** ${member.user.username} (\`${member.user.id}\`)`,
-                  `> **Member Tag:** ${member.user.tag}`,
+                  `> **${t("eventLogger.memberName")}:** ${member.user.username} (\`${member.user.id}\`)`,
+                  `> **${t("eventLogger.memberTag")}:** ${member.user.tag}`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
@@ -359,10 +371,10 @@ export class LogClass {
               if (ban.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Member Information__",
+                  name: t("eventLogger.memberInfo"),
                   value: [
-                    `> **Member Created At:** ${ban.user.createdAt.toLocaleString()}`,
-                    `> **Member Banned At:** ${new Date().toLocaleString()}`,
+                    `> **${t("eventLogger.memberCreatedAt")}:** ${ban.user.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.memberBannedAt")}:** ${new Date().toLocaleString()}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -371,10 +383,10 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Red",
-                "Events Logger - Member Ban",
+                t("eventLogger.memberBan"),
                 [
-                  `> **Member Name:** ${ban.user.username} (\`${ban.user.id}\`)`,
-                  `> **Member Tag:** ${ban.user.tag}`,
+                  `> **${t("eventLogger.memberName")}:** ${ban.user.username} (\`${ban.user.id}\`)`,
+                  `> **${t("eventLogger.memberTag")}:** ${ban.user.tag}`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
@@ -386,10 +398,10 @@ export class LogClass {
               if (ban.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Member Information__",
+                  name: t("eventLogger.memberInfo"),
                   value: [
-                    `> **Member Created At:** ${ban.user.createdAt.toLocaleString()}`,
-                    `> **Member Unbanned At:** ${new Date().toLocaleString()}`,
+                    `> **${t("eventLogger.memberCreatedAt")}:** ${ban.user.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.memberUnbannedAt")}:** ${new Date().toLocaleString()}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -398,10 +410,10 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Green",
-                "Events Logger - Member Unban",
+                t("eventLogger.memberUnban"),
                 [
-                  `> **Member Name:** ${ban.user.username} (\`${ban.user.id}\`)`,
-                  `> **Member Tag:** ${ban.user.tag}`,
+                  `> **${t("eventLogger.memberName")}:** ${ban.user.username} (\`${ban.user.id}\`)`,
+                  `> **${t("eventLogger.memberTag")}:** ${ban.user.tag}`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
@@ -413,10 +425,10 @@ export class LogClass {
               if (member.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Member Information__",
+                  name: t("eventLogger.memberInfo"),
                   value: [
-                    `> **Member Created At:** ${member.user.createdAt.toLocaleString()}`,
-                    `> **Member Left At:** ${new Date().toLocaleString()}`,
+                    `> **${t("eventLogger.memberCreatedAt")}:** ${member.user.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.memberLeftAt")}:** ${new Date().toLocaleString()}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -425,10 +437,10 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Red",
-                "Events Logger - Member Remove",
+                t("eventLogger.memberRemove"),
                 [
-                  `> **Member Name:** ${member.user.username} (\`${member.user.id}\`)`,
-                  `> **Member Tag:** ${member.user.tag}`,
+                  `> **${t("eventLogger.memberName")}:** ${member.user.username} (\`${member.user.id}\`)`,
+                  `> **${t("eventLogger.memberTag")}:** ${member.user.tag}`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
@@ -440,21 +452,25 @@ export class LogClass {
               if (rule.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Rule Information__",
+                  name: t("eventLogger.ruleInfo"),
                   value: [
-                    `> **Creator:** ${userMention(rule.creatorId)} (\`${rule.creatorId}\`)`,
-                    `> **Exeptions:** ${rule.exemptRoles
-                      .map((role) => {
-                        return `${roleMention(role.id)}`;
-                      })
-                      .join(", ")}`,
-                    `> **Actions:** ${rule.actions
-                      .map((action) => {
-                        return `${action.type}`;
-                      })
-                      .join(", ")}`,
-                    `> **Trigger Type:** ${rule.triggerType}`,
-                    `> **Enabled:** ${rule.enabled ? "Yes" : "No"}`,
+                    `> **${t("eventLogger.creator")}:** ${userMention(rule.creatorId)} (\`${rule.creatorId}\`)`,
+                    `> **${t("eventLogger.exceptions")}:** ${
+                      rule.exemptRoles
+                        .map((role) => {
+                          return `${roleMention(role.id)}`;
+                        })
+                        .join(", ") || t("eventLogger.none")
+                    }`,
+                    `> **${t("eventLogger.actions")}:** ${
+                      rule.actions
+                        .map((action) => {
+                          return `${action.type}`;
+                        })
+                        .join(", ") || t("eventLogger.none")
+                    }`,
+                    `> **${t("eventLogger.triggerType")}:** ${rule.triggerType}`,
+                    `> **${t("eventLogger.enabled")}:** ${rule.enabled ? t("common.yes") : t("common.no")}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -463,8 +479,11 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Green",
-                "Events Logger - Auto Moderation Rule Create",
-                [`> **Rule Name:** ${rule.name} (\`${rule.id}\`)`, `> **Rule Type:** ${rule.eventType}`].join("\n"),
+                t("eventLogger.autoModRuleCreate"),
+                [
+                  `> **${t("eventLogger.ruleName")}:** ${rule.name} (\`${rule.id}\`)`,
+                  `> **${t("eventLogger.ruleType")}:** ${rule.eventType}`,
+                ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
               );
@@ -475,21 +494,25 @@ export class LogClass {
               if (rule.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Rule Information__",
+                  name: t("eventLogger.ruleInfo"),
                   value: [
-                    `> **Creator:** ${userMention(rule.creatorId)} (\`${rule.creatorId}\`)`,
-                    `> **Exeptions:** ${rule.exemptRoles
-                      .map((role) => {
-                        return `${roleMention(role.id)}`;
-                      })
-                      .join(", ")}`,
-                    `> **Actions:** ${rule.actions
-                      .map((action) => {
-                        return `${action.type}`;
-                      })
-                      .join(", ")}`,
-                    `> **Trigger Type:** ${rule.triggerType}`,
-                    `> **Enabled:** ${rule.enabled ? "Yes" : "No"}`,
+                    `> **${t("eventLogger.creator")}:** ${userMention(rule.creatorId)} (\`${rule.creatorId}\`)`,
+                    `> **${t("eventLogger.exceptions")}:** ${
+                      rule.exemptRoles
+                        .map((role) => {
+                          return `${roleMention(role.id)}`;
+                        })
+                        .join(", ") || t("eventLogger.none")
+                    }`,
+                    `> **${t("eventLogger.actions")}:** ${
+                      rule.actions
+                        .map((action) => {
+                          return `${action.type}`;
+                        })
+                        .join(", ") || t("eventLogger.none")
+                    }`,
+                    `> **${t("eventLogger.triggerType")}:** ${rule.triggerType}`,
+                    `> **${t("eventLogger.enabled")}:** ${rule.enabled ? t("common.yes") : t("common.no")}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -498,8 +521,11 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Red",
-                "Events Logger - Auto Moderation Rule Delete",
-                [`> **Rule Name:** ${rule.name} (\`${rule.id}\`)`, `> **Rule Type:** ${rule.eventType}`].join("\n"),
+                t("eventLogger.autoModRuleDelete"),
+                [
+                  `> **${t("eventLogger.ruleName")}:** ${rule.name} (\`${rule.id}\`)`,
+                  `> **${t("eventLogger.ruleType")}:** ${rule.eventType}`,
+                ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
               );
@@ -510,11 +536,11 @@ export class LogClass {
               if (role.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Role Information__",
+                  name: t("eventLogger.roleInfo"),
                   value: [
-                    `> **Role Created At:** ${role.createdAt.toLocaleString()}`,
-                    `> **Role Color:** ${role.color}`,
-                    `> **Role Position:** ${role.position}`,
+                    `> **${t("eventLogger.roleCreatedAt")}:** ${role.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.roleColor")}:** ${role.color}`,
+                    `> **${t("eventLogger.rolePosition")}:** ${role.position}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -523,10 +549,10 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Green",
-                "Events Logger - Role Create",
+                t("eventLogger.roleCreate"),
                 [
-                  `> **Role Name:** ${role.name} (\`${role.id}\`)`,
-                  `> **Role Permissions:** ${role.permissions.toArray().join(", ")}`,
+                  `> **${t("eventLogger.roleName")}:** ${role.name} (\`${role.id}\`)`,
+                  `> **${t("eventLogger.rolePermissions")}:** ${role.permissions.toArray().join(", ") || t("eventLogger.none")}`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
@@ -538,11 +564,11 @@ export class LogClass {
               if (role.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Role Information__",
+                  name: t("eventLogger.roleInfo"),
                   value: [
-                    `> **Role Created At:** ${role.createdAt.toLocaleString()}`,
-                    `> **Role Color:** ${role.color}`,
-                    `> **Role Position:** ${role.position}`,
+                    `> **${t("eventLogger.roleCreatedAt")}:** ${role.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.roleColor")}:** ${role.color}`,
+                    `> **${t("eventLogger.rolePosition")}:** ${role.position}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -551,10 +577,10 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Red",
-                "Events Logger - Role Delete",
+                t("eventLogger.roleDelete"),
                 [
-                  `> **Role Name:** ${role.name} (\`${role.id}\`)`,
-                  `> **Role Permissions:** ${role.permissions.toArray().join(", ")}`,
+                  `> **${t("eventLogger.roleName")}:** ${role.name} (\`${role.id}\`)`,
+                  `> **${t("eventLogger.rolePermissions")}:** ${role.permissions.toArray().join(", ") || t("eventLogger.none")}`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
@@ -566,10 +592,10 @@ export class LogClass {
               if (emoji.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Emoji Information__",
+                  name: t("eventLogger.emojiInfo"),
                   value: [
-                    `> **Emoji Created At:** ${emoji.createdAt.toLocaleString()}`,
-                    `> **Emoji Animated:** ${emoji.animated ? "Yes" : "No"}`,
+                    `> **${t("eventLogger.emojiCreatedAt")}:** ${emoji.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.emojiAnimated")}:** ${emoji.animated ? t("common.yes") : t("common.no")}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -578,16 +604,17 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Green",
-                "Events Logger - Emoji Create",
+                t("eventLogger.emojiCreate"),
                 [
-                  `> **Emoji Name:** ${emoji.name} (\`${emoji.id}\`)`,
-                  `> **Emoji URL:** [
-                    ${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? "gif" : "png"}?v=1)`,
-                  `> **Emoji Roles:** ${emoji.roles.cache
-                    .map((role) => {
-                      return `${roleMention(role.id)}`;
-                    })
-                    .join(", ")}`,
+                  `> **${t("eventLogger.emojiName")}:** ${emoji.name} (\`${emoji.id}\`)`,
+                  `> **${t("eventLogger.emojiUrl")}:** [${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? "gif" : "png"}?v=1)`,
+                  `> **${t("eventLogger.emojiRoles")}:** ${
+                    emoji.roles.cache
+                      .map((role) => {
+                        return `${roleMention(role.id)}`;
+                      })
+                      .join(", ") || t("eventLogger.none")
+                  }`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,
@@ -599,10 +626,10 @@ export class LogClass {
               if (emoji.guild.id !== guild.id) return; // Ensure the event is for the current guild
               const fields: Fields[] = [
                 {
-                  name: "__Emoji Information__",
+                  name: t("eventLogger.emojiInfo"),
                   value: [
-                    `> **Emoji Created At:** ${emoji.createdAt.toLocaleString()}`,
-                    `> **Emoji Animated:** ${emoji.animated ? "Yes" : "No"}`,
+                    `> **${t("eventLogger.emojiCreatedAt")}:** ${emoji.createdAt.toLocaleString()}`,
+                    `> **${t("eventLogger.emojiAnimated")}:** ${emoji.animated ? t("common.yes") : t("common.no")}`,
                   ].join("\n"),
                   inline: false,
                 },
@@ -611,16 +638,17 @@ export class LogClass {
               this.send_log(
                 guild,
                 "Red",
-                "Events Logger - Emoji Delete",
+                t("eventLogger.emojiDelete"),
                 [
-                  `> **Emoji Name:** ${emoji.name} (\`${emoji.id}\`)`,
-                  `> **Emoji URL:** [
-                    ${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? "gif" : "png"}?v=1)`,
-                  `> **Emoji Roles:** ${emoji.roles.cache
-                    .map((role) => {
-                      return `${roleMention(role.id)}`;
-                    })
-                    .join(", ")}`,
+                  `> **${t("eventLogger.emojiName")}:** ${emoji.name} (\`${emoji.id}\`)`,
+                  `> **${t("eventLogger.emojiUrl")}:** [${emoji.url}](https://cdn.discordapp.com/emojis/${emoji.id}.${emoji.animated ? "gif" : "png"}?v=1)`,
+                  `> **${t("eventLogger.emojiRoles")}:** ${
+                    emoji.roles.cache
+                      .map((role) => {
+                        return `${roleMention(role.id)}`;
+                      })
+                      .join(", ") || t("eventLogger.none")
+                  }`,
                 ].join("\n"),
                 guild.iconURL({ forceStatic: true }) as string,
                 fields,

@@ -10,6 +10,7 @@ const achievementCommand: Precommand = {
   examples: ["achievement I made a new achievement!"],
   nsfw: false,
   owner: false,
+  category: "images",
   cooldown: 5,
   aliases: ["ach", "achieve", "achv", "achvmnt", "achievemnt", "achievement-get", "achievement-getter"],
   botpermissions: ["SendMessages"],

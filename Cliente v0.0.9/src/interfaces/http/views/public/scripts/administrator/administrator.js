@@ -48,7 +48,73 @@ document.addEventListener("DOMContentLoaded", function () {
       infoadd: "Información Adicional",
       typeClan: "Clan",
       Provider: "Provedor",
-      Banner: "Banner"
+      Banner: "Banner",
+      // Añade claves para tablas, botones, modales, selects, etc.
+      tasksTab: "Tareas",
+      licensesUITab: "Licencias",
+      datosTab: "Datos",
+      estadisticasTab: "Estadísticas",
+      totalRegistered: "Total registrados",
+      totalIssued: "Total emitidas",
+      integrations: "Integraciones",
+      endpointsMonitored: "Endpoints monitorizados",
+      registered: "Registrado",
+      lastUpdate: "Última actualización",
+      all: "Todos",
+      allStates: "Todos los estados",
+      allStatuses: "Todos los estados",
+      allGuilds: "Todos los servidores",
+      allStatuses2: "Todos los estados",
+      active: "Activo",
+      inactive: "Inactivo",
+      expired: "Expirada",
+      banned: "Baneada",
+      revoked: "Revocada",
+      enabled: "Habilitado",
+      disabled: "Deshabilitado",
+      actions: "Acciones",
+      name: "Nombre",
+      email: "Email",
+      role: "Rol",
+      licenses: "Licencias",
+      registeredAt: "Registrado",
+      lastUpdated: "Última actualización",
+      type: "Tipo",
+      user: "Usuario",
+      admin: "Admin",
+      hwid: "HWID",
+      status: "Estado",
+      validUntil: "Válida hasta",
+      requests: "Solicitudes",
+      lastIp: "Última IP",
+      file: "Archivo",
+      lastModified: "Última modificación",
+      size: "Tamaño",
+      compressed: "Comprimido",
+      view: "Ver",
+      download: "Descargar",
+      maintenance: "Mantenimiento",
+      version: "Versión",
+      webhook: "Webhook",
+      created: "Creado",
+      client: "Cliente",
+      system: "Sistema",
+      errors: "Errores",
+      avgLatency: "Latencia Promedio",
+      description: "Descripción",
+      responseType: "Tipo de Respuesta",
+      usage: "Uso",
+      lastUpdated2: "Última actualización",
+      newCommand: "Nuevo Comando",
+      newCategory: "Nueva Categoría",
+      edit: "Editar",
+      activate: "Activar",
+      deactivate: "Desactivar",
+      delete: "Eliminar",
+      save: "Guardar",
+      cancel: "Cancelar",
+      confirm: "Confirmar",
+      close: "Cerrar",
       // ...agrega más claves si lo necesitas...
     },
     en: {
@@ -89,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
       infoadd: "Additional Information",
       typeClan: "Clan",
       Provider: "Provider",
-      Banner: "Banner"
+      Banner: "Banner",
       // ...add more keys as needed...
     },
   };
@@ -97,8 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * Idioma actual seleccionado por el usuario.
    * @type {string}
    */
-  let currentLanguage =
-    localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
+  let currentLanguage = localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
 
   // Cambiar idioma
   const langLinks = document.querySelectorAll(".lang-link");
@@ -145,8 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const labelRole = document.querySelector('label[for="select-role"]');
     if (labelRole) labelRole.textContent = translations[currentLanguage].selectRole;
     const btnRole = document.querySelector('#role-update-form button[type="submit"]');
-    if (btnRole)
-      btnRole.innerHTML = `<i class="fas fa-save me-1"></i> ${translations[currentLanguage].updateRole}`;
+    if (btnRole) btnRole.innerHTML = `<i class="fas fa-save me-1"></i> ${translations[currentLanguage].updateRole}`;
     // Mensaje de solo owner
     const onlyOwnerAlert = document.querySelector(".alert-danger");
     if (onlyOwnerAlert)
@@ -169,10 +233,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
     document.querySelectorAll(".dropdown-menu .dropdown-item").forEach((item) => {
-      if (item.id && item.id.endsWith("-csv"))
-        item.textContent = translations[currentLanguage].exportCSV;
-      if (item.id && item.id.endsWith("-xlsx"))
-        item.textContent = translations[currentLanguage].exportExcel;
+      if (item.id && item.id.endsWith("-csv")) item.textContent = translations[currentLanguage].exportCSV;
+      if (item.id && item.id.endsWith("-xlsx")) item.textContent = translations[currentLanguage].exportExcel;
     });
 
     // Botones compact/columnas
@@ -185,16 +247,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Estados y badges
     document.querySelectorAll(".badge-status").forEach((el) => {
-      if (el.textContent.includes("Inactivo"))
-        el.textContent = translations[currentLanguage].inactive;
-      if (el.textContent.includes("Próx. a expirar"))
-        el.textContent = translations[currentLanguage].expiringSoon;
+      if (el.textContent.includes("Inactivo")) el.textContent = translations[currentLanguage].inactive;
+      if (el.textContent.includes("Próx. a expirar")) el.textContent = translations[currentLanguage].expiringSoon;
       if (el.textContent.includes("Activo")) el.textContent = translations[currentLanguage].active;
-      if (el.textContent.includes("Expirada"))
-        el.textContent = translations[currentLanguage].expired;
+      if (el.textContent.includes("Expirada")) el.textContent = translations[currentLanguage].expired;
       if (el.textContent.includes("Baneada")) el.textContent = translations[currentLanguage].banned;
-      if (el.textContent.includes("Revocada"))
-        el.textContent = translations[currentLanguage].revoked;
+      if (el.textContent.includes("Revocada")) el.textContent = translations[currentLanguage].revoked;
     });
     document.querySelectorAll(".badge.bg-success, .badge.bg-secondary").forEach((el) => {
       if (el.textContent.trim() === "Sí") el.textContent = translations[currentLanguage].yes;
@@ -531,8 +589,7 @@ const userIdFromUrl = getQueryParam("id");
  * @returns {string} HTML de la fila.
  */
 function renderLicenseRow(l) {
-  let icon =
-    l.status === "ACTIVE" ? "fa-check-circle" : l.status === "EXPIRED" ? "fa-clock" : "fa-ban";
+  let icon = l.status === "ACTIVE" ? "fa-check-circle" : l.status === "EXPIRED" ? "fa-clock" : "fa-ban";
   return `<tr>
           <td>${l.id}</td>
           <td><span class="badge bg-primary">${l.type}</span></td>
@@ -571,13 +628,7 @@ function renderLogRow(log) {
 // --- INICIALIZAR TABLAS ---
 document.addEventListener("DOMContentLoaded", function () {
   setupTableFeatures("users-table", usersData, renderUserRow, ["name", "email", "role"]);
-  setupTableFeatures("licenses-table", licensesData, renderLicenseRow, [
-    "id",
-    "type",
-    "user",
-    "admin",
-    "status",
-  ]);
+  setupTableFeatures("licenses-table", licensesData, renderLicenseRow, ["id", "type", "user", "admin", "status"]);
   setupTableFeatures("logs-table", logsData, renderLogRow, ["filename", "isCompressed"]);
 });
 
@@ -628,16 +679,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         const data = await res.json();
         if (data.success) {
-          resultDiv.innerHTML =
-            '<div class="alert alert-success">Rol actualizado correctamente.</div>';
+          resultDiv.innerHTML = '<div class="alert alert-success">Rol actualizado correctamente.</div>';
           showToast("Éxito", "Rol actualizado correctamente", "success");
         } else {
           resultDiv.innerHTML = `<div class="alert alert-danger">${data.message || "Error al actualizar el rol."}</div>`;
           showToast("Error", data.message || "Error al actualizar el rol", "danger");
         }
       } catch (err) {
-        resultDiv.innerHTML =
-          '<div class="alert alert-danger">Error de red al actualizar el rol.</div>';
+        resultDiv.innerHTML = '<div class="alert alert-danger">Error de red al actualizar el rol.</div>';
         showToast("Error", "Error de red al actualizar el rol", "danger");
       }
     });
@@ -814,14 +863,7 @@ function setupColumnConfig(tableId, columns) {
   applyCols();
 }
 document.addEventListener("DOMContentLoaded", function () {
-  setupColumnConfig("users-table", [
-    "Nombre",
-    "Email",
-    "Rol",
-    "Registrado",
-    "Licencias",
-    "Última actualización",
-  ]);
+  setupColumnConfig("users-table", ["Nombre", "Email", "Rol", "Registrado", "Licencias", "Última actualización"]);
   setupColumnConfig("licenses-table", [
     "ID",
     "Tipo",
@@ -833,13 +875,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "Solicitudes",
     "Última IP",
   ]);
-  setupColumnConfig("logs-table", [
-    "Archivo",
-    "Última modificación",
-    "Tamaño",
-    "Comprimido",
-    "Acciones",
-  ]);
+  setupColumnConfig("logs-table", ["Archivo", "Última modificación", "Tamaño", "Comprimido", "Acciones"]);
 });
 
 /**
@@ -901,14 +937,7 @@ function setupAdvancedFilters(tableId, data, renderRow, searchFields, dateField,
   if (statusSel) statusSel.addEventListener("change", filterData);
 }
 document.addEventListener("DOMContentLoaded", function () {
-  setupAdvancedFilters(
-    "users-table",
-    usersData,
-    renderUserRow,
-    ["name", "email", "role"],
-    "createdAt",
-    "status",
-  );
+  setupAdvancedFilters("users-table", usersData, renderUserRow, ["name", "email", "role"], "createdAt", "status");
   setupAdvancedFilters(
     "licenses-table",
     licensesData,
@@ -917,14 +946,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "validUntil",
     "status",
   );
-  setupAdvancedFilters(
-    "logs-table",
-    logsData,
-    renderLogRow,
-    ["filename", "isCompressed"],
-    "lastModified",
-    null,
-  );
+  setupAdvancedFilters("logs-table", logsData, renderLogRow, ["filename", "isCompressed"], "lastModified", null);
 });
 
 // --- BADGES VISUALES PARA ESTADOS CRÍTICOS ---
@@ -976,11 +998,8 @@ function renderUserRow(u) {
  * @returns {string} HTML de la fila.
  */
 function renderLicenseRow(l) {
-  let icon =
-    l.status === "ACTIVE" ? "fa-check-circle" : l.status === "EXPIRED" ? "fa-clock" : "fa-ban";
-  let badge = isLicenseExpiringSoon(l)
-    ? '<span class="badge bg-warning ms-1">Próx. a expirar</span>'
-    : "";
+  let icon = l.status === "ACTIVE" ? "fa-check-circle" : l.status === "EXPIRED" ? "fa-clock" : "fa-ban";
+  let badge = isLicenseExpiringSoon(l) ? '<span class="badge bg-warning ms-1">Próx. a expirar</span>' : "";
   return `<tr>
           <td>${l.id}</td>
           <td><span class="badge bg-primary">${l.type}</span></td>
@@ -1006,8 +1025,7 @@ function renderLicenseRow(l) {
 function formatDate(date) {
   if (!date) return "-";
   try {
-    const lang =
-      localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
+    const lang = localStorage.getItem("language") || (navigator.language.startsWith("es") ? "es" : "en");
     return new Date(date).toLocaleDateString(lang, {
       year: "numeric",
       month: "short",
@@ -1017,3 +1035,301 @@ function formatDate(date) {
     return "-";
   }
 }
+
+/**
+ * Traduce los textos estáticos del HTML (títulos, botones, selects, etc.)
+ */
+function updateStaticTexts() {
+  const t = translations[currentLanguage];
+
+  // Tabs principales
+  document.getElementById("info-tab") &&
+    (document.getElementById("info-tab").innerHTML = `<i class="fas fa-info-circle"></i> ${t.infoTab}`);
+  document.getElementById("config-tab") &&
+    (document.getElementById("config-tab").innerHTML = `<i class="fas fa-cogs"></i> ${t.configTab}`);
+  document.getElementById("tasks-tab") &&
+    (document.getElementById("tasks-tab").innerHTML = `<i class="fa-solid fa-list-check"></i> ${t.tasksTab}`);
+  document.getElementById("licensesui-tab") &&
+    (document.getElementById("licensesui-tab").innerHTML = `<i class="fa-solid fa-key"></i> ${t.licensesUITab}`);
+
+  // Subtabs info
+  document.getElementById("datos-info-tab") &&
+    (document.getElementById("datos-info-tab").innerHTML = `<i class="fas fa-table"></i> ${t.datosTab}`);
+  document.getElementById("estadisticas-info-tab") &&
+    (document.getElementById("estadisticas-info-tab").innerHTML =
+      `<i class="fas fa-chart-bar"></i> ${t.estadisticasTab}`);
+
+  // Placeholders buscadores
+  document.getElementById("global-search") && (document.getElementById("global-search").placeholder = t.searchAll);
+  document.getElementById("search-users") && (document.getElementById("search-users").placeholder = t.searchUsers);
+  document.getElementById("search-licenses") &&
+    (document.getElementById("search-licenses").placeholder = t.searchLicenses);
+  document.getElementById("search-logs") && (document.getElementById("search-logs").placeholder = t.searchLogs);
+
+  // Botones exportar
+  document.getElementById("export-users-csv") &&
+    (document.getElementById("export-users-csv").textContent = t.exportCSV);
+  document.getElementById("export-users-xlsx") &&
+    (document.getElementById("export-users-xlsx").textContent = t.exportExcel);
+  document.getElementById("export-licenses-csv") &&
+    (document.getElementById("export-licenses-csv").textContent = t.exportCSV);
+  document.getElementById("export-licenses-xlsx") &&
+    (document.getElementById("export-licenses-xlsx").textContent = t.exportExcel);
+  document.getElementById("export-logs-csv") && (document.getElementById("export-logs-csv").textContent = t.exportCSV);
+  document.getElementById("export-logs-xlsx") &&
+    (document.getElementById("export-logs-xlsx").textContent = t.exportExcel);
+
+  // Filtros avanzados selects
+  const usersStatusSel = document.getElementById("users-filter-status");
+  if (usersStatusSel) {
+    usersStatusSel.options[0].text = t.allStates;
+    usersStatusSel.options[1].text = t.inactive;
+    usersStatusSel.options[2].text = t.active;
+  }
+  const licensesStatusSel = document.getElementById("licenses-filter-status");
+  if (licensesStatusSel) {
+    licensesStatusSel.options[0].text = t.allStates;
+    licensesStatusSel.options[1].text = t.active;
+    licensesStatusSel.options[2].text = t.expired;
+    licensesStatusSel.options[3].text = t.banned;
+    licensesStatusSel.options[4].text = t.revoked;
+  }
+  const logsAdvSel = document.getElementById("logs-advanced-filter");
+  if (logsAdvSel) {
+    logsAdvSel.options[0].text = t.all;
+    logsAdvSel.options[1].text = t.file;
+    logsAdvSel.options[2].text = t.compressed;
+  }
+  const usersAdvSel = document.getElementById("users-advanced-filter");
+  if (usersAdvSel) {
+    usersAdvSel.options[0].text = t.all;
+    usersAdvSel.options[1].text = t.name;
+    usersAdvSel.options[2].text = t.email;
+    usersAdvSel.options[3].text = t.role;
+  }
+  const licensesAdvSel = document.getElementById("licenses-advanced-filter");
+  if (licensesAdvSel) {
+    licensesAdvSel.options[0].text = t.all;
+    licensesAdvSel.options[1].text = t.id;
+    licensesAdvSel.options[2].text = t.type;
+    licensesAdvSel.options[3].text = t.user;
+    licensesAdvSel.options[4].text = t.admin;
+    licensesAdvSel.options[5].text = t.status;
+  }
+
+  // Botones modales
+  document.querySelectorAll("#columnsModal .btn-secondary").forEach((btn) => (btn.textContent = t.close));
+  document.getElementById("columnsModalApply") &&
+    (document.getElementById("columnsModalApply").textContent = t.confirm);
+
+  // Modal confirmación
+  document.getElementById("confirmModalLabel") &&
+    (document.getElementById("confirmModalLabel").innerHTML =
+      `<i class="fas fa-exclamation-triangle text-warning"></i> ${t.confirmAction}`);
+  document.getElementById("confirmModalBody") &&
+    (document.getElementById("confirmModalBody").textContent = t.confirmText);
+  document.querySelector("#confirmModal .btn-secondary") &&
+    (document.querySelector("#confirmModal .btn-secondary").textContent = t.cancel);
+  document.getElementById("confirmModalOk") && (document.getElementById("confirmModalOk").textContent = t.confirm);
+
+  // Otros textos estáticos (puedes agregar más según lo necesites)
+  // Ejemplo: títulos de tablas, botones CRUD, etc.
+}
+
+// Modifica updateTranslations para llamar a updateStaticTexts
+function updateTranslations() {
+  // Tabs
+  document.getElementById("info-tab").innerHTML =
+    `<i class="fas fa-info-circle"></i> ${translations[currentLanguage].infoTab}`;
+  document.getElementById("config-tab").innerHTML =
+    `<i class="fas fa-cogs"></i> ${translations[currentLanguage].configTab}`;
+  // Secciones
+  document.querySelectorAll(".section-title").forEach((el) => {
+    if (el.textContent.includes("Usuarios"))
+      el.innerHTML = `<i class="fas fa-users"></i> ${translations[currentLanguage].users}`;
+    if (el.textContent.includes("Licencias"))
+      el.innerHTML = `<i class="fas fa-key"></i> ${translations[currentLanguage].licenses}`;
+    if (el.textContent.includes("Clientes Discord"))
+      el.innerHTML = `<i class="fab fa-discord"></i> ${translations[currentLanguage].discordClients}`;
+    if (el.textContent.includes("Métricas"))
+      el.innerHTML = `<i class="fas fa-chart-line"></i> ${translations[currentLanguage].metrics}`;
+    if (el.textContent.includes("Logs"))
+      el.innerHTML = `<i class="fas fa-file-alt"></i> ${translations[currentLanguage].logs}`;
+    if (el.textContent.includes("Gestión de Roles") || el.textContent.includes("User Role"))
+      el.innerHTML = `<i class="fas fa-user-cog"></i> ${translations[currentLanguage].userRole}`;
+  });
+  // Formulario de roles
+  const labelUser = document.querySelector('label[for="select-user"]');
+  if (labelUser) labelUser.textContent = translations[currentLanguage].selectUser;
+  const labelRole = document.querySelector('label[for="select-role"]');
+  if (labelRole) labelRole.textContent = translations[currentLanguage].selectRole;
+  const btnRole = document.querySelector('#role-update-form button[type="submit"]');
+  if (btnRole) btnRole.innerHTML = `<i class="fas fa-save me-1"></i> ${translations[currentLanguage].updateRole}`;
+  // Mensaje de solo owner
+  const onlyOwnerAlert = document.querySelector(".alert-danger");
+  if (onlyOwnerAlert)
+    onlyOwnerAlert.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i> ${translations[currentLanguage].onlyOwner}`;
+
+  // Placeholders buscadores
+  const globalSearch = document.getElementById("global-search");
+  if (globalSearch) globalSearch.placeholder = translations[currentLanguage].searchAll;
+  const usersSearch = document.getElementById("search-users");
+  if (usersSearch) usersSearch.placeholder = translations[currentLanguage].searchUsers;
+  const licensesSearch = document.getElementById("search-licenses");
+  if (licensesSearch) licensesSearch.placeholder = translations[currentLanguage].searchLicenses;
+  const logsSearch = document.getElementById("search-logs");
+  if (logsSearch) logsSearch.placeholder = translations[currentLanguage].searchLogs;
+
+  // Botones exportar
+  document.querySelectorAll(".dropdown-toggle").forEach((btn) => {
+    if (btn.textContent.includes("Exportar") || btn.textContent.includes("Export")) {
+      btn.innerHTML = `<i class="fas fa-file-export"></i> ${translations[currentLanguage].export}`;
+    }
+  });
+  document.querySelectorAll(".dropdown-menu .dropdown-item").forEach((item) => {
+    if (item.id && item.id.endsWith("-csv")) item.textContent = translations[currentLanguage].exportCSV;
+    if (item.id && item.id.endsWith("-xlsx")) item.textContent = translations[currentLanguage].exportExcel;
+  });
+
+  // Botones compact/columnas
+  document.querySelectorAll("button[id$='-compact-toggle']").forEach((btn) => {
+    btn.title = translations[currentLanguage].compactToggle;
+  });
+  document.querySelectorAll("button[id$='-columns-toggle']").forEach((btn) => {
+    btn.title = translations[currentLanguage].columnsToggle;
+  });
+
+  // Estados y badges
+  document.querySelectorAll(".badge-status").forEach((el) => {
+    if (el.textContent.includes("Inactivo")) el.textContent = translations[currentLanguage].inactive;
+    if (el.textContent.includes("Próx. a expirar")) el.textContent = translations[currentLanguage].expiringSoon;
+    if (el.textContent.includes("Activo")) el.textContent = translations[currentLanguage].active;
+    if (el.textContent.includes("Expirada")) el.textContent = translations[currentLanguage].expired;
+    if (el.textContent.includes("Baneada")) el.textContent = translations[currentLanguage].banned;
+    if (el.textContent.includes("Revocada")) el.textContent = translations[currentLanguage].revoked;
+  });
+  document.querySelectorAll(".badge.bg-success, .badge.bg-secondary").forEach((el) => {
+    if (el.textContent.trim() === "Sí") el.textContent = translations[currentLanguage].yes;
+    if (el.textContent.trim() === "No") el.textContent = translations[currentLanguage].no;
+  });
+
+  // Modal confirmación
+  const confirmModalLabel = document.getElementById("confirmModalLabel");
+  if (confirmModalLabel)
+    confirmModalLabel.innerHTML = `<i class="fas fa-exclamation-triangle text-warning"></i> ${translations[currentLanguage].confirmAction}`;
+  const confirmModalBody = document.getElementById("confirmModalBody");
+  if (confirmModalBody) confirmModalBody.textContent = translations[currentLanguage].confirmText;
+  const confirmModalCancel = document.querySelector("#confirmModal .btn-secondary");
+  if (confirmModalCancel) confirmModalCancel.textContent = translations[currentLanguage].cancel;
+  const confirmModalOk = document.getElementById("confirmModalOk");
+  if (confirmModalOk) confirmModalOk.textContent = translations[currentLanguage].confirm;
+  const columnsModalClose = document.querySelector("#columnsModal .btn-secondary");
+  if (columnsModalClose) columnsModalClose.textContent = translations[currentLanguage].close;
+  const columnsModalApply = document.getElementById("columnsModalApply");
+  if (columnsModalApply) columnsModalApply.textContent = translations[currentLanguage].confirm;
+
+  updateStaticTexts();
+}
+
+// Traduce los textos estáticos del HTML (títulos, botones, selects, etc.)
+function updateStaticTexts() {
+  const t = translations[currentLanguage];
+
+  // Tabs principales
+  document.getElementById("info-tab") &&
+    (document.getElementById("info-tab").innerHTML = `<i class="fas fa-info-circle"></i> ${t.infoTab}`);
+  document.getElementById("config-tab") &&
+    (document.getElementById("config-tab").innerHTML = `<i class="fas fa-cogs"></i> ${t.configTab}`);
+  document.getElementById("tasks-tab") &&
+    (document.getElementById("tasks-tab").innerHTML = `<i class="fa-solid fa-list-check"></i> ${t.tasksTab}`);
+  document.getElementById("licensesui-tab") &&
+    (document.getElementById("licensesui-tab").innerHTML = `<i class="fa-solid fa-key"></i> ${t.licensesUITab}`);
+
+  // Subtabs info
+  document.getElementById("datos-info-tab") &&
+    (document.getElementById("datos-info-tab").innerHTML = `<i class="fas fa-table"></i> ${t.datosTab}`);
+  document.getElementById("estadisticas-info-tab") &&
+    (document.getElementById("estadisticas-info-tab").innerHTML =
+      `<i class="fas fa-chart-bar"></i> ${t.estadisticasTab}`);
+
+  // Placeholders buscadores
+  document.getElementById("global-search") && (document.getElementById("global-search").placeholder = t.searchAll);
+  document.getElementById("search-users") && (document.getElementById("search-users").placeholder = t.searchUsers);
+  document.getElementById("search-licenses") &&
+    (document.getElementById("search-licenses").placeholder = t.searchLicenses);
+  document.getElementById("search-logs") && (document.getElementById("search-logs").placeholder = t.searchLogs);
+
+  // Botones exportar
+  document.getElementById("export-users-csv") &&
+    (document.getElementById("export-users-csv").textContent = t.exportCSV);
+  document.getElementById("export-users-xlsx") &&
+    (document.getElementById("export-users-xlsx").textContent = t.exportExcel);
+  document.getElementById("export-licenses-csv") &&
+    (document.getElementById("export-licenses-csv").textContent = t.exportCSV);
+  document.getElementById("export-licenses-xlsx") &&
+    (document.getElementById("export-licenses-xlsx").textContent = t.exportExcel);
+  document.getElementById("export-logs-csv") && (document.getElementById("export-logs-csv").textContent = t.exportCSV);
+  document.getElementById("export-logs-xlsx") &&
+    (document.getElementById("export-logs-xlsx").textContent = t.exportExcel);
+
+  // Filtros avanzados selects
+  const usersStatusSel = document.getElementById("users-filter-status");
+  if (usersStatusSel) {
+    usersStatusSel.options[0].text = t.allStates;
+    usersStatusSel.options[1].text = t.inactive;
+    usersStatusSel.options[2].text = t.active;
+  }
+  const licensesStatusSel = document.getElementById("licenses-filter-status");
+  if (licensesStatusSel) {
+    licensesStatusSel.options[0].text = t.allStates;
+    licensesStatusSel.options[1].text = t.active;
+    licensesStatusSel.options[2].text = t.expired;
+    licensesStatusSel.options[3].text = t.banned;
+    licensesStatusSel.options[4].text = t.revoked;
+  }
+  const logsAdvSel = document.getElementById("logs-advanced-filter");
+  if (logsAdvSel) {
+    logsAdvSel.options[0].text = t.all;
+    logsAdvSel.options[1].text = t.file;
+    logsAdvSel.options[2].text = t.compressed;
+  }
+  const usersAdvSel = document.getElementById("users-advanced-filter");
+  if (usersAdvSel) {
+    usersAdvSel.options[0].text = t.all;
+    usersAdvSel.options[1].text = t.name;
+    usersAdvSel.options[2].text = t.email;
+    usersAdvSel.options[3].text = t.role;
+  }
+  const licensesAdvSel = document.getElementById("licenses-advanced-filter");
+  if (licensesAdvSel) {
+    licensesAdvSel.options[0].text = t.all;
+    licensesAdvSel.options[1].text = t.id;
+    licensesAdvSel.options[2].text = t.type;
+    licensesAdvSel.options[3].text = t.user;
+    licensesAdvSel.options[4].text = t.admin;
+    licensesAdvSel.options[5].text = t.status;
+  }
+
+  // Botones modales
+  document.querySelectorAll("#columnsModal .btn-secondary").forEach((btn) => (btn.textContent = t.close));
+  document.getElementById("columnsModalApply") &&
+    (document.getElementById("columnsModalApply").textContent = t.confirm);
+
+  // Modal confirmación
+  document.getElementById("confirmModalLabel") &&
+    (document.getElementById("confirmModalLabel").innerHTML =
+      `<i class="fas fa-exclamation-triangle text-warning"></i> ${t.confirmAction}`);
+  document.getElementById("confirmModalBody") &&
+    (document.getElementById("confirmModalBody").textContent = t.confirmText);
+  document.querySelector("#confirmModal .btn-secondary") &&
+    (document.querySelector("#confirmModal .btn-secondary").textContent = t.cancel);
+  document.getElementById("confirmModalOk") && (document.getElementById("confirmModalOk").textContent = t.confirm);
+
+  // Otros textos estáticos (puedes agregar más según lo necesites)
+  // Ejemplo: títulos de tablas, botones CRUD, etc.
+}
+
+// Llama a updateStaticTexts al cargar la página
+document.addEventListener("DOMContentLoaded", function () {
+  updateStaticTexts();
+});

@@ -983,6 +983,113 @@
                     </nav>
                   </div>
                 </div>
+                <!-- Tabla de categorías y comandos mejorada -->
+                <div class="card fade-in mb-4">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="section-title mb-0"><i class="fas fa-layer-group"></i> Categorías de Comandos</span>
+                    <button class="btn btn-primary btn-sm" id="add-category-btn">
+                      <i class="fas fa-plus"></i> Nueva Categoría
+                    </button>
+                  </div>
+                  <div class="card-body table-responsive">
+                    <table class="table table-hover align-middle" id="categories-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Nombre</th>
+                          <th>Descripción</th>
+                          <th>Estado</th>
+                          <th>Comandos</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% categories.forEach((cat, idx) => { 
+          const catCommands = components.filter(c => c.categoryId === cat.id);
+          const activeCount = catCommands.filter(c => c.enabled).length;
+          const inactiveCount = catCommands.length - activeCount;
+        %>
+                        <tr data-category-id="<%= cat.id %>">
+                          <td><span class="badge bg-secondary"><%= idx + 1 %></span></td>
+                          <td>
+                            <i class="fas fa-folder-open me-1 text-info"></i>
+                            <strong><%= cat.name %></strong>
+                          </td>
+                          <td><%= cat.description || '-' %></td>
+                          <td>
+                            <span class="badge <%= cat.enabled ? 'bg-success' : 'bg-danger' %>">
+                              <%= cat.enabled ? 'Activa' : 'Inactiva' %>
+                            </span>
+                          </td>
+                          <td>
+                            <% if (catCommands.length === 0) { %>
+                            <span class="text-muted">Sin comandos</span>
+                            <% } else { %>
+                            <span class="badge bg-success me-1" title="Activos"><i class="fa fa-check"></i> <%= activeCount %></span>
+                            <span class="badge bg-danger me-1" title="Inactivos"><i class="fa fa-ban"></i> <%= inactiveCount %></span>
+                            <button class="btn btn-link btn-sm p-0 ms-2" data-bs-toggle="collapse" data-bs-target="#cat-cmds-<%= cat.id %>">
+                              <i class="fa fa-eye"></i> Ver
+                            </button>
+                            <div class="collapse mt-2" id="cat-cmds-<%= cat.id %>">
+                              <ul class="mb-0 ps-3">
+                                <% catCommands.forEach(cmd => { %>
+                                <li>
+                                  <span class="badge <%= cmd.enabled ? 'bg-success' : 'bg-danger' %>"><%= cmd.name %></span>
+                                </li>
+                                <% }) %>
+                              </ul>
+                            </div>
+                            <% } %>
+                          </td>
+                          <td>
+                            <div class="dropdown">
+                              <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                              </button>
+                              <ul class="dropdown-menu">
+                                <li>
+                                  <a class="dropdown-item edit-category-btn" href="#" data-category-id="<%= cat.id %>">
+                                    <i class="fas fa-edit me-1"></i> Editar
+                                  </a>
+                                </li>
+                                <li>
+                                  <a class="dropdown-item toggle-category-btn" href="#" data-category-id="<%= cat.id %>" data-enabled="<%= cat.enabled %>">
+                                    <i class="fas <%= cat.enabled ? 'fa-toggle-off' : 'fa-toggle-on' %> me-1"></i>
+                                    <%= cat.enabled ? 'Desactivar' : 'Activar' %>
+                                  </a>
+                                </li>
+                                <li>
+                                  <a class="dropdown-item text-danger delete-category-btn" href="#" data-category-id="<%= cat.id %>">
+                                    <i class="fas fa-trash me-1"></i> Eliminar
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </td>
+                        </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <!-- Modal de confirmación para activar/desactivar categoría -->
+                <div class="modal fade" id="categoryConfirmModal" tabindex="-1" aria-labelledby="categoryConfirmModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="categoryConfirmModalLabel"><i class="fas fa-exclamation-triangle text-warning"></i> Confirmar acción</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                      </div>
+                      <div class="modal-body" id="categoryConfirmModalBody">
+                        ¿Estás seguro de que deseas realizar esta acción?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" id="categoryConfirmModalOk">Confirmar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Command Modal (Crear/Editar) -->
                 <div class="modal fade" id="commandModal" tabindex="-1" aria-labelledby="commandModalLabel" aria-hidden="true">
@@ -1275,6 +1382,52 @@
       var link = document.getElementById('tickets-link');
       if (link && window.userIdFromUrl) {
         link.href = '/dashboard/administrator/tickets?id=<%- userIdFromUrl %>';
+      }
+
+      // Handler para activar/desactivar desde el menú contextual
+      document.querySelectorAll('.toggle-category-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const catId = this.getAttribute('data-category-id');
+          const enabled = this.getAttribute('data-enabled') === 'true';
+          const modal = new bootstrap.Modal(document.getElementById('categoryConfirmModal'));
+          const body = document.getElementById('categoryConfirmModalBody');
+          body.textContent = enabled
+            ? '¿Desactivar esta categoría? Todos los comandos de la categoría serán desactivados visualmente.'
+            : '¿Activar esta categoría? Todos los comandos de la categoría serán activados visualmente.';
+          modal.show();
+
+          const okBtn = document.getElementById('categoryConfirmModalOk');
+          okBtn.onclick = async () => {
+            modal.hide();
+            // PATCH request para activar/desactivar la categoría (igual que antes)
+            await fetch(`/dashboard/utils/discord/category/${catId}/enable`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ enabled: !enabled })
+            });
+            // Actualiza la tabla de comandos visualmente
+            document.querySelectorAll(`#commands-table tbody tr`).forEach(row => {
+              if (row.dataset.categoryId === catId) {
+                row.classList.toggle('table-danger', enabled); // marca en rojo si desactivado
+                // Opcional: deshabilita botones de acción
+                row.querySelectorAll('button, a').forEach(el => el.disabled = enabled);
+              }
+            });
+            // Opcional: recarga la página o actualiza la tabla de categorías
+            location.reload();
+          };
+        });
+      });
+
+      // Función toast reutilizable
+      function showToast(title, body, error) {
+        const toastEl = document.getElementById('notificationToast');
+        document.getElementById('toast-title').textContent = title;
+        document.getElementById('toast-body').textContent = body;
+        toastEl.classList.toggle('bg-danger', !!error);
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
       }
     });
   </script>

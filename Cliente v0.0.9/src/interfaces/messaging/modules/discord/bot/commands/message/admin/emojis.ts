@@ -16,6 +16,8 @@ const emojisCommand: Precommand = {
   description: "Comprehensive emoji management system for your server",
   aliases: ["emojis", "emojiinfo", "emoji-info", "emoji-control"],
   nsfw: false,
+  category: "Admin",
+  cooldown: 5,
   owner: false,
   examples: [
     "emoji add <emoji> [name]",

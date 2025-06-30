@@ -15,7 +15,8 @@ const EvalCommand: Precommand = {
   nsfw: false,
   owner: true,
   permissions: ["SendMessages"],
-  cooldown: 10,
+  cooldown: 5,
+  category: "Developers",
   aliases: ["e", "evaluate"],
   botpermissions: ["SendMessages", "AttachFiles"],
   async execute(_client, message, args, prefix) {

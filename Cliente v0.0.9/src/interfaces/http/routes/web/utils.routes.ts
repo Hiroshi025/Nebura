@@ -77,6 +77,12 @@ export default ({ app }: TRoutesInput) => {
   const security = new SecurityController();
 
   /**
+   * =========================
+   * LICENSE MANAGEMENT ROUTES
+   * =========================
+   */
+
+  /**
    * Creates a new license.
    * Requires authentication and admin role.
    * @route POST /dashboard/utils/licenses/
@@ -134,6 +140,12 @@ export default ({ app }: TRoutesInput) => {
   app.get(formatRoute("licenses/info/:licenseKey"), security.getLicenseInfo);
 
   /**
+   * =========================
+   * TASK MANAGEMENT ROUTES
+   * =========================
+   */
+
+  /**
    * Creates a new task.
    * Requires authentication.
    * @route POST /dashboard/utils/tasks
@@ -169,11 +181,23 @@ export default ({ app }: TRoutesInput) => {
   app.delete(formatRoute("tasks/:id"), taskController.deleteTask.bind(taskController));
 
   /**
+   * =========================
+   * REMINDER ROUTES
+   * =========================
+   */
+
+  /**
    * Gets upcoming reminders.
    * Requires authentication.
    * @route GET /dashboard/utils/reminders
    */
   app.get("reminders", reminderController.getUpReminders.bind(reminderController));
+
+  /**
+   * =========================
+   * CDN FILE MANAGEMENT ROUTES
+   * =========================
+   */
 
   /**
    * Endpoint for file upload.
@@ -443,10 +467,22 @@ export default ({ app }: TRoutesInput) => {
   }); */
 
   /**
+   * =========================
+   * AUTHENTICATION ROUTES
+   * =========================
+   */
+
+  /**
    * User registration endpoint.
+   *
+   * @remarks
+   * Registers a new user in the system. On success, the user is also logged in and their session is started.
+   *
    * @route POST /dashboard/utils/auth/register
-   * @param req.body - User registration data.
+   * @param req.body - User registration data (must include required user fields).
    * @returns {Object} JSON response with registration status and user data.
+   *
+   * @see {@link https://expressjs.com/en/api.html#req.body Express req.body}
    */
   app.post(formatRoute("auth/register"), async (req: Request, res: Response) => {
     try {
@@ -493,10 +529,16 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * User login endpoint.
+   *
+   * @remarks
+   * Authenticates a user using email and password. If successful, the user is logged in and redirected.
+   *
    * @route POST /dashboard/utils/auth/login
    * @param req.body.email - User email.
    * @param req.body.password - User password.
-   * @returns {Object} JSON response with login status and user data.
+   * @returns {Object} JSON response with login status and user data, or renders login page on failure.
+   *
+   * @see {@link https://expressjs.com/en/api.html#req.body Express req.body}
    */
   app.post(formatRoute("auth/login"), async (req: Request, res: Response) => {
     const { email, password } = req.body;
@@ -521,6 +563,11 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Admin registration endpoint.
+   *
+   * @remarks
+   * Registers a new admin user. Only users with allowed roles can be created as admins.
+   * Sends a Discord webhook notification on successful registration.
+   *
    * @route POST /dashboard/utils/admin/register
    * @param req.body - Admin registration data.
    * @returns {Object} JSON response with registration status and user data.
@@ -577,6 +624,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Admin login endpoint.
+   *
+   * @remarks
+   * Authenticates an admin user using email and password. Only users with allowed admin roles can log in.
+   *
    * @route POST /dashboard/utils/admin/login
    * @param req.body.email - Admin email.
    * @param req.body.password - Admin password.
@@ -621,7 +672,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Updates user information.
-   * Requires authentication.
+   *
+   * @remarks
+   * Updates the role or other information of a user by their ID.
+   *
    * @route PUT /dashboard/utils/auth/update
    * @param req.body.userId - The ID of the user to update.
    * @param req.body.role - The new role for the user.
@@ -668,7 +722,17 @@ export default ({ app }: TRoutesInput) => {
   });
 
   /**
+   * =========================
+   * LOGS MANAGEMENT ROUTES
+   * =========================
+   */
+
+  /**
    * Gets log entries from a specified log file.
+   *
+   * @remarks
+   * Reads a log file and returns its entries as an array of strings, along with file size and last modified date.
+   *
    * @route GET /dashboard/utils/logs/:name
    * @param name - The name of the log file to retrieve.
    * @returns {Object} JSON response with log entries and metadata.
@@ -714,7 +778,17 @@ export default ({ app }: TRoutesInput) => {
   });
 
   /**
+   * =========================
+   * TICKET SYSTEM ROUTES (USER)
+   * =========================
+   */
+
+  /**
    * Creates a new ticket.
+   *
+   * @remarks
+   * Creates a new support ticket for a user, guild, and channel. Sends a Discord webhook notification.
+   *
    * @route POST /dashboard/utils/tickets
    * @param req.body.userId - The ID of the user creating the ticket.
    * @param req.body.guildId - The guild ID (for Discord systems).
@@ -795,6 +869,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Gets all tickets for a user.
+   *
+   * @remarks
+   * Returns paginated tickets for a user, with optional filtering and search.
+   *
    * @route GET /dashboard/utils/tickets/:userId
    * @param userId - The ID of the user whose tickets to retrieve.
    * @returns {Object} JSON response with ticket data.
@@ -845,6 +923,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Gets a specific ticket by ID for a user.
+   *
+   * @remarks
+   * Retrieves a single ticket for a user by ticket ID.
+   *
    * @route GET /dashboard/utils/tickets/:userId/:ticketId
    * @param userId - The ID of the user who owns the ticket.
    * @param ticketId - The ID of the ticket to retrieve.
@@ -878,6 +960,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Updates a specific ticket by ID for a user.
+   *
+   * @remarks
+   * Updates the status or reason of a ticket. If the ticket is closed, a transcript is generated.
+   *
    * @route PUT /dashboard/utils/tickets/:userId/:ticketId
    * @param userId - The ID of the user who owns the ticket.
    * @param ticketId - The ID of the ticket to update.
@@ -957,6 +1043,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Sends a message in a ticket.
+   *
+   * @remarks
+   * Adds a new message to a ticket. Only allowed if the ticket is not closed.
+   *
    * @route POST /dashboard/utils/tickets/:userId/:ticketId/message
    * @param userId - The ID of the user sending the message.
    * @param ticketId - The ID of the ticket to send the message in.
@@ -1025,7 +1115,17 @@ export default ({ app }: TRoutesInput) => {
   });
 
   /**
+   * =========================
+   * TRANSCRIPT ROUTES (USER)
+   * =========================
+   */
+
+  /**
    * Gets all transcripts for a user.
+   *
+   * @remarks
+   * Returns paginated transcripts for a user, filtered by type if provided.
+   *
    * @route GET /dashboard/utils/transcripts
    * @param req.query.userId - The ID of the user whose transcripts to retrieve.
    * @param req.query.type - The type of transcripts to retrieve (e.g., "ticket", "chat", or "all").
@@ -1087,6 +1187,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Gets a specific transcript by ID.
+   *
+   * @remarks
+   * Retrieves a transcript by its unique ID, including duration if available.
+   *
    * @route GET /dashboard/utils/transcripts/:transcriptId
    * @param transcriptId - The ID of the transcript to retrieve.
    * @returns {Object} JSON response with transcript data.
@@ -1154,6 +1258,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Downloads a specific transcript as a PDF file.
+   *
+   * @remarks
+   * Generates and streams a PDF file containing the transcript content.
+   *
    * @route GET /dashboard/utils/transcripts/:transcriptId/download
    * @param transcriptId - The ID of the transcript to download.
    */
@@ -1246,6 +1354,10 @@ export default ({ app }: TRoutesInput) => {
   // Estadísticas de tickets
   /**
    * Gets ticket statistics for the admin dashboard.
+   *
+   * @remarks
+   * Returns general statistics about tickets, including counts by status, category, month, and top users.
+   *
    * @route GET /dashboard/utils/admin/tickets/stats
    * @returns {Object} JSON response with ticket statistics.
    */
@@ -1318,9 +1430,12 @@ export default ({ app }: TRoutesInput) => {
     }
   });
 
-  // Obtener todos los tickets (para admin)
   /**
    * Gets all tickets for admin.
+   *
+   * @remarks
+   * Returns paginated tickets for admin, with optional filtering and search.
+   *
    * @route GET /dashboard/utils/admin/tickets
    * @param req.query.page - Page number for pagination.
    * @param req.query.limit - Number of items per page.
@@ -1380,6 +1495,10 @@ export default ({ app }: TRoutesInput) => {
   });
   /**
    * Assigns a ticket to an admin.
+   *
+   * @remarks
+   * Assigns a ticket to a specific admin user and updates its status to "PENDING".
+   *
    * @route PUT /dashboard/utils/admin/tickets/:ticketId/assign
    * @param ticketId - The ID of the ticket to assign.
    * @param req.body.adminId - The ID of the admin to assign the ticket to.
@@ -1460,6 +1579,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Sends a message as an admin in a ticket.
+   *
+   * @remarks
+   * Adds a new message to a ticket as an admin. Only allowed if the ticket is not closed.
+   *
    * @route POST /dashboard/utils/admin/tickets/:ticketId/message
    * @param ticketId - The ID of the ticket to send the message in.
    * @param req.body.message - The content of the message.
@@ -1548,6 +1671,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Closes a ticket as an admin.
+   *
+   * @remarks
+   * Closes a ticket and generates a transcript of its messages.
+   *
    * @route PUT /dashboard/utils/admin/tickets/:ticketId/close
    * @param ticketId - The ID of the ticket to close.
    * @param req.body.adminId - The ID of the admin closing the ticket.
@@ -1642,6 +1769,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Gets the support team members.
+   *
+   * @remarks
+   * Returns users with admin, developer, or owner roles.
+   *
    * @route GET /dashboard/utils/admin/support/team
    * @returns {Object} JSON response with support team data.
    */
@@ -1671,6 +1802,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Gets all messages for a specific ticket (admin view).
+   *
+   * @remarks
+   * Retrieves all messages for a ticket for admin users.
+   *
    * @route GET /dashboard/utils/admin/tickets/:ticketId/messages
    * @param ticketId - The ID of the ticket to retrieve messages for.
    * @returns {Object} JSON response with message data.
@@ -1707,6 +1842,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Gets detailed information about a specific ticket (admin view).
+   *
+   * @remarks
+   * Retrieves a ticket and its messages for admin users.
+   *
    * @route GET /dashboard/utils/admin/tickets/:ticketId
    * @param ticketId - The ID of the ticket to retrieve.
    * @returns {Object} JSON response with ticket data.
@@ -1753,6 +1892,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Gets support statistics for the admin dashboard.
+   *
+   * @remarks
+   * Returns general statistics about support tickets, including counts by status, category, month, and top users.
+   *
    * @route GET /dashboard/utils/admin/support/stats
    * @returns {Object} JSON response with support statistics.
    */
@@ -1827,6 +1970,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Endpoint to get all transcripts (ADMIN).
+   *
+   * @remarks
+   * Returns paginated transcripts for admin, filtered by type if provided.
+   *
    * @route GET /dashboard/utils/admin/transcripts
    * @param req.query.page - Page number for pagination.
    * @param req.query.limit - Number of items per page.
@@ -1903,14 +2050,17 @@ export default ({ app }: TRoutesInput) => {
   });
 
   /**
-   * CRUD endpoints for Client, Discord, and WhatsApp models.
-   * All responses/messages are in English and include debug logs.
+   * =========================
+   * CLIENT MANAGEMENT ROUTES
+   * =========================
    */
-
-  // ===================== CLIENT =====================
 
   /**
    * Get all clients.
+   *
+   * @remarks
+   * Retrieves all client records from the database.
+   *
    * @route GET /dashboard/utils/client
    */
   app.get(formatRoute("client"), async (_req: Request, res: Response) => {
@@ -1926,6 +2076,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Get a client by ID.
+   *
+   * @remarks
+   * Retrieves a single client by its unique ID.
+   *
    * @route GET /dashboard/utils/client/:id
    */
   app.get(formatRoute("client/:id"), async (req: Request, res: Response) => {
@@ -1946,6 +2100,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Create a new client.
+   *
+   * @remarks
+   * Creates a new client record in the database.
+   *
    * @route POST /dashboard/utils/client
    */
   app.post(formatRoute("client"), async (req: Request, res: Response) => {
@@ -1962,6 +2120,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Update a client by ID.
+   *
+   * @remarks
+   * Updates an existing client record by its unique ID.
+   *
    * @route PUT /dashboard/utils/client/:id
    */
   app.put(formatRoute("client/:id"), async (req: Request, res: Response) => {
@@ -1979,6 +2141,10 @@ export default ({ app }: TRoutesInput) => {
 
   /**
    * Delete a client by ID.
+   *
+   * @remarks
+   * Deletes a client record from the database by its unique ID.
+   *
    * @route DELETE /dashboard/utils/client/:id
    */
   app.delete(formatRoute("client/:id"), async (req: Request, res: Response) => {

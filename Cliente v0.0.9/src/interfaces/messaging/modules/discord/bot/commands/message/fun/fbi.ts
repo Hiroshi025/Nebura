@@ -10,6 +10,7 @@ const fbiCommand: Precommand = {
   examples: ["fbi <text>"],
   nsfw: false,
   owner: false,
+  category: "Entertainment",
   cooldown: 5,
   aliases: ["fbihere"],
   botpermissions: ["SendMessages"],

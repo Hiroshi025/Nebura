@@ -15,7 +15,6 @@ import chalk from "chalk";
 
 import { Utils } from "@/shared/class/utils";
 import emojis from "@config/json/emojis.json";
-import { GiveawayService } from "@messaging/modules/discord/structure/giveaway";
 import { MyTelegram } from "@messaging/modules/telegram/client";
 import { PrismaClient } from "@prisma/client"; // Prisma ORM client: https://www.prisma.io/
 import { ProyectError } from "@utils/extends/error.extension"; // Custom error handling class
@@ -76,83 +75,62 @@ export class Engine {
   public readonly prisma: PrismaClient;
 
   /**
-   * Discord client instance.
+   * Instancia del cliente de Discord.
    * @readonly
    */
   public readonly discord: MyDiscord;
 
+  /**
+   * Instancia del cliente de Telegram.
+   * @readonly
+   */
   public readonly telegram: MyTelegram;
 
   /**
-   * WhatsApp module instance.
+   * Instancia del módulo de WhatsApp.
    * @readonly
    */
   public readonly whatsapp: MyWhatsApp;
 
   /**
-   * API server instance.
+   * Instancia del servidor API.
    * @readonly
    */
   public readonly api: API;
 
   /**
-   * Application configuration object.
+   * Objeto de configuración de la aplicación.
    * @readonly
    */
   public readonly config: ProyectConfig;
 
   /**
-   * Utility functions for Discord.
+   * Utilidades generales para Discord y otras operaciones.
    * @readonly
    */
   public readonly utils: Utils;
+
   /**
-   * Database operations instance using Prisma.
+   * Instancia para operaciones de base de datos usando Prisma.
    * @readonly
    */
   public readonly DB: DBPrisma;
 
   /**
-   * Initializes the core module instances.
+   * Inicializa las instancias principales de los módulos de la aplicación.
    *
-   * @param prisma - Instance of PrismaClient for database operations. Defaults to a new instance.
-   * @param config - Configuration object for the application. Defaults to the loaded configuration.
-   * @param utils - Utility functions for Discord. Defaults to a new Utils instance.
-   * @param DB - Database operations instance. Defaults to a new DBPrisma instance.
-   * @param discord - Instance of the Discord client. Defaults to a new MyDiscord instance.
-   * @param whatsapp - Instance of the WhatsApp module. Defaults to a new MyApp instance.
-   * @param api - Instance of the API server. Defaults to a new API instance.
+   * @param prisma - Instancia de PrismaClient para operaciones de base de datos. Por defecto, se crea una nueva.
+   * @param whatsapp - Instancia del módulo de WhatsApp. Por defecto, se crea una nueva.
+   * @param telegram - Instancia del cliente de Telegram. Por defecto, se crea una nueva.
+   * @param config - Objeto de configuración de la aplicación. Por defecto, se carga la configuración por defecto.
+   * @param discord - Instancia del cliente de Discord. Por defecto, se crea una nueva.
+   * @param DB - Instancia para operaciones de base de datos. Por defecto, se crea una nueva.
+   * @param utils - Funciones utilitarias generales. Por defecto, se crea una nueva.
+   * @param api - Instancia del servidor API. Por defecto, se crea una nueva.
    */
-  constructor(
-    prisma: PrismaClient = Engine.createDefaultPrismaClient(),
-    whatsapp: MyWhatsApp = new MyWhatsApp(),
-    telegram: MyTelegram = new MyTelegram(),
-    config: ProyectConfig = defaultConfig,
-    discord: MyDiscord = new MyDiscord(),
-    DB: DBPrisma = new DBPrisma(),
-    utils: Utils = new Utils(),
-    api: API = new API(),
-  ) {
+  constructor() {
     console.debug("[Engine][constructor] Initializing Engine with provided modules.");
-    this.telegram = telegram;
-    this.whatsapp = whatsapp;
-    this.discord = discord;
-    this.prisma = prisma;
-    this.config = config;
-    this.utils = utils;
-    this.api = api;
-    this.DB = DB;
-  }
-
-  /**
-   * Creates a default Prisma client instance with predefined settings.
-   *
-   * @returns A new instance of PrismaClient.
-   * @see {@link https://www.prisma.io/docs/reference/api-reference/prisma-client-reference | Prisma Client API Reference}
-   */
-  private static createDefaultPrismaClient(): PrismaClient {
-    console.debug("[Engine][createDefaultPrismaClient] Creating default Prisma client.");
-    return new PrismaClient({
+    this.prisma = new PrismaClient({
       log: [
         { emit: "event", level: "query" },
         { emit: "stdout", level: "error" },
@@ -166,6 +144,16 @@ export class Engine {
         },
       },
     });
+
+    this.telegram = new MyTelegram(),
+    this.whatsapp = new MyWhatsApp(),
+    this.discord = new MyDiscord(),
+
+    
+    this.config = defaultConfig;
+    this.utils = new Utils(),
+    this.DB = new DBPrisma(),
+    this.api = new API()
   }
 
   /**
@@ -266,8 +254,8 @@ export class Engine {
     try {
       await ErrorConsole(this.discord);
       await this.initializeModules();
-      await this.clientCreate();
       await loadPendingReminders();
+      await this.clientCreate();
     } catch (err) {
       console.error(err);
       console.debug("[Engine][start] Error during startup:", err);
@@ -353,7 +341,6 @@ const main: Engine = new Engine();
 const client: MyDiscord = main.discord;
 const mywhatsapp: MyWhatsApp = main.whatsapp;
 const mytelegram: MyTelegram = main.telegram;
-const GiveawayManager = new GiveawayService();
 
 /**
  * Starts the application and handles any errors during the startup process.
@@ -375,4 +362,4 @@ main.start().catch((err) => {
  * @see {@link MyDiscord}
  * @see {@link Engine}
  */
-export { client, GiveawayManager, main, mytelegram, mywhatsapp };
+export { client, main, mytelegram, mywhatsapp };

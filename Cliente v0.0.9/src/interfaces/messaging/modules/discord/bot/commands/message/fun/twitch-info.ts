@@ -9,6 +9,7 @@ const twitchInfo: Precommand = {
   description: "Provides information on Twitch profile accounts",
   examples: ["twitch-info <username>"],
   nsfw: false,
+  category: "Entertainment",
   owner: false,
   aliases: ["twitch", "twitchinfo", "twitchprofile"],
   botpermissions: ["SendMessages"],

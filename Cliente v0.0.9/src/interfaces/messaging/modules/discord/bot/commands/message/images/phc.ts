@@ -11,6 +11,7 @@ const phComment: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 5,
+  category: "images",
   aliases: ["phc", "ph-comments"],
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],

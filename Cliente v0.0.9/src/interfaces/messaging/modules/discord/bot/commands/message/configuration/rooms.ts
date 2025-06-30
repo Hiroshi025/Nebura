@@ -13,6 +13,7 @@ const roomsCommand: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 10,
+  category: "Configuration",
   aliases: ["room"],
   botpermissions: ["ManageChannels"],
   permissions: ["Administrator"],

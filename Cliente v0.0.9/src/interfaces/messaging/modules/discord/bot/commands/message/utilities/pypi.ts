@@ -11,13 +11,13 @@ const commandPyPI: Precommand = {
   description: "Get detailed information about a Python package from PyPI",
   examples: ["pypi <package-name>", "pypi requests", "pypi numpy"],
   nsfw: false,
+  category: "Utilities",
   owner: false,
   aliases: ["pypi-info", "python-package", "pip-package"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(client, message, args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     if (!args[0]) {
       return message.reply({
@@ -120,18 +120,9 @@ const commandPyPI: Precommand = {
         .setLabel("View on PyPI")
         .setURL(`https://pypi.org/project/${pkgData.info.name}/`)
         .setStyle(ButtonStyle.Link),
-      new ButtonBuilder()
-        .setLabel("View Dependencies")
-        .setCustomId("view_deps")
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setLabel("View Versions")
-        .setCustomId("view_versions")
-        .setStyle(ButtonStyle.Primary),
-      new ButtonBuilder()
-        .setLabel("View Classifiers")
-        .setCustomId("view_classifiers")
-        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setLabel("View Dependencies").setCustomId("view_deps").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View Versions").setCustomId("view_versions").setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setLabel("View Classifiers").setCustomId("view_classifiers").setStyle(ButtonStyle.Secondary),
     );
 
     // Create versions select menu
@@ -190,9 +181,7 @@ const commandPyPI: Precommand = {
           case "view_deps": {
             const dependencies = pkgData.info.requires_dist || [];
 
-            const depsEmbed = new EmbedBuilder()
-              .setTitle(`Dependencies for ${pkgData.info.name}`)
-              .setColor(0x3776ab);
+            const depsEmbed = new EmbedBuilder().setTitle(`Dependencies for ${pkgData.info.name}`).setColor(0x3776ab);
 
             if (dependencies.length > 0) {
               // Group dependencies by type (required vs optional)
@@ -253,9 +242,7 @@ const commandPyPI: Precommand = {
               .setColor(0x3776ab)
               .setDescription(
                 versions
-                  .map(
-                    (version) => `• ${version} (${pkgData.releases[version]?.length || 0} files)`,
-                  )
+                  .map((version) => `• ${version} (${pkgData.releases[version]?.length || 0} files)`)
                   .join("\n")
                   .slice(0, 2000), // Discord embed limit
               );

@@ -10,6 +10,8 @@ const ChangePrefixCommand: Precommand = {
   examples: ["changeprefix !", "changeprefix ?", "changeprefix $"],
   nsfw: false,
   owner: false,
+  category: "Admin",
+  cooldown: 5,
   aliases: ["cp"],
   botpermissions: ["SendMessages"],
   permissions: ["Administrator"],

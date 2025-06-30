@@ -54,7 +54,6 @@ The core of Nebura Works is orchestrated by the `Engine` class (`src/main.ts`), 
 - **Database**: Managed via Prisma ORM, supporting upserts and advanced queries.
 - **Monitoring**: (Optional) Sentry integration for error tracking.
 
-
 ## Modules
 
 ### API Server
@@ -379,6 +378,17 @@ src/
 ├── index.ts            # Punto de entrada principal
 ├── main.ts             # Inicialización del motor principal
 ```
+
+**Descripción de carpetas principales:**
+
+- **adapters/**: Contiene adaptadores para la base de datos (Prisma), integraciones externas (como GitHub o Passport) y validadores de datos.
+- **application/**: Incluye la lógica de negocio, entidades, DTOs y servicios principales de la aplicación.
+- **gateaway/**: Repositorios que gestionan el acceso y persistencia de datos para dominios como autenticación, licencias y tareas.
+- **interfaces/**: Define las interfaces HTTP (controladores, middlewares, rutas, vistas) y módulos de mensajería (bots de Discord, WhatsApp, etc.).
+- **locales/**: Archivos de internacionalización y localización para soportar múltiples idiomas.
+- **shared/**: Código y utilidades compartidas entre distintos módulos del proyecto.
+- **typings/**: Definiciones de tipos TypeScript personalizadas para el proyecto.
+- **index.ts / main.ts**: Archivos de entrada y bootstrap del motor principal de la plataforma.
 
 **Notas:**
 

@@ -45,6 +45,7 @@ const emotionsCommand: Precommand = {
     "anime waifu",
   ],
   nsfw: false,
+  category: "Entertainment",
   owner: false,
   cooldown: 2,
   aliases: ["emoticons"],

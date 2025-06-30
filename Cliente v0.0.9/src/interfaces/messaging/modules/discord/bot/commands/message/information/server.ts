@@ -10,13 +10,13 @@ const commandServerInfo: Precommand = {
   description: "Get detailed information about the server",
   examples: ["serverinfo"],
   nsfw: false,
+  category: "Information",
   owner: false,
   aliases: ["server", "guildinfo"],
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(_client, message) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     const guild = message.guild;
     await guild.fetch(); // Asegurarnos de tener datos actualizados

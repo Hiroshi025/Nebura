@@ -12,6 +12,7 @@ const decode64Command: Precommand = {
   examples: ["decode64"],
   nsfw: false,
   owner: false,
+  category: "Utilities",
   cooldown: 30,
   aliases: ["dec64", "base64decode"],
   botpermissions: ["SendMessages", "EmbedLinks"],

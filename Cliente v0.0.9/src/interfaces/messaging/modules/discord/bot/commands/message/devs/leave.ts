@@ -12,6 +12,7 @@ const leaveCommand: Precommand = {
   nsfw: false,
   owner: true,
   cooldown: 5,
+  category: "Developers",
   aliases: ["leave-guild", "exit-guild", "part"],
   permissions: ["SendMessages", "EmbedLinks"],
   botpermissions: ["SendMessages", "EmbedLinks"],

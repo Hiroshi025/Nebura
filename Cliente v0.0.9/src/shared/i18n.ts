@@ -27,9 +27,9 @@ import Backend from "i18next-fs-backend";
  * @see https://github.com/i18next/i18next-fs-backend
  */
 i18next.use(Backend).init({
-  fallbackLng: "en", // Default language
-  preload: ["en", "es", "es-419"], // Supported languages to preload
-  ns: ["common", "errors"], // Namespaces to load
+  fallbackLng: { en: ["en-US"], es: ["es-ES"], default: ["es-ES"] },
+  preload: ["en-US", "es-ES"], // Supported languages to preload
+  ns: ["common", "errors", "discord", "whatsapp"], // Namespaces to load
   defaultNS: "common", // Default namespace
   backend: {
     /**

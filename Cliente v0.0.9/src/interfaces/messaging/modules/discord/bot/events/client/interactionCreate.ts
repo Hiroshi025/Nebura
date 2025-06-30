@@ -16,7 +16,9 @@ const cooldowns = new Map<string, Map<string, number>>();
 export default new Event("interactionCreate", async (interaction) => {
   if (!interaction.guild || !interaction.channel || interaction.user.bot || !interaction.user || !client.user) return;
 
-  const lenguage = interaction.guild.preferredLocale;
+  const language = interaction.guild.preferredLocale || "es-ES";
+  // Usar función de traducción consistente
+  const t = (key: string, options?: any) => client.translations.t(`discord:${key}`, { lng: language, ...options });
 
   const { guild } = interaction;
   if (!guild) return;
@@ -55,28 +57,22 @@ export default new Event("interactionCreate", async (interaction) => {
           return interaction.reply({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Error Client Data")
+                .setTitle(t("errors.clientDataTitle"))
                 .setDescription(
                   [
-                    `${client.getEmoji(interaction.guild.id, "error")} The bot is not set up in this server.`,
-                    `Use the command \`/setup\` to set up the bot.`,
+                    `${client.getEmoji(interaction.guild.id, "error")} ${t("errors.clientDataDesc")}`,
+                    t("errors.setupInstruction"),
                   ].join("\n"),
                 ),
             ],
             flags: MessageFlags.Ephemeral,
           });
 
-        //userCooldowns.set(interaction.commandName, now + cooldownAmount);
-        //cooldowns.set(interaction.user.id, userCooldowns);
-
         if (command.options?.owner && !clientData.owners.includes(interaction.user.id))
           return interaction.reply({
             embeds: [
               new ErrorEmbed().setDescription(
-                [
-                  `${client.getEmoji(guild.id, "error")} You do not have permission to use this command, as it is reserved for the bot owner.`,
-                  `If you think this is a bug, please contact the bot owner.`,
-                ].join("\n"),
+                [`${client.getEmoji(guild.id, "error")} ${t("errors.ownerOnly")}`, t("errors.contactOwner")].join("\n"),
               ),
             ],
             flags: MessageFlags.Ephemeral,
@@ -86,10 +82,7 @@ export default new Event("interactionCreate", async (interaction) => {
           return interaction.reply({
             embeds: [
               new ErrorEmbed().setDescription(
-                [
-                  `${client.getEmoji(guild.id, "error")} This command is currently under maintenance.`,
-                  `Please try again later or contact the bot owner for more information.`,
-                ].join("\n"),
+                [`${client.getEmoji(guild.id, "error")} ${t("errors.maintenance")}`, t("errors.tryLater")].join("\n"),
               ),
             ],
             flags: MessageFlags.Ephemeral,
@@ -128,8 +121,8 @@ export default new Event("interactionCreate", async (interaction) => {
         const button = client.buttons.get(interaction.customId);
         if (!button || button === undefined) return;
 
-        await InteractionOptions(button, interaction);
-        button.execute(interaction, client, lenguage, config);
+        await InteractionOptions(button, interaction, language);
+        button.execute(interaction, client, language, config);
       }
       break;
 
@@ -138,8 +131,8 @@ export default new Event("interactionCreate", async (interaction) => {
         const menus = client.menus.get(interaction.customId);
         if (!menus || menus === undefined) return;
 
-        await InteractionOptions(menus, interaction);
-        menus.execute(interaction, client, lenguage, config);
+        await InteractionOptions(menus, interaction, language);
+        menus.execute(interaction, client, language, config);
       }
       break;
 
@@ -160,8 +153,8 @@ export default new Event("interactionCreate", async (interaction) => {
         const modals = client.modals.get(interaction.customId);
         if (!modals || modals === undefined) return;
 
-        await InteractionOptions(modals, interaction);
-        modals.execute(interaction, client, lenguage, config);
+        await InteractionOptions(modals, interaction, language);
+        modals.execute(interaction, client, language, config);
       }
       break;
 
@@ -170,8 +163,8 @@ export default new Event("interactionCreate", async (interaction) => {
         const menus = client.menus.get(interaction.customId);
         if (!menus || menus === undefined) return;
 
-        await InteractionOptions(menus, interaction);
-        menus.execute(interaction, client, lenguage, config);
+        await InteractionOptions(menus, interaction, language);
+        menus.execute(interaction, client, language, config);
       }
       break;
 
@@ -179,11 +172,10 @@ export default new Event("interactionCreate", async (interaction) => {
       const menus = client.menus.get(interaction.customId);
       if (!menus || menus === undefined) return;
 
-      await InteractionOptions(menus, interaction);
-      menus.execute(interaction, client, lenguage, config);
+      await InteractionOptions(menus, interaction, language);
+      menus.execute(interaction, client, language, config);
     }
   }
-
   return;
 });
 
@@ -204,9 +196,13 @@ async function InteractionOptions(
     | StringSelectMenuInteraction
     | ChannelSelectMenuInteraction
     | RoleSelectMenuInteraction,
+  language?: string,
 ) {
   const { guild, member } = interaction;
   if (!guild || !member || !client.user) return;
+
+  const lng = language || guild.preferredLocale || "es-ES";
+  const t = (key: string, options?: any) => client.translations.t(`discord:${key}`, { lng, ...options });
 
   const clientData = await main.DB.findDiscord(client.user.id);
 
@@ -214,12 +210,11 @@ async function InteractionOptions(
     return interaction.reply({
       embeds: [
         new ErrorEmbed()
-          .setTitle("Error Client Data")
+          .setTitle(t("errors.clientDataTitle"))
           .setDescription(
-            [
-              `${client.getEmoji(guild.id, "error")} The bot is not set up in this server.`,
-              `Use the command \`/setup\` to set up the bot.`,
-            ].join("\n"),
+            [`${client.getEmoji(guild.id, "error")} ${t("errors.clientDataDesc")}`, t("errors.setupInstruction")].join(
+              "\n",
+            ),
           ),
       ],
       flags: MessageFlags.Ephemeral,
@@ -229,10 +224,7 @@ async function InteractionOptions(
     return interaction.reply({
       embeds: [
         new ErrorEmbed().setDescription(
-          [
-            `${client.getEmoji(guild.id, "error")} You do not have permission to use this command as it is reserved for the bot owner.`,
-            `If you believe this is a mistake, please contact the bot owner.`,
-          ].join("\n"),
+          [`${client.getEmoji(guild.id, "error")} ${t("errors.ownerOnly")}`, t("errors.contactOwner")].join("\n"),
         ),
       ],
       flags: MessageFlags.Ephemeral,
@@ -242,10 +234,7 @@ async function InteractionOptions(
     return interaction.reply({
       embeds: [
         new ErrorEmbed().setDescription(
-          [
-            `${client.getEmoji(guild.id, "error")}You do not have permission to use this command.`,
-            `If you believe this is a mistake, please contact the bot owner.`,
-          ].join("\n"),
+          [`${client.getEmoji(guild.id, "error")} ${t("errors.noPermission")}`, t("errors.contactStaff")].join("\n"),
         ),
       ],
       flags: MessageFlags.Ephemeral,
@@ -255,10 +244,7 @@ async function InteractionOptions(
     return interaction.reply({
       embeds: [
         new ErrorEmbed().setDescription(
-          [
-            `$${client.getEmoji(guild.id, "error")} I do not have permission to use this command.`,
-            `If you believe this is a mistake, please contact the bot owner.`,
-          ].join("\n"),
+          [`${client.getEmoji(guild.id, "error")} ${t("errors.botNoPermission")}`, t("errors.contactStaff")].join("\n"),
         ),
       ],
       flags: MessageFlags.Ephemeral,
@@ -268,10 +254,7 @@ async function InteractionOptions(
     await interaction.reply({
       embeds: [
         new ErrorEmbed().setDescription(
-          [
-            `${client.getEmoji(guild.id, "error")} This command is currently disabled due to maintenance.`,
-            `Please try again later or contact the bot owner for more information.`,
-          ].join("\n"),
+          [`${client.getEmoji(guild.id, "error")} ${t("errors.maintenanceDisabled")}`, t("errors.tryLater")].join("\n"),
         ),
       ],
       flags: MessageFlags.Ephemeral,
@@ -291,8 +274,8 @@ async function InteractionOptions(
           embeds: [
             new ErrorEmbed().setDescription(
               [
-                `${client.getEmoji(guild.id, "error")} Please wait ${timeLeft} seconds before using this command again.`,
-                `If you believe this is a mistake, please contact the bot owner.`,
+                `${client.getEmoji(guild.id, "error")} ${t("errors.cooldown", { timeLeft })}`,
+                t("errors.tryAgain"),
               ].join("\n"),
             ),
           ],
@@ -307,8 +290,8 @@ async function InteractionOptions(
       embeds: [
         new ErrorEmbed().setDescription(
           [
-            `${client.getEmoji(guild.id, "error")} You are on cooldown for this command.`,
-            `Please wait ${type.cooldown} seconds before using it again.`,
+            `${client.getEmoji(guild.id, "error")} ${t("errors.cooldownActive", { seconds: type.cooldown })}`,
+            t("errors.tryAgain"),
           ].join("\n"),
         ),
       ],

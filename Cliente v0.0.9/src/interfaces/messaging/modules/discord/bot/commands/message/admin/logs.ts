@@ -11,6 +11,8 @@ const logAdminCommand: Precommand = {
   description: "Get the logs of a user (warns, bans, kicks)",
   examples: ["logs warns @user 3"],
   nsfw: false,
+  category: "Admin",
+  cooldown: 5,
   owner: false,
   aliases: ["modlogs"],
   subcommands: ["logs warns @user page", "logs bans"],

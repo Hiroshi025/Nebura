@@ -8,8 +8,7 @@
   <meta name="keywords" content="Nebura, Dashboard, Discord, Perfil, Servidores">
   <meta name="author" content="Nebura">
   <meta property="og:title" content="Nebura - Gestión de Usuario y Servidores">
-  <meta property="og:description"
-    content="Administra tu perfil y servidores de Discord desde el dashboard de Nebura Works">
+  <meta property="og:description" content="Administra tu perfil y servidores de Discord desde el dashboard de Nebura Works">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://host.hiroshi-dev.me/dashboard">
   <meta name="twitter:card" content="summary_large_image">
@@ -20,16 +19,16 @@
 
   <!-- Link Utils -->
   <%- include('partials/link', { user: user }) %>
-    <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
 
-    <script>
-      window.licenseData = JSON.parse('<%- JSON.stringify(licenseData) %>');
-      window.ticketData = JSON.parse('<%- JSON.stringify(ticketData) %>');
-      window.fileData = JSON.parse('<%- JSON.stringify(user) %>');
-      window.USER_DATA = JSON.parse('<%- JSON.stringify(user) %>');
-      window.userId = JSON.parse('<%- JSON.stringify(user.id) %>');
-      console.log(USER_DATA);
-    </script>
+  <script>
+    window.licenseData = JSON.parse('<%- JSON.stringify(licenseData) %>');
+    window.ticketData = JSON.parse('<%- JSON.stringify(ticketData) %>');
+    window.fileData = JSON.parse('<%- JSON.stringify(user) %>');
+    window.USER_DATA = JSON.parse('<%- JSON.stringify(user) %>');
+    window.userId = JSON.parse('<%- JSON.stringify(user.id) %>');
+    console.log(USER_DATA);
+  </script>
 </head>
 
 <body>
@@ -38,459 +37,416 @@
       <!-- SIDEBAR SOLO NAVEGACIÓN GENERAL -->
       <%- include('partials/sidebar', { user: user }) %>
 
-        <!-- CONTENIDO PRINCIPAL -->
-        <main class="flex-grow-1 p-4" style="background: var(--bs-body-bg); color: var(--bs-body-color);">
-          <!-- TABS PRINCIPALES -->
-          <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane"
-                type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="true">
-                <i class="fas fa-user"></i> <span data-key="profileTab">Discord</span>
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="api-tab" data-bs-toggle="tab" data-bs-target="#api-tab-pane" type="button"
-                role="tab" aria-controls="api-tab-pane" aria-selected="false">
-                <i class="fa-solid fa-key"></i> <span>API</span>
-              </button>
-            </li>
-          </ul>
+      <!-- CONTENIDO PRINCIPAL -->
+      <main class="flex-grow-1 p-4" style="background: var(--bs-body-bg); color: var(--bs-body-color);">
+        <!-- TABS PRINCIPALES -->
+        <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="true">
+              <i class="fas fa-user"></i> <span data-key="profileTab">Discord</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="api-tab" data-bs-toggle="tab" data-bs-target="#api-tab-pane" type="button" role="tab" aria-controls="api-tab-pane" aria-selected="false">
+              <i class="fa-solid fa-key"></i> <span data-key="apiTab">API</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="licenses-tab" data-bs-toggle="tab" data-bs-target="#licenses-tab-pane" type="button" role="tab" aria-controls="licenses-tab-pane" aria-selected="false">
+              <i class="fa-solid fa-id-badge"></i> <span data-key="licensesTab">Licencias</span>
+            </button>
+          </li>
+        </ul>
 
-          <div class="tab-content" id="dashboardTabsContent">
-            <!-- PERFIL -->
-            <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab"
-              tabindex="0">
-              <!-- PERFIL DE USUARIO -->
-              <div id="user-profile-section"
-                class="user-profile animate__animated animate__fadeIn d-flex align-items-center">
-                <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=256"
-                  alt="User Avatar" class="user-avatar">
-                <div class="user-info">
-                  <h3 class="mb-0">
-                    <%= user.global_name || user.username %>
-                  </h3>
-                  <p class="mb-0 opacity-75">@<%= user.username %>
-                  </p>
-                  <div class="user-badges mt-2">
-                    <% if (user.premium_type===2) { %>
-                      <span class="badge bg-primary"><i class="fas fa-crown me-1"></i> Nitro</span>
-                      <% } %>
-                        <span class="badge bg-secondary"><i class="fas fa-users me-1"></i>
-                          <%= Array.isArray(user.guilds) ? user.guilds.length : 0 %>
-                            Servidores
-                        </span>
-                  </div>
-                </div>
-                <div class="ms-auto d-none d-md-block" style="max-width: 350px;">
-                  <% if (user.banner) { %>
-                    <img src="https://cdn.discordapp.com/banners/<%= user.id %>/<%= user.banner %>.png?size=512"
-                      alt="Banner" class="user-banner w-100">
-                    <% } else { %>
-                      <div class="user-banner w-100 bg-secondary text-center text-white py-5">Sin banner</div>
-                      <% } %>
+        <div class="tab-content" id="dashboardTabsContent">
+          <!-- PERFIL -->
+          <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+            <!-- PERFIL DE USUARIO -->
+            <div id="user-profile-section" class="user-profile animate__animated animate__fadeIn d-flex align-items-center">
+              <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png?size=256" alt="User Avatar" class="user-avatar">
+              <div class="user-info">
+                <h3 class="mb-0">
+                  <%= user.global_name || user.username %>
+                </h3>
+                <p class="mb-0 opacity-75">@<%= user.username %>
+                </p>
+                <div class="user-badges mt-2">
+                  <% if (user.premium_type===2) { %>
+                  <span class="badge bg-primary"><i class="fas fa-crown me-1"></i> Nitro</span>
+                  <% } %>
+                  <span class="badge bg-secondary"><i class="fas fa-users me-1"></i>
+                    <%= Array.isArray(user.guilds) ? user.guilds.length : 0 %>
+                    Servidores
+                  </span>
                 </div>
               </div>
-              <div class="user-stats">
-                <div class="stat-item">
-                  <div class="stat-value">
-                    <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> g.owner).length : 0 %>
-                  </div>
-                  <div class="stat-label" data-key="ownedServers">Servidores Propios</div>
+              <div class="ms-auto d-none d-md-block" style="max-width: 350px;">
+                <% if (user.banner) { %>
+                <img src="https://cdn.discordapp.com/banners/<%= user.id %>/<%= user.banner %>.png?size=512" alt="Banner" class="user-banner w-100">
+                <% } else { %>
+                <div class="user-banner w-100 bg-secondary text-center text-white py-5">Sin banner</div>
+                <% } %>
+              </div>
+            </div>
+            <div class="user-stats">
+              <div class="stat-item">
+                <div class="stat-value">
+                  <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> g.owner).length : 0 %>
                 </div>
-                <div class="stat-item">
-                  <div class="stat-value">
-                    <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> !g.owner).length : 0 %>
-                  </div>
-                  <div class="stat-label" data-key="memberServers">Servidores Miembro</div>
+                <div class="stat-label" data-key="ownedServers">Servidores Propios</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">
+                  <%= Array.isArray(user.guilds) ? user.guilds.filter(g=> !g.owner).length : 0 %>
                 </div>
-                <div class="stat-item">
-                  <div class="stat-value">
-                    <%= user.created_at ? user.created_at.getFullYear() : '—' %>
+                <div class="stat-label" data-key="memberServers">Servidores Miembro</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">
+                  <%= user.created_at ? user.created_at.getFullYear() : '—' %>
+                </div>
+                <div class="stat-label" data-key="memberSince">Miembro desde</div>
+              </div>
+            </div>
+            <!-- NUEVO ORDEN: Información Personal y Cuenta en la misma fila -->
+            <div class="row" style="margin-top: 20px">
+              <div class="col-md-4">
+                <!-- Tarjeta 1: Información Personal -->
+                <div class="card mb-4" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
+                  <div class="card-header">
+                    <h5 class="mb-0 fw-bold" data-key="personalInfo">Información Personal</h5>
                   </div>
-                  <div class="stat-label" data-key="memberSince">Miembro desde</div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="usernameLabel">Nombre de usuario</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <%= user.username %>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="globalNameLabel">Nombre global</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <%= user.global_name || user.username %>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="userIdLabel">ID de usuario</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <%= user.id %>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <!-- NUEVO ORDEN: Información Personal y Cuenta en la misma fila -->
-              <div class="row" style="margin-top: 20px">
-                <div class="col-md-4">
-                  <!-- Tarjeta 1: Información Personal -->
-                  <div class="card mb-4"
-                    style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
-                    <div class="card-header">
-                      <h5 class="mb-0 fw-bold" data-key="personalInfo">Información Personal</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="usernameLabel">Nombre de usuario</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <%= user.username %>
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="globalNameLabel">Nombre global</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <%= user.global_name || user.username %>
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="userIdLabel">ID de usuario</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <%= user.id %>
-                        </div>
-                      </div>
-                    </div>
+              <div class="col-md-4">
+                <!-- Tarjeta 2: Información de la cuenta -->
+                <div class="card mb-4" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
+                  <div class="card-header">
+                    <h5 class="mb-0 fw-bold" data-key="accountInfo">Información de la cuenta</h5>
                   </div>
-                </div>
-                <div class="col-md-4">
-                  <!-- Tarjeta 2: Información de la cuenta -->
-                  <div class="card mb-4"
-                    style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
-                    <div class="card-header">
-                      <h5 class="mb-0 fw-bold" data-key="accountInfo">Información de la cuenta</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="accountTypeLabel">Tipo de cuenta</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <% if (user.premium_type===2) { %> Nitro <% } else { %> Gratis <% } %>
-                        </div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="accountTypeLabel">Tipo de cuenta</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <% if (user.premium_type===2) { %> Nitro <% } else { %> Gratis <% } %>
                       </div>
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="localeLabel">Idioma</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <% if (user.locale==='es-419' ) { %>Español (América Latina)<% } else if
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="localeLabel">Idioma</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <% if (user.locale==='es-419' ) { %>Español (América Latina)<% } else if
                               (user.locale==='en-US' ) { %>English (US)<% } else { %>
-                                <%= user.locale %>
-                                  <% } %>
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="mfaLabel">Autenticación de dos factores</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <%= user.mfa_enabled ? 'Habilitada' : 'Deshabilitada' %>
-                        </div>
+                        <%= user.locale %>
+                        <% } %>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <!-- Tarjeta 3: Información Adicional -->
-                  <div class="card mb-4"
-                    style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
-                    <div class="card-header">
-                      <h5 class="mb-0 fw-bold" data-key="infoadd">Información Adicional</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="typeClan">Clan</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <%= user.clan ? user.clan.tag : 'Cuenta Individual' %>
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="Provider">Provedor</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <%= user.provider || 'Desconocido' %>
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label fw-bold" data-key="Banner">Banner</label>
-                        <div class="form-control"
-                          style="background: var(--input-bg-dark); color: var(--text-color-dark);">
-                          <%= user.banner || 'Sin Banner' %>
-                        </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="mfaLabel">Autenticación de dos factores</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <%= user.mfa_enabled ? 'Habilitada' : 'Deshabilitada' %>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <!-- NUEVA SECCIÓN: SERVIDORES -->
-              <section class="mt-5">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                  <h3 class="h4 fw-bold" data-key="serversTitle">Mis Servidores</h3>
-                  <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <!-- Filtros avanzados -->
-                    <select id="filter-type" class="form-select form-select-sm"
-                      style="width: 120px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
-                      <option value="all" data-key="filterAll">Todos</option>
-                      <option value="owner" data-key="filterOwner">Propios</option>
-                      <option value="member" data-key="filterMember">Miembro</option>
-                    </select>
-                    <select id="filter-feature" class="form-select form-select-sm"
-                      style="width: 140px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
-                      <option value="all" data-key="filterFeatureAll">Todas</option>
-                      <option value="COMMUNITY" data-key="filterCommunity">Comunitario</option>
-                      <option value="VERIFIED" data-key="filterVerified">Verificado</option>
-                      <option value="PARTNERED" data-key="filterPartnered">Asociado</option>
-                    </select>
-                    <!-- Toggle Compact/Expanded -->
-                    <button id="toggle-compact" class="btn btn-outline-primary btn-sm" title="Modo compacto">
-                      <i class="fas fa-th-large"></i>
-                    </button>
-                    <div class="input-group" style="max-width: 220px;">
-                      <span class="input-group-text"
-                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);"><i
-                          class="fas fa-search"></i></span>
-                      <input type="text" class="form-control" id="server-search" placeholder="Buscar servidores..."
-                        data-key="searchPlaceholder"
-                        style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
+              <div class="col-md-4">
+                <!-- Tarjeta 3: Información Adicional -->
+                <div class="card mb-4" style="background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
+                  <div class="card-header">
+                    <h5 class="mb-0 fw-bold" data-key="infoadd">Información Adicional</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="typeClan">Clan</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <%= user.clan ? user.clan.tag : 'Cuenta Individual' %>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="Provider">Proveedor</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <%= user.provider || 'Desconocido' %>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold" data-key="Banner">Banner</label>
+                      <div class="form-control" style="background: var(--input-bg-dark); color: var(--text-color-dark);">
+                        <%= user.banner || 'Sin Banner' %>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div id="server-grid" class="row g-4">
-                  <!-- Skeleton loaders -->
-                  <% for(let i=0;i<6;i++){ %>
-                    <div class="col-lg-2 col-md-4 col-sm-6 col-12">
-                      <div class="card server-card skeleton">
-                        <div class="skeleton-text"></div>
-                        <div class="skeleton-text" style="width:40%"></div>
-                      </div>
+              </div>
+            </div>
+            <!-- NUEVA SECCIÓN: SERVIDORES -->
+            <section class="mt-5">
+              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h3 class="h4 fw-bold" data-key="serversTitle">Mis Servidores</h3>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <!-- Filtros avanzados -->
+                  <select id="filter-type" class="form-select form-select-sm" style="width: 120px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
+                    <option value="all" data-key="filterAll">Todos</option>
+                    <option value="owner" data-key="filterOwner">Propios</option>
+                    <option value="member" data-key="filterMember">Miembro</option>
+                  </select>
+                  <select id="filter-feature" class="form-select form-select-sm" style="width: 140px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
+                    <option value="all" data-key="filterFeatureAll">Todas</option>
+                    <option value="COMMUNITY" data-key="filterCommunity">Comunitario</option>
+                    <option value="VERIFIED" data-key="filterVerified">Verificado</option>
+                    <option value="PARTNERED" data-key="filterPartnered">Asociado</option>
+                  </select>
+                  <!-- Toggle Compact/Expanded -->
+                  <button id="toggle-compact" class="btn btn-outline-primary btn-sm" title="Modo compacto">
+                    <i class="fas fa-th-large"></i>
+                  </button>
+                  <div class="input-group" style="max-width: 220px;">
+                    <span class="input-group-text" style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="server-search" placeholder="Buscar servidores..." data-key="searchPlaceholder" style="background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
+                  </div>
+                </div>
+              </div>
+              <div id="server-grid" class="row g-4">
+                <!-- Skeleton loaders -->
+                <% for(let i=0;i<6;i++){ %>
+                <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+                  <div class="card server-card skeleton">
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-text" style="width:40%"></div>
+                  </div>
+                </div>
+                <% } %>
+              </div>
+              <div id="loading-spinner" class="text-center my-5 d-none">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+              </div>
+              <div id="no-servers-message" class="text-center text-muted my-5 d-none">
+                <i class="fas fa-server fa-3x mb-3"></i>
+                <h4 data-key="noServersTitle">No hay servidores</h4>
+                <p data-key="noServersSubtitle">No estás en ningún servidor o no tienes permisos de administración</p>
+              </div>
+              <!-- Pagination -->
+              <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center"></ul>
+              </nav>
+            </section>
+            <!-- FIN NUEVA SECCIÓN SERVIDORES -->
+          </div>
+          <!-- API -->
+          <div class="tab-pane fade" id="api-tab-pane" role="tabpanel" aria-labelledby="api-tab" tabindex="0">
+            <div class="row">
+              <% if ((fileData && fileData.length> 0) || (ticketData && ticketData.length > 0) || (licenseData &&
+                  licenseData.length > 0)) { %>
+              <div class="col-md-6" style="margin-bottom: 10px;">
+                <div class="stats-card mb-0 flex-grow-1" style="min-width: 100%; height: 100%; background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
+                  <div class="stats-card-header">
+                    <span class="stats-card-title"><i class="fa-solid fa-chart-bar me-2"></i>Estadísticas de
+                      Usuario</span>
+                  </div>
+                  <div class="stats-card-body">
+                    <% if (fileData && fileData.length> 0) { %>
+                    <div class="mb-3">
+                      <div class="fw-bold mb-1"><i class="fa fa-file-alt me-1"></i>Archivos subidos: <span class="badge bg-info">
+                          <%= fileData.length %>
+                        </span></div>
+                      <table class="table table-sm table-dark table-striped mb-0 stats-table">
+                        <thead>
+                          <tr>
+                            <th>Nombre</th>
+                            <th>Tamaño</th>
+                            <th>Fecha</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% fileData.slice(0,5).forEach(f=> { %>
+                          <tr>
+                            <td title="<%= f.originalName %>">
+                              <%= f.title || f.originalName %>
+                            </td>
+                            <td>
+                              <%= (f.size/1024).toFixed(1) %> KB
+                            </td>
+                            <td>
+                              <%= f.uploadedAt.toLocaleDateString() %>
+                            </td>
+                          </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
                     </div>
                     <% } %>
-                </div>
-                <div id="loading-spinner" class="text-center my-5 d-none">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                  </div>
-                </div>
-                <div id="no-servers-message" class="text-center text-muted my-5 d-none">
-                  <i class="fas fa-server fa-3x mb-3"></i>
-                  <h4 data-key="noServersTitle">No hay servidores</h4>
-                  <p data-key="noServersSubtitle">No estás en ningún servidor o no tienes permisos de administración</p>
-                </div>
-                <!-- Pagination -->
-                <nav aria-label="Page navigation" class="mt-4">
-                  <ul class="pagination justify-content-center"></ul>
-                </nav>
-              </section>
-              <!-- FIN NUEVA SECCIÓN SERVIDORES -->
-            </div>
-            <!-- API -->
-            <div class="tab-pane fade" id="api-tab-pane" role="tabpanel" aria-labelledby="api-tab" tabindex="0">
-              <div class="row">
-                <% if ((fileData && fileData.length> 0) || (ticketData && ticketData.length > 0) || (licenseData &&
-                  licenseData.length > 0)) { %>
-                  <div class="col-md-6" style="margin-bottom: 10px;">
-                    <div class="stats-card mb-0 flex-grow-1"
-                      style="min-width: 100%; height: 100%; background: var(--card-bg-dark); border: 1px solid var(--input-border-dark);">
-                      <div class="stats-card-header">
-                        <span class="stats-card-title"><i class="fa-solid fa-chart-bar me-2"></i>Estadísticas de
-                          Usuario</span>
+                    <% if (ticketData && ticketData.length> 0) { %>
+                    <div>
+                      <div class="fw-bold mb-1"><i class="fa fa-ticket-alt me-1"></i>Tickets recientes:
+                        <span class="badge bg-success">
+                          <%= ticketData.length %>
+                        </span>
                       </div>
-                      <div class="stats-card-body">
-                        <% if (fileData && fileData.length> 0) { %>
-                          <div class="mb-3">
-                            <div class="fw-bold mb-1"><i class="fa fa-file-alt me-1"></i>Archivos subidos: <span
-                                class="badge bg-info">
-                                <%= fileData.length %>
-                              </span></div>
-                            <table class="table table-sm table-dark table-striped mb-0 stats-table">
-                              <thead>
-                                <tr>
-                                  <th>Nombre</th>
-                                  <th>Tamaño</th>
-                                  <th>Fecha</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <% fileData.slice(0,5).forEach(f=> { %>
-                                  <tr>
-                                    <td title="<%= f.originalName %>">
-                                      <%= f.title || f.originalName %>
-                                    </td>
-                                    <td>
-                                      <%= (f.size/1024).toFixed(1) %> KB
-                                    </td>
-                                    <td>
-                                      <%= f.uploadedAt.toLocaleDateString() %>
-                                    </td>
-                                  </tr>
-                                  <% }) %>
-                              </tbody>
-                            </table>
-                          </div>
-                          <% } %>
-                            <% if (ticketData && ticketData.length> 0) { %>
-                              <div>
-                                <div class="fw-bold mb-1"><i class="fa fa-ticket-alt me-1"></i>Tickets recientes:
-                                  <span class="badge bg-success">
-                                    <%= ticketData.length %>
-                                  </span>
-                                </div>
-                                <table class="table table-sm table-dark table-striped mb-0 stats-table">
-                                  <thead>
-                                    <tr>
-                                      <th>ID</th>
-                                      <th>Estado</th>
-                                      <th>Fecha</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    <% ticketData.slice(0,5).forEach(t=> { %>
-                                      <tr>
-                                        <td title="<%= t.ticketId %>">
-                                          <%= t.ticketId %>
-                                        </td>
-                                        <td>
-                                          <span
-                                            class="badge <%= t.status === 'OPEN' ? 'bg-info' : t.status === 'CLOSED' ? 'bg-secondary' : 'bg-warning text-dark' %>">
-                                            <%= t.status %>
-                                          </span>
-                                        </td>
-                                        <td>
-                                          <%= t.createdAt.toLocaleDateString() %>
-                                        </td>
-                                      </tr>
-                                      <% }) %>
-                                  </tbody>
-                                </table>
-                              </div>
-                              <% } %>
-                                <% if (licenseData && licenseData.length> 0) { %>
-                                  <div>
-                                    <div class="fw-bold mb-1"><i class="fa fa-key me-1"></i>Licencias: <span
-                                        class="badge bg-warning text-dark">
-                                        <%= licenseData.length %>
-                                      </span></div>
-                                    <table class="table table-sm table-dark table-striped mb-0 stats-table">
-                                      <thead>
-                                        <tr>
-                                          <th>Clave</th>
-                                          <th>Tipo</th>
-                                          <th>Válida hasta</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <% licenseData.slice(0,5).forEach(l=> { %>
-                                          <tr>
-                                            <td title="<%= l.key %>">
-                                              <%= l.key.length> 16 ? l.key.slice(0, 16) + '...' : l.key %>
-                                            </td>
-                                            <td>
-                                              <%= l.type %>
-                                            </td>
-                                            <td>
-                                              <%= l.validUntil ? new Date(l.validUntil).toLocaleDateString() : '-' %>
-                                            </td>
-                                          </tr>
-                                          <% }) %>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  <% } %>
-                      </div>
+                      <table class="table table-sm table-dark table-striped mb-0 stats-table">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% ticketData.slice(0,5).forEach(t=> { %>
+                          <tr>
+                            <td title="<%= t.ticketId %>">
+                              <%= t.ticketId %>
+                            </td>
+                            <td>
+                              <span class="badge <%= t.status === 'OPEN' ? 'bg-info' : t.status === 'CLOSED' ? 'bg-secondary' : 'bg-warning text-dark' %>">
+                                <%= t.status %>
+                              </span>
+                            </td>
+                            <td>
+                              <%= t.createdAt.toLocaleDateString() %>
+                            </td>
+                          </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
                     </div>
-                  </div>
-                  <!-- NUEVA TARJETA DE GRÁFICA -->
-                  <div class="col-md-6" style="margin-bottom: 10px;">
-                    <div class="stats-card chart-card mb-0 flex-grow-1"
-                      style="min-width: 100%; background: var(--card-bg-dark); border: 1px solid var(--input-border-dark); height: 100%;">
-                      <div class="stats-card-header">
-                        <span class="stats-card-title"><i class="fa-solid fa-chart-pie me-2"></i>Resumen Visual</span>
-                      </div>
-                      <div class="stats-card-body d-flex flex-column align-items-center justify-content-center"
-                        style="min-height:320px;">
-                        <canvas id="userStatsChart"
-                          style="width:150%;height:150%;min-height:320px;max-height:400px;display:block;"></canvas>
-                      </div>
+                    <% } %>
+                    <% if (licenseData && licenseData.length> 0) { %>
+                    <div>
+                      <div class="fw-bold mb-1"><i class="fa fa-key me-1"></i>Licencias: <span class="badge bg-warning text-dark">
+                          <%= licenseData.length %>
+                        </span></div>
+                      <table class="table table-sm table-dark table-striped mb-0 stats-table">
+                        <thead>
+                          <tr>
+                            <th>Clave</th>
+                            <th>Tipo</th>
+                            <th>Válida hasta</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% licenseData.slice(0,5).forEach(l=> { %>
+                          <tr>
+                            <td title="<%= l.key %>">
+                              <%= l.key.length> 16 ? l.key.slice(0, 16) + '...' : l.key %>
+                            </td>
+                            <td>
+                              <%= l.type %>
+                            </td>
+                            <td>
+                              <%= l.validUntil ? new Date(l.validUntil).toLocaleDateString() : '-' %>
+                            </td>
+                          </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
                     </div>
+                    <% } %>
                   </div>
-                  <% } %>
+                </div>
               </div>
-              <section class="card mb-4 fade-in" id="userLicensesSection"
-                style="background: var(--card-bg-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--input-border-dark); margin-top: 2rem;">
-                <div class="card-header d-flex align-items-center justify-content-between"
-                  style="background: transparent; border-bottom: 1px solid var(--input-border-dark);">
-                  <span class="section-title" data-key="licenseSectionTitle"><i
-                      class="fa-solid fa-key me-2"></i>Licencias de usuario</span>
-                  <button class="btn btn-primary btn-sm" id="refreshUserLicensesBtn" title="Recargar licencias"
-                    data-key="refreshLicenses">
-                    <i class="fas fa-sync-alt"></i>
+              <!-- NUEVA TARJETA DE GRÁFICA -->
+              <div class="col-md-6" style="margin-bottom: 10px;">
+                <div class="stats-card chart-card mb-0 flex-grow-1" style="min-width: 100%; background: var(--card-bg-dark); border: 1px solid var(--input-border-dark); height: 100%;">
+                  <div class="stats-card-header">
+                    <span class="stats-card-title"><i class="fa-solid fa-chart-pie me-2"></i>Resumen Visual</span>
+                  </div>
+                  <div class="stats-card-body d-flex flex-column align-items-center justify-content-center" style="min-height:320px;">
+                    <canvas id="userStatsChart" style="width:150%;height:150%;min-height:320px;max-height:400px;display:block;"></canvas>
+                  </div>
+                </div>
+              </div>
+              <% } %>
+            </div>
+            <section class="card mb-4 fade-in" id="userLicensesSection" style="background: var(--card-bg-dark); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--input-border-dark); margin-top: 2rem;">
+              <div class="card-header d-flex align-items-center justify-content-between" style="background: transparent; border-bottom: 1px solid var(--input-border-dark);">
+                <span class="section-title" data-key="licenseSectionTitle"><i class="fa-solid fa-key me-2"></i>Licencias de usuario</span>
+                <button class="btn btn-primary btn-sm" id="refreshUserLicensesBtn" title="Recargar licencias" data-key="refreshLicenses">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+                  <input type="text" id="licenseSearch" class="form-control form-control-sm" style="max-width:200px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);" placeholder="Buscar licencia..." data-key="licenseSearchPlaceholder">
+                  <select id="licenseTypeFilter" class="form-select form-select-sm" style="max-width:150px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
+                    <option value="" data-key="licenseTypeAll">Todos los tipos</option>
+                  </select>
+                  <select id="licenseStatusFilter" class="form-select form-select-sm" style="max-width:130px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
+                    <option value="" data-key="licenseStatusAll">Todos los estados</option>
+                    <option value="ACTIVA" data-key="licenseStatusActive">Activa</option>
+                    <option value="EXPIRADA" data-key="licenseStatusExpired">Expirada</option>
+                  </select>
+                  <button id="exportLicensesBtn" class="btn btn-outline-success btn-sm" title="Exportar a CSV" data-key="exportCSV">
+                    <i class="fa fa-file-csv"></i> Exportar CSV
                   </button>
+                  <span class="ms-auto small">
+                    <span id="activeLicCount" class="badge bg-success" data-key="activeLicenses">0 Activas</span>
+                    <span id="expiredLicCount" class="badge bg-danger" data-key="expiredLicenses">0 Expiradas</span>
+                  </span>
                 </div>
-                <div class="card-body">
-                  <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-                    <input type="text" id="licenseSearch" class="form-control form-control-sm"
-                      style="max-width:200px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);"
-                      placeholder="Buscar licencia..." data-key="licenseSearchPlaceholder">
-                    <select id="licenseTypeFilter" class="form-select form-select-sm"
-                      style="max-width:150px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
-                      <option value="" data-key="licenseTypeAll">Todos los tipos</option>
-                    </select>
-                    <select id="licenseStatusFilter" class="form-select form-select-sm"
-                      style="max-width:130px; background: var(--input-bg-dark); color: var(--bs-body-color); border: 1px solid var(--input-border-dark);">
-                      <option value="" data-key="licenseStatusAll">Todos los estados</option>
-                      <option value="ACTIVA" data-key="licenseStatusActive">Activa</option>
-                      <option value="EXPIRADA" data-key="licenseStatusExpired">Expirada</option>
-                    </select>
-                    <button id="exportLicensesBtn" class="btn btn-outline-success btn-sm" title="Exportar a CSV"
-                      data-key="exportCSV">
-                      <i class="fa fa-file-csv"></i> Exportar CSV
-                    </button>
-                    <span class="ms-auto small">
-                      <span id="activeLicCount" class="badge bg-success" data-key="activeLicenses">0 Activas</span>
-                      <span id="expiredLicCount" class="badge bg-danger" data-key="expiredLicenses">0 Expiradas</span>
-                    </span>
+                <div class="table-responsive position-relative">
+                  <table class="table table-hover align-middle mb-0" id="userLicensesTable" style="background: transparent; color: var(--text-color-dark);">
+                    <thead>
+                      <tr>
+                        <th style="cursor:pointer" data-sort="key" data-key="licenseKey">Clave <i class="fa fa-sort"></i></th>
+                        <th style="cursor:pointer" data-sort="type" data-key="licenseType">Tipo <i class="fa fa-sort"></i></th>
+                        <th style="cursor:pointer" data-sort="estado" data-key="licenseState">Estado <i class="fa fa-sort"></i></th>
+                        <th style="cursor:pointer" data-sort="validUntil" data-key="licenseValidUntil">Válida hasta <i class="fa fa-sort"></i></th>
+                        <th data-key="licenseActions">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Licencias se insertan aquí -->
+                    </tbody>
+                  </table>
+                  <div id="userLicensesEmpty" class="text-center text-muted my-3" style="display:none;" data-key="noLicenses">
+                    No tienes licencias registradas.
                   </div>
-                  <div class="table-responsive position-relative">
-                    <table class="table table-hover align-middle mb-0" id="userLicensesTable"
-                      style="background: transparent; color: var(--text-color-dark);">
-                      <thead>
-                        <tr>
-                          <th style="cursor:pointer" data-sort="key" data-key="licenseKey">Clave <i
-                              class="fa fa-sort"></i></th>
-                          <th style="cursor:pointer" data-sort="type" data-key="licenseType">Tipo <i
-                              class="fa fa-sort"></i></th>
-                          <th style="cursor:pointer" data-sort="estado" data-key="licenseState">Estado <i
-                              class="fa fa-sort"></i></th>
-                          <th style="cursor:pointer" data-sort="validUntil" data-key="licenseValidUntil">Válida hasta <i
-                              class="fa fa-sort"></i></th>
-                          <th data-key="licenseActions">Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <!-- Licencias se insertan aquí -->
-                      </tbody>
-                    </table>
-                    <div id="userLicensesEmpty" class="text-center text-muted my-3" style="display:none;"
-                      data-key="noLicenses">
-                      No tienes licencias registradas.
-                    </div>
-                  </div>
-                  <nav>
-                    <ul class="pagination justify-content-center my-2" id="licensesPagination"></ul>
-                  </nav>
                 </div>
-              </section>
+                <nav>
+                  <ul class="pagination justify-content-center my-2" id="licensesPagination"></ul>
+                </nav>
+              </div>
+            </section>
 
-              <!-- Modal Detalles Licencia -->
-              <div class="modal fade" id="licenseDetailModal" tabindex="-1" aria-labelledby="licenseDetailModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="licenseDetailModalLabel" data-key="licenseDetails">Detalles de la
-                        Licencia</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"
-                        data-key="close"></button>
-                    </div>
-                    <div class="modal-body" id="licenseDetailBody">
-                      <!-- Detalles dinámicos -->
-                    </div>
+            <!-- Modal Detalles Licencia -->
+            <div class="modal fade" id="licenseDetailModal" tabindex="-1" aria-labelledby="licenseDetailModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="licenseDetailModalLabel" data-key="licenseDetails">Detalles de la
+                      Licencia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" data-key="close"></button>
+                  </div>
+                  <div class="modal-body" id="licenseDetailBody">
+                    <!-- Detalles dinámicos -->
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </main>
+        </div>
+      </main>
     </div>
   </div>
   <!-- Toast para notificaciones -->
@@ -514,9 +470,13 @@
       (ticketData && ticketData.length > 0) ||
       (licenseData && licenseData.length > 0)
     ) {
-      (function () {
+      (function() {
         let chartInstance = null;
-        let lastStats = { archivos: 0, tickets: 0, licencias: 0 };
+        let lastStats = {
+          archivos: 0,
+          tickets: 0,
+          licencias: 0
+        };
         const darkMode =
           window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 
@@ -571,22 +531,20 @@
                 `Tickets recientes (${stats.tickets})`,
                 `Licencias activas (${stats.licencias})`,
               ],
-              datasets: [
-                {
-                  data: [stats.archivos, stats.tickets, stats.licencias],
-                  backgroundColor: [
-                    colors.gradients.archivos[0],   // Azul
-                    colors.gradients.tickets[0],    // Rosa
-                    colors.gradients.licencias[0],  // Amarillo
-                  ],
-                  borderColor: colors.background,
-                  borderWidth: 3,
-                  hoverOffset: 20,
-                  borderRadius: 12,
-                  spacing: 4,
-                  weight: 0.5,
-                },
-              ],
+              datasets: [{
+                data: [stats.archivos, stats.tickets, stats.licencias],
+                backgroundColor: [
+                  colors.gradients.archivos[0], // Azul
+                  colors.gradients.tickets[0], // Rosa
+                  colors.gradients.licencias[0], // Amarillo
+                ],
+                borderColor: colors.background,
+                borderWidth: 3,
+                hoverOffset: 20,
+                borderRadius: 12,
+                spacing: 4,
+                weight: 0.5,
+              }, ],
             },
             options: {
               responsive: true,
@@ -611,7 +569,7 @@
                     usePointStyle: true,
                     pointStyle: "circle",
                     // Agrega esta función:
-                    generateLabels: function (chart) {
+                    generateLabels: function(chart) {
                       const datasets = chart.data.datasets[0];
                       return chart.data.labels.map((label, i) => ({
                         text: label,
@@ -641,16 +599,24 @@
                   borderWidth: 1,
                   titleColor: colors.text,
                   bodyColor: colors.text,
-                  titleFont: { size: 14, weight: "bold" },
-                  bodyFont: { size: 13, weight: "500" },
-                  footerFont: { size: 12 },
+                  titleFont: {
+                    size: 14,
+                    weight: "bold"
+                  },
+                  bodyFont: {
+                    size: 13,
+                    weight: "500"
+                  },
+                  footerFont: {
+                    size: 12
+                  },
                   padding: 12,
                   cornerRadius: 8,
                   caretSize: 8,
                   displayColors: true,
                   boxPadding: 6,
                   callbacks: {
-                    label: function (context) {
+                    label: function(context) {
                       const label = context.label.split(" (")[0] || "";
                       const value = context.parsed;
                       const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -668,7 +634,7 @@
 
                       return `${label}: ${value} (${percent}%)${extra}`;
                     },
-                    afterLabel: function (context) {
+                    afterLabel: function(context) {
                       if (context.dataIndex === 1 && ticketData?.length) {
                         const openTickets = ticketData.filter((t) => t.status === "open").length;
                         return `Abiertos: ${openTickets}`;
@@ -686,7 +652,10 @@
                     weight: "600",
                     family: "'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', sans-serif",
                   },
-                  padding: { top: 10, bottom: 15 },
+                  padding: {
+                    top: 10,
+                    bottom: 15
+                  },
                 },
                 subtitle: {
                   display: true,
@@ -697,7 +666,9 @@
                     weight: "normal",
                     style: "italic",
                   },
-                  padding: { bottom: 20 },
+                  padding: {
+                    bottom: 20
+                  },
                 },
               },
               animation: {
@@ -709,14 +680,22 @@
               transitions: {
                 show: {
                   animations: {
-                    x: { from: 0 },
-                    y: { from: 0 },
+                    x: {
+                      from: 0
+                    },
+                    y: {
+                      from: 0
+                    },
                   },
                 },
                 hide: {
                   animations: {
-                    x: { to: 0 },
-                    y: { to: 0 },
+                    x: {
+                      to: 0
+                    },
+                    y: {
+                      to: 0
+                    },
                   },
                 },
               },
@@ -736,11 +715,12 @@
                 }
               },
             },
-            plugins: [
-              {
+            plugins: [{
                 id: "custom_shadow",
                 beforeDraw: (chart, args, options) => {
-                  const { ctx } = chart;
+                  const {
+                    ctx
+                  } = chart;
                   ctx.save();
                   ctx.shadowColor = colors.shadow;
                   ctx.shadowBlur = 20;
@@ -757,7 +737,14 @@
                   if (chart.config.options.cutoutPercentage || chart.config.options.cutout) {
                     const {
                       ctx,
-                      chartArea: { left, right, top, bottom, width, height },
+                      chartArea: {
+                        left,
+                        right,
+                        top,
+                        bottom,
+                        width,
+                        height
+                      },
                     } = chart;
                     const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
 
@@ -794,7 +781,9 @@
             stats.licencias !== lastStats.licencias
           ) {
             renderChart(stats);
-            lastStats = { ...stats };
+            lastStats = {
+              ...stats
+            };
           }
         }
 

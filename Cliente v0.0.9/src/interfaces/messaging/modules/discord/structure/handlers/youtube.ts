@@ -188,22 +188,22 @@ export const YouTube = async (client: MyDiscord) => {
         // Get the latest video from the list
         const latestVideo = videos[0];
         // Extract relevant information for the notification
-        // Extraer título como string
+        // Extract title as string
         let title =
           latestVideo.title?.text ||
           (Array.isArray(latestVideo.title?.runs) ? latestVideo.title.runs.map((r: any) => r.text).join("") : "\u200b");
 
-        // Extraer descripción como string
+        // Extract description as string
         let description =
           latestVideo.description_snippet?.text ||
           (Array.isArray(latestVideo.description_snippet?.runs)
             ? latestVideo.description_snippet.runs.map((r: any) => r.text).join("")
             : "\u200b");
 
-        // Extraer duración
+        // Extract duration
         const duration = latestVideo.length_text?.text || latestVideo.duration?.text || "Unknown";
 
-        // Extraer miniatura del canal (avatar)
+        // Extract channel thumbnail (avatar)
         let channelAvatar = null;
         if (Array.isArray(channel.metadata?.thumbnail)) {
           channelAvatar = channel.metadata.thumbnail[0]?.url;
@@ -211,7 +211,7 @@ export const YouTube = async (client: MyDiscord) => {
           channelAvatar = channel.metadata.avatar[0]?.url;
         }
 
-        // Extraer la mejor miniatura del video
+        // Extract the best video thumbnail
         let videoThumbnail = null;
         if (Array.isArray(latestVideo.rich_thumbnail) && latestVideo.rich_thumbnail.length > 0) {
           videoThumbnail = latestVideo.rich_thumbnail[0].url;
@@ -225,45 +225,45 @@ export const YouTube = async (client: MyDiscord) => {
             null;
         }
 
-        // Extraer fecha de publicación y vistas
+        // Extract publish date and views
         const published = latestVideo.published?.text || "Unknown";
         const views = latestVideo.view_count?.text || latestVideo.short_view_count?.text || "Unknown";
 
-        // Extraer nombre del autor
+        // Extract author name
         const authorName = channel.title || latestVideo.author?.name || "Unknown";
         const userUrl = `https://www.youtube.com/channel/${chan.userId}`;
         const lastVideoId = latestVideo.video_id || latestVideo.id;
         const lastVideoUrl = `https://www.youtube.com/watch?v=${lastVideoId}`;
 
-        // Construir el embed mejorado
+        // Build the improved embed
         let embed = new EmbedCorrect()
           .setAuthor({
             name: `${authorName}`,
             iconURL: channelAvatar || `https://i.imgur.com/ThXFUPL.png`,
             url: userUrl,
           })
-          .setTitle(`<a:online:983334659075211315> ${authorName} publicó un nuevo video`)
+          .setTitle(`${authorName} published a new video`)
           .setURL(lastVideoUrl)
           .setThumbnail(channelAvatar || `https://i.imgur.com/ThXFUPL.png`)
           .setDescription(`${title}\n\n${description}`)
           .addFields([
             {
-              name: `Duración`,
+              name: `Duration`,
               value: `\`${duration}\``,
               inline: true,
             },
             {
-              name: `Publicado`,
+              name: `Published`,
               value: published,
               inline: true,
             },
             {
-              name: `Vistas`,
+              name: `Views`,
               value: views,
               inline: true,
             },
             {
-              name: `Ver en YouTube`,
+              name: `Watch on YouTube`,
               value: `[${title}](${lastVideoUrl})`,
               inline: false,
             },
@@ -274,7 +274,7 @@ export const YouTube = async (client: MyDiscord) => {
 
         // Fetch the Discord channel for notifications
         try {
-          const ch = await client.channels.fetch(chan.channelId as string);
+          const ch = await client.channels.fetch(chan.channelId);
 
           // Only send a notification if the latest video is new (not previously notified)
           if (chan.lastVideo !== lastVideoId) {

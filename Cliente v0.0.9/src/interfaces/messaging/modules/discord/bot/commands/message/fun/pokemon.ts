@@ -13,6 +13,7 @@ const pokedexCommand: Precommand = {
   description: "Pokedex command can show you information about pokemon",
   examples: ["pokedex <pokemon>"],
   nsfw: false,
+  category: "Entertainment",
   owner: false,
   cooldown: 15,
   aliases: ["pokedex-search", "pokedex-pokemon", "pokedex-info", "pokemon"],

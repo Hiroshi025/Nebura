@@ -2,9 +2,7 @@ import { Profile } from "discord-arts";
 import { AttachmentBuilder, EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
-import {
-	getTopUsers
-} from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
+import { getTopUsers } from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
@@ -54,6 +52,14 @@ export default new Command(
   async (client, interaction) => {
     if (!interaction.guild || !interaction.channel || !(interaction.member instanceof GuildMember)) return;
 
+    // Obtener idioma preferido del usuario o guild
+    const lang =
+      (interaction.guild &&
+        (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
+      interaction.locale ||
+      "es-ES";
+    const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+
     await interaction.deferReply(); // Ensure the response doesn't take too long
 
     const subcommand = interaction.options.getSubcommand();
@@ -76,9 +82,7 @@ export default new Command(
               embeds: [
                 new ErrorEmbed()
                   .setColor("Red")
-                  .setDescription(
-                    `${client.getEmoji(interaction.guild.id, "error")} This user hasn't sent any messages yet. Start chatting to appear in the leaderboard.`,
-                  ),
+                  .setDescription(`${client.getEmoji(interaction.guild.id, "error")} ${t("levels.errors.noMessages")}`),
               ],
             });
             return;
@@ -107,7 +111,11 @@ export default new Command(
             embeds: [
               new EmbedCorrect()
                 .setColor("Blue")
-                .setDescription(`> **Level:** ${user.level || 1}\n> **Experience:** ${user.xp || 0}`)
+                .setDescription(
+                  [`> **${t("levels.level")}:** ${user.level || 1}`, `> **${t("levels.exp")}:** ${user.xp || 0}`].join(
+                    "\n",
+                  ),
+                )
                 .setImage(`attachment://profile.png`),
             ],
             files: [attachment],
@@ -118,9 +126,7 @@ export default new Command(
             embeds: [
               new ErrorEmbed()
                 .setColor("Red")
-                .setDescription(
-                  `${client.getEmoji(interaction.guild.id, "error")} An error occurred while fetching user data. Please try again later.`,
-                ),
+                .setDescription(`${client.getEmoji(interaction.guild.id, "error")} ${t("levels.errors.fetchUser")}`),
             ],
           });
         }
@@ -136,9 +142,7 @@ export default new Command(
               embeds: [
                 new ErrorEmbed()
                   .setColor("Red")
-                  .setDescription(
-                    `${client.getEmoji(interaction.guild.id, "error")} There are no users in the ranking yet.`,
-                  ),
+                  .setDescription(`${client.getEmoji(interaction.guild.id, "error")} ${t("levels.errors.noRanking")}`),
               ],
             });
             return;
@@ -164,18 +168,18 @@ export default new Command(
           const rankingText = usersWithAchievements
             .map(
               (entry: any) =>
-                `**#${entry.position}** ${entry.member ? entry.member.user.tag : `<@${entry.user.userId}>`} - Level: **${entry.user.level}**${entry.user.prestige > 0 ? ` (P${entry.user.prestige})` : ""} - XP: **${entry.user.xp}**\nAchievements: ${
-                  entry.achievements.length > 0 ? entry.achievements.map(() => `🏅`).join("") : "None"
+                `**#${entry.position}** ${entry.member ? entry.member.user.tag : `<@${entry.user.userId}>`} - ${t("levels.level")}: **${entry.user.level}**${entry.user.prestige > 0 ? ` (P${entry.user.prestige})` : ""} - ${t("levels.exp")}: **${entry.user.xp}**\n${t("levels.achievements")}: ${
+                  entry.achievements.length > 0 ? entry.achievements.map(() => `🏅`).join("") : t("levels.none")
                 }`,
             )
             .join("\n\n");
 
           // Create the ranking embed
           const embed = new EmbedBuilder()
-            .setTitle("🏆 Level Ranking")
+            .setTitle(t("levels.topTitle"))
             .setColor("Gold")
             .setDescription(rankingText)
-            .setFooter({ text: "Keep participating to climb the ranking!" });
+            .setFooter({ text: t("levels.keepParticipating") });
 
           await interaction.followUp({ embeds: [embed] });
         } catch (error) {
@@ -184,9 +188,7 @@ export default new Command(
             embeds: [
               new ErrorEmbed()
                 .setColor("Red")
-                .setDescription(
-                  `${client.getEmoji(interaction.guild.id, "error")} An error occurred while fetching the ranking.`,
-                ),
+                .setDescription(`${client.getEmoji(interaction.guild.id, "error")} ${t("levels.errors.fetchRanking")}`),
             ],
           });
         }

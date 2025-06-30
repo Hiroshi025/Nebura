@@ -14,6 +14,8 @@ const commandGithub: Precommand = {
     "github search <query> - Search for repositories",
   ],
   nsfw: false,
+  category: "Utilities",
+  cooldown: 10,
   owner: false,
   aliases: ["gh", "git"],
   botpermissions: ["SendMessages", "EmbedLinks"],

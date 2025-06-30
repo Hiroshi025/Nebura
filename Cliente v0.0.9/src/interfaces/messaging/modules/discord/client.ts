@@ -2,127 +2,125 @@ import { Client, Collection, GatewayIntentBits, Options, Partials } from "discor
 import DisTube from "distube";
 
 import { main } from "@/main";
+import i18next from "@/shared/i18n";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
 import { DiscordError } from "@utils/extends/error.extension";
 
-import { GiveawayService } from "./structure/giveaway";
+//import { GiveawayService } from "./structure/giveaway";
 import { DiscordHandler } from "./structure/handlers/collection";
 import { YouTube } from "./structure/handlers/youtube";
 import { Command } from "./structure/utils/builders";
 
 /**
- * Represents the main Discord client for the application.
- * Extends the `Client` class from `discord.js` to provide additional functionality.
+ * Main Discord client class for the application.
+ * Extends the Discord.js Client, adding custom collections and handlers for commands, buttons, modals, menus, and more.
+ * Handles initialization, configuration, and startup logic for the Discord bot.
  */
 export class MyDiscord extends Client {
   /**
-   * Configuration for the Discord module.
-   * Loaded from the application's configuration file.
+   * Discord module configuration loaded from the application's config file.
+   * Used for accessing settings such as the guild ID and other Discord-specific options.
    */
   private settings: typeof config.modules.discord;
 
   /**
-   * Instance of the `DiscordHandler` class, responsible for managing Discord-related operations.
+   * Instance of DiscordHandler, responsible for loading, managing, and deploying Discord-related handlers (commands, events, etc.).
    */
   public handlers: DiscordHandler;
 
   /**
-   * A collection that holds categories, where the key is a string identifier
-   * (e.g., category name) and the value is an array of strings representing
-   * the items in that category.
-   *
-   * @type {Collection<string, string[]>}
+   * Collection of command categories.
+   * Key: category name (string), Value: array of command names (string[]).
+   * Used to organize commands into logical groups.
    */
   public categories: Collection<string, string[]> = new Collection();
 
   /**
-   * A collection of commands, where the key is the command name and the value
-   * is the command object (typically an instance of a Command class).
-   *
-   * @type {Collection<string, Command>}
+   * Collection of all registered commands.
+   * Key: command name (string), Value: Command instance.
    */
   public commands: Collection<string, Command> = new Collection();
 
   /**
-   * A collection of buttons, where the key is a string identifier for the button
-   * (e.g., button name) and the value is the button object.
-   *
-   * @type {Collection<string, Buttons>}
+   * Collection of all registered button interactions.
+   * Key: button identifier (string), Value: Buttons instance.
    */
   public buttons: Collection<string, Buttons> = new Collection();
 
   /**
-   * A collection of modals, where the key is a string identifier for the modal
-   * and the value is the modal object.
-   *
-   * @type {Collection<string, Modals>}
+   * Collection of all registered modal interactions.
+   * Key: modal identifier (string), Value: Modals instance.
    */
   public modals: Collection<string, Modals> = new Collection();
 
   /**
-   * A collection of menus, where the key is a string identifier for the menu
-   * and the value is the menu object.
-   *
-   * @type {Collection<string, Menus>}
+   * Collection of all registered menu interactions.
+   * Key: menu identifier (string), Value: Menus instance.
    */
   public menus: Collection<string, Menus> = new Collection();
 
   /**
-   * A collection of addons, where the key is a string identifier for the addon
-   * and the value is the addon object.
-   *
-   * @type {Collection<unknown, unknown>}
+   * Collection of loaded addons or plugins.
+   * Key and value types are unknown, allowing for flexible extension.
    */
   public addons: Collection<unknown, unknown>;
 
   /**
-   * Collection of preloaded commands.
-   *
-   * @type {Collection<string, unknown>}
-   * @public
+   * Collection of preloaded commands, used for command registration before full initialization.
+   * Key: command name (string), Value: unknown (can be any precommand structure).
    */
   public precommands: Collection<string, unknown>;
 
   /**
-   * Collection of command aliases.
-   *
-   * @type {Collection<string, string>}
-   * @public
+   * Collection of command aliases for quick command lookup.
+   * Key: alias (string), Value: original command name (string).
    */
   public aliases: Collection<string, string>;
 
   /**
-   * Collection of modals.
-   *
-   * @type {Collection<string, unknown>}
-   * @public
+   * Collection for voice generator features or modules.
+   * Key and value types are unknown, allowing for flexible extension.
    */
   public voiceGenerator: Collection<unknown, unknown>;
 
   /**
-   * Collection of cooldowns for commands or interactions.
-   *
-   * @type {Collection<unknown, unknown>}
-   * @public
+   * Collection for tracking cooldowns for commands or interactions.
+   * Used to prevent command spam and enforce rate limits.
+   * Key and value types are unknown.
    */
   public cooldown: Collection<unknown, unknown>;
 
   /**
-   * Collection of job members count.
-   *
-   * @type {Collection<unknown, unknown>}
-   * @public
+   * Collection or object for tracking the number of members in jobs or tasks.
+   * The type is any, as its structure may vary.
    */
   public Jobmembercount: any;
+
+  /**
+   * Instance of DisTube, used for music playback and queue management in Discord voice channels.
+   */
   public distube: DisTube;
+
+  /**
+   * Logging or tracking object for YouTube-related actions or events.
+   * The type is any, as its structure may vary.
+   */
   Youtubelog: any;
 
   /**
-   * Initializes a new instance of the `MyDiscord` class.
-   * Configures the client with specific intents and partials, and initializes handlers and settings.
+   * Instance of i18next or similar translation library, used for internationalization and localization.
+   */
+  translations: any;
+
+  //giveaways: GiveawayService;
+
+  /**
+   * Constructs a new MyDiscord client instance.
+   * Sets up Discord.js client options, initializes all collections, handlers, and music features.
+   * Also sets up event listeners for client readiness and activity status.
    */
   constructor() {
     super({
@@ -158,11 +156,18 @@ export class MyDiscord extends Client {
         Partials.GuildScheduledEvent,
         Partials.Reaction,
       ],
+      allowedMentions: {
+        parse: ["users", "roles"],
+        users: [],
+        roles: [],
+      },
+      waitGuildTimeout: 10_000, // 10 seconds
+      closeTimeout: 10_000, // 10 seconds
       sweepers: {
         ...Options.DefaultSweeperSettings,
         users: {
           interval: 1_800, // Every hour.
-          filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots.
+          filter: () => (user) => user.bot && user.id !== user.client.user.id, // Remove all bots except self.
         },
         threads: {
           interval: 1_800, // Every 30 minutes.
@@ -175,7 +180,7 @@ export class MyDiscord extends Client {
         threadMembers: {
           interval: 1_800, // Every 30 minutes.
           filter: () => (threadMember) => {
-            // Remove thread members that are not in the guild.
+            // Remove thread members that are not in the configured guild.
             const guild = this.guilds.cache.get(this.settings.guildId);
             if (!threadMember.user) return false; // If the user is not defined, do not remove.
             return !guild?.members.cache.has(threadMember.user.id);
@@ -184,7 +189,7 @@ export class MyDiscord extends Client {
         autoModerationRules: {
           interval: 1_800, // Every 30 minutes.
           filter: () => (rule) => {
-            // Remove auto moderation rules that are not in the guild.
+            // Remove auto moderation rules that are not in the configured guild.
             const guild = this.guilds.cache.get(this.settings.guildId);
             return !guild?.autoModerationRules.cache.has(rule.id);
           },
@@ -200,9 +205,11 @@ export class MyDiscord extends Client {
       plugins: [],
     });
 
+    //this.giveaways = new GiveawayService(this);
     this.handlers = new DiscordHandler(this);
     this.settings = config.modules.discord;
     this.cooldown = new Collection();
+    this.translations = i18next;
 
     this.categories = new Collection();
     this.commands = new Collection();
@@ -216,6 +223,10 @@ export class MyDiscord extends Client {
     this.addons = new Collection();
     this.menus = new Collection();
 
+    /**
+     * Event listener for the 'ready' event.
+     * Sets the bot's username, avatar, and activity based on database values when the client is ready.
+     */
     this.on("ready", async () => {
       const data = await main.DB.findDiscord(this.user?.id as string);
       if (!data || !this.user || !data.activity) return;
@@ -238,14 +249,13 @@ export class MyDiscord extends Client {
   }
 
   /**
-   * Starts the Discord client and the application.
-   *
+   * Starts the Discord client and application logic.
    * - Logs the startup process.
-   * - Validates the presence of a token in the configuration.
+   * - Validates the presence of a Discord token in the environment.
    * - Logs into Discord using the provided token.
-   * - Loads and deploys the handlers.
-   *
-   * @returns {Promise<void>} Resolves when the client has successfully started or exits early if an error occurs.
+   * - Loads and deploys all handlers and commands.
+   * @returns {Promise<void>} Resolves when the client has successfully started, or exits early if an error occurs.
+   * @throws {DiscordError} If there is an error loading handlers.
    */
   public async start(): Promise<void> {
     logWithLabel("debug", "Starting Discord API...");
@@ -269,6 +279,7 @@ export class MyDiscord extends Client {
      * The token is expected to be a string that authenticates the client with the Discord API.
      * This method is asynchronous and returns a promise that resolves when the login is successful.
      */
+    console.debug(`[DEBUG][Discord] Logging in with token... ${TOKEN_DISCORD}`);
     await this.login(TOKEN_DISCORD);
     logWithLabel(
       "debug",
@@ -281,7 +292,6 @@ export class MyDiscord extends Client {
 
     // Load and deploy the handlers
     await this.handlers.loadAll();
-    await new GiveawayService();
     await YouTube(this);
     try {
       await Promise.all([this.handlers.deployCommands()]);
@@ -292,19 +302,18 @@ export class MyDiscord extends Client {
   }
 
   /**
-   * Obtiene un emoji por su nombre, priorizando los emojis del servidor.
-   *
-   * @param guildId - El ID del servidor donde buscar el emoji.
-   * @param emojiName - El nombre del emoji a buscar.
-   * @returns {string} El emoji encontrado o el emoji del archivo JSON si no está en el servidor.
+   * Retrieves an emoji by its name, prioritizing server (guild) emojis.
+   * If the emoji is not found in the guild, falls back to the emoji defined in the emojis JSON file.
+   * @param guildId - The ID of the guild (server) to search for the emoji.
+   * @param emojiName - The name of the emoji to search for (must be a key of the emojis JSON).
+   * @returns {string} The formatted emoji string for Discord, or the fallback emoji from the JSON file.
    */
   public getEmoji(guildId: string, emojiName: keyof typeof emojis): string {
     const guild = this.guilds.cache.get(guildId);
-    if (guild) {
+    if (guild) {    
       const emoji = guild.emojis.cache.find((e) => e.name === emojiName);
       if (emoji) return `<:${emoji.name}:${emoji.id}>`;
     }
-    // Si no se encuentra en el servidor, usar el emoji del archivo JSON
     return typeof emojis[emojiName] === "string" ? emojis[emojiName] : `:${emojiName}:`;
   }
 }

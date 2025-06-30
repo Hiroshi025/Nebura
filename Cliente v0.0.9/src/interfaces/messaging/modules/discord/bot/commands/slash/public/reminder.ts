@@ -44,6 +44,14 @@ export default new Command(
         .setMinValue(1);
     }),
   async (client, interaction) => {
+    // Obtener idioma preferido del usuario o guild
+    const lang =
+      (interaction.guild &&
+        (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
+      interaction.locale ||
+      "es-ES";
+    const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+
     const message = interaction.options.getString("message");
     const time = interaction.options.getInteger("time");
     const { guild, member } = interaction;
@@ -53,8 +61,8 @@ export default new Command(
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(interaction.guildId as string, "error")} You need to provide a valid guild!`,
-              `Please use the command in a server.`,
+              `${client.getEmoji(interaction.guildId as string, "error")} ${t("reminder.errors.noGuild")}`,
+              t("reminder.errors.useInServer"),
             ].join("\n"),
           ),
         ],
@@ -65,8 +73,8 @@ export default new Command(
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(guild.id, "error")} You need to provide a message!`,
-              `Please use the command with a message.`,
+              `${client.getEmoji(guild.id, "error")} ${t("reminder.errors.noMessage")}`,
+              t("reminder.errors.useWithMessage"),
             ].join("\n"),
           ),
         ],
@@ -77,8 +85,8 @@ export default new Command(
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(guild.id, "error")} You cannot set a reminder for more than \`1 Year\`!`,
-              `Please use a smaller time value.`,
+              `${client.getEmoji(guild.id, "error")} ${t("reminder.errors.tooLong")}`,
+              t("reminder.errors.smallerTime"),
             ].join("\n"),
           ),
         ],
@@ -95,8 +103,8 @@ export default new Command(
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(guild.id, "error")} You need to provide a valid guild!`,
-              `Please use the command in a server.`,
+              `${client.getEmoji(guild.id, "error")} ${t("reminder.errors.noGuild")}`,
+              t("reminder.errors.useInServer"),
             ].join("\n"),
           ),
         ],
@@ -106,7 +114,7 @@ export default new Command(
     await main.prisma.reminder.create({
       data: {
         userId: (member as GuildMember).id,
-        guildId: guild.id, // almacenar como string según el esquema de Prisma
+        guildId: guild.id,
         message: message,
         remindAt: date,
       },
@@ -114,14 +122,14 @@ export default new Command(
 
     await interaction.reply({
       embeds: [
-        new EmbedCorrect().setTitle(`Set reminder for \`${date.toTimeString()}\`!`).addFields(
+        new EmbedCorrect().setTitle(t("reminder.setTitle", { time: date.toTimeString() })).addFields(
           {
-            name: `${client.getEmoji(guild.id, "clock")} Will be sent in`,
-            value: `${client.getEmoji(guild.id, "reply")} ${time} Minute(s)`,
+            name: `${client.getEmoji(guild.id, "clock")} ${t("reminder.willBeSentIn")}`,
+            value: `${client.getEmoji(guild.id, "reply")} ${t("reminder.minutes", { count: time })}`,
             inline: true,
           },
           {
-            name: `${client.getEmoji(guild.id, "message")} Message`,
+            name: `${client.getEmoji(guild.id, "message")} ${t("reminder.message")}`,
             value: `${client.getEmoji(guild.id, "reply")} \`${message}\``,
             inline: true,
           },
@@ -131,7 +139,6 @@ export default new Command(
     });
 
     schedule.scheduleJob(date, async () => {
-      // Actualizar el estado del recordatorio en la base de datos
       await main.prisma.reminder.updateMany({
         where: { userId: (member as GuildMember).id, guildId: guild.id, remindAt: date },
         data: { isSent: true },
@@ -141,11 +148,11 @@ export default new Command(
         .send({
           embeds: [
             new EmbedCorrect()
-              .setTitle(`Reminder for: ${date.toTimeString()}!`)
+              .setTitle(t("reminder.dmTitle", { time: date.toTimeString() }))
               .setDescription(
                 [
-                  `${client.getEmoji(guild.id, "clock")} Reminder set for \`${time} Minute(s)\`!`,
-                  `${client.getEmoji(guild.id, "message")} Message: \`${message}\``,
+                  `${client.getEmoji(guild.id, "clock")} ${t("reminder.reminderSetFor", { count: time })}`,
+                  `${client.getEmoji(guild.id, "message")} ${t("reminder.message")}: \`${message}\``,
                 ].join("\n"),
               ),
           ],

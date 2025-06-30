@@ -1,7 +1,6 @@
-// src/commands/giveaway/info.ts
+/* // src/commands/giveaway/info.ts
 import { EmbedBuilder } from "discord.js";
 
-import { GiveawayManager } from "@/main";
 import { Precommand } from "@typings/modules/discord";
 import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
@@ -11,12 +10,15 @@ const GiveawayInfo: Precommand = {
   examples: ["/giveaway info"],
   nsfw: false,
   owner: false,
+  category: "Giveaways",
+  aliases: ["giveaway-info", "giveawayinfo", "giveawayinfo"],
+  cooldown: 5,
   permissions: [],
   botpermissions: ["SendMessages", "EmbedLinks"],
   async execute(_client, message) {
     if (!message.guild) return;
 
-    const giveaways = await GiveawayManager.getManager().giveaways.filter(
+    const giveaways = await _client.giveaways.getManager().giveaways.filter(
       (g: { guildId: string; ended: any; }) => g.guildId === message.guild?.id && !g.ended,
     );
 
@@ -48,3 +50,4 @@ const GiveawayInfo: Precommand = {
 };
 
 export = GiveawayInfo;
+ */

@@ -13,6 +13,7 @@ const httpCommand: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 5,
+  category: "Information",
   aliases: ["httpstatuscode", "httpstatuscodes", "httpstatuscodes", "httpstatuscode"],
   botpermissions: ["SendMessages"],
   permissions: ["SendMessages"],

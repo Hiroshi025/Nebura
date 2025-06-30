@@ -13,6 +13,7 @@ const ocrCommand: Precommand = {
   examples: ["extracttext [attachment|URL]", "ocr [image]"],
   nsfw: false,
   owner: false,
+  category: "Utilities",
   cooldown: 60,
   aliases: ["ocr", "imagetext", "readimage"],
   botpermissions: ["SendMessages", "EmbedLinks", "AttachFiles"],

@@ -114,9 +114,21 @@ export class AuthService {
         return { error: "ENCRYPTION_ERROR", message: "Failed to encrypt password" };
       }
 
+      const { TOKEN_DISCORD } = process.env;
+      if (!TOKEN_DISCORD) {
+        // Notificación de error de configuración
+        await this.notifier.sendWebhookNotification(
+          "User Registration Failed",
+          `Discord token is not configured.`,
+          "#F44336",
+          [{ name: "Email", value: email, inline: true }],
+          { content: "🔴 Registration failed (no token)", username: "Auth Service" },
+        );
+        return { error: "CONFIGURATION_ERROR", message: "Discord token is not configured" };
+      }
       const response = await axios.get(`https://discord.com/api/v10/users/${discordId}`, {
         headers: {
-          Authorization: `Bot ${process.env.TOKEN_DISCORD}`,
+          Authorization: `Bot ${TOKEN_DISCORD}`,
         },
       });
 

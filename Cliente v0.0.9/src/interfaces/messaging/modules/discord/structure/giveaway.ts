@@ -1,4 +1,4 @@
-import { GiveawaysManager } from "discord-giveaways";
+import { Giveaway, GiveawaysManager } from "discord-giveaways";
 import { ChannelType, NewsChannel, TextChannel, ThreadChannel, User } from "discord.js";
 
 import { client, main } from "@/main";
@@ -6,10 +6,86 @@ import { Prisma } from "@prisma/client";
 import { GiveawayInterface } from "@typings/modules/discord";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
+import { MyDiscord } from "../client";
+
 /**
  * Service class for managing Discord giveaways using the [discord-giveaways](https://github.com/Androz2091/discord-giveaways) library.
  * Handles loading, starting, rerolling, ending, and deleting giveaways, as well as custom requirements and event listeners.
  */
+class PrismaGiveawaysManager extends GiveawaysManager {
+  constructor(client: MyDiscord, options: any) {
+    super(client, options);
+  }
+
+  async getAllGiveaways(): Promise<Giveaway[]> {
+    const giveaways = await main.prisma.giveaway.findMany({
+      include: { requirements: true },
+    });
+    // Return Giveaway instances as required by the base class
+    return giveaways.map((g) => {
+      // @ts-ignore
+      return new Giveaway(this, {
+        messageId: g.messageId,
+        channelId: g.channelId,
+        guildId: g.guildId,
+        prize: g.prize,
+        winnerCount: g.winnerCount,
+        endAt: g.endsAt.getTime(),
+        ended: g.endsAt.getTime() < Date.now(),
+        hostedBy: g.hostedBy,
+        // Add any other fields required by Giveaway constructor
+      });
+    });
+  }
+
+  async saveGiveaway(messageId: string, giveawayData: any) {
+    await main.prisma.giveaway.create({
+      data: {
+        messageId,
+        channelId: giveawayData.channelId,
+        guildId: giveawayData.guildId,
+        prize: giveawayData.prize,
+        winnerCount: giveawayData.winnerCount,
+        endsAt: new Date(giveawayData.endAt),
+        hostedBy: giveawayData.hostedBy,
+        requirements: giveawayData.requirements
+          ? {
+              create: {
+                requiredRoles: giveawayData.requirements.requiredRoles ?? [],
+                minAccountAge: giveawayData.requirements.minAccountAge ?? undefined,
+                minMessages: giveawayData.requirements.minMessages ?? undefined,
+              },
+            }
+          : undefined,
+      },
+    });
+    return true;
+  }
+
+  async editGiveaway(messageId: string, giveawayData: any) {
+    await main.prisma.giveaway.update({
+      where: { messageId },
+      data: {
+        channelId: giveawayData.channelId,
+        guildId: giveawayData.guildId,
+        prize: giveawayData.prize,
+        winnerCount: giveawayData.winnerCount,
+        endsAt: new Date(giveawayData.endAt),
+        hostedBy: giveawayData.hostedBy,
+        // Si quieres actualizar requirements, hazlo aquí
+      },
+    });
+    return true;
+  }
+
+  async deleteGiveaway(messageId: string) {
+    await main.prisma.giveaway.delete({
+      where: { messageId },
+    });
+    return true;
+  }
+}
+
 export class GiveawayService {
   private manager: GiveawaysManager;
   private readyPromise: Promise<void>; // <--- NUEVO
@@ -30,8 +106,9 @@ export class GiveawayService {
    * Constructs a new GiveawayService and initializes the GiveawaysManager.
    * Loads active giveaways from the database and sets up event listeners.
    */
-  constructor() {
-    this.manager = new GiveawaysManager(client, {
+  constructor(client: MyDiscord) {
+    this.manager = new PrismaGiveawaysManager(client, {
+      storage: false,
       default: {
         botsCanWin: false,
         exemptPermissions: ["Administrator"],
@@ -47,12 +124,6 @@ export class GiveawayService {
       },
     });
 
-    // Cambia esto:
-    // this.loadGiveaways()
-    //   .then(() => console.log("[GiveawayService] Giveaways loaded successfully"))
-    //   .catch((err) => console.error("[GiveawayService] Error loading giveaways:", err));
-
-    // Por esto:
     this.readyPromise = this.loadGiveaways()
       .then(() => console.log("[GiveawayService] Giveaways loaded successfully"))
       .catch((err) => console.error("[GiveawayService] Error loading giveaways:", err));

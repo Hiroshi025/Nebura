@@ -14,6 +14,8 @@ const AddRoleCommand: Precommand = {
   examples: ["addrole"],
   nsfw: false,
   owner: false,
+  category: "Admin",
+  cooldown: 5,
   aliases: ["massrole"],
   maintenance: true,
   botpermissions: [PermissionFlagsBits.ManageRoles],

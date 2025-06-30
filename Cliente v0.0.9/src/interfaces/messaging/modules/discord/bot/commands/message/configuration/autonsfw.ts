@@ -18,6 +18,7 @@ const autonsfwCommand: Precommand = {
   nsfw: false,
   owner: false,
   cooldown: 30,
+  category: "Configuration",
   aliases: ["setnsfw", "nsfwchannel"],
   botpermissions: ["SendMessages", "ManageChannels"],
   permissions: ["Administrator"],

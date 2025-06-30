@@ -11,6 +11,7 @@ const ToolsChannel: Precommand = {
   description: "Interactive channel management tools with extended features",
   examples: ["/channel-tools"],
   nsfw: false,
+  category: "Admin",
   owner: false,
   cooldown: 5,
   aliases: ["tools-channel", "tools", "channel-manage", "mod-tools"],

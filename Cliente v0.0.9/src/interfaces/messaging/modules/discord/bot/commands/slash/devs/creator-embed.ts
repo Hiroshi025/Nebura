@@ -7,6 +7,7 @@ import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/
 import {
 	createButton, disableComponents, enableComponents, getMenuOptions, updateEmbedField
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
+import { main } from "@/main";
 
 /**
  * Slash command for creating custom embeds interactively.
@@ -44,38 +45,40 @@ export default new Command(
    * @param _client - The Discord client instance.
    * @param interaction - The command interaction.
    */
-  async (_client, interaction) => {
+  async (client, interaction) => {
     const { options, member } = interaction;
     const channel = options.getChannel("channel") || interaction.channel;
+
+    const data = await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild?.id as string } });
+    const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+    const lang = data?.lenguage || interaction.locale || "es-ES";
 
     /**
      * Preview embed shown to the user for live editing.
      */
-    const previewEmbed = new EmbedBuilder().setDescription(
-      "Preview Embeds. Start editing to see changes~",
-    );
+    const previewEmbed = new EmbedBuilder().setDescription(t("creatorEmbed.preview"));
     /**
      * Embed containing the settings and instructions.
      */
     const setupEmbed = new EmbedBuilder()
       .setColor("#7700ff")
-      .setTitle("Settings")
-      .setDescription("Use Select Menu below to edit preview");
+      .setTitle(t("creatorEmbed.settingsTitle"))
+      .setDescription(t("creatorEmbed.settingsDesc"));
 
     /**
      * Collection of interactive buttons used in the embed creator.
      */
     const buttons = {
       /** Button to send the embed. */
-      send: createButton("@Send", "Send", ButtonStyle.Success),
+      send: createButton("@Send", t("creatorEmbed.send"), ButtonStyle.Success),
       /** Button to cancel the embed creation. */
-      cancel: createButton("@Cancel", "Cancel", ButtonStyle.Danger),
+      cancel: createButton("@Cancel", t("creatorEmbed.cancel"), ButtonStyle.Danger),
       /** Button to return from field editing. */
-      return: createButton("@fieldReturn", "Return", ButtonStyle.Secondary),
+      return: createButton("@fieldReturn", t("creatorEmbed.return"), ButtonStyle.Secondary),
       /** Button to add a field to the embed. */
-      addField: createButton("@remField", "Add", ButtonStyle.Success),
+      addField: createButton("@remField", t("creatorEmbed.add"), ButtonStyle.Success),
       /** Button to remove a field from the embed. */
-      removeField: createButton("@addField", "Remove", ButtonStyle.Danger),
+      removeField: createButton("@addField", t("creatorEmbed.remove"), ButtonStyle.Danger),
     };
 
     /**
@@ -83,7 +86,7 @@ export default new Command(
      */
     const menu = new StringSelectMenuBuilder()
       .setCustomId("@Menu")
-      .setPlaceholder("Edit Preview")
+      .setPlaceholder(t("creatorEmbed.editPreview"))
       .setMaxValues(1)
       .setMinValues(1)
       .setOptions(getMenuOptions());
@@ -95,10 +98,7 @@ export default new Command(
     /**
      * Action row containing the main action buttons.
      */
-    const buttonComponent = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      buttons.cancel,
-      buttons.send,
-    );
+    const buttonComponent = new ActionRowBuilder<ButtonBuilder>().addComponents(buttons.cancel, buttons.send);
     /**
      * Action row for field editing buttons.
      */
@@ -153,27 +153,27 @@ export default new Command(
           return collector.stop();
         case "@Send":
           // Send the created embed to the selected channel.
-          if (embeds.data.description === "Preview Embeds. Start editing to see changes~") {
+          if (embeds.data.description === t("creatorEmbed.preview")) {
             return i.reply({
-              content: "Cannot send empty embed or without description!",
+              content: t("creatorEmbed.errors.emptyEmbed"),
               flags: "Ephemeral",
             });
           }
           if (!channel) {
             return i.reply({
-              content: "Channel not found. Cannot send the embed.",
+              content: t("creatorEmbed.errors.channelNotFound"),
               flags: "Ephemeral",
             });
           }
 
           if (channel.type !== ChannelType.GuildText) {
             return i.reply({
-              content: "Please select a text channel to send the embed.",
+              content: t("creatorEmbed.errors.notTextChannel"),
               flags: "Ephemeral",
             });
           }
           await (channel as TextChannel).send({ embeds: [embeds] });
-          await i.reply({ content: "Embed Sent!", flags: "Ephemeral" });
+          await i.reply({ content: t("creatorEmbed.sent"), flags: "Ephemeral" });
           forceStop = true;
           return collector.stop();
         case "@fieldReturn":
@@ -188,7 +188,7 @@ export default new Command(
           // Remove the last field from the embed.
           if (!embeds.data.fields || embeds.data.fields.length === 0) {
             return i.reply({
-              content: "No Fields Detected",
+              content: t("creatorEmbed.errors.noFields"),
               flags: "Ephemeral",
             });
           }
@@ -200,7 +200,7 @@ export default new Command(
           break;
         case "@addField":
           // Add a new field to the embed by collecting user input.
-          setup.data.description = "Input Fields.\nSend field Name > Value > Inline: true | false";
+          setup.data.description = t("creatorEmbed.inputFields");
           disableComponents(fieldSetupComponent, fieldMenuComponent);
           await i.update({
             embeds: [embeds, setup],
@@ -213,17 +213,17 @@ export default new Command(
               await (i.channel as TextChannel).awaitMessages({
                 filter: (m) => m.author.id === i.user.id,
                 max: 3,
-                time: 60000, // <-- Timeout for user input
+                time: 60000,
                 errors: ["time"],
               })
             ).first(3);
           } catch {
-            await i.followUp({ content: "No se recibieron los campos a tiempo." });
+            await i.followUp({ content: t("creatorEmbed.errors.noFieldsTimeout") });
             enableComponents(fieldSetupComponent, fieldMenuComponent);
             return;
           }
           if (!msgArr || msgArr.length < 3) {
-            await i.followUp({ content: "Debes enviar los 3 campos." });
+            await i.followUp({ content: t("creatorEmbed.errors.mustSendThreeFields") });
             enableComponents(fieldSetupComponent, fieldMenuComponent);
             return;
           }
@@ -241,7 +241,7 @@ export default new Command(
           }
 
           enableComponents(fieldSetupComponent, fieldMenuComponent);
-          setup.data.description = "Use the button below to add or remove fields";
+          setup.data.description = t("creatorEmbed.useButtonFields");
           await replies.edit({
             embeds: [embeds, setup],
             components: [fieldSetupComponent, fieldMenuComponent],
@@ -255,21 +255,18 @@ export default new Command(
           buttonComponent.components[1].setDisabled(true);
           const selectedOption = i.values[0];
           if (selectedOption === "timestamp") {
-            embeds.data.timestamp = embeds.data.timestamp
-              ? undefined
-              : new Date(Date.now()).toISOString();
+            embeds.data.timestamp = embeds.data.timestamp ? undefined : new Date(Date.now()).toISOString();
             i.update({
               embeds: [embeds, setupEmbed],
             });
           } else if (selectedOption === "fields") {
-            setup.data.description = "Use the button below to add or remove fields";
+            setup.data.description = t("creatorEmbed.useButtonFields");
             await i.update({
               embeds: [embeds, setup],
               components: [fieldSetupComponent, fieldMenuComponent],
             });
           } else {
-            setup.data.description =
-              "Modify by sending message to the channel\n-# For image you can upload image directly or use direct url";
+            setup.data.description = t("creatorEmbed.modifyByMessage");
 
             await i.update({
               embeds: [embeds, setup],
@@ -302,7 +299,7 @@ export default new Command(
       // Handle collector end (timeout or manual stop).
       if (!forceStop && replies) {
         interaction.followUp({
-          content: "Embed Editor closed due to inactivity.",
+          content: t("creatorEmbed.closed"),
           flags: "Ephemeral",
         });
       }

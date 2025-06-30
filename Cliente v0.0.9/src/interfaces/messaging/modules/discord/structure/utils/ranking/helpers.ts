@@ -1,5 +1,5 @@
 import { Profile } from "discord-arts";
-import { AttachmentBuilder, GuildChannel, Message, PermissionFlagsBits, TextChannel } from "discord.js";
+import { AttachmentBuilder, ChannelType, Message, PermissionFlagsBits, TextChannel } from "discord.js";
 
 import { client, main } from "@/main";
 import { LevelConfig, UserLevel } from "@prisma/client";
@@ -536,12 +536,12 @@ async function sendLevelUpNotification(
 ) {
   const { level, prestige, streak, achievements } = details;
   const userId = message.author.id;
-  let notificationChannel: GuildChannel | null = null;
+  let notificationChannel;
 
   // Try to fetch the configured notification channel
   if (rankingConfig.channelId) {
     try {
-      notificationChannel = (await client.channels.fetch(rankingConfig.channelId)) as GuildChannel;
+      notificationChannel = await client.channels.fetch(rankingConfig.channelId);
     } catch (err) {
       console.error("Failed to fetch notification channel:", err);
     }
@@ -549,7 +549,7 @@ async function sendLevelUpNotification(
 
   // Fall back to current channel if no notification channel
   if (!notificationChannel) {
-    notificationChannel = message.channel as GuildChannel;
+    notificationChannel = message.channel;
   }
 
   // Prepare achievement text if any
@@ -587,8 +587,9 @@ async function sendLevelUpNotification(
 
   try {
     // Check if we can send to the channel
+    if (notificationChannel.type !== ChannelType.GuildText) return;
     if (notificationChannel.permissionsFor(client.user!)?.has(PermissionFlagsBits.SendMessages)) {
-      await (notificationChannel as TextChannel).send({
+      await notificationChannel.send({
         content: `🎉 ${message.author} has leveled up to level ${level}${prestige > 0 ? ` (Prestige ${prestige})` : ""}!${streakText}${achievementText}`,
         files: [attachment],
       });

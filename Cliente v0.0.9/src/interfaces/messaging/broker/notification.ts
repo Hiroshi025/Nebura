@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 
 import { config } from "../../../shared/utils/config";
 
+const { TOKEN_DISCORD } = process.env;
 /**
  * Utility class for sending notifications via Discord webhooks and email.
  *
@@ -85,7 +86,7 @@ export class Notification {
       ) {
         throw new Error("Webhook configuration is missing or incomplete");
       }
-      if (!process.env.TOKEN_DISCORD) {
+      if (!TOKEN_DISCORD) {
         throw new Error("Discord bot token is missing in configuration");
       }
 
@@ -125,7 +126,7 @@ export class Notification {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bot ${process.env.TOKEN_DISCORD}`,
+          Authorization: `Bot ${TOKEN_DISCORD}`,
         },
         data: {
           content: mergedOptions.content,
