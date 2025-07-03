@@ -17,6 +17,7 @@ const ytCommand: Precommand = {
   permissions: ["SendMessages"],
   async execute(client, message, args, prefix) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+    const lang = message.guild.preferredLocale || "en-US";
     const user = message.mentions.users.first() || message.author;
     const comment = args.slice(1).join(" ");
     if (!comment)
@@ -24,8 +25,8 @@ const ytCommand: Precommand = {
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(message.guild.id, "error")} You need to provide a comment to be displayed on the image!`,
-              `**Usage:** \`${prefix}yt-comment <user> <comment>\``,
+              `${client.getEmoji(message.guild.id, "error")} ${client.t("discord:ytcomment.noComment", { lng: lang })}`,
+              client.t("discord:ytcomment.usage", { prefix, lng: lang }),
             ].join("\n"),
           ),
         ],
@@ -81,9 +82,7 @@ const ytCommand: Precommand = {
 
     const embed = new EmbedCorrect()
       .setImage("attachment://yt-comment.png")
-      .setColor("Random")
-      .setTitle("PH Comment - Image")
-      .setTimestamp();
+      .setColor("Random");
 
     await message.delete();
     return await message.channel.send({ embeds: [embed], files: [file] });

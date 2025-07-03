@@ -19,20 +19,25 @@ const timeoutCommand: Precommand = {
   permissions: ["ModerateMembers"],
   async execute(_client, message, args) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+    // Multilenguaje
+    const userLang = message.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = _client.translations.getFixedT(lang, "discord");
+
     if (!message.member?.permissions.has(PermissionFlagsBits.ModerateMembers)) {
       return message.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
-            .setTitle("❌ Permission Denied")
-            .setDescription("You need the `Moderate Members` permission to use this command."),
+            .setTitle(t("timeout.permissionDeniedTitle"))
+            .setDescription(t("timeout.permissionDeniedDesc")),
         ],
       });
     }
 
     const subcommand = args[0]?.toLowerCase();
     const targetUser = message.mentions.members?.first() || message.guild.members.cache.get(args[1]);
-    const reason = args.slice(2).join(" ") || "No reason provided";
+    const reason = args.slice(2).join(" ") || t("timeout.noReason");
 
     switch (subcommand) {
       case "add":
@@ -41,11 +46,11 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Invalid Usage")
-                .setDescription("Please mention a user or provide their ID to timeout.")
+                .setTitle(t("timeout.invalidUsageTitle"))
+                .setDescription(t("timeout.invalidUsageDesc"))
                 .addFields(
-                  { name: "Example", value: "`timeout add @user 30m Spamming`" },
-                  { name: "Time Formats", value: "`30m` (30 minutes), `2h` (2 hours), `1d` (1 day)" },
+                  { name: t("timeout.exampleField"), value: "`timeout add @user 30m Spamming`" },
+                  { name: t("timeout.timeFormatsField"), value: t("timeout.timeFormatsValue") },
                 ),
             ],
           });
@@ -56,8 +61,8 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Invalid Target")
-                .setDescription("You cannot timeout yourself."),
+                .setTitle(t("timeout.invalidTargetTitle"))
+                .setDescription(t("timeout.invalidTargetDesc")),
             ],
           });
         }
@@ -67,8 +72,8 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Permission Denied")
-                .setDescription("I cannot timeout this user. They may have higher roles than me."),
+                .setTitle(t("timeout.permissionDeniedTitle"))
+                .setDescription(t("timeout.notModeratableDesc")),
             ],
           });
         }
@@ -79,11 +84,11 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Missing Duration")
-                .setDescription("Please specify a timeout duration.")
+                .setTitle(t("timeout.missingDurationTitle"))
+                .setDescription(t("timeout.missingDurationDesc"))
                 .addFields(
-                  { name: "Example", value: "`timeout add @user 30m Spamming`" },
-                  { name: "Time Formats", value: "`30m` (30 minutes), `2h` (2 hours), `1d` (1 day)" },
+                  { name: t("timeout.exampleField"), value: "`timeout add @user 30m Spamming`" },
+                  { name: t("timeout.timeFormatsField"), value: t("timeout.timeFormatsValue") },
                 ),
             ],
           });
@@ -96,11 +101,11 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Invalid Duration")
-                .setDescription("Timeout duration must be between 1 minute and 28 days.")
+                .setTitle(t("timeout.invalidDurationTitle"))
+                .setDescription(t("timeout.invalidDurationDesc"))
                 .addFields(
-                  { name: "Valid Formats", value: "`m` (minutes), `h` (hours), `d` (days)" },
-                  { name: "Examples", value: "`30m`, `2h`, `1d`" },
+                  { name: t("timeout.validFormatsField"), value: t("timeout.validFormatsValue") },
+                  { name: t("timeout.examplesField"), value: t("timeout.examplesValue") },
                 ),
             ],
           });
@@ -109,17 +114,22 @@ const timeoutCommand: Precommand = {
         const timeoutUntil = new Date(Date.now() + duration);
 
         try {
-          await targetUser.timeout(duration, `${reason} (Moderator: ${message.author.tag})`);
+          await targetUser.timeout(duration, `${reason} (${t("timeout.moderator")}: ${message.author.tag})`);
 
           // Confirmation message
           const embed = new EmbedBuilder()
             .setColor("#FFA500")
-            .setTitle("⏳ User Timed Out")
-            .setDescription(`${targetUser} has been timed out until <t:${Math.floor(timeoutUntil.getTime() / 1000)}:f>`)
+            .setTitle(t("timeout.userTimedOutTitle"))
+            .setDescription(
+              t("timeout.userTimedOutDesc", {
+                user: `${targetUser}`,
+                time: `<t:${Math.floor(timeoutUntil.getTime() / 1000)}:f>`,
+              }),
+            )
             .addFields(
-              { name: "Reason", value: reason, inline: true },
-              { name: "Duration", value: formatDuration(duration), inline: true },
-              { name: "Moderator", value: message.author.toString(), inline: true },
+              { name: t("timeout.reasonField"), value: reason, inline: true },
+              { name: t("timeout.durationField"), value: formatDuration(duration, t), inline: true },
+              { name: t("timeout.moderatorField"), value: message.author.toString(), inline: true },
             )
             .setThumbnail(targetUser.displayAvatarURL())
             .setTimestamp();
@@ -127,7 +137,7 @@ const timeoutCommand: Precommand = {
           const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
               .setCustomId(`untimeout_${targetUser.id}`)
-              .setLabel("Remove Timeout")
+              .setLabel(t("timeout.removeTimeoutButton"))
               .setStyle(ButtonStyle.Danger),
           );
 
@@ -143,10 +153,10 @@ const timeoutCommand: Precommand = {
                   embeds: [
                     new EmbedBuilder()
                       .setColor("#FF0000")
-                      .setTitle("❌ Permission Denied")
-                      .setDescription("You need the `Moderate Members` permission to remove timeouts."),
+                      .setTitle(t("timeout.permissionDeniedTitle"))
+                      .setDescription(t("timeout.removeTimeoutDeniedDesc")),
                   ],
-                  ephemeral: true,
+                  flags: "Ephemeral"
                 });
               }
 
@@ -155,8 +165,8 @@ const timeoutCommand: Precommand = {
                 embeds: [
                   embed
                     .setColor("#00FF00")
-                    .setTitle("✅ Timeout Removed")
-                    .setDescription(`Timeout removed from ${targetUser}`),
+                    .setTitle(t("timeout.timeoutRemovedTitle"))
+                    .setDescription(t("timeout.timeoutRemovedDesc", { user: `${targetUser}` })),
                 ],
                 components: [],
               });
@@ -175,8 +185,8 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Error")
-                .setDescription("Failed to timeout the user. Please try again."),
+                .setTitle(t("timeout.errorTitle"))
+                .setDescription(t("timeout.errorDesc")),
             ],
           });
         }
@@ -190,9 +200,9 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Invalid Usage")
-                .setDescription("Please mention a user or provide their ID to remove their timeout.")
-                .addFields({ name: "Example", value: "`timeout remove @user`" }),
+                .setTitle(t("timeout.invalidUsageTitle"))
+                .setDescription(t("timeout.invalidRemoveDesc"))
+                .addFields({ name: t("timeout.exampleField"), value: "`timeout remove @user`" }),
             ],
           });
         }
@@ -202,8 +212,8 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FFA500")
-                .setTitle("⚠️ No Active Timeout")
-                .setDescription(`${targetUser} is not currently timed out.`),
+                .setTitle(t("timeout.noActiveTimeoutTitle"))
+                .setDescription(t("timeout.noActiveTimeoutDesc", { user: `${targetUser}` })),
             ],
           });
         }
@@ -214,9 +224,9 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#00FF00")
-                .setTitle("✅ Timeout Removed")
-                .setDescription(`${targetUser}'s timeout has been successfully removed.`)
-                .addFields({ name: "Moderator", value: message.author.toString() }),
+                .setTitle(t("timeout.timeoutRemovedTitle"))
+                .setDescription(t("timeout.timeoutRemovedSuccessDesc", { user: `${targetUser}` }))
+                .addFields({ name: t("timeout.moderatorField"), value: message.author.toString() }),
             ],
           });
         } catch (error) {
@@ -225,8 +235,8 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#FF0000")
-                .setTitle("❌ Error")
-                .setDescription("Failed to remove the timeout. Please try again."),
+                .setTitle(t("timeout.errorTitle"))
+                .setDescription(t("timeout.removeErrorDesc")),
             ],
           });
         }
@@ -241,20 +251,20 @@ const timeoutCommand: Precommand = {
             embeds: [
               new EmbedBuilder()
                 .setColor("#7289DA")
-                .setTitle("⏳ Active Timeouts")
-                .setDescription("There are currently no users timed out in this server."),
+                .setTitle(t("timeout.activeTimeoutsTitle"))
+                .setDescription(t("timeout.noTimeoutsDesc")),
             ],
           });
         }
 
         const embed = new EmbedBuilder()
           .setColor("#FFA500")
-          .setTitle(`⏳ Active Timeouts (${timedOutMembers.size})`)
-          .setDescription("List of currently timed out members:");
+          .setTitle(t("timeout.activeTimeoutsListTitle", { count: timedOutMembers.size }))
+          .setDescription(t("timeout.activeTimeoutsListDesc"));
 
         const selectMenu = new StringSelectMenuBuilder()
           .setCustomId("timeout_details")
-          .setPlaceholder("Select a user to view details")
+          .setPlaceholder(t("timeout.selectUserPlaceholder"))
           .setMinValues(1)
           .setMaxValues(1);
 
@@ -264,7 +274,10 @@ const timeoutCommand: Precommand = {
 
           embed.addFields({
             name: member.user.tag,
-            value: `Ends: <t:${Math.floor(timeoutEnds!.getTime() / 1000)}:R>\nID: ${member.id}`,
+            value: t("timeout.timeoutEndsField", {
+              time: `<t:${Math.floor(timeoutEnds!.getTime() / 1000)}:R>`,
+              id: member.id,
+            }),
             inline: true,
           });
 
@@ -272,7 +285,7 @@ const timeoutCommand: Precommand = {
             new StringSelectMenuOptionBuilder()
               .setLabel(member.user.tag)
               .setValue(member.id)
-              .setDescription(`Timeout ends ${formatDuration(timeLeft)}`),
+              .setDescription(t("timeout.timeoutEndsDesc", { time: formatDuration(timeLeft, t) })),
           );
         });
 
@@ -292,10 +305,10 @@ const timeoutCommand: Precommand = {
                 embeds: [
                   new EmbedBuilder()
                     .setColor("#FF0000")
-                    .setTitle("❌ Error")
-                    .setDescription("This user is no longer timed out."),
+                    .setTitle(t("timeout.errorTitle"))
+                    .setDescription(t("timeout.noLongerTimedOutDesc")),
                 ],
-                ephemeral: true,
+                flags: "Ephemeral",
               });
             }
 
@@ -304,26 +317,30 @@ const timeoutCommand: Precommand = {
 
             const detailsEmbed = new EmbedBuilder()
               .setColor("#FFA500")
-              .setTitle(`⏳ Timeout Details: ${member.user.tag}`)
+              .setTitle(t("timeout.detailsTitle", { user: member.user.tag }))
               .setThumbnail(member.displayAvatarURL())
               .addFields(
-                { name: "User", value: member.toString(), inline: true },
-                { name: "ID", value: member.id, inline: true },
-                { name: "Timeout Ends", value: `<t:${Math.floor(timeoutEnds.getTime() / 1000)}:f>`, inline: true },
-                { name: "Time Remaining", value: formatDuration(timeLeft), inline: true },
+                { name: t("timeout.userField"), value: member.toString(), inline: true },
+                { name: t("timeout.idField"), value: member.id, inline: true },
+                {
+                  name: t("timeout.timeoutEndsFieldShort"),
+                  value: `<t:${Math.floor(timeoutEnds.getTime() / 1000)}:f>`,
+                  inline: true,
+                },
+                { name: t("timeout.timeRemainingField"), value: formatDuration(timeLeft, t), inline: true },
               );
 
             const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
                 .setCustomId(`untimeout_${member.id}`)
-                .setLabel("Remove Timeout")
+                .setLabel(t("timeout.removeTimeoutButton"))
                 .setStyle(ButtonStyle.Danger),
             );
 
             await i.reply({
               embeds: [detailsEmbed],
               components: [actionRow],
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
 
@@ -340,14 +357,14 @@ const timeoutCommand: Precommand = {
           embeds: [
             new EmbedBuilder()
               .setColor("#7289DA")
-              .setTitle("🛠️ Timeout Command Help")
-              .setDescription("Manage user timeouts in the server")
+              .setTitle(t("timeout.helpTitle"))
+              .setDescription(t("timeout.helpDesc"))
               .addFields(
-                { name: "Add Timeout", value: "`timeout add @user 30m [reason]`", inline: true },
-                { name: "Remove Timeout", value: "`timeout remove @user`", inline: true },
-                { name: "List Timeouts", value: "`timeout list`", inline: true },
-                { name: "Time Formats", value: "`m` (minutes), `h` (hours), `d` (days)", inline: false },
-                { name: "Examples", value: "`30m` (30 minutes)\n`2h` (2 hours)\n`1d` (1 day)", inline: false },
+                { name: t("timeout.addTimeoutField"), value: "`timeout add @user 30m [reason]`", inline: true },
+                { name: t("timeout.removeTimeoutField"), value: "`timeout remove @user`", inline: true },
+                { name: t("timeout.listTimeoutsField"), value: "`timeout list`", inline: true },
+                { name: t("timeout.timeFormatsField"), value: t("timeout.timeFormatsValue"), inline: false },
+                { name: t("timeout.examplesField"), value: t("timeout.examplesValue"), inline: false },
               ),
           ],
         });
@@ -378,8 +395,8 @@ function parseDuration(timeString: string): number | null {
   }
 }
 
-function formatDuration(ms: number): string {
-  if (ms <= 0) return "0 seconds";
+function formatDuration(ms: number, t: any): string {
+  if (ms <= 0) return t("timeout.durationZero");
 
   const seconds = Math.floor((ms / 1000) % 60);
   const minutes = Math.floor((ms / (1000 * 60)) % 60);
@@ -387,10 +404,10 @@ function formatDuration(ms: number): string {
   const days = Math.floor(ms / (1000 * 60 * 60 * 24));
 
   const parts = [];
-  if (days > 0) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
-  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
-  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
-  if (seconds > 0) parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
+  if (days > 0) parts.push(`${days} ${t("timeout.days", { count: days })}`);
+  if (hours > 0) parts.push(`${hours} ${t("timeout.hours", { count: hours })}`);
+  if (minutes > 0) parts.push(`${minutes} ${t("timeout.minutes", { count: minutes })}`);
+  if (seconds > 0) parts.push(`${seconds} ${t("timeout.seconds", { count: seconds })}`);
 
   return parts.join(" ");
 }

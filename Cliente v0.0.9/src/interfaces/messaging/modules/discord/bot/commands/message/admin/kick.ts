@@ -1,5 +1,10 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionFlagsBits
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  EmbedBuilder,
+  PermissionFlagsBits,
 } from "discord.js";
 
 import { Precommand } from "@typings/modules/discord";
@@ -18,29 +23,34 @@ const kickCommand: Precommand = {
   async execute(_client, message, args) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
+    // Multilenguaje
+    const userLang = message.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = _client.translations.getFixedT(lang, "discord");
+
     // Permission check
     if (!message.member?.permissions.has(PermissionFlagsBits.KickMembers)) {
       return message.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
-            .setTitle("❌ Permission Denied")
-            .setDescription("You need the `Kick Members` permission to use this command."),
+            .setTitle(t("kick.permissionDeniedTitle"))
+            .setDescription(t("kick.permissionDeniedDesc")),
         ],
       });
     }
 
     const targetUser = message.mentions.members?.first() || message.guild.members.cache.get(args[0]);
-    const reason = args.slice(1).join(" ") || "No reason provided";
+    const reason = args.slice(1).join(" ") || t("kick.noReason");
 
     if (!targetUser) {
       return message.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
-            .setTitle("❌ Invalid Usage")
-            .setDescription("Please mention a user or provide their ID to kick.")
-            .addFields({ name: "Example", value: "`kick @user Spamming`" }),
+            .setTitle(t("kick.invalidUsageTitle"))
+            .setDescription(t("kick.invalidUsageDesc"))
+            .addFields({ name: t("kick.exampleField"), value: "`kick @user Spamming`" }),
         ],
       });
     }
@@ -50,8 +60,8 @@ const kickCommand: Precommand = {
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
-            .setTitle("❌ Invalid Target")
-            .setDescription("You cannot kick yourself."),
+            .setTitle(t("kick.invalidTargetTitle"))
+            .setDescription(t("kick.invalidTargetDesc")),
         ],
       });
     }
@@ -61,8 +71,8 @@ const kickCommand: Precommand = {
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
-            .setTitle("❌ Permission Denied")
-            .setDescription("I cannot kick this user. They may have higher roles than me."),
+            .setTitle(t("kick.permissionDeniedTitle"))
+            .setDescription(t("kick.notKickableDesc")),
         ],
       });
     }
@@ -70,17 +80,17 @@ const kickCommand: Precommand = {
     // Confirmation embed
     const confirmEmbed = new EmbedBuilder()
       .setColor("#FFA500")
-      .setTitle("⚠️ Confirm Kick")
-      .setDescription(`Are you sure you want to kick ${targetUser}?`)
+      .setTitle(t("kick.confirmTitle"))
+      .setDescription(t("kick.confirmDesc", { user: `${targetUser}` }))
       .addFields(
-        { name: "Reason", value: reason, inline: true },
-        { name: "Moderator", value: message.author.toString(), inline: true },
+        { name: t("kick.reasonField"), value: reason, inline: true },
+        { name: t("kick.moderatorField"), value: message.author.toString(), inline: true },
       )
       .setThumbnail(targetUser.displayAvatarURL());
 
     const confirmButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setCustomId("confirm_kick").setLabel("Confirm Kick").setStyle(ButtonStyle.Danger),
-      new ButtonBuilder().setCustomId("cancel_kick").setLabel("Cancel").setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId("confirm_kick").setLabel(t("kick.confirmButton")).setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId("cancel_kick").setLabel(t("kick.cancelButton")).setStyle(ButtonStyle.Secondary),
     );
 
     const confirmationMessage = await message.reply({
@@ -99,24 +109,24 @@ const kickCommand: Precommand = {
           embeds: [
             new EmbedBuilder()
               .setColor("#FF0000")
-              .setTitle("❌ Not Allowed")
-              .setDescription("Only the command author can confirm this action."),
+              .setTitle(t("kick.notAllowedTitle"))
+              .setDescription(t("kick.notAllowedDesc")),
           ],
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
 
       if (interaction.customId === "confirm_kick") {
         try {
-          await targetUser.kick(`Kicked by ${message.author.tag}: ${reason}`);
+          await targetUser.kick(t("kick.kickReason", { moderator: message.author.tag, reason }));
 
           const successEmbed = new EmbedBuilder()
             .setColor("#00FF00")
-            .setTitle("✅ User Kicked")
-            .setDescription(`${targetUser} has been successfully kicked.`)
+            .setTitle(t("kick.successTitle"))
+            .setDescription(t("kick.successDesc", { user: `${targetUser}` }))
             .addFields(
-              { name: "Reason", value: reason, inline: true },
-              { name: "Moderator", value: message.author.toString(), inline: true },
+              { name: t("kick.reasonField"), value: reason, inline: true },
+              { name: t("kick.moderatorField"), value: message.author.toString(), inline: true },
             )
             .setThumbnail(targetUser.displayAvatarURL())
             .setTimestamp();
@@ -130,22 +140,21 @@ const kickCommand: Precommand = {
           try {
             const dmEmbed = new EmbedBuilder()
               .setColor("#FFA500")
-              .setTitle(`You were kicked from ${message.guild?.name}`)
-              .addFields({ name: "Reason", value: reason }, { name: "Moderator", value: message.author.tag })
-              .setFooter({ text: "You can rejoin if the server allows it" });
+              .setTitle(t("kick.dmTitle", { guild: message.guild?.name }))
+              .addFields(
+                { name: t("kick.reasonField"), value: reason },
+                { name: t("kick.moderatorField"), value: message.author.tag },
+              )
+              .setFooter({ text: t("kick.dmFooter") });
 
             await targetUser.send({ embeds: [dmEmbed] });
           } catch (dmError) {
-            console.log("Could not DM user about kick:", dmError);
+            // No DM sent
           }
         } catch (error) {
-          console.error("Error kicking user:", error);
           await interaction.update({
             embeds: [
-              new EmbedBuilder()
-                .setColor("#FF0000")
-                .setTitle("❌ Error")
-                .setDescription("Failed to kick the user. Please try again."),
+              new EmbedBuilder().setColor("#FF0000").setTitle(t("kick.errorTitle")).setDescription(t("kick.errorDesc")),
             ],
             components: [],
           });
@@ -155,8 +164,8 @@ const kickCommand: Precommand = {
           embeds: [
             new EmbedBuilder()
               .setColor("#7289DA")
-              .setTitle("🚫 Kick Cancelled")
-              .setDescription("The kick action has been cancelled."),
+              .setTitle(t("kick.cancelledTitle"))
+              .setDescription(t("kick.cancelledDesc")),
           ],
           components: [],
         });

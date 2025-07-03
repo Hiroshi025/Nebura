@@ -31,6 +31,11 @@
     "failed_to_fetch_discord_status": "Failed to fetch Discord status.",
     "failed_to_fetch_discord_updates": "Failed to fetch Discord updates.",
     "failed_to_fetch_discord_incidents": "Failed to fetch Discord incidents.",
-    "failed_to_fetch_reminders": "Failed to fetch reminders."
+    "failed_to_fetch_reminders": "Failed to fetch reminders.",
+    "failed_to_process_text": "Failed to process text.",
+    "failed_to_process_file": "Failed to process file.",
+    "failed_to_process_combined": "Failed to process combined request.",
+    "file_upload_failed": "File upload failed.",
+    "no_file_uploaded": "No file uploaded."
   }
 }

@@ -22,30 +22,29 @@ const passwordCommand: Precommand = {
 
     // Main embed
     const embed = new EmbedCorrect()
-      .setTitle("🔐 Password Generator")
-      .setDescription("Choose how you want to generate your password:")
+      .setTitle(client.t("discord:passgen.title", { lng: message.guild.preferredLocale }))
+      .setDescription(client.t("discord:passgen.desc", { lng: message.guild.preferredLocale }))
       .addFields({
-        name: "Options",
-        value:
-          "⚡ **Quick Generate**: Random 12-character password\n⚙️ **Custom**: Configure length and character types\n🔢 **PIN**: Generate numeric PIN code",
+        name: client.t("discord:passgen.optionsTitle", { lng: message.guild.preferredLocale }),
+        value: client.t("discord:passgen.optionsValue", { lng: message.guild.preferredLocale }),
       })
-      .setFooter({ text: "All passwords are generated locally and never stored" });
+      .setFooter({ text: client.t("discord:passgen.footer", { lng: message.guild.preferredLocale }) });
 
     // Action buttons
     const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("pass_quick")
-        .setLabel("Quick Generate")
+        .setLabel(client.t("discord:passgen.quickButton", { lng: message.guild.preferredLocale }))
         .setStyle(ButtonStyle.Success)
         .setEmoji("⚡"),
       new ButtonBuilder()
         .setCustomId("pass_custom")
-        .setLabel("Custom Settings")
+        .setLabel(client.t("discord:passgen.customButton", { lng: message.guild.preferredLocale }))
         .setStyle(ButtonStyle.Primary)
         .setEmoji("⚙️"),
       new ButtonBuilder()
         .setCustomId("pass_pin")
-        .setLabel("Generate PIN")
+        .setLabel(client.t("discord:passgen.pinButton", { lng: message.guild.preferredLocale }))
         .setStyle(ButtonStyle.Secondary)
         .setEmoji("🔢"),
     );
@@ -54,12 +53,32 @@ const passwordCommand: Precommand = {
     const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("pass_length")
-        .setPlaceholder("Select password length (Default: 12)")
+        .setPlaceholder(client.t("discord:passgen.lengthPlaceholder", { lng: message.guild.preferredLocale }))
         .addOptions(
-          { label: "Short (8 chars)", value: "8", description: "For temporary uses", emoji: "🟢" },
-          { label: "Standard (12 chars)", value: "12", description: "Recommended default", emoji: "🔵" },
-          { label: "Strong (16 chars)", value: "16", description: "For important accounts", emoji: "🟣" },
-          { label: "Very Strong (24 chars)", value: "24", description: "Maximum security", emoji: "🟠" },
+          {
+            label: client.t("discord:passgen.shortLabel", { lng: message.guild.preferredLocale }),
+            value: "8",
+            description: client.t("discord:passgen.shortDesc", { lng: message.guild.preferredLocale }),
+            emoji: "🟢",
+          },
+          {
+            label: client.t("discord:passgen.standardLabel", { lng: message.guild.preferredLocale }),
+            value: "12",
+            description: client.t("discord:passgen.standardDesc", { lng: message.guild.preferredLocale }),
+            emoji: "🔵",
+          },
+          {
+            label: client.t("discord:passgen.strongLabel", { lng: message.guild.preferredLocale }),
+            value: "16",
+            description: client.t("discord:passgen.strongDesc", { lng: message.guild.preferredLocale }),
+            emoji: "🟣",
+          },
+          {
+            label: client.t("discord:passgen.veryStrongLabel", { lng: message.guild.preferredLocale }),
+            value: "24",
+            description: client.t("discord:passgen.veryStrongDesc", { lng: message.guild.preferredLocale }),
+            emoji: "🟠",
+          },
         ),
     );
 
@@ -88,7 +107,7 @@ const passwordCommand: Precommand = {
       } catch (error) {
         console.error("Password generator error:", error);
         await interaction.reply({
-          content: "❌ An error occurred while generating your password.",
+          content: client.t("discord:passgen.error", { lng: interaction.guild?.preferredLocale }),
           flags: "Ephemeral",
         });
       }
@@ -96,12 +115,14 @@ const passwordCommand: Precommand = {
 
     // Modal for custom password generation
     async function showCustomModal(interaction: any) {
-      const modal = new ModalBuilder().setCustomId("pass_custom_modal").setTitle("Custom Password Settings");
+      const modal = new ModalBuilder()
+        .setCustomId("pass_custom_modal")
+        .setTitle(client.t("discord:passgen.customModalTitle", { lng: interaction.guild?.preferredLocale }));
 
       // Length input
       const lengthInput = new TextInputBuilder()
         .setCustomId("pass_length_input")
-        .setLabel("Password Length (8-64)")
+        .setLabel(client.t("discord:passgen.lengthInputLabel", { lng: interaction.guild?.preferredLocale }))
         .setStyle(TextInputStyle.Short)
         .setMinLength(1)
         .setMaxLength(2)
@@ -111,13 +132,13 @@ const passwordCommand: Precommand = {
       // Character types
       const typesInput = new TextInputBuilder()
         .setCustomId("pass_types_input")
-        .setLabel("Character Types (1-4)")
+        .setLabel(client.t("discord:passgen.typesInputLabel", { lng: interaction.guild?.preferredLocale }))
         .setStyle(TextInputStyle.Short)
         .setMinLength(1)
         .setMaxLength(10)
         .setValue("1234")
         .setRequired(true)
-        .setPlaceholder("1: Uppercase, 2: Lowercase, 3: Numbers, 4: Symbols");
+        .setPlaceholder(client.t("discord:passgen.typesInputPlaceholder", { lng: interaction.guild?.preferredLocale }));
 
       const row1 = new ActionRowBuilder<TextInputBuilder>().addComponents(lengthInput);
       const row2 = new ActionRowBuilder<TextInputBuilder>().addComponents(typesInput);
@@ -136,7 +157,7 @@ const passwordCommand: Precommand = {
 
         if (isNaN(length) || length < 8 || length > 64) {
           await modalInteraction.reply({
-            content: "❌ Please enter a valid length between 8 and 64.",
+            content: client.t("discord:passgen.invalidLength", { lng: modalInteraction.guild?.preferredLocale }),
             flags: "Ephemeral",
           });
           return;
@@ -147,7 +168,7 @@ const passwordCommand: Precommand = {
       } catch (error) {
         console.error("Custom password error:", error);
         await modalInteraction.reply({
-          content: "❌ Invalid input format. Please try again.",
+          content: client.t("discord:passgen.invalidInput", { lng: modalInteraction.guild?.preferredLocale }),
           flags: "Ephemeral",
         });
       }
@@ -156,38 +177,52 @@ const passwordCommand: Precommand = {
     // Generate quick password
     async function handleQuickGenerate(interaction: any, length = 12) {
       const password = generatePassword(length);
-      await sendPasswordResult(interaction, password, "Generated Password");
+      await sendPasswordResult(
+        interaction,
+        password,
+        client.t("discord:passgen.generatedPassword", { lng: interaction.guild?.preferredLocale }),
+      );
     }
 
     // Generate numeric PIN
     async function generatePIN(interaction: any) {
       const pin = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit PIN
-      await sendPasswordResult(interaction, pin, "Generated PIN", true);
+      await sendPasswordResult(
+        interaction,
+        pin,
+        client.t("discord:passgen.generatedPIN", { lng: interaction.guild?.preferredLocale }),
+        true,
+      );
     }
 
     // Send the result to user
     async function sendPasswordResult(interaction: any, password: string, title: string, isPIN = false) {
       const resultEmbed = new EmbedCorrect()
         .setTitle(`✅ ${title}`)
-        .setDescription(`Here's your secure ${isPIN ? "PIN" : "password"}:`)
-        .addFields({ name: isPIN ? "PIN Code" : "Password", value: `\`\`\`${password}\`\`\`` })
-        .setFooter({ text: "This is only shown to you | Generated at" })
+        .setDescription(client.t("discord:passgen.resultDesc", { isPIN, lng: interaction.guild?.preferredLocale }))
+        .addFields({
+          name: isPIN
+            ? client.t("discord:passgen.pinField", { lng: interaction.guild?.preferredLocale })
+            : client.t("discord:passgen.passwordField", { lng: interaction.guild?.preferredLocale }),
+          value: `\`\`\`${password}\`\`\``,
+        })
+        .setFooter({ text: client.t("discord:passgen.resultFooter", { lng: interaction.guild?.preferredLocale }) })
         .setTimestamp();
 
       const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId(`copy_${interaction.user.id}`)
-          .setLabel("Copy to Clipboard")
+          .setLabel(client.t("discord:passgen.copyButton", { lng: interaction.guild?.preferredLocale }))
           .setStyle(ButtonStyle.Primary)
           .setEmoji("📋"),
         new ButtonBuilder()
           .setCustomId(`regenerate_${interaction.user.id}`)
-          .setLabel("Generate Another")
+          .setLabel(client.t("discord:passgen.regenerateButton", { lng: interaction.guild?.preferredLocale }))
           .setStyle(ButtonStyle.Secondary)
           .setEmoji("🔄"),
         new ButtonBuilder()
           .setCustomId(`delete_${interaction.user.id}`)
-          .setLabel("Delete")
+          .setLabel(client.t("discord:passgen.deleteButton", { lng: interaction.guild?.preferredLocale }))
           .setStyle(ButtonStyle.Danger)
           .setEmoji("🗑️"),
       );
@@ -215,7 +250,7 @@ const passwordCommand: Precommand = {
       collector.on("collect", async (i: any) => {
         if (i.customId === `copy_${interaction.user.id}`) {
           await i.reply({
-            content: "✅ Password copied to your clipboard!",
+            content: client.t("discord:passgen.copied", { lng: i.guild?.preferredLocale }),
             flags: "Ephemeral",
           });
         } else if (i.customId === `regenerate_${interaction.user.id}`) {

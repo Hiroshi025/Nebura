@@ -13,16 +13,19 @@ const modalLogsEvents: Modals = {
     const eventsToLog = interaction.fields.getTextInputValue("button-enabled-logevents-events");
     if (!interaction.guild || !interaction.channel) return;
 
+    // Detectar idioma preferido del usuario o servidor
+    const lang = interaction.locale || interaction.guildLocale || (interaction.guild?.preferredLocale ?? "es-ES");
+
     const events = eventsToLog.split(",").map((event) => event.trim());
     const data = await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } });
     if (!data)
       return interaction.reply({
         embeds: [
-          new ErrorEmbed().setTitle("Error - Logs Configuration").setDescription(
+          new ErrorEmbed().setTitle(client.t("logsConfig.errorTitle", {}, lang)).setDescription(
             [
               `${client.getEmoji(interaction.guild.id, "error")} 
-            **No data found for this server.**`,
-              `Please make sure the bot is set up correctly and try again.`,
+          ${client.t("logsConfig.noData", {}, lang)}`,
+              client.t("logsConfig.noDataHint", {}, lang),
             ].join("\n"),
           ),
         ],
@@ -48,17 +51,17 @@ const modalLogsEvents: Modals = {
     await interaction.reply({
       embeds: [
         new EmbedCorrect()
-          .setTitle("Logs Configuration")
+          .setTitle(client.t("logsConfig.successTitle", {}, lang))
           .setDescription(
             [
-              `${client.getEmoji(interaction.guild.id, "success")} **Logs configuration updated successfully!**`,
-              `**__Data Information_**`,
-              `**Channel ID:** ${channelId}`,
-              `**Events to Log:*`,
-              `\`\`\`json`,
+              `${client.getEmoji(interaction.guild.id, "success")} ${client.t("logsConfig.successDesc", {}, lang)}`,
+              `**__${client.t("logsConfig.dataInfo", {}, lang)}__**`,
+              `**${client.t("logsConfig.channelId", {}, lang)}** ${channelId}`,
+              `**${client.t("logsConfig.eventsToLog", {}, lang)}**`,
+              "```json",
               `${JSON.stringify(events, null, 2)}`,
-              `\`\`\``,
-              `**Enabled:** true`,
+              "```",
+              `**${client.t("logsConfig.enabled", {}, lang)}** true`,
             ].join("\n"),
           ),
       ],

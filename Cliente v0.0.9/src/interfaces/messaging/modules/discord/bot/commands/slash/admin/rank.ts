@@ -193,6 +193,8 @@ export default new Command(
     ),
   async (client, interaction) => {
     if (!interaction.guild || !interaction.channel || !interaction.member) return;
+    // Detecta idioma preferido
+    const lang = interaction.locale || interaction.guild?.preferredLocale || "es-ES";
     const group = interaction.options.getSubcommandGroup();
     switch (group) {
       case "config":
@@ -210,8 +212,8 @@ export default new Command(
                           .setColor("Red")
                           .setDescription(
                             [
-                              `${client.getEmoji(interaction.guild.id, "error")} You must provide an image.`,
-                              `\`Example:\` \`/config card-background --image <image.png>\``,
+                              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.backgroundRequired", {}, lang)}`,
+                              client.t("discord:rank.backgroundExample", {}, lang),
                             ].join("\n"),
                           ),
                       ],
@@ -227,8 +229,8 @@ export default new Command(
                           .setColor("Red")
                           .setDescription(
                             [
-                              `${client.getEmoji(interaction.guild.id, "error")} The file must be in PNG format.`,
-                              `\`Example:\` \`/config card-background --image <image.png>\``,
+                              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.backgroundPNG", {}, lang)}`,
+                              client.t("discord:rank.backgroundExample", {}, lang),
                             ].join("\n"),
                           ),
                       ],
@@ -261,8 +263,8 @@ export default new Command(
                         .setColor("Green")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "correct")} The background image has been updated successfully.`,
-                            `\`Example:\` \`/config card-background --image <image.png>\``,
+                            `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.backgroundUpdated", {}, lang)}`,
+                            client.t("discord:rank.backgroundExample", {}, lang),
                           ].join("\n"),
                         )
                         .setImage(`attachment://profile.png`),
@@ -288,8 +290,8 @@ export default new Command(
                           .setColor("Red")
                           .setDescription(
                             [
-                              `${client.getEmoji(interaction.guild.id, "error")} The color must be in HEX format.`,
-                              `\`Example:\` \`/config card-barcolor --color #FF0000\``,
+                              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.hexRequired", {}, lang)}`,
+                              client.t("discord:rank.barcolorExample", {}, lang),
                             ].join("\n"),
                           ),
                       ],
@@ -312,8 +314,8 @@ export default new Command(
                           .setColor("Red")
                           .setDescription(
                             [
-                              `${client.getEmoji(interaction.guild.id, "error")} You must set a background image first.`,
-                              `\`Example:\` \`/config card-background --image <image.png>\``,
+                              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.backgroundFirst", {}, lang)}`,
+                              client.t("discord:rank.backgroundExample", {}, lang),
                             ].join("\n"),
                           ),
                       ],
@@ -343,8 +345,8 @@ export default new Command(
                         .setColor("Green")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "correct")} The bar color has been updated successfully.`,
-                            `\`Example:\` \`/config card-barcolor --color #FF0000\``,
+                            `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.barcolorUpdated", {}, lang)}`,
+                            client.t("discord:rank.barcolorExample", {}, lang),
                           ].join("\n"),
                         )
                         .setImage(`attachment://profile.png`),
@@ -399,8 +401,8 @@ export default new Command(
                           .setColor("Red")
                           .setDescription(
                             [
-                              `${client.getEmoji(interaction.guild.id, "error")} The user has not set a background image yet.`,
-                              `\`Example:\` \`/config card-background --image <image.png>\``,
+                              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.backgroundNotSet", {}, lang)}`,
+                              client.t("discord:rank.backgroundExample", {}, lang),
                             ].join("\n"),
                           ),
                       ],
@@ -434,8 +436,8 @@ export default new Command(
                         .setColor("Green")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "correct")} The blur value has been updated successfully.`,
-                            `\`Example:\` \`/config card-blur --value 5\``,
+                            `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.blurUpdated", {}, lang)}`,
+                            client.t("discord:rank.blurExample", {}, lang),
                           ].join("\n"),
                         )
                         .setImage(`attachment://profile.png`),
@@ -460,8 +462,8 @@ export default new Command(
                           .setColor("Red")
                           .setDescription(
                             [
-                              `${client.getEmoji(interaction.guild.id, "error")} The color must be in HEX format.`,
-                              `\`Example:\` \`/config card-bordercolor --color #FF0000\``,
+                              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.hexRequired", {}, lang)}`,
+                              client.t("discord:rank.bordercolorExample", {}, lang),
                             ].join("\n"),
                           ),
                       ],
@@ -484,8 +486,8 @@ export default new Command(
                           .setColor("Red")
                           .setDescription(
                             [
-                              `${client.getEmoji(interaction.guild.id, "error")} You must set a background image first.`,
-                              `\`Example:\` \`/config card-background --image <image.png>\``,
+                              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.backgroundFirst", {}, lang)}`,
+                              client.t("discord:rank.backgroundExample", {}, lang),
                             ].join("\n"),
                           ),
                       ],
@@ -515,8 +517,8 @@ export default new Command(
                         .setColor("Green")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "correct")} The border color has been updated successfully.`,
-                            `\`Example:\` \`/config card-bordercolor --color #FF0000\``,
+                            `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.bordercolorUpdated", {}, lang)}`,
+                            client.t("discord:rank.bordercolorExample", {}, lang),
                           ].join("\n"),
                         )
                         .setImage(`attachment://profile.png`),
@@ -565,8 +567,7 @@ export default new Command(
                         .setColor("#087996")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "correct")} Notification channel updated to ${channel}.`,
-                            `> **Channel:** ${channel} (\`${channel.id}\`)`,
+                            `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.notifyChannelUpdated", { channel: channel.toString(), id: channel.id }, lang)}`,
                           ].join("\n"),
                         ),
                     ],
@@ -586,8 +587,7 @@ export default new Command(
                         .setColor("#087996")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "correct")} Notification channel updated to ${channel}.`,
-                            `> **Channel:** ${channel} (\`${channel.id}\`)`,
+                            `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.notifyChannelUpdated", { channel: channel.toString(), id: channel.id }, lang)}`,
                           ].join("\n"),
                         ),
                     ],
@@ -611,8 +611,7 @@ export default new Command(
                         .setColor("#087996")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "correct")} Notification channel removed.`,
-                            `> **Channel:** None`,
+                            `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.notifyChannelRemoved", {}, lang)}`,
                           ].join("\n"),
                         ),
                     ],
@@ -624,8 +623,7 @@ export default new Command(
                         .setColor("Red")
                         .setDescription(
                           [
-                            `${client.getEmoji(interaction.guild.id, "error")} The notification channel could not be removed.`,
-                            `> **Channel:** None`,
+                            `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.notifyChannelRemoveError", {}, lang)}`,
                           ].join("\n"),
                         ),
                     ],
@@ -646,7 +644,7 @@ export default new Command(
           embeds: [
             new ErrorEmbed()
               .setColor("Red")
-              .setDescription(`${client.getEmoji(interaction.guild.id, "error")} You must provide a status.`),
+              .setDescription(`${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.statusRequired", {}, lang)}`),
           ],
         });
       }
@@ -676,7 +674,7 @@ export default new Command(
           new EmbedCorrect()
             .setColor("#087996")
             .setDescription(
-              `${client.getEmoji(interaction.guild.id, "correct")} The ranking system has been ${status ? "enabled" : "disabled"}.`,
+              `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:rank.systemStatus", { status: status ? client.t("common.enabled", {}, lang) : client.t("common.disabled", {}, lang) }, lang)}`,
             ),
         ],
       });

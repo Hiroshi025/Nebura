@@ -10,9 +10,24 @@ import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 export default new Command(
   new SlashCommandBuilder()
     .setName("anime")
+    .setNameLocalizations({
+      "es-ES": "anime",
+    })
     .setDescription("Search for information about an anime")
+    .setDescriptionLocalizations({
+      "es-ES": "Buscar información sobre un anime",
+    })
     .addStringOption((option) =>
-      option.setName("search").setDescription("Provide the name of the anime").setRequired(true),
+      option
+        .setName("search")
+        .setNameLocalizations({
+          "es-ES": "buscar",
+        })
+        .setDescription("Provide the name of the anime")
+        .setDescriptionLocalizations({
+          "es-ES": "Proporciona el nombre del anime",
+        })
+        .setRequired(true),
     ),
   async (client, interaction) => {
     const { user, options, guild } = interaction;
@@ -23,7 +38,7 @@ export default new Command(
         (await (await import("@/main")).main.prisma.myGuild.findUnique({ where: { guildId: guild.id } }))?.lenguage) ||
       interaction.locale ||
       "es-ES";
-    const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+    const t = (key: string, options?: any) => client.translations.t("discord:" + key, { lng: lang, ...options });
 
     const searchQuery = options.getString("search", true);
     if (!guild) return;

@@ -17,28 +17,32 @@ const commandMinecraft: Precommand = {
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(_client, message, args, prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+
+    // Multilenguaje
+    const userLang = message.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = _client.translations.getFixedT(lang, "discord");
 
     // If no arguments, show server input modal
     if (!args[0]) {
-      return showServerInputModal(message, prefix);
+      return showServerInputModal(message, prefix, t);
     }
 
     const serverInput = args[0];
-    return fetchAndDisplayServerStatus(message, serverInput);
+    return fetchAndDisplayServerStatus(message, serverInput, t);
   },
 };
 
-async function showServerInputModal(message: any, _prefix: string) {
-  const modal = new ModalBuilder().setCustomId("mcserver_modal").setTitle("Check Minecraft Server");
+async function showServerInputModal(message: any, _prefix: string, t: any) {
+  const modal = new ModalBuilder().setCustomId("mcserver_modal").setTitle(t("mcserver.modalTitle"));
 
   const serverInput = new TextInputBuilder()
     .setCustomId("server_input")
-    .setLabel("Server IP or Domain (with port if needed)")
+    .setLabel(t("mcserver.inputLabel"))
     .setStyle(TextInputStyle.Short)
     .setRequired(true)
-    .setPlaceholder("play.example.com or 123.45.67.89:25565");
+    .setPlaceholder(t("mcserver.inputPlaceholder"));
 
   const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(serverInput);
   modal.addComponents(firstActionRow);
@@ -52,24 +56,23 @@ async function showServerInputModal(message: any, _prefix: string) {
     .then(async (interaction: any) => {
       const serverInput = interaction.fields.getTextInputValue("server_input");
       await interaction.deferReply();
-      return fetchAndDisplayServerStatus(interaction, serverInput);
+      return fetchAndDisplayServerStatus(interaction, serverInput, t);
     })
     .catch(() => {});
 }
 
-async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInput: string) {
+async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInput: string, t: any) {
   try {
     // Show loading message
     const loadingEmbed = new EmbedBuilder()
       .setColor("#FFA500")
-      .setTitle("Checking Minecraft Server")
-      .setDescription(`Querying ${serverInput}...`)
-      .setFooter({ text: "This may take a few seconds" });
+      .setTitle(t("mcserver.loadingTitle"))
+      .setDescription(t("mcserver.loadingDesc", { server: serverInput }))
+      .setFooter({ text: t("mcserver.loadingFooter") });
 
     let loadingMessage;
     // Detect if it's an interaction or a message
     if (messageOrInteraction.isRepliable && messageOrInteraction.isRepliable()) {
-      // If it's an interaction and not yet replied, defer if needed
       if (!messageOrInteraction.replied && !messageOrInteraction.deferred) {
         await messageOrInteraction.deferReply();
       }
@@ -90,13 +93,13 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
     if (!serverData.online) {
       const offlineEmbed = new EmbedBuilder()
         .setColor("#FF0000")
-        .setTitle(`${serverData.hostname || serverInput} is offline`)
-        .setDescription("The server could not be reached or is currently offline.")
+        .setTitle(t("mcserver.offlineTitle", { server: serverData.hostname || serverInput }))
+        .setDescription(t("mcserver.offlineDesc"))
         .addFields(
-          { name: "IP", value: serverData.ip || "Unknown", inline: true },
-          { name: "Port", value: serverData.port?.toString() || "Unknown", inline: true },
+          { name: t("mcserver.ipField"), value: serverData.ip || t("mcserver.unknown"), inline: true },
+          { name: t("mcserver.portField"), value: serverData.port?.toString() || t("mcserver.unknown"), inline: true },
         )
-        .setFooter({ text: "Try again later or check the server address" });
+        .setFooter({ text: t("mcserver.offlineFooter") });
 
       return loadingMessage.edit({ embeds: [offlineEmbed], components: [] });
     }
@@ -105,30 +108,30 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
     const mainEmbed = new EmbedBuilder()
       .setColor("#55FF55")
       .setTitle(`${serverData.hostname || serverInput}`)
-      .setDescription(serverData.motd?.clean.join("\n") || "No MOTD available")
+      .setDescription(serverData.motd?.clean.join("\n") || t("mcserver.noMotd"))
       .addFields(
-        { name: "Status", value: "🟢 Online", inline: true },
+        { name: t("mcserver.statusField"), value: t("mcserver.online"), inline: true },
         {
-          name: "Version",
+          name: t("mcserver.versionField"),
           value: serverData.protocol?.name
             ? `${serverData.version} (Protocol ${serverData.protocol.version})`
-            : serverData.version || "Unknown",
+            : serverData.version || t("mcserver.unknown"),
           inline: true,
         },
-        { name: "Software", value: serverData.software || "Unknown", inline: true },
+        { name: t("mcserver.softwareField"), value: serverData.software || t("mcserver.unknown"), inline: true },
         {
-          name: "Players",
+          name: t("mcserver.playersField"),
           value: `${serverData.players?.online || 0}/${serverData.players?.max || 0}`,
           inline: true,
         },
-        { name: "IP", value: serverData.ip, inline: true },
-        { name: "Port", value: serverData.port?.toString() || "25565 (default)", inline: true },
+        { name: t("mcserver.ipField"), value: serverData.ip, inline: true },
+        { name: t("mcserver.portField"), value: serverData.port?.toString() || "25565 (default)", inline: true },
       );
 
     // Add debug information if available
     if (serverData.debug) {
       mainEmbed.addFields({
-        name: "Debug Info",
+        name: t("mcserver.debugField"),
         value: [
           `Ping: ${serverData.debug.ping ? "✅" : "❌"}`,
           `Query: ${serverData.debug.query ? "✅" : "❌"}`,
@@ -146,44 +149,39 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
       /*const cleanIcon = serverData.icon.startsWith("data:image/png;base64,data:image")
         ? serverData.icon.replace("data:image/png;base64,", "")
         : serverData.icon;*/
-
       //const ImageURLBase64 = `data:image/png;base64,${cleanIcon}`;
       //mainEmbed.setThumbnail(ImageURLBase64);
     }
 
-    // Rest of the function remains the same...
     // Create buttons for additional info
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("mc_players")
-        .setLabel("View Players")
+        .setLabel(t("mcserver.playersButton"))
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!serverData.players?.list || serverData.players.list.length === 0),
       new ButtonBuilder()
         .setCustomId("mc_plugins")
-        .setLabel("View Plugins")
+        .setLabel(t("mcserver.pluginsButton"))
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(!serverData.plugins || serverData.plugins.length === 0),
       new ButtonBuilder()
         .setCustomId("mc_mods")
-        .setLabel("View Mods")
+        .setLabel(t("mcserver.modsButton"))
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(!serverData.mods || serverData.mods.length === 0),
       new ButtonBuilder()
         .setCustomId("mc_info")
-        .setLabel("Server Info")
+        .setLabel(t("mcserver.infoButton"))
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(!serverData.info),
-      new ButtonBuilder()
-        .setCustomId("mc_refresh")
-        .setLabel("Refresh")
-        .setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId("mc_refresh").setLabel(t("mcserver.refreshButton")).setStyle(ButtonStyle.Success),
     );
 
     // Add map info if available
     if (serverData.map) {
       mainEmbed.addFields({
-        name: "Current Map",
+        name: t("mcserver.mapField"),
         value: serverData.map.clean || serverData.map.raw,
         inline: true,
       });
@@ -192,7 +190,7 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
     // Add gamemode for Bedrock servers
     if (serverData.gamemode) {
       mainEmbed.addFields({
-        name: "Gamemode",
+        name: t("mcserver.gamemodeField"),
         value: serverData.gamemode,
         inline: true,
       });
@@ -201,8 +199,8 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
     // Add EULA blocked status if available
     if (serverData.eula_blocked !== undefined) {
       mainEmbed.addFields({
-        name: "EULA Blocked",
-        value: serverData.eula_blocked ? "Yes" : "No",
+        name: t("mcserver.eulaField"),
+        value: serverData.eula_blocked ? t("mcserver.yes") : t("mcserver.no"),
         inline: true,
       });
     }
@@ -234,7 +232,7 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
           await showServerInfo(interaction, serverData);
           break;
         case "mc_refresh":
-          await fetchAndDisplayServerStatus(interaction, serverInput);
+          await fetchAndDisplayServerStatus(interaction, serverInput, t);
           break;
       }
     });
@@ -247,10 +245,8 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
 
     const errorEmbed = new EmbedBuilder()
       .setColor("#FF0000")
-      .setTitle("Error Checking Server")
-      .setDescription(
-        "Failed to retrieve server information. Please check the server address and try again.",
-      )
+      .setTitle(t("mcserver.errorTitle"))
+      .setDescription(t("mcserver.errorDesc"))
       .setFooter({ text: `Error: ${error instanceof Error ? error.message : "Unknown error"}` });
 
     // Detect if it's an interaction or a message
@@ -267,11 +263,18 @@ async function fetchAndDisplayServerStatus(messageOrInteraction: any, serverInpu
 }
 
 async function showPlayerList(interaction: any, serverData: MinecraftServer) {
+  // Multilenguaje
+  const userLang = interaction.guild?.preferredLocale || "es-ES";
+  const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+  const t = interaction.client?.translations?.getFixedT
+    ? interaction.client.translations.getFixedT(lang, "discord")
+    : (k: string, _v?: any) => k; // fallback
+
   if (!serverData.players?.list || serverData.players.list.length === 0) {
     const noPlayersEmbed = new EmbedBuilder()
       .setColor("#FFFF55")
-      .setTitle("No Players Online")
-      .setDescription("There are currently no players online on this server.");
+      .setTitle(t("mcserver.noPlayersTitle") || "No Players Online")
+      .setDescription(t("mcserver.noPlayersDesc") || "There are currently no players online on this server.");
 
     return interaction.editReply({ embeds: [noPlayersEmbed] });
   }
@@ -286,10 +289,19 @@ async function showPlayerList(interaction: any, serverData: MinecraftServer) {
 
     const playerEmbed = new EmbedBuilder()
       .setColor("#55FF55")
-      .setTitle(`Players Online (${players.length}/${serverData.players.max})`)
+      .setTitle(
+        t("mcserver.playersOnlineTitle", {
+          count: players.length,
+          max: serverData.players.max,
+        }) || `Players Online (${players.length}/${serverData.players.max})`,
+      )
       .setDescription(pagePlayers.map((p, idx) => `${i + idx + 1}. ${p.name}`).join("\n"))
       .setFooter({
-        text: `Page ${Math.floor(i / playersPerPage) + 1}/${Math.ceil(players.length / playersPerPage)}`,
+        text:
+          t("mcserver.pageFooter", {
+            page: Math.floor(i / playersPerPage) + 1,
+            total: Math.ceil(players.length / playersPerPage),
+          }) || `Page ${Math.floor(i / playersPerPage) + 1}/${Math.ceil(players.length / playersPerPage)}`,
       });
 
     pages.push(playerEmbed);
@@ -334,11 +346,20 @@ async function showPlayerList(interaction: any, serverData: MinecraftServer) {
 }
 
 async function showPluginList(interaction: any, serverData: MinecraftServer) {
+  // Multilenguaje
+  const userLang = interaction.guild?.preferredLocale || "es-ES";
+  const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+  const t = interaction.client?.translations?.getFixedT
+    ? interaction.client.translations.getFixedT(lang, "discord")
+    : (k: string, _v?: any) => k; // fallback
+
   if (!serverData.plugins || serverData.plugins.length === 0) {
     const noPluginsEmbed = new EmbedBuilder()
       .setColor("#FFFF55")
-      .setTitle("No Plugins Found")
-      .setDescription("This server doesn't have any plugins or doesn't expose plugin information.");
+      .setTitle(t("mcserver.noPluginsTitle") || "No Plugins Found")
+      .setDescription(
+        t("mcserver.noPluginsDesc") || "This server doesn't have any plugins or doesn't expose plugin information.",
+      );
 
     return interaction.editReply({ embeds: [noPluginsEmbed] });
   }
@@ -353,14 +374,16 @@ async function showPluginList(interaction: any, serverData: MinecraftServer) {
 
     const pluginEmbed = new EmbedBuilder()
       .setColor("#55AAFF")
-      .setTitle(`Server Plugins (${plugins.length} total)`)
+      .setTitle(t("mcserver.pluginsTitle", { count: plugins.length }) || `Server Plugins (${plugins.length} total)`)
       .setDescription(
-        pagePlugins
-          .map((p, idx) => `${i + idx + 1}. ${p.name}${p.version ? ` (v${p.version})` : ""}`)
-          .join("\n"),
+        pagePlugins.map((p, idx) => `${i + idx + 1}. ${p.name}${p.version ? ` (v${p.version})` : ""}`).join("\n"),
       )
       .setFooter({
-        text: `Page ${Math.floor(i / pluginsPerPage) + 1}/${Math.ceil(plugins.length / pluginsPerPage)}`,
+        text:
+          t("mcserver.pageFooter", {
+            page: Math.floor(i / pluginsPerPage) + 1,
+            total: Math.ceil(plugins.length / pluginsPerPage),
+          }) || `Page ${Math.floor(i / pluginsPerPage) + 1}/${Math.ceil(plugins.length / pluginsPerPage)}`,
       });
 
     pages.push(pluginEmbed);
@@ -405,11 +428,20 @@ async function showPluginList(interaction: any, serverData: MinecraftServer) {
 }
 
 async function showModList(interaction: any, serverData: MinecraftServer) {
+  // Multilenguaje
+  const userLang = interaction.guild?.preferredLocale || "es-ES";
+  const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+  const t = interaction.client?.translations?.getFixedT
+    ? interaction.client.translations.getFixedT(lang, "discord")
+    : (k: string, _v?: any) => k; // fallback
+
   if (!serverData.mods || serverData.mods.length === 0) {
     const noModsEmbed = new EmbedBuilder()
       .setColor("#FFFF55")
-      .setTitle("No Mods Found")
-      .setDescription("This server doesn't have any mods or doesn't expose mod information.");
+      .setTitle(t("mcserver.noModsTitle") || "No Mods Found")
+      .setDescription(
+        t("mcserver.noModsDesc") || "This server doesn't have any mods or doesn't expose mod information.",
+      );
 
     return interaction.editReply({ embeds: [noModsEmbed] });
   }
@@ -424,14 +456,16 @@ async function showModList(interaction: any, serverData: MinecraftServer) {
 
     const modEmbed = new EmbedBuilder()
       .setColor("#AA55FF")
-      .setTitle(`Server Mods (${mods.length} total)`)
+      .setTitle(t("mcserver.modsTitle", { count: mods.length }) || `Server Mods (${mods.length} total)`)
       .setDescription(
-        pageMods
-          .map((m, idx) => `${i + idx + 1}. ${m.name}${m.version ? ` (v${m.version})` : ""}`)
-          .join("\n"),
+        pageMods.map((m, idx) => `${i + idx + 1}. ${m.name}${m.version ? ` (v${m.version})` : ""}`).join("\n"),
       )
       .setFooter({
-        text: `Page ${Math.floor(i / modsPerPage) + 1}/${Math.ceil(mods.length / modsPerPage)}`,
+        text:
+          t("mcserver.pageFooter", {
+            page: Math.floor(i / modsPerPage) + 1,
+            total: Math.ceil(mods.length / modsPerPage),
+          }) || `Page ${Math.floor(i / modsPerPage) + 1}/${Math.ceil(mods.length / modsPerPage)}`,
       });
 
     pages.push(modEmbed);
@@ -476,18 +510,25 @@ async function showModList(interaction: any, serverData: MinecraftServer) {
 }
 
 async function showServerInfo(interaction: any, serverData: MinecraftServer) {
+  // Multilenguaje
+  const userLang = interaction.guild?.preferredLocale || "es-ES";
+  const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+  const t = interaction.client?.translations?.getFixedT
+    ? interaction.client.translations.getFixedT(lang, "discord")
+    : (k: string, _v?: any) => k; // fallback
+
   if (!serverData.info) {
     const noInfoEmbed = new EmbedBuilder()
       .setColor("#FFFF55")
-      .setTitle("No Additional Info")
-      .setDescription("This server doesn't provide additional information.");
+      .setTitle(t("mcserver.noInfoTitle") || "No Additional Info")
+      .setDescription(t("mcserver.noInfoDesc") || "This server doesn't provide additional information.");
 
     return interaction.editReply({ embeds: [noInfoEmbed] });
   }
 
   const infoEmbed = new EmbedBuilder()
     .setColor("#55AAFF")
-    .setTitle("Server Information")
+    .setTitle(t("mcserver.infoTitle") || "Server Information")
     .setDescription(serverData.info.clean.join("\n"));
 
   await interaction.editReply({ embeds: [infoEmbed] });

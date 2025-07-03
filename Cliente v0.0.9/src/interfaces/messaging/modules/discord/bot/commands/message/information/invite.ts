@@ -18,14 +18,20 @@ const invCommand: Precommand = {
   permissions: ["SendMessages"],
   async execute(client, message) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+    const lang = message.guild.preferredLocale || "en-US";
     const inviteURL = client.generateInvite({
       scopes: [OAuth2Scopes.Bot, OAuth2Scopes.ApplicationsCommands],
       permissions: [PermissionFlagsBits.Administrator, PermissionFlagsBits.ManageGuildExpressions],
     });
-    const embed = new EmbedCorrect().setTitle("Invite Me").setDescription(`[Click here](${inviteURL})`);
+    const embed = new EmbedCorrect()
+      .setTitle(client.t("discord:invite.title", { lng: lang }))
+      .setDescription(client.t("discord:invite.desc", { url: inviteURL, lng: lang }));
 
     const button = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Invite Me").setURL(inviteURL),
+      new ButtonBuilder()
+        .setStyle(ButtonStyle.Link)
+        .setLabel(client.t("discord:invite.button", { lng: lang }))
+        .setURL(inviteURL),
     );
 
     return message.channel.send({ embeds: [embed], components: [button] });

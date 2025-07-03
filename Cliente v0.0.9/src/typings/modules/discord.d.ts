@@ -339,6 +339,8 @@ export interface Precommand {
    * This is used to group commands into logical categories for better organization.
    */
   category?: string;
+  nameLocalizations?: Record<string, string>;
+  descriptionLocalizations?: Record<string, string>;
   /**
    * Function to execute the precommand.
    *

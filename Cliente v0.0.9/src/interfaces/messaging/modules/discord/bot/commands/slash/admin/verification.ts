@@ -54,6 +54,11 @@ export default new Command(
     .addSubcommand((subcommand) => subcommand.setName("delete").setDescription("🧶 Delete the verification data.")),
   async (client, interaction) => {
     if (!interaction.guild || !interaction.channel || !interaction.member || !client.user) return;
+    // Multilenguaje
+    const userLang = interaction.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = client.translations.getFixedT(lang, "discord");
+
     const subcommand = interaction.options.getSubcommand();
     switch (subcommand) {
       case "configure":
@@ -92,8 +97,8 @@ export default new Command(
               embeds: [
                 new EmbedCorrect().setDescription(
                   [
-                    `${client.getEmoji(interaction.guild.id, "error")} The verification module has been updated successfully.`,
-                    `**Enabled:** ${isVerificationEnabled ? "Yes" : "No"}`,
+                    `${client.getEmoji(interaction.guild.id, isVerificationEnabled ? "correct" : "error")} ${t("verification.updated")}`,
+                    `**${t("verification.enabled")}:** ${isVerificationEnabled ? t("common.yes") : t("common.no")}`,
                   ].join("\n"),
                 ),
               ],
@@ -105,8 +110,8 @@ export default new Command(
               embeds: [
                 new ErrorEmbed().setDescription(
                   [
-                    `${client.getEmoji(interaction.guild.id, "error")} An error occurred while updating the verification module.`,
-                    `**Error:** ${error.message}`,
+                    `${client.getEmoji(interaction.guild.id, "error")} ${t("verification.updateError")}`,
+                    `**${t("verification.error")}:** ${error.message}`,
                   ].join("\n"),
                 ),
               ],
@@ -132,8 +137,8 @@ export default new Command(
               embeds: [
                 new EmbedCorrect().setDescription(
                   [
-                    `${client.getEmoji(interaction.guild.id, "correct")} The data has been deleted successfully.`,
-                    `**Guild:** ${interaction.guild.name} (\`${interaction.guild.id}\`)`,
+                    `${client.getEmoji(interaction.guild.id, "correct")} ${t("verification.deleted")}`,
+                    `**${t("verification.guild")}:** ${interaction.guild.name} (\`${interaction.guild.id}\`)`,
                   ].join("\n"),
                 ),
               ],
@@ -144,8 +149,8 @@ export default new Command(
               embeds: [
                 new ErrorEmbed().setDescription(
                   [
-                    `${client.getEmoji(interaction.guild.id, "error")} An error occurred while deleting the data.`,
-                    `**Error:** ${error.message}`,
+                    `${client.getEmoji(interaction.guild.id, "error")} ${t("verification.deleteError")}`,
+                    `**${t("verification.error")}:** ${error.message}`,
                   ].join("\n"),
                 ),
               ],

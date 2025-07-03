@@ -230,6 +230,8 @@ export class MyDiscord extends Client {
     this.on("ready", async () => {
       const data = await main.DB.findDiscord(this.user?.id as string);
       if (!data || !this.user || !data.activity) return;
+      if (this.user.verified === true) return;
+      
       this.user.setUsername(data.username);
       this.user.setAvatar(data.avatar);
       let activityName: string | undefined;
@@ -310,10 +312,20 @@ export class MyDiscord extends Client {
    */
   public getEmoji(guildId: string, emojiName: keyof typeof emojis): string {
     const guild = this.guilds.cache.get(guildId);
-    if (guild) {    
+    if (guild) {
       const emoji = guild.emojis.cache.find((e) => e.name === emojiName);
       if (emoji) return `<:${emoji.name}:${emoji.id}>`;
     }
     return typeof emojis[emojiName] === "string" ? emojis[emojiName] : `:${emojiName}:`;
+  }
+
+  /**
+   * Traduce una clave usando i18next, detectando el idioma del usuario o servidor.
+   * @param key Clave de traducción (namespace:clave)
+   * @param options Opciones de i18next, incluyendo variables y el idioma
+   * @param lang Idioma forzado (opcional)
+   */
+  public t(key: string, options?: any, lang?: string): string {
+    return this.translations.t(key, { lng: lang || options?.lng, ...options });
   }
 }

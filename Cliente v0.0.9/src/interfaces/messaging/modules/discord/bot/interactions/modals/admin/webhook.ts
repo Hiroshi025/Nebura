@@ -12,17 +12,20 @@ const modalWebhook: Modals = {
     const input = interaction.fields.getTextInputValue("input-webhook-url");
     if (!interaction.guild || !interaction.channel || !client.user) return;
 
+    // Detecta idioma preferido del usuario o servidor
+    const lang = interaction.locale || interaction.guild?.preferredLocale || "en-US";
+
     const data = await main.DB.findDiscord(client.user.id);
 
     if (!data)
       return interaction.reply({
         embeds: [
           new ErrorEmbed()
-            .setTitle("Error Configuration")
+            .setTitle(client.t("webhook.errorTitle", {}, lang))
             .setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "error")} **Error**`,
-                `No configuration found for this server.`,
+                `${client.getEmoji(interaction.guild.id, "error")} **${client.t("webhook.error", {}, lang)}**`,
+                client.t("webhook.noConfig", {}, lang),
               ].join("\n"),
             ),
         ],
@@ -41,11 +44,11 @@ const modalWebhook: Modals = {
     return await interaction.reply({
       embeds: [
         new EmbedCorrect()
-          .setTitle("Webhook Configuration")
+          .setTitle(client.t("webhook.successTitle", {}, lang))
           .setDescription(
             [
-              `${client.getEmoji(interaction.guild.id, "correct")} **Success**`,
-              `The webhook URL has been set to: \`${input}\``,
+              `${client.getEmoji(interaction.guild.id, "correct")} **${client.t("webhook.success", {}, lang)}**`,
+              client.t("webhook.set", { input }, lang),
             ].join("\n"),
           ),
       ],

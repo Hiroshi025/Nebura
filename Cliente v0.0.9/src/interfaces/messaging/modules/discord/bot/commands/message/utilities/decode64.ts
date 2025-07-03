@@ -20,26 +20,30 @@ const decode64Command: Precommand = {
   async execute(client, message) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
+    // Multilenguaje
+    const userLang = message.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = client.translations.getFixedT(lang, "discord");
+
     // Create initial embed
     const embed = new EmbedCorrect()
-      .setTitle("Base64 Decoder")
-      .setDescription("Choose how you want to provide the Base64 text to decode:")
+      .setTitle(t("decode64.title"))
+      .setDescription(t("decode64.desc"))
       .addFields({
-        name: "Options",
-        value:
-          "🔘 **Button**: Open a modal to input text\n📝 **Menu**: Select from recent messages\n📋 **Paste**: Decode directly from this message",
+        name: t("decode64.optionsField"),
+        value: t("decode64.optionsValue"),
       });
 
     // Create action row with buttons
     const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("decode64_modal")
-        .setLabel("Use Modal")
+        .setLabel(t("decode64.useModal"))
         .setStyle(ButtonStyle.Primary)
         .setEmoji("🔘"),
       new ButtonBuilder()
         .setCustomId("decode64_paste")
-        .setLabel("Paste Here")
+        .setLabel(t("decode64.pasteHere"))
         .setStyle(ButtonStyle.Secondary)
         .setEmoji("📋"),
     );
@@ -49,15 +53,15 @@ const decode64Command: Precommand = {
     const menuOptions = recentMessages.map((msg) => ({
       label: msg.content.slice(0, 50) + (msg.content.length > 50 ? "..." : ""),
       value: msg.id,
-      description: `Message from ${msg.author.username}`,
+      description: t("decode64.menuDesc", { user: msg.author.username }),
       emoji: "💬",
     }));
 
     const menuRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("decode64_menu")
-        .setPlaceholder("Select a message to decode")
-        .addOptions(menuOptions.slice(0, 25)) // Discord allows max 25 options
+        .setPlaceholder(t("decode64.menuPlaceholder"))
+        .addOptions(menuOptions.slice(0, 25))
         .setMinValues(1)
         .setMaxValues(1),
     );
@@ -78,11 +82,11 @@ const decode64Command: Precommand = {
       try {
         if (interaction.isButton() && interaction.customId === "decode64_modal") {
           // Create modal for text input
-          const modal = new ModalBuilder().setCustomId("decode64_modal_input").setTitle("Base64 Decoder");
+          const modal = new ModalBuilder().setCustomId("decode64_modal_input").setTitle(t("decode64.title"));
 
           const textInput = new TextInputBuilder()
             .setCustomId("decode64_text")
-            .setLabel("Enter Base64 text to decode")
+            .setLabel(t("decode64.inputLabel"))
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(true)
             .setMinLength(4)
@@ -95,8 +99,8 @@ const decode64Command: Precommand = {
         } else if (interaction.isButton() && interaction.customId === "decode64_paste") {
           // Handle paste option
           await interaction.reply({
-            content: "Please reply to this message with the Base64 text you want to decode.",
-            ephemeral: true,
+            content: t("decode64.replyPaste"),
+            flags: "Ephemeral",
           });
 
           const filter = (m: any) => m.author.id === interaction.user.id;
@@ -122,8 +126,8 @@ const decode64Command: Precommand = {
       } catch (error) {
         console.error("Error in decode64 interaction:", error);
         await interaction.reply({
-          content: "An error occurred while processing your request.",
-          ephemeral: true,
+          content: t("decode64.errorProcessing"),
+          flags: "Ephemeral",
         });
       }
     });
@@ -138,8 +142,8 @@ const decode64Command: Precommand = {
       } catch (error) {
         console.error("Error in modal submission:", error);
         await modalInteraction.reply({
-          content: "An error occurred while processing your input.",
-          ephemeral: true,
+          content: t("decode64.errorProcessingInput"),
+          flags: "Ephemeral",
         });
       }
     });
@@ -149,8 +153,8 @@ const decode64Command: Precommand = {
         // Check if the input is valid Base64
         if (!/^[A-Za-z0-9+/=]+$/.test(input)) {
           await interaction.reply({
-            content: "The provided text doesn't appear to be valid Base64.",
-            ephemeral: true,
+            content: t("decode64.invalidBase64"),
+            flags: "Ephemeral",
           });
           return;
         }
@@ -160,13 +164,13 @@ const decode64Command: Precommand = {
 
         // Create result embed
         const resultEmbed = new EmbedCorrect()
-          .setTitle("Base64 Decoding Result")
+          .setTitle(t("decode64.resultTitle"))
           .addFields(
-            { name: "Original", value: `\`\`\`${input.slice(0, 1000)}\`\`\``, inline: false },
-            { name: "Decoded", value: `\`\`\`${decoded.slice(0, 1000)}\`\`\``, inline: false },
+            { name: t("decode64.originalField"), value: `\`\`\`${input.slice(0, 1000)}\`\`\``, inline: false },
+            { name: t("decode64.decodedField"), value: `\`\`\`${decoded.slice(0, 1000)}\`\`\``, inline: false },
           )
           .setFooter({
-            text: `Decoded for ${interaction.user.tag}`,
+            text: t("decode64.footer", { user: interaction.user.tag }),
             iconURL: interaction.user.displayAvatarURL(),
           });
 
@@ -174,7 +178,7 @@ const decode64Command: Precommand = {
         const deleteButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId(`delete_${interaction.user.id}`)
-            .setLabel("Delete")
+            .setLabel(t("decode64.deleteButton"))
             .setStyle(ButtonStyle.Danger),
         );
 
@@ -183,13 +187,13 @@ const decode64Command: Precommand = {
           await interaction.followUp({
             embeds: [resultEmbed],
             components: [deleteButton],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         } else {
           await interaction.reply({
             embeds: [resultEmbed],
             components: [deleteButton],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
 
@@ -208,8 +212,8 @@ const decode64Command: Precommand = {
       } catch (error) {
         console.error("Error decoding Base64:", error);
         await interaction.reply({
-          content: "An error occurred while decoding the Base64 text. Please make sure it's valid Base64.",
-          ephemeral: true,
+          content: t("decode64.errorDecoding"),
+          flags: "Ephemeral",
         });
       }
     }

@@ -1,6 +1,11 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
-	PermissionFlagsBits, TextChannel
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelSelectMenuBuilder,
+  ChannelType,
+  PermissionFlagsBits,
+  TextChannel,
 } from "discord.js";
 
 import { main } from "@/main";
@@ -25,6 +30,11 @@ const autonsfwCommand: Precommand = {
   async execute(_client, message, args) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
+    // Multilenguaje
+    const userLang = message.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = _client.translations.getFixedT(lang, "discord");
+
     const subcommand = args[0];
     switch (subcommand) {
       case "set":
@@ -43,8 +53,8 @@ const autonsfwCommand: Precommand = {
             return message.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("No Text Channels Found")
-                  .setDescription("There are no text channels available to set as NSFW."),
+                  .setTitle(t("autonsfw.noTextChannelsTitle"))
+                  .setDescription(t("autonsfw.noTextChannelsDesc")),
               ],
             });
           }
@@ -52,28 +62,26 @@ const autonsfwCommand: Precommand = {
           // Channel select menu (only text channels)
           const selectMenu = new ChannelSelectMenuBuilder()
             .setCustomId("autonsfw_select")
-            .setPlaceholder("Select a channel to set as NSFW")
+            .setPlaceholder(t("autonsfw.selectChannelPlaceholder"))
             .setChannelTypes(ChannelType.GuildText)
             .setMinValues(1)
             .setMaxValues(1);
 
           const confirmButton = new ButtonBuilder()
             .setCustomId("autonsfw_confirm")
-            .setLabel("Confirm")
+            .setLabel(t("autonsfw.confirmButton"))
             .setStyle(ButtonStyle.Success)
             .setDisabled(true);
 
           const cancelButton = new ButtonBuilder()
             .setCustomId("autonsfw_cancel")
-            .setLabel("Cancel")
+            .setLabel(t("autonsfw.cancelButton"))
             .setStyle(ButtonStyle.Danger);
 
           const rowMenu = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(selectMenu);
           const rowButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(confirmButton, cancelButton);
 
-          const embed = new EmbedCorrect()
-            .setTitle("NSFW Channel Configuration")
-            .setDescription("Please select a text channel to set as the NSFW channel for this server.");
+          const embed = new EmbedCorrect().setTitle(t("autonsfw.configTitle")).setDescription(t("autonsfw.configDesc"));
 
           const sentMsg = await message.channel.send({
             embeds: [embed],
@@ -93,8 +101,8 @@ const autonsfwCommand: Precommand = {
               const selectedChannel = message.guild!.channels.cache.get(channelId);
               if (!selectedChannel || selectedChannel.type !== ChannelType.GuildText) {
                 return interaction.reply({
-                  content: "Invalid channel selected.",
-                  ephemeral: true,
+                  content: t("autonsfw.invalidChannel"),
+                  flags: "Ephemeral",
                 });
               }
               selectedChannelId = channelId;
@@ -111,7 +119,7 @@ const autonsfwCommand: Precommand = {
               if (interaction.customId === "autonsfw_confirm") {
                 if (!selectedChannelId) {
                   return interaction.reply({
-                    content: "Please select a channel first.",
+                    content: t("autonsfw.selectFirst"),
                     flags: "Ephemeral",
                   });
                 }
@@ -123,8 +131,8 @@ const autonsfwCommand: Precommand = {
                 await interaction.update({
                   embeds: [
                     new EmbedCorrect()
-                      .setTitle("NSFW Channel Set")
-                      .setDescription(`The NSFW channel has been set to <#${selectedChannelId}>.`),
+                      .setTitle(t("autonsfw.setTitle"))
+                      .setDescription(t("autonsfw.setDesc", { channel: `<#${selectedChannelId}>` })),
                   ],
                   components: [],
                 });
@@ -132,9 +140,7 @@ const autonsfwCommand: Precommand = {
               } else if (interaction.customId === "autonsfw_cancel") {
                 await interaction.update({
                   embeds: [
-                    new ErrorEmbed()
-                      .setTitle("NSFW Channel Configuration Cancelled")
-                      .setDescription("The NSFW channel configuration has been cancelled."),
+                    new ErrorEmbed().setTitle(t("autonsfw.cancelledTitle")).setDescription(t("autonsfw.cancelledDesc")),
                   ],
                   components: [],
                 });
@@ -149,11 +155,7 @@ const autonsfwCommand: Precommand = {
             if (reason === "time") {
               await sentMsg.edit({
                 embeds: [
-                  new EmbedCorrect()
-                    .setTitle("NSFW Channel Configuration Expired")
-                    .setDescription(
-                      "You did not respond in time. Please run the command again if you wish to configure the NSFW channel.",
-                    ),
+                  new EmbedCorrect().setTitle(t("autonsfw.expiredTitle")).setDescription(t("autonsfw.expiredDesc")),
                 ],
                 components: [],
               });
@@ -172,27 +174,27 @@ const autonsfwCommand: Precommand = {
             return message.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("No NSFW Channel Configured")
-                  .setDescription("There is no NSFW channel configured for this server."),
+                  .setTitle(t("autonsfw.noConfiguredTitle"))
+                  .setDescription(t("autonsfw.noConfiguredDesc")),
               ],
             });
           }
 
           const confirmButton = new ButtonBuilder()
             .setCustomId("autonsfw_remove_confirm")
-            .setLabel("Confirm Remove")
+            .setLabel(t("autonsfw.removeConfirmButton"))
             .setStyle(ButtonStyle.Danger);
 
           const cancelButton = new ButtonBuilder()
             .setCustomId("autonsfw_remove_cancel")
-            .setLabel("Cancel")
+            .setLabel(t("autonsfw.cancelButton"))
             .setStyle(ButtonStyle.Secondary);
 
           const row = new ActionRowBuilder<ButtonBuilder>().addComponents(confirmButton, cancelButton);
 
           const embed = new EmbedCorrect()
-            .setTitle("Remove NSFW Channel")
-            .setDescription(`Are you sure you want to remove the configured NSFW channel (<#${myGuild.nsfwChannel}>)?`);
+            .setTitle(t("autonsfw.removeTitle"))
+            .setDescription(t("autonsfw.removeDesc", { channel: `<#${myGuild.nsfwChannel}>` }));
 
           const sentMsg = await message.channel.send({
             embeds: [embed],
@@ -213,9 +215,7 @@ const autonsfwCommand: Precommand = {
                 });
                 await interaction.update({
                   embeds: [
-                    new EmbedCorrect()
-                      .setTitle("NSFW Channel Removed")
-                      .setDescription("The NSFW channel configuration has been removed."),
+                    new EmbedCorrect().setTitle(t("autonsfw.removedTitle")).setDescription(t("autonsfw.removedDesc")),
                   ],
                   components: [],
                 });
@@ -224,8 +224,8 @@ const autonsfwCommand: Precommand = {
                 await interaction.update({
                   embeds: [
                     new ErrorEmbed()
-                      .setTitle("NSFW Channel Removal Cancelled")
-                      .setDescription("The NSFW channel removal has been cancelled."),
+                      .setTitle(t("autonsfw.removeCancelledTitle"))
+                      .setDescription(t("autonsfw.removeCancelledDesc")),
                   ],
                   components: [],
                 });
@@ -239,10 +239,8 @@ const autonsfwCommand: Precommand = {
               await sentMsg.edit({
                 embeds: [
                   new EmbedCorrect()
-                    .setTitle("NSFW Channel Removal Expired")
-                    .setDescription(
-                      "You did not respond in time. Please run the command again if you wish to remove the NSFW channel.",
-                    ),
+                    .setTitle(t("autonsfw.removeExpiredTitle"))
+                    .setDescription(t("autonsfw.removeExpiredDesc")),
                 ],
                 components: [],
               });

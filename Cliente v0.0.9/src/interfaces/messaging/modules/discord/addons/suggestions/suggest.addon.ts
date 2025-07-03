@@ -3,14 +3,8 @@
  * @packageDocumentation
  */
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ColorResolvable,
-  Colors,
-  EmbedBuilder,
-  MessageFlags,
-  PermissionFlagsBits,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ColorResolvable, Colors, EmbedBuilder,
+	MessageFlags, PermissionFlagsBits
 } from "discord.js";
 
 /**
@@ -74,7 +68,8 @@ export default new Addons(
     const defaultEmbedConfig: EmbedConfig = {
       color: Colors.Blurple.toString(),
       footer: {
-        text: "Want to suggest something? Type in this channel!",
+        // Cambia a multilenguaje
+        text: client.t("discord:suggest.footer", { lng: "en-US" }),
       },
     };
 
@@ -100,15 +95,15 @@ export default new Addons(
     async function getLastVoterInfo(guildId: string, voters: string[], downvoters: string[]): Promise<string> {
       console.debug("[SuggestAddon] Getting last voter info:", { guildId, voters, downvoters });
       const allVoters = [...voters, ...downvoters];
-      if (allVoters.length === 0) return "No votes yet";
+      if (allVoters.length === 0) return client.t("discord:suggest.noVotesYet", { lng: "en-US" });
 
       const lastVoterId = allVoters[allVoters.length - 1];
       try {
         const guild = await client.guilds.fetch(guildId);
         const member = await guild.members.fetch(lastVoterId);
-        return `${member.user.tag} (${voters.includes(lastVoterId) ? "Upvoted" : "Downvoted"})`;
+        return `${member.user.tag} (${voters.includes(lastVoterId) ? client.t("discord:suggest.upvoted", { lng: "en-US" }) : client.t("discord:suggest.downvoted", { lng: "en-US" })})`;
       } catch {
-        return `<@${lastVoterId}> (${voters.includes(lastVoterId) ? "Upvoted" : "Downvoted"})`;
+        return `<@${lastVoterId}> (${voters.includes(lastVoterId) ? client.t("discord:suggest.upvoted", { lng: "en-US" }) : client.t("discord:suggest.downvoted", { lng: "en-US" })})`;
       }
     }
 
@@ -158,9 +153,10 @@ export default new Addons(
          * Create the suggestion embed with voting fields and user info.
          */
         console.debug("[SuggestAddon] Creating suggestion embed for author:", message.author.id);
+        const lang = message.guild.preferredLocale || "en-US";
         const embed = new EmbedBuilder()
           .setAuthor({
-            name: `${message.author.tag}'s Suggestion`,
+            name: client.t("discord:suggest.suggestionBy", { user: message.author.tag, lng: lang }),
             iconURL: message.author.displayAvatarURL(),
           })
           .setDescription(message.content || "")
@@ -172,16 +168,28 @@ export default new Addons(
                 : (defaultEmbedConfig.color as ColorResolvable),
           )
           .setFooter({
-            text: myGuild.footerText || defaultEmbedConfig.footer?.text || "",
+            text: myGuild.footerText || client.t("discord:suggest.footer", { lng: lang }),
             iconURL: message.guild.iconURL() || undefined,
           })
           .setThumbnail(message.author.displayAvatarURL())
           .addFields(
-            { name: "👍 Up Votes", value: "```0 Votes (0.0%)```", inline: true },
-            { name: "👎 Down Votes", value: "```0 Votes (0.0%)```", inline: true },
-            { name: "📊 Progress", value: "```" + createProgressBar(0) + "```", inline: false },
-            { name: "🆔 Suggested By", value: `<@${message.author.id}>`, inline: true },
-            { name: "⏱️ Last Voter", value: "```No votes yet```", inline: true },
+            { name: client.t("discord:suggest.upvotes", { lng: lang }), value: "```0 Votes (0.0%)```", inline: true },
+            { name: client.t("discord:suggest.downvotes", { lng: lang }), value: "```0 Votes (0.0%)```", inline: true },
+            {
+              name: client.t("discord:suggest.progress", { lng: lang }),
+              value: "```" + createProgressBar(0) + "```",
+              inline: false,
+            },
+            {
+              name: client.t("discord:suggest.suggestedBy", { lng: lang }),
+              value: `<@${message.author.id}>`,
+              inline: true,
+            },
+            {
+              name: client.t("discord:suggest.lastVoter", { lng: lang }),
+              value: "```" + client.t("discord:suggest.noVotesYet", { lng: lang }) + "```",
+              inline: true,
+            },
           );
 
         // Add image if exists
@@ -212,20 +220,20 @@ export default new Addons(
         const whoButton = new ButtonBuilder()
           .setCustomId("suggest_who")
           .setEmoji("❓")
-          .setLabel("Who voted?")
+          .setLabel(client.t("discord:suggest.btnWho", { lng: lang }))
           .setStyle(ButtonStyle.Primary);
 
         // Admin buttons (only visible to admins)
         const approveButton = new ButtonBuilder()
           .setCustomId("suggest_approve")
           .setEmoji("✅")
-          .setLabel("Approve")
+          .setLabel(client.t("discord:suggest.btnApprove", { lng: lang }))
           .setStyle(ButtonStyle.Success);
 
         const rejectButton = new ButtonBuilder()
           .setCustomId("suggest_reject")
           .setEmoji("❌")
-          .setLabel("Reject")
+          .setLabel(client.t("discord:suggest.btnReject", { lng: lang }))
           .setStyle(ButtonStyle.Danger);
 
         const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(upvoteButton, downvoteButton, whoButton);
@@ -287,7 +295,7 @@ export default new Addons(
         if (!suggestion) {
           console.debug("[SuggestAddon] Suggestion not found in DB for message:", interaction.message.id);
           return interaction.reply({
-            content: "Suggestion not found in the database.",
+            content: client.t("discord:suggest.notFound", { lng: interaction.locale || "en-US" }),
             flags: MessageFlags.Ephemeral,
           });
         }
@@ -303,7 +311,7 @@ export default new Addons(
             suggestChannel: myGuild?.suggestChannel,
           });
           return interaction.reply({
-            content: "This interaction is not allowed in this channel.",
+            content: client.t("discord:suggest.notAllowedChannel", { lng: interaction.locale || "en-US" }),
             flags: MessageFlags.Ephemeral,
           });
         }
@@ -311,7 +319,10 @@ export default new Addons(
         if (suggestion.status !== "pending" && !customId.startsWith("suggest_who")) {
           console.debug("[SuggestAddon] Suggestion already resolved:", suggestion.status);
           return interaction.reply({
-            content: `This suggestion has already been ${suggestion.status}.`,
+            content: client.t("discord:suggest.alreadyResolved", {
+              status: suggestion.status,
+              lng: interaction.locale || "en-US",
+            }),
             flags: MessageFlags.Ephemeral,
           });
         }
@@ -325,7 +336,7 @@ export default new Addons(
             if (suggestion.voters.includes(userId)) {
               console.debug("[SuggestAddon] User already upvoted:", userId);
               return interaction.reply({
-                content: "You can't upvote this suggestion twice!",
+                content: client.t("discord:suggest.alreadyUpvoted", { lng: interaction.locale || "en-US" }),
                 flags: MessageFlags.Ephemeral,
               });
             }
@@ -359,7 +370,7 @@ export default new Addons(
             if (suggestion.downvoters.includes(userId)) {
               console.debug("[SuggestAddon] User already downvoted:", userId);
               return interaction.reply({
-                content: "You can't downvote this suggestion twice!",
+                content: client.t("discord:suggest.alreadyDownvoted", { lng: interaction.locale || "en-US" }),
                 flags: MessageFlags.Ephemeral,
               });
             }
@@ -390,7 +401,7 @@ export default new Addons(
           case "suggest_who":
             console.debug("[SuggestAddon] Who voted button pressed");
             const embed = new EmbedBuilder()
-              .setTitle("❓ Who reacted with what? ❓")
+              .setTitle(client.t("discord:suggest.whoTitle", { lng: interaction.locale || "en-US" }))
               .setColor(
                 myGuild.embedColor && /^#[0-9A-F]{6}$/i.test(myGuild.embedColor)
                   ? (myGuild.embedColor as ColorResolvable)
@@ -400,25 +411,25 @@ export default new Addons(
               )
               .addFields(
                 {
-                  name: `${suggestion.upvotes} Upvotes`,
+                  name: `${suggestion.upvotes} ${client.t("discord:suggest.upvotesShort", { lng: interaction.locale || "en-US" })}`,
                   value:
                     suggestion.voters.length > 0
                       ? suggestion.voters
                           .slice(0, 20)
                           .map((id) => `<@${id}>`)
                           .join("\n")
-                      : "No one",
+                      : client.t("discord:suggest.noOne", { lng: interaction.locale || "en-US" }),
                   inline: true,
                 },
                 {
-                  name: `${suggestion.downvotes} Downvotes`,
+                  name: `${suggestion.downvotes} ${client.t("discord:suggest.downvotesShort", { lng: interaction.locale || "en-US" })}`,
                   value:
                     suggestion.downvoters.length > 0
                       ? suggestion.downvoters
                           .slice(0, 20)
                           .map((id) => `<@${id}>`)
                           .join("\n")
-                      : "No one",
+                      : client.t("discord:suggest.noOne", { lng: interaction.locale || "en-US" }),
                   inline: true,
                 },
               );
@@ -435,7 +446,7 @@ export default new Addons(
             if (!interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
               console.debug("[SuggestAddon] User lacks admin permissions:", userId);
               return interaction.reply({
-                content: "You don't have permission to manage suggestions.",
+                content: client.t("discord:suggest.noPermission", { lng: interaction.locale || "en-US" }),
                 flags: MessageFlags.Ephemeral,
               });
             }
@@ -443,7 +454,9 @@ export default new Addons(
             const isApproval = customId === "suggest_approve";
             const newStatus = isApproval ? "approved" : "rejected";
             const statusColor = isApproval ? Colors.Green : Colors.Red;
-            const statusMessage = isApproval ? "approved" : "rejected";
+            const statusMessage = isApproval
+              ? client.t("discord:suggest.statusApproved", { lng: interaction.locale || "en-US" })
+              : client.t("discord:suggest.statusRejected", { lng: interaction.locale || "en-US" });
 
             // Update suggestion status
             await suggestRepository.updateStatus(interaction.message.id, newStatus, interaction.user.id);
@@ -461,7 +474,12 @@ export default new Addons(
             if (author) {
               try {
                 await author.send({
-                  content: `Your suggestion in ${guild.name} has been ${statusMessage}:\n\n${suggestion.content}`,
+                  content: client.t("discord:suggest.dmAuthor", {
+                    guild: guild.name,
+                    status: statusMessage,
+                    content: suggestion.content,
+                    lng: interaction.locale || "en-US",
+                  }),
                 });
                 console.debug("[SuggestAddon] DM sent to suggestion author:", author.id);
               } catch (error) {
@@ -474,7 +492,12 @@ export default new Addons(
             if (isApproval && owner && owner.id !== interaction.user.id) {
               try {
                 await owner.send({
-                  content: `A suggestion in your server ${guild.name} has been approved by ${interaction.user.tag}:\n\n${suggestion.content}`,
+                  content: client.t("discord:suggest.dmOwner", {
+                    guild: guild.name,
+                    user: interaction.user.tag,
+                    content: suggestion.content,
+                    lng: interaction.locale || "en-US",
+                  }),
                 });
                 console.debug("[SuggestAddon] DM sent to server owner:", owner.id);
               } catch (error) {
@@ -487,7 +510,11 @@ export default new Addons(
             const updatedEmbed = EmbedBuilder.from(interaction.message.embeds[0])
               .setColor(statusColor)
               .setFooter({
-                text: `Suggestion ${statusMessage} by ${interaction.user.tag}`,
+                text: client.t("discord:suggest.footerStatus", {
+                  status: statusMessage,
+                  user: interaction.user.tag,
+                  lng: interaction.locale || "en-US",
+                }),
                 iconURL: interaction.user.displayAvatarURL(),
               });
 
@@ -525,7 +552,10 @@ export default new Addons(
             });
             console.debug("[SuggestAddon] Suggestion message edited after admin action");
             return interaction.reply({
-              content: `Suggestion has been ${statusMessage}.`,
+              content: client.t("discord:suggest.suggestionResolved", {
+                status: statusMessage,
+                lng: interaction.locale || "en-US",
+              }),
               flags: MessageFlags.Ephemeral,
             });
         }
@@ -552,27 +582,27 @@ export default new Addons(
           0,
           5,
           {
-            name: "👍 Up Votes",
+            name: client.t("discord:suggest.upvotes", { lng: interaction.locale || "en-US" }),
             value: `\`\`\`${updatedSuggestion.upvotes} Votes (${upvotePercentage.toFixed(1)}%)\`\`\``,
             inline: true,
           },
           {
-            name: "👎 Down Votes",
+            name: client.t("discord:suggest.downvotes", { lng: interaction.locale || "en-US" }),
             value: `\`\`\`${updatedSuggestion.downvotes} Votes (${downvotePercentage.toFixed(1)}%)\`\`\``,
             inline: true,
           },
           {
-            name: "📊 Progress",
+            name: client.t("discord:suggest.progress", { lng: interaction.locale || "en-US" }),
             value: "```" + createProgressBar(upvotePercentage) + "```",
             inline: false,
           },
           {
-            name: "🆔 Suggested By",
+            name: client.t("discord:suggest.suggestedBy", { lng: interaction.locale || "en-US" }),
             value: `<@${updatedSuggestion.authorId}>`,
             inline: true,
           },
           {
-            name: "⏱️ Last Voter",
+            name: client.t("discord:suggest.lastVoter", { lng: interaction.locale || "en-US" }),
             value: `\`\`\`${lastVoterInfo}\`\`\``,
             inline: true,
           },
@@ -593,20 +623,20 @@ export default new Addons(
         const whoButton = new ButtonBuilder()
           .setCustomId("suggest_who")
           .setEmoji("❓")
-          .setLabel("Who voted?")
+          .setLabel(client.t("discord:suggest.btnWho", { lng: interaction.locale || "en-US" }))
           .setStyle(ButtonStyle.Primary);
 
         // Admin buttons
         const approveButton = new ButtonBuilder()
           .setCustomId("suggest_approve")
           .setEmoji("✅")
-          .setLabel("Approve")
+          .setLabel(client.t("discord:suggest.btnApprove", { lng: interaction.locale || "en-US" }))
           .setStyle(ButtonStyle.Success);
 
         const rejectButton = new ButtonBuilder()
           .setCustomId("suggest_reject")
           .setEmoji("❌")
-          .setLabel("Reject")
+          .setLabel(client.t("discord:suggest.btnReject", { lng: interaction.locale || "en-US" }))
           .setStyle(ButtonStyle.Danger);
 
         const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(upvoteButton, downvoteButton, whoButton);

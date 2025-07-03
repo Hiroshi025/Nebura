@@ -1,4 +1,4 @@
-import {
+/* import {
 	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChannelType, ComponentType,
 	EmbedBuilder, MessageComponentInteraction, PermissionFlagsBits, Role, RoleSelectMenuBuilder,
 	StringSelectMenuBuilder, TextChannel
@@ -666,3 +666,4 @@ const AddRoleCommand: Precommand = {
 };
 
 export = AddRoleCommand;
+ */

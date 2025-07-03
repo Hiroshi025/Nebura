@@ -65,6 +65,7 @@ export default new Command(
     )
     .addSubcommand((subcommand) => subcommand.setName("delete").setDescription("Deletes config for the modlogs.")),
   async (client, interaction) => {
+    const lang = interaction.locale || interaction.guild?.preferredLocale || "es-ES";
     const getSubCommand = interaction.options.getSubcommand();
 
     switch (getSubCommand) {
@@ -76,11 +77,11 @@ export default new Command(
           return interaction.reply({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Error Modlogs")
+                .setTitle(client.t("discord:modlogs.errorTitle", {}, lang))
                 .setDescription(
                   [
-                    `${client.getEmoji(interaction.guildId as string, "error")} You need to specify a channel for the modlogs!`,
-                    `Please make sure that the channel is a text channel.`,
+                    `${client.getEmoji(interaction.guildId as string, "error")} ${client.t("discord:modlogs.needChannel", {}, lang)}`,
+                    client.t("discord:modlogs.textChannelOnly", {}, lang),
                   ].join("\n"),
                 ),
             ],
@@ -92,7 +93,7 @@ export default new Command(
 
         if (existingModlog) {
           interaction.reply({
-            content: "Modlogs are already setup!",
+            content: client.t("discord:modlogs.alreadySetup", {}, lang),
             flags: "Ephemeral",
           });
           return;
@@ -108,8 +109,8 @@ export default new Command(
         await interaction.reply({
           embeds: [
             new EmbedCorrect()
-              .setTitle("Modlogs setup!")
-              .setDescription(`Modlogs have been successfully setup in <#${channel.id}>`)
+              .setTitle(client.t("discord:modlogs.setupTitle", {}, lang))
+              .setDescription(client.t("discord:modlogs.setupSuccess", { channel: `<#${channel.id}>` }, lang))
               .setColor(0x00ff00),
           ],
           flags: "Ephemeral",
@@ -125,11 +126,11 @@ export default new Command(
           return interaction.reply({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Error Modlogs")
+                .setTitle(client.t("discord:modlogs.errorTitle", {}, lang))
                 .setDescription(
                   [
-                    `${client.getEmoji(interaction.guildId as string, "error")} You need to specify a channel for the modlogs!`,
-                    `Please make sure that the channel is a text channel.`,
+                    `${client.getEmoji(interaction.guildId as string, "error")} ${client.t("discord:modlogs.needChannel", {}, lang)}`,
+                    client.t("discord:modlogs.textChannelOnly", {}, lang),
                   ].join("\n"),
                 ),
             ],
@@ -141,22 +142,22 @@ export default new Command(
 
         if (!existingModlog) {
           interaction.reply({
-            content: "Modlogs not setup! To setup run `/modlogs setup`",
+            content: client.t("discord:modlogs.notSetup", {}, lang),
             flags: "Ephemeral",
           });
           return;
         }
 
         await main.prisma.serverModlog.update({
-          where: { guildId: guild.id }, // Cambiado de id: existingModlog.id a guildId: guild.id
+          where: { guildId: guild.id },
           data: { channelId: channel.id },
         });
 
         await interaction.reply({
           embeds: [
             new EmbedCorrect()
-              .setTitle("Modlogs channel replaced!")
-              .setDescription(`Modlogs channel has been successfully replaced in <#${channel.id}>`)
+              .setTitle(client.t("discord:modlogs.replaceTitle", {}, lang))
+              .setDescription(client.t("discord:modlogs.replaceSuccess", { channel: `<#${channel.id}>` }, lang))
               .setColor(0x00ff00),
           ],
           flags: "Ephemeral",
@@ -171,11 +172,11 @@ export default new Command(
           return interaction.reply({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Error Modlogs")
+                .setTitle(client.t("discord:modlogs.errorTitle", {}, lang))
                 .setDescription(
                   [
-                    `${client.getEmoji(interaction.guildId as string, "error")} You need to specify a channel for the modlogs!`,
-                    `Please make sure that the channel is a text channel.`,
+                    `${client.getEmoji(interaction.guildId as string, "error")} ${client.t("discord:modlogs.needChannel", {}, lang)}`,
+                    client.t("discord:modlogs.textChannelOnly", {}, lang),
                   ].join("\n"),
                 ),
             ],
@@ -187,21 +188,21 @@ export default new Command(
 
         if (!existingModlog) {
           interaction.reply({
-            content: "Modlogs not setup! To setup run `/modlogs setup`",
+            content: client.t("discord:modlogs.notSetup", {}, lang),
             flags: "Ephemeral",
           });
           return;
         }
 
         await main.prisma.serverModlog.delete({
-          where: { guildId: guild.id }, // Cambiado de id: existingModlog.id a guildId: guild.id
+          where: { guildId: guild.id },
         });
 
         await interaction.reply({
           embeds: [
             new EmbedBuilder()
-              .setTitle("Modlogs deleted!")
-              .setDescription(`Modlogs have been successfully deleted!`)
+              .setTitle(client.t("discord:modlogs.deleteTitle", {}, lang))
+              .setDescription(client.t("discord:modlogs.deleteSuccess", {}, lang))
               .setColor(0x00ff00),
           ],
           flags: "Ephemeral",

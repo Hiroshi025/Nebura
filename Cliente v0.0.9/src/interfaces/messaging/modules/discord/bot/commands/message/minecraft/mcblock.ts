@@ -24,6 +24,11 @@ const mcblockCommand: Precommand = {
     try {
       if (!message.guild) return;
 
+      // Multilenguaje
+      const userLang = message.guild?.preferredLocale || "es-ES";
+      const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+      const t = _client.translations.getFixedT(lang, "discord");
+
       // Fetch blocks from Mojang API
       const response = await axios.get(
         "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.20/blocks.json",
@@ -33,11 +38,11 @@ const mcblockCommand: Precommand = {
       const blockName = args.join(" ");
 
       if (!blockName) {
-        return await showBlockMenu(message, blocks);
+        return await showBlockMenu(message, blocks, t);
       }
 
       if (blockName.toLowerCase() === "list") {
-        return await showBlockList(message, blocks);
+        return await showBlockList(message, blocks, t);
       }
 
       const block = findBlock(blockName, blocks);
@@ -47,15 +52,16 @@ const mcblockCommand: Precommand = {
           embeds: [
             new EmbedBuilder()
               .setColor("Red")
-              .setDescription(
-                `${emojis.error} Block/Item not found. Use \`${prefix}mcblock list\` to see available blocks.`,
-              ),
+              .setDescription(`${emojis.error} ${t("mcblock.notFound")}`.replace("{prefix}", prefix)),
           ],
         });
       }
 
-      return await showBlockDetails(message, block, blocks);
+      return await showBlockDetails(message, block, blocks, t);
     } catch (e: any) {
+      const userLang = message.guild?.preferredLocale || "es-ES";
+      const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+      const t = _client.translations.getFixedT(lang, "discord");
       return message.reply({
         embeds: [
           new ErrorEmbed()
@@ -65,8 +71,8 @@ const mcblockCommand: Precommand = {
             })
             .setDescription(
               [
-                `${emojis.error} An error occurred while executing this command!`,
-                `Please try again later or join our support server for help!`,
+                `${emojis.error} ${t ? t("mcblock.errorExec") : "An error occurred while executing this command!"}`,
+                t ? t("mcblock.tryAgain") : "Please try again later or join our support server for help!",
               ].join("\n"),
             )
             .setErrorFormat(e.stack),
@@ -76,31 +82,31 @@ const mcblockCommand: Precommand = {
   },
 };
 
-async function showBlockMenu(message: any, blocks: any[]) {
+async function showBlockMenu(message: any, blocks: any[], t: any) {
   const selectMenu = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId("block-select")
-      .setPlaceholder("Select a block/item")
+      .setPlaceholder(t("mcblock.menuPlaceholder"))
       .addOptions(
         blocks.slice(0, 25).map((block) => ({
           label: block.displayName,
           value: block.id.toString(),
-          description: `ID: ${block.id}`,
+          description: `${t("mcblock.id")}: ${block.id}`,
         })),
       ),
   );
 
   const buttons = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId("block-search").setLabel("Search Block").setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId("block-list").setLabel("View All").setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("block-search").setLabel(t("mcblock.searchButton")).setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId("block-list").setLabel(t("mcblock.viewAllButton")).setStyle(ButtonStyle.Secondary),
   );
 
   const menuMessage = await message.reply({
     embeds: [
       new EmbedBuilder()
         .setColor("#2ECC71")
-        .setTitle("Minecraft Blocks & Items")
-        .setDescription("Select a block/item from the menu below or search for one")
+        .setTitle(t("mcblock.menuTitle"))
+        .setDescription(t("mcblock.menuDesc"))
         .setThumbnail("https://www.minecraft.net/content/dam/minecraft/touchup-2020/minecraft-logo.svg"),
     ],
     components: [selectMenu, buttons],
@@ -118,7 +124,7 @@ async function showBlockMenu(message: any, blocks: any[]) {
       const block = blocks.find((b) => b.id.toString() === blockId);
       if (block) {
         await interaction.deferUpdate();
-        await showBlockDetails(menuMessage, block, blocks);
+        await showBlockDetails(menuMessage, block, blocks, t);
       }
     }
   });
@@ -128,7 +134,7 @@ async function showBlockMenu(message: any, blocks: any[]) {
   });
 }
 
-async function showBlockList(message: any, blocks: any[]) {
+async function showBlockList(message: any, blocks: any[], t: any) {
   const pages = [];
   const itemsPerPage = 6;
 
@@ -137,17 +143,20 @@ async function showBlockList(message: any, blocks: any[]) {
 
     const embed = new EmbedBuilder()
       .setColor("#2ECC71")
-      .setTitle("Minecraft Blocks & Items List")
-      .setDescription("Here are available Minecraft blocks and items:")
+      .setTitle(t("mcblock.listTitle"))
+      .setDescription(t("mcblock.listDesc"))
       .setThumbnail("https://www.minecraft.net/content/dam/minecraft/touchup-2020/minecraft-logo.svg")
       .setFooter({
-        text: `Page ${Math.floor(i / itemsPerPage) + 1} of ${Math.ceil(blocks.length / itemsPerPage)}`,
+        text: t("mcblock.pageFooter", {
+          page: Math.floor(i / itemsPerPage) + 1,
+          total: Math.ceil(blocks.length / itemsPerPage),
+        }),
       });
 
     current.forEach((block) => {
       embed.addFields({
         name: block.displayName,
-        value: `**ID:** ${block.id}\n**Stack Size:** ${block.stackSize || 64}`,
+        value: `**${t("mcblock.id")}:** ${block.id}\n**${t("mcblock.stackSize")}:** ${block.stackSize || 64}`,
         inline: true,
       });
     });
@@ -169,31 +178,31 @@ function findBlock(name: string, blocks: any[]) {
   );
 }
 
-async function showBlockDetails(message: any, block: any, blocks: any[]) {
+async function showBlockDetails(message: any, block: any, blocks: any[], t: any) {
   // Get block image from Minecraft API
   const imageUrl = `https://minecraft-api.com/api/blocks/${encodeURIComponent(block.name)}.png`;
 
   const embed = new EmbedBuilder()
     .setColor("#2ECC71")
-    .setTitle(`Block/Item: ${block.displayName}`)
-    .setDescription(`**Name ID:** ${block.name}`)
+    .setTitle(`${t("mcblock.detailTitle")}: ${block.displayName}`)
+    .setDescription(`**${t("mcblock.nameId")}:** ${block.name}`)
     .addFields(
-      { name: "ID", value: block.id.toString(), inline: true },
-      { name: "Stack Size", value: (block.stackSize || 64).toString(), inline: true },
-      { name: "Hardness", value: block.hardness?.toString() || "N/A", inline: true },
-      { name: "Resistance", value: block.resistance?.toString() || "N/A", inline: true },
-      { name: "Luminance", value: block.luminance?.toString() || "0", inline: true },
-      { name: "Transparent", value: block.transparent ? "Yes" : "No", inline: true },
+      { name: t("mcblock.id"), value: block.id.toString(), inline: true },
+      { name: t("mcblock.stackSize"), value: (block.stackSize || 64).toString(), inline: true },
+      { name: t("mcblock.hardness"), value: block.hardness?.toString() || t("mcblock.na"), inline: true },
+      { name: t("mcblock.resistance"), value: block.resistance?.toString() || t("mcblock.na"), inline: true },
+      { name: t("mcblock.luminance"), value: block.luminance?.toString() || "0", inline: true },
+      { name: t("mcblock.transparent"), value: block.transparent ? t("mcblock.yes") : t("mcblock.no"), inline: true },
     )
     .setImage(imageUrl);
 
   // Add crafting recipe button if available
   const buttons = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setLabel("View Recipe")
+      .setLabel(t("mcblock.recipeButton"))
       .setURL(`https://minecraft.wiki/w/${encodeURIComponent(block.name)}`)
       .setStyle(ButtonStyle.Link),
-    new ButtonBuilder().setCustomId("block-back").setLabel("Back to List").setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId("block-back").setLabel(t("mcblock.backButton")).setStyle(ButtonStyle.Secondary),
   );
 
   const detailMessage = await message.reply({
@@ -210,7 +219,7 @@ async function showBlockDetails(message: any, block: any, blocks: any[]) {
   collector.on("collect", async (interaction: { customId: string; deferUpdate: () => any }) => {
     if (interaction.customId === "block-back") {
       await interaction.deferUpdate();
-      await showBlockMenu(detailMessage, blocks);
+      await showBlockMenu(detailMessage, blocks, t);
     }
   });
 

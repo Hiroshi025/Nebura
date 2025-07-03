@@ -34,6 +34,8 @@ const ModalDeleteCommand: Modals = {
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel) return;
+    // Detecta el idioma preferido del usuario o servidor
+    const lang = interaction.locale || interaction.guild.preferredLocale || "es-ES";
     const commandName = interaction.fields.getTextInputValue("command_to_delete");
     const categories = readdirSync(
       config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands,
@@ -63,8 +65,8 @@ const ModalDeleteCommand: Modals = {
           embeds: [
             new EmbedCorrect().setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "correct")} Command \`${commandName}\` deleted successfully.`,
-                `**Command:** \`${commandName}\` deleted from the system.`,
+                `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("help.deleteSuccess", { commandName, lng: lang })}`,
+                `**${client.t("help.deleteCommandField", { lng: lang })}:** \`${commandName}\` ${client.t("help.deleteFromSystem", { lng: lang })}`,
               ].join("\n"),
             ),
           ],
@@ -75,8 +77,8 @@ const ModalDeleteCommand: Modals = {
           embeds: [
             new ErrorEmbed().setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "error")} Command \`${commandName}\` not found.`,
-                `**Command:** \`${commandName}\` not found in the system.`,
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("help.deleteNotFound", { commandName, lng: lang })}`,
+                `**${client.t("help.deleteCommandField", { lng: lang })}:** \`${commandName}\` ${client.t("help.deleteNotFoundSystem", { lng: lang })}`,
               ].join("\n"),
             ),
           ],
@@ -87,11 +89,11 @@ const ModalDeleteCommand: Modals = {
       await interaction.reply({
         embeds: [
           new ErrorEmbed()
-            .setTitle("Error Deleting Command")
+            .setTitle(client.t("help.deleteErrorTitle", { lng: lang }))
             .setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "error")} An error occurred while trying to delete the command.`,
-                `Please try again later or contact the support team.`,
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("help.deleteErrorDesc", { lng: lang })}`,
+                client.t("help.deleteErrorHint", { lng: lang }),
               ].join("\n"),
             ),
         ],

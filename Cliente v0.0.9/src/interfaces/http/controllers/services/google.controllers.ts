@@ -50,7 +50,7 @@ export class GeminiController extends GeminiService {
 
       return res.status(200).json(result);
     } catch (error) {
-      return res.status(500).json({ error: "Failed to process text" });
+      return res.status(500).json({ error: req.t("errors.failed_to_process_text") });
     }
   }
 
@@ -74,25 +74,30 @@ export class GeminiController extends GeminiService {
     try {
       upload.single("file")(req, res, async (err: any) => {
         if (err) {
-          return res.status(400).json({ error: "File upload failed" });
+          return res.status(400).json({ error: req.t("errors.file_upload_failed") });
         }
 
         if (!req.file) {
-          return res.status(400).json({ error: "No file uploaded" });
+          return res.status(400).json({ error: req.t("errors.no_file_uploaded") });
         }
 
         const { text, systemInstruction } = req.body as GoogleBody;
-        const result = await this.prototype.fileGoogle(req.file.buffer, req.file.mimetype, text || "Default text", {
-          apiKey: req.geminiConfig!.apiKey,
-          model: req.geminiConfig!.model,
-          systemInstruction,
-          apiKeyHash: req.geminiConfig!.apiKeyHash,
-        });
+        const result = await this.prototype.fileGoogle(
+          req.file.buffer,
+          req.file.mimetype,
+          text || req.t("default_text"),
+          {
+            apiKey: req.geminiConfig!.apiKey,
+            model: req.geminiConfig!.model,
+            systemInstruction,
+            apiKeyHash: req.geminiConfig!.apiKeyHash,
+          },
+        );
 
         return res.status(200).json(result);
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to process file" });
+      res.status(500).json({ error: req.t("errors.failed_to_process_file") });
     }
   }
 
@@ -116,11 +121,11 @@ export class GeminiController extends GeminiService {
     try {
       upload.single("file")(req, res, async (err: any) => {
         if (err) {
-          return res.status(400).json({ error: "File upload failed" });
+          return res.status(400).json({ error: req.t("errors.file_upload_failed") });
         }
 
         if (!req.file) {
-          return res.status(400).json({ error: "No file uploaded" });
+          return res.status(400).json({ error: req.t("errors.no_file_uploaded") });
         }
 
         const { text, systemInstruction } = req.body as GoogleBody;
@@ -134,7 +139,7 @@ export class GeminiController extends GeminiService {
         return res.status(200).json(result);
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to process combined request" });
+      res.status(500).json({ error: req.t("errors.failed_to_process_combined") });
     }
   }
 }

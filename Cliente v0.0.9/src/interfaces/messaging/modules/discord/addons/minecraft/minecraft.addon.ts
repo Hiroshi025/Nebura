@@ -4,7 +4,7 @@ import {
 	StringSelectMenuOptionBuilder, TextChannel
 } from "discord.js";
 
-import { client, main } from "@/main";
+import { main } from "@/main";
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 
@@ -21,7 +21,7 @@ export default new Addons(
     version: _package.version,
     bitfield: ["ManageChannels", "SendMessages", "EmbedLinks"],
   },
-  async () => {
+  async (client) => {
     // Cache for server statuses
     const statusCache: Record<string, any> = {};
     let lastApiResponseTime: number = 0;
@@ -66,10 +66,12 @@ export default new Addons(
     /**
      * Creates a rich embed with server status information
      */
-    function createStatusEmbed(serverConfig: MinecraftServerConfig, statusData: any): EmbedBuilder {
+    function createStatusEmbed(serverConfig: MinecraftServerConfig, statusData: any, lang: string): EmbedBuilder {
       const isOnline = statusData?.online === true;
       const embedColor = isOnline ? 0x00ff00 : 0xff0000;
-      const statusText = isOnline ? "ONLINE" : "OFFLINE";
+      const statusText = isOnline
+        ? client.t("discord:minecraft.online", {}, lang)
+        : client.t("discord:minecraft.offline", {}, lang);
       const statusEmoji = isOnline
         ? client.getEmoji(config.modules.discord.guildId, "online") || "🟢"
         : client.getEmoji(config.modules.discord.guildId, "offline") || "🔴";
@@ -77,61 +79,56 @@ export default new Addons(
       const embed = new EmbedBuilder()
         .setColor(embedColor)
         .setTitle(`${statusEmoji} ${serverConfig.displayName || serverConfig.name} - ${statusText}`)
-        .setDescription(serverConfig.description || "No description provided")
+        .setDescription(serverConfig.description || client.t("discord:minecraft.noDescription", {}, lang))
         .setFooter({
-          text: `Last updated: ${new Date().toLocaleString()} | API response: ${lastApiResponseTime}ms`,
+          text: `${client.t("discord:minecraft.lastUpdate", {}, lang)}: ${new Date().toLocaleString()} | ${client.t("discord:minecraft.apiResponse", { ms: lastApiResponseTime }, lang)}`,
           iconURL: client.user?.displayAvatarURL(),
         })
         .setTimestamp();
 
-      // Basic server info
       embed.addFields({
-        name: "🔗 Connection Info",
+        name: `🔗 ${client.t("discord:minecraft.connectionInfo", {}, lang)}`,
         value: [
-          `**Address:** \`${statusData.ip || serverConfig.ip}\``,
-          `**Port:** \`${statusData.port || serverConfig.port || "default"}\``,
-          `**Type:** ${serverConfig.type.toUpperCase()}`,
+          `**${client.t("discord:minecraft.address", {}, lang)}:** \`${statusData.ip || serverConfig.ip}\``,
+          `**${client.t("discord:minecraft.port", {}, lang)}:** \`${statusData.port || serverConfig.port || client.t("discord:minecraft.default", {}, lang)}\``,
+          `**${client.t("discord:minecraft.type", {}, lang)}:** ${serverConfig.type.toUpperCase()}`,
         ].join("\n"),
         inline: true,
       });
 
       if (isOnline) {
-        // Version info
         embed.addFields({
-          name: "📋 Version Info",
+          name: `📋 ${client.t("discord:minecraft.versionInfo", {}, lang)}`,
           value: [
-            `**Version:** ${statusData.version || "Unknown"}`,
-            `**Protocol:** ${statusData.protocol?.name || statusData.protocol?.version || "Unknown"}`,
-            `**Software:** ${statusData.software || "Vanilla"}`,
+            `**${client.t("discord:minecraft.version", {}, lang)}:** ${statusData.version || client.t("discord:minecraft.unknown", {}, lang)}`,
+            `**${client.t("discord:minecraft.protocol", {}, lang)}:** ${statusData.protocol?.name || statusData.protocol?.version || client.t("discord:minecraft.unknown", {}, lang)}`,
+            `**${client.t("discord:minecraft.software", {}, lang)}:** ${statusData.software || client.t("discord:minecraft.vanilla", {}, lang)}`,
           ].join("\n"),
           inline: true,
         });
 
-        // Players info
         const players = statusData.players || {};
         const playerCount = `${players.online || 0}/${players.max || 0}`;
         const playerList =
           players.list
             ?.slice(0, 10)
             .map((p: any) => `• ${p.name}`)
-            .join("\n") || "No players online";
+            .join("\n") || client.t("discord:minecraft.noPlayersOnline", {}, lang);
 
         embed.addFields({
-          name: `👥 Players (${playerCount})`,
+          name: `👥 ${client.t("discord:minecraft.players", { count: playerCount }, lang)}`,
           value: playerList.length > 1000 ? playerList.substring(0, 1000) + "..." : playerList,
           inline: false,
         });
 
-        // MOTD
         if (statusData.motd?.clean) {
           embed.addFields({
-            name: "📜 MOTD",
+            name: `📜 ${client.t("discord:minecraft.motd", {}, lang)}`,
             value: statusData.motd.clean.join("\n").slice(0, 1024),
             inline: false,
           });
         }
 
-        // Server icon if available
         if (statusData.icon) {
           embed.setThumbnail(
             `https://api.mcsrvstat.us/icon/${serverConfig.ip}${serverConfig.port ? `:${serverConfig.port}` : ""}`,
@@ -139,11 +136,11 @@ export default new Addons(
         }
       } else {
         embed.addFields({
-          name: "🔍 Debug Info",
+          name: `🔍 ${client.t("discord:minecraft.debugInfo", {}, lang)}`,
           value: [
-            `**Last Error:** ${lastError || "None"}`,
-            `**Error Count:** ${errorCount}`,
-            `**Cache Status:** ${statusData.debug?.cachehit ? "HIT" : "MISS"}`,
+            `**${client.t("discord:minecraft.lastError", {}, lang)}:** ${lastError || client.t("discord:minecraft.none", {}, lang)}`,
+            `**${client.t("discord:minecraft.errorCount", {}, lang)}:** ${errorCount}`,
+            `**${client.t("discord:minecraft.cacheStatus", {}, lang)}:** ${statusData.debug?.cachehit ? "HIT" : "MISS"}`,
           ].join("\n"),
           inline: false,
         });
@@ -155,11 +152,11 @@ export default new Addons(
     /**
      * Creates interactive components for the message
      */
-    function createMessageComponents(servers: MinecraftServerConfig[], currentServer: string) {
+    function createMessageComponents(servers: MinecraftServerConfig[], currentServer: string, lang: string) {
       // Server selection dropdown
       const serverSelect = new StringSelectMenuBuilder()
         .setCustomId("minecraft_server_select")
-        .setPlaceholder("Select a server...")
+        .setPlaceholder(client.t("discord:minecraft.selectServer", {}, lang))
         .addOptions(
           servers.map((server) =>
             new StringSelectMenuOptionBuilder()
@@ -174,12 +171,12 @@ export default new Addons(
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId("refresh_status")
-          .setLabel("Refresh")
+          .setLabel(client.t("discord:minecraft.refresh", {}, lang))
           .setEmoji("🔄")
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setStyle(ButtonStyle.Link)
-          .setLabel("API Docs")
+          .setLabel(client.t("discord:minecraft.apiDocs", {}, lang))
           .setEmoji("📄")
           .setURL("https://api.mcsrvstat.us/"),
       );
@@ -190,12 +187,11 @@ export default new Addons(
     /**
      * Updates the status message in Discord
      */
-    async function updateStatusMessage(serverName: string) {
+    async function updateStatusMessage(serverName: string, lang: string) {
       try {
         const serverConfig = configuration.servers.find((s) => s.name === serverName);
         if (!serverConfig) throw new Error(`Server config not found: ${serverName}`);
 
-        // Fetch channel and validate
         const channel = (await main.discord.channels.fetch(configuration.channelId)) as TextChannel;
         if (!channel?.isTextBased()) throw new Error("Invalid channel");
 
@@ -219,17 +215,17 @@ export default new Addons(
         }
 
         // Create embed and components
-        const embed = createStatusEmbed(serverConfig, statusData);
-        const components = createMessageComponents(configuration.servers, serverName);
+        const embed = createStatusEmbed(serverConfig, statusData, lang);
+        const components = createMessageComponents(configuration.servers, serverName, lang);
 
         // Calculate uptime percentage (simplified)
         const uptimePercentage = statusData.online ? "100%" : "0%";
 
         // Message content
         const content = [
-          `## ${serverConfig.displayName || serverConfig.name} Status`,
-          `**Uptime:** ${uptimePercentage} | **Errors:** ${errorCount}`,
-          `**Last Update:** <t:${Math.floor(Date.now() / 1000)}:R>`,
+          `## ${serverConfig.displayName || serverConfig.name} ${client.t("discord:minecraft.status", {}, lang)}`,
+          `**${client.t("discord:minecraft.uptime", {}, lang)}:** ${uptimePercentage} | **${client.t("discord:minecraft.errors", {}, lang)}:** ${errorCount}`,
+          `**${client.t("discord:minecraft.lastUpdate", {}, lang)}:** <t:${Math.floor(Date.now() / 1000)}:R>`,
         ].join("\n");
 
         // Try to edit existing message or send new one
@@ -269,7 +265,10 @@ export default new Addons(
 
       // Initial status update
       try {
-        await updateStatusMessage(configuration.defaultServer || configuration.servers[0].name);
+        await updateStatusMessage(
+          configuration.defaultServer || configuration.servers[0].name,
+          client.guilds.cache.first()?.preferredLocale || "en-US",
+        );
         logWithLabel("info", "Initial Minecraft server status update completed");
       } catch (error: any) {
         logWithLabel("error", `Initial status update failed: ${error.message}`);
@@ -278,7 +277,10 @@ export default new Addons(
       // Set up periodic updates
       setInterval(async () => {
         try {
-          await updateStatusMessage(configuration.defaultServer || configuration.servers[0].name);
+          await updateStatusMessage(
+            configuration.defaultServer || configuration.servers[0].name,
+            client.guilds.cache.first()?.preferredLocale || "en-US",
+          );
         } catch (error) {
           console.error("Periodic status update failed:", error);
         }
@@ -295,11 +297,11 @@ export default new Addons(
           if (interaction.isStringSelectMenu()) {
             // Server selection changed
             const selectedServer = interaction.values[0];
-            await updateStatusMessage(selectedServer);
+            await updateStatusMessage(selectedServer, client.guilds.cache.first()?.preferredLocale || "en-US");
           } else if (interaction.isButton() && interaction.customId === "refresh_status") {
             // Refresh button clicked
             const currentServer = configuration.defaultServer || configuration.servers[0].name;
-            await updateStatusMessage(currentServer);
+            await updateStatusMessage(currentServer, client.guilds.cache.first()?.preferredLocale || "en-US");
           }
         } catch (error) {
           logWithLabel("error", `Interaction handling failed: ${error}`);

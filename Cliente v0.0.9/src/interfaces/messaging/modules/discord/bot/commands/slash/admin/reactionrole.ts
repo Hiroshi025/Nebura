@@ -23,6 +23,9 @@ export default new Command(
     try {
       if (!interaction.guild || !interaction.channel || interaction.channel.type !== ChannelType.GuildText) return;
 
+      // Detecta idioma preferido
+      const lang = interaction.locale || interaction.guild?.preferredLocale || "es-ES";
+
       const guildId = interaction.guild.id;
 
       const dataClient = await main.DB.findClient(clientID);
@@ -30,22 +33,22 @@ export default new Command(
         return interaction.reply({
           embeds: [
             new ErrorEmbed()
-              .setTitle("Maintenance Mode")
-              .setDescription("The bot is currently under maintenance. Please try again later."),
+              .setTitle(client.t("discord:reactionrole.maintenanceTitle", {}, lang))
+              .setDescription(client.t("discord:reactionrole.maintenanceDesc", {}, lang)),
           ],
         });
       }
 
-      // Initial embed for configuration
+      // Embed inicial de configuración
       const embed = new EmbedBuilder()
-        .setTitle("🎭 Reaction Role Configuration")
-        .setDescription("Please provide the ID of the message where you want to configure reaction roles.")
+        .setTitle(client.t("discord:reactionrole.configTitle", {}, lang))
+        .setDescription(client.t("discord:reactionrole.configDesc", {}, lang))
         .setColor("Blue")
-        .setFooter({ text: "You can cancel at any time using the cancel button." });
+        .setFooter({ text: client.t("discord:reactionrole.cancelFooter", {}, lang) });
 
       const cancelButton = new ButtonBuilder()
         .setCustomId("cancel-reactionrole")
-        .setLabel("❌ Cancel")
+        .setLabel(client.t("discord:reactionrole.cancelButton", {}, lang))
         .setStyle(ButtonStyle.Danger);
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(cancelButton);
@@ -74,14 +77,14 @@ export default new Command(
 
         if (componentInteraction.user.id !== interaction.user.id) {
           return componentInteraction.reply({
-            content: `${client.getEmoji(interaction.guild.id, "error")} You cannot interact with this configuration.`,
+            content: `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.noInteract", {}, lang)}`,
             flags: "Ephemeral",
           });
         }
 
         if (componentInteraction.customId === "cancel-reactionrole") {
           await componentInteraction.update({
-            content: `${client.getEmoji(interaction.guild.id, "error")} Reaction role configuration canceled.`,
+            content: `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.cancelled", {}, lang)}`,
             embeds: [],
             components: [],
           });
@@ -92,7 +95,7 @@ export default new Command(
         return;
       });
 
-      // Step 2: Collect the message ID
+      // Paso 2: Recoger el ID del mensaje
       const messageCollector = interaction.channel?.createMessageCollector({
         filter: (msg) => msg.author.id === interaction.user.id,
         time: 60000,
@@ -106,19 +109,21 @@ export default new Command(
             messageId = msg.content;
             await msg.delete();
 
-            await updateEmbed(
-              "Now, react to this message with the emoji you want to use for the reaction role. Then, mention the role to assign.",
-            );
+            await updateEmbed(client.t("discord:reactionrole.step2Desc", {}, lang));
           } else {
             const role = msg.mentions.roles.first();
             if (!role) {
-              await msg.reply(`${client.getEmoji(interaction.guild.id, "error")} Please mention a valid role.`);
+              await msg.reply(
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.noRole", {}, lang)}`,
+              );
               return;
             }
 
             const lastReaction = msg.reactions.cache.last();
             if (!lastReaction || !lastReaction.emoji.name) {
-              await msg.reply(`${client.getEmoji(interaction.guild.id, "error")} Please react with a valid emoji.`);
+              await msg.reply(
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.noEmoji", {}, lang)}`,
+              );
               return;
             }
 
@@ -126,13 +131,13 @@ export default new Command(
             await msg.delete();
 
             await updateEmbed(
-              `${client.getEmoji(interaction.guild.id, "correct")} Reaction role added: ${lastReaction.emoji.name} -> ${role.name}\n\nReact with another emoji or type \`done\` to finish.`,
+              `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:reactionrole.added", { emoji: lastReaction.emoji.name, role: role.name }, lang)}\n\n${client.t("discord:reactionrole.addMore", {}, lang)}`,
             );
           }
         } catch (error) {
           console.error(error);
           await msg.reply(
-            `${client.getEmoji(interaction.guild.id, "error")} An error occurred while processing your message.`,
+            `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.errorProcessing", {}, lang)}`,
           );
         }
       });
@@ -142,23 +147,23 @@ export default new Command(
 
         if (reactionRoles.length === 0) {
           await interaction.editReply({
-            content: `${client.getEmoji(interaction.guild.id, "error")} No reaction roles were configured.`,
+            content: `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.noneConfigured", {}, lang)}`,
             embeds: [],
             components: [],
           });
           return;
         }
 
-        await updateEmbed("Do you want to allow multiple roles or restrict to one role per user?");
+        await updateEmbed(client.t("discord:reactionrole.multipleOrSingle", {}, lang));
 
         const multipleButton = new ButtonBuilder()
           .setCustomId("multiple-roles")
-          .setLabel("Allow Multiple Roles")
+          .setLabel(client.t("discord:reactionrole.allowMultiple", {}, lang))
           .setStyle(ButtonStyle.Primary);
 
         const singleButton = new ButtonBuilder()
           .setCustomId("single-role")
-          .setLabel("Restrict to One Role")
+          .setLabel(client.t("discord:reactionrole.restrictOne", {}, lang))
           .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(multipleButton, singleButton);
@@ -177,7 +182,7 @@ export default new Command(
 
           if (componentInteraction.user.id !== interaction.user.id) {
             return componentInteraction.reply({
-              content: `${client.getEmoji(interaction.guild.id, "error")} You cannot interact with this configuration.`,
+              content: `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.noInteract", {}, lang)}`,
               flags: "Ephemeral",
             });
           }
@@ -199,14 +204,14 @@ export default new Command(
             });
 
             await componentInteraction.update({
-              content: `${client.getEmoji(interaction.guild.id, "correct")} Reaction roles configured successfully!`,
+              content: `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("discord:reactionrole.success", {}, lang)}`,
               embeds: [],
               components: [],
             });
           } catch (error) {
             console.error(error);
             await componentInteraction.update({
-              content: `${client.getEmoji(interaction.guild.id, "error")} An error occurred while saving the configuration.`,
+              content: `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.saveError", {}, lang)}`,
               embeds: [],
               components: [],
             });
@@ -220,7 +225,7 @@ export default new Command(
 
       console.error(error);
       await interaction.reply({
-        content: `${client.getEmoji(interaction.guild.id, "error")} An unexpected error occurred while executing the command.`,
+        content: `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:reactionrole.unexpectedError", {}, interaction.locale || "es-ES")}`,
         flags: "Ephemeral",
       });
     }

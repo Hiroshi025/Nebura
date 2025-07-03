@@ -21,6 +21,11 @@ const effectsCommand: Precommand = {
   async execute(_client, message) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
+    // Multilenguaje
+    const userLang = message.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = _client.translations.getFixedT(lang, "discord");
+
     // Get image from attachment or message content
     const imageUrl = message.attachments.first()?.url || message.content.split(/\s+/)[1];
 
@@ -29,11 +34,11 @@ const effectsCommand: Precommand = {
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
-            .setTitle("❌ Missing Image")
-            .setDescription("Please attach an image or provide a URL!")
+            .setTitle(t("imagefx.missingImageTitle"))
+            .setDescription(t("imagefx.missingImageDesc"))
             .addFields(
-              { name: "Example with attachment", value: "`!imagefx` (with image attached)" },
-              { name: "Example with URL", value: "`!imagefx https://example.com/image.jpg`" },
+              { name: t("imagefx.exampleAttachment"), value: t("imagefx.exampleAttachmentValue") },
+              { name: t("imagefx.exampleUrl"), value: t("imagefx.exampleUrlValue") },
             ),
         ],
       });
@@ -47,28 +52,16 @@ const effectsCommand: Precommand = {
       // Create effect selection menu
       const selectMenu = new StringSelectMenuBuilder()
         .setCustomId("effect_selector")
-        .setPlaceholder("Choose an effect...")
+        .setPlaceholder(t("imagefx.selectPlaceholder"))
         .addOptions(
-          new StringSelectMenuOptionBuilder().setLabel("Blur").setValue("blur").setDescription("Soft blur effect"),
-          new StringSelectMenuOptionBuilder().setLabel("Sharpen").setValue("sharpen").setDescription("Enhance details"),
-          new StringSelectMenuOptionBuilder()
-            .setLabel("Pixelate")
-            .setValue("pixelate")
-            .setDescription("Mosaic pixel effect"),
-          new StringSelectMenuOptionBuilder().setLabel("Sepia").setValue("sepia").setDescription("Vintage brown tone"),
-          new StringSelectMenuOptionBuilder()
-            .setLabel("Grayscale")
-            .setValue("grayscale")
-            .setDescription("Black and white"),
-          new StringSelectMenuOptionBuilder().setLabel("Invert").setValue("invert").setDescription("Negative colors"),
-          new StringSelectMenuOptionBuilder()
-            .setLabel("Vignette")
-            .setValue("vignette")
-            .setDescription("Darkened edges"),
-          new StringSelectMenuOptionBuilder()
-            .setLabel("Posterize")
-            .setValue("posterize")
-            .setDescription("Reduce color palette"),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.blur")).setValue("blur").setDescription(t("imagefx.blurDesc")),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.sharpen")).setValue("sharpen").setDescription(t("imagefx.sharpenDesc")),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.pixelate")).setValue("pixelate").setDescription(t("imagefx.pixelateDesc")),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.sepia")).setValue("sepia").setDescription(t("imagefx.sepiaDesc")),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.grayscale")).setValue("grayscale").setDescription(t("imagefx.grayscaleDesc")),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.invert")).setValue("invert").setDescription(t("imagefx.invertDesc")),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.vignette")).setValue("vignette").setDescription(t("imagefx.vignetteDesc")),
+          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.posterize")).setValue("posterize").setDescription(t("imagefx.posterizeDesc")),
         );
 
       const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
@@ -76,21 +69,21 @@ const effectsCommand: Precommand = {
       // Preview button
       const previewButton = new ButtonBuilder()
         .setCustomId("preview_effects")
-        .setLabel("Preview Effects")
+        .setLabel(t("imagefx.previewButton"))
         .setStyle(ButtonStyle.Primary);
 
       const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(previewButton);
 
       const embed = new EmbedBuilder()
         .setColor("#0099FF")
-        .setTitle("🎨 Image Effects Editor")
-        .setDescription("Select an effect to apply to your image!")
+        .setTitle(t("imagefx.editorTitle"))
+        .setDescription(t("imagefx.editorDesc"))
         .setImage(imageUrl)
         .addFields(
-          { name: "Original Image", value: `[View original](${imageUrl})`, inline: true },
-          { name: "How to use", value: "Choose an effect from the menu below", inline: true },
+          { name: t("imagefx.originalField"), value: `[${t("imagefx.viewOriginal")}](${imageUrl})`, inline: true },
+          { name: t("imagefx.howToUseField"), value: t("imagefx.howToUseValue"), inline: true },
         )
-        .setFooter({ text: "Effects may take a few seconds to process" });
+        .setFooter({ text: t("imagefx.effectsFooter") });
 
       const reply = await message.reply({
         embeds: [embed],
@@ -107,7 +100,7 @@ const effectsCommand: Precommand = {
 
         if (interaction.isButton() && interaction.customId === "preview_effects") {
           // Show preview of all effects
-          await showEffectPreviews(interaction, imageBuffer);
+          await showEffectPreviews(interaction, imageBuffer, t);
           return;
         }
 
@@ -154,9 +147,9 @@ const effectsCommand: Precommand = {
 
             const resultEmbed = new EmbedBuilder()
               .setColor("#00FF00")
-              .setTitle(`✨ ${effect.charAt(0).toUpperCase() + effect.slice(1)} Effect`)
+              .setTitle(`✨ ${t(`imagefx.${effect}`)} ${t("imagefx.effectTitle")}`)
               .setImage(`attachment://effect_${effect}.png`)
-              .setFooter({ text: "Want another effect? Select from the menu!" });
+              .setFooter({ text: t("imagefx.selectAnother") });
 
             await interaction.editReply({
               embeds: [resultEmbed],
@@ -169,10 +162,10 @@ const effectsCommand: Precommand = {
               embeds: [
                 new EmbedBuilder()
                   .setColor("#FF0000")
-                  .setTitle("❌ Processing Error")
-                  .setDescription("Failed to apply the effect. Please try again."),
+                  .setTitle(t("imagefx.processingErrorTitle"))
+                  .setDescription(t("imagefx.processingErrorDesc")),
               ],
-              ephemeral: true,
+              flags: "Ephemeral"
             });
           }
         }
@@ -187,8 +180,8 @@ const effectsCommand: Precommand = {
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
-            .setTitle("❌ Invalid Image")
-            .setDescription("Couldn't process the image. Please check the URL or try a different image."),
+            .setTitle(t("imagefx.invalidImageTitle"))
+            .setDescription(t("imagefx.invalidImageDesc")),
         ],
       });
     }
@@ -225,7 +218,7 @@ async function vignetteEffect(buffer: Buffer): Promise<Buffer> {
     .toBuffer();
 }
 
-async function showEffectPreviews(interaction: any, originalBuffer: Buffer): Promise<void> {
+async function showEffectPreviews(interaction: any, originalBuffer: Buffer, t: any): Promise<void> {
   // Create small previews of all effects
   const effects = ["blur", "sharpen", "pixelate", "sepia", "grayscale", "invert", "vignette", "posterize"];
   const previewSize = 200;
@@ -297,25 +290,25 @@ async function showEffectPreviews(interaction: any, originalBuffer: Buffer): Pro
 
   const previewEmbed = new EmbedBuilder()
     .setColor("#9B59B6")
-    .setTitle("🎭 Effect Previews")
-    .setDescription("Here's a quick look at all available effects:")
+    .setTitle(t("imagefx.previewTitle"))
+    .setDescription(t("imagefx.previewDesc"))
     .setImage(`attachment://${previewAttachments[0].name}`)
     .addFields(
-      { name: "Blur", value: "Soft focus", inline: true },
-      { name: "Sharpen", value: "Enhanced details", inline: true },
-      { name: "Pixelate", value: "Mosaic effect", inline: true },
-      { name: "Sepia", value: "Vintage tone", inline: true },
-      { name: "Grayscale", value: "Black & white", inline: true },
-      { name: "Invert", value: "Negative colors", inline: true },
-      { name: "Vignette", value: "Darkened edges", inline: true },
-      { name: "Posterize", value: "Reduced colors", inline: true },
+      { name: t("imagefx.blur"), value: t("imagefx.blurDesc"), inline: true },
+      { name: t("imagefx.sharpen"), value: t("imagefx.sharpenDesc"), inline: true },
+      { name: t("imagefx.pixelate"), value: t("imagefx.pixelateDesc"), inline: true },
+      { name: t("imagefx.sepia"), value: t("imagefx.sepiaDesc"), inline: true },
+      { name: t("imagefx.grayscale"), value: t("imagefx.grayscaleDesc"), inline: true },
+      { name: t("imagefx.invert"), value: t("imagefx.invertDesc"), inline: true },
+      { name: t("imagefx.vignette"), value: t("imagefx.vignetteDesc"), inline: true },
+      { name: t("imagefx.posterize"), value: t("imagefx.posterizeDesc"), inline: true },
     )
-    .setFooter({ text: "Select an effect from the menu to apply it to your full image" });
+    .setFooter({ text: t("imagefx.previewFooter") });
 
   await interaction.followUp({
     embeds: [previewEmbed],
     files: previewAttachments.map((a) => a.attachment),
-    ephemeral: true,
+    flags: "Ephemeral",
   });
   return;
 }

@@ -1,6 +1,15 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder,
-	PermissionFlagsBits, PermissionsBitField, Role, StringSelectMenuBuilder, time
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  ComponentType,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  PermissionsBitField,
+  Role,
+  StringSelectMenuBuilder,
+  time,
 } from "discord.js";
 
 import { Precommand } from "@typings/modules/discord";
@@ -20,11 +29,13 @@ const roleInfo: Precommand = {
   async execute(_client, message, args) {
     if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
+    const lang = message.guild.preferredLocale || "en-US";
+
     try {
       const roleName = args.join(" ");
       if (!roleName) {
         return message.reply({
-          content: "❌ Please specify a role name or mention.",
+          content: _client.t("discord:roleinfo.noRoleName", { lng: lang }),
           allowedMentions: { repliedUser: false },
         });
       }
@@ -36,7 +47,7 @@ const roleInfo: Precommand = {
 
       if (!role || !(role instanceof Role)) {
         return message.reply({
-          content: "❌ Role not found or invalid. Please check the name and try again.",
+          content: _client.t("discord:roleinfo.notFound", { lng: lang }),
           allowedMentions: { repliedUser: false },
         });
       }
@@ -45,27 +56,31 @@ const roleInfo: Precommand = {
       await message.guild.members.fetch();
 
       // Create the main embed
-      const mainEmbed = createMainRoleEmbed(role);
+      const mainEmbed = createMainRoleEmbed(role, _client, lang);
 
       // Create buttons
       const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId("permissions")
-          .setLabel("View Permissions")
+          .setLabel(_client.t("discord:roleinfo.btnPermissions", { lng: lang }))
           .setStyle(ButtonStyle.Primary)
           .setEmoji("🔑"),
         new ButtonBuilder()
           .setCustomId("members")
-          .setLabel(`View Members (${role.members.size})`)
+          .setLabel(_client.t("discord:roleinfo.btnMembers", { count: role.members.size, lng: lang }))
           .setStyle(ButtonStyle.Secondary)
           .setEmoji("👥"),
         new ButtonBuilder()
           .setCustomId("compare")
-          .setLabel("Compare to My Roles")
+          .setLabel(_client.t("discord:roleinfo.btnCompare", { lng: lang }))
           .setStyle(ButtonStyle.Success)
           .setDisabled(true)
           .setEmoji("⚖️"),
-        new ButtonBuilder().setCustomId("delete").setLabel("Delete").setStyle(ButtonStyle.Danger).setEmoji("🗑️"),
+        new ButtonBuilder()
+          .setCustomId("delete")
+          .setLabel(_client.t("discord:roleinfo.btnDelete", { lng: lang }))
+          .setStyle(ButtonStyle.Danger)
+          .setEmoji("🗑️"),
       );
 
       // Send the initial message
@@ -122,7 +137,7 @@ const roleInfo: Precommand = {
       console.error("Error in roleinfo command:", error);
       message
         .reply({
-          content: "❌ An error occurred while fetching role information.",
+          content: _client.t("discord:roleinfo.error", { lng: lang }),
           allowedMentions: { repliedUser: false },
         })
         .catch(() => {});
@@ -133,27 +148,49 @@ const roleInfo: Precommand = {
 };
 
 // Helper functions
-function createMainRoleEmbed(role: any) {
+function createMainRoleEmbed(role: any, _client: any, lang: string) {
   return new EmbedCorrect()
     .setColor(role.color || "#2b2d31")
-    .setTitle(`Role Information: ${role.name}`)
+    .setTitle(_client.t("discord:roleinfo.title", { name: role.name, lng: lang }))
     .setThumbnail(role.iconURL({ size: 4096 }))
     .addFields(
       { name: "🆔 ID", value: role.id, inline: true },
-      { name: "🎨 Color", value: role.hexColor, inline: true },
-      { name: "📊 Position", value: `#${role.position}`, inline: true },
-      { name: "👥 Members", value: role.members.size.toString(), inline: true },
+      { name: _client.t("discord:roleinfo.color", { lng: lang }), value: role.hexColor, inline: true },
+      { name: _client.t("discord:roleinfo.position", { lng: lang }), value: `#${role.position}`, inline: true },
+      { name: _client.t("discord:roleinfo.members", { lng: lang }), value: role.members.size.toString(), inline: true },
       {
-        name: "📅 Created",
+        name: _client.t("discord:roleinfo.created", { lng: lang }),
         value: time(Math.floor(role.createdTimestamp / 1000), "R"),
         inline: true,
       },
-      { name: "🔝 Hoisted", value: role.hoist ? "✅ Yes" : "❌ No", inline: true },
-      { name: "🔔 Mentionable", value: role.mentionable ? "✅ Yes" : "❌ No", inline: true },
-      { name: "🤖 Managed", value: role.managed ? "✅ Yes" : "❌ No", inline: true },
-      { name: "🛡️ Permissions", value: `Click the "View Permissions" button below`, inline: false },
+      {
+        name: _client.t("discord:roleinfo.hoisted", { lng: lang }),
+        value: role.hoist
+          ? "✅" + _client.t("discord:roleinfo.yes", { lng: lang })
+          : "❌" + _client.t("discord:roleinfo.no", { lng: lang }),
+        inline: true,
+      },
+      {
+        name: _client.t("discord:roleinfo.mentionable", { lng: lang }),
+        value: role.mentionable
+          ? "✅" + _client.t("discord:roleinfo.yes", { lng: lang })
+          : "❌" + _client.t("discord:roleinfo.no", { lng: lang }),
+        inline: true,
+      },
+      {
+        name: _client.t("discord:roleinfo.managed", { lng: lang }),
+        value: role.managed
+          ? "✅" + _client.t("discord:roleinfo.yes", { lng: lang })
+          : "❌" + _client.t("discord:roleinfo.no", { lng: lang }),
+        inline: true,
+      },
+      {
+        name: "🛡️ " + _client.t("discord:roleinfo.permissions", { lng: lang }),
+        value: _client.t("discord:roleinfo.permissionsHint", { lng: lang }),
+        inline: false,
+      },
     )
-    .setFooter({ text: "Use the buttons below for more information" });
+    .setFooter({ text: _client.t("discord:roleinfo.footer", { lng: lang }) });
 }
 
 async function handlePermissions(interaction: any, role: any) {

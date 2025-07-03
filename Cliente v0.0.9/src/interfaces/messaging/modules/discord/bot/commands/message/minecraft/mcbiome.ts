@@ -21,6 +21,11 @@ const mcbiomeCommand: Precommand = {
     try {
       if (!message.guild) return;
 
+    // Multilenguaje
+    const userLang = message.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = _client.translations.getFixedT(lang, "discord");
+
       // Fetch biomes from Mojang API
       const response = await axios.get(
         "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.20/biomes.json",
@@ -30,42 +35,26 @@ const mcbiomeCommand: Precommand = {
       const biomeName = args.join(" ");
 
       if (!biomeName) {
-        return await showBiomeMenu(message, biomes);
+        return await showBiomeMenu(message, biomes, t);
       }
 
       if (biomeName.toLowerCase() === "list") {
-        return await showBiomeList(message, biomes);
+        return await showBiomeList(message, biomes, t);
       }
 
       const biome = findBiome(biomeName, biomes);
 
       if (!biome) {
         return message.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor("Red")
-              .setDescription(
-                `${emojis.error} Biome not found. Use \`${prefix}mcbiome list\` to see available biomes.`,
-              ),
-          ],
+          embeds: [new EmbedBuilder().setColor("Red").setDescription(`${emojis.error} ${t("notFound", { prefix })}`)],
         });
       }
 
-      return await showBiomeDetails(message, biome);
+      return await showBiomeDetails(message, biome, t);
     } catch (e: any) {
       return message.reply({
         embeds: [
           new ErrorEmbed()
-            .setFooter({
-              text: `Requested by: ${message.author.tag}`,
-              iconURL: message.author.displayAvatarURL(),
-            })
-            .setDescription(
-              [
-                `${emojis.error} An error occurred while executing this command!`,
-                `Please try again later or join our support server for help!`,
-              ].join("\n"),
-            )
             .setErrorFormat(e.stack),
         ],
       });
@@ -73,11 +62,11 @@ const mcbiomeCommand: Precommand = {
   },
 };
 
-async function showBiomeMenu(message: any, biomes: any[]) {
+async function showBiomeMenu(message: any, biomes: any[], t: (key: string, options?: any) => string) {
   const selectMenu = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId("biome-select")
-      .setPlaceholder("Select a biome")
+      .setPlaceholder(t("menuPlaceholder"))
       .addOptions(
         biomes.map((biome) => ({
           label: biome.name,
@@ -91,15 +80,15 @@ async function showBiomeMenu(message: any, biomes: any[]) {
     embeds: [
       new EmbedBuilder()
         .setColor("#2ECC71")
-        .setTitle("Minecraft Biomes")
-        .setDescription("Select a biome from the menu below")
+        .setTitle(t("menuTitle"))
+        .setDescription(t("menuDesc"))
         .setThumbnail("https://www.minecraft.net/content/dam/minecraft/touchup-2020/minecraft-logo.svg"),
     ],
     components: [selectMenu],
   });
 }
 
-async function showBiomeList(message: any, biomes: any[]) {
+async function showBiomeList(message: any, biomes: any[], t: (key: string, options?: any) => string) {
   const pages = [];
   const itemsPerPage = 5;
 
@@ -108,17 +97,20 @@ async function showBiomeList(message: any, biomes: any[]) {
 
     const embed = new EmbedBuilder()
       .setColor("#2ECC71")
-      .setTitle("Minecraft Biomes List")
-      .setDescription("Here are all available Minecraft biomes:")
+      .setTitle(t("listTitle"))
+      .setDescription(t("listDesc"))
       .setThumbnail("https://www.minecraft.net/content/dam/minecraft/touchup-2020/minecraft-logo.svg")
       .setFooter({
-        text: `Page ${Math.floor(i / itemsPerPage) + 1} of ${Math.ceil(biomes.length / itemsPerPage)}`,
+        text: t("pageFooter", {
+          page: Math.floor(i / itemsPerPage) + 1,
+          total: Math.ceil(biomes.length / itemsPerPage),
+        }),
       });
 
     current.forEach((biome) => {
       embed.addFields({
         name: biome.name,
-        value: `**Category:** ${biome.category}\n**ID:** ${biome.id}`,
+        value: `**${t("category")}** ${biome.category}\n**${t("id")}** ${biome.id}`,
         inline: true,
       });
     });
@@ -135,23 +127,23 @@ function findBiome(name: string, biomes: any[]) {
   return biomes.find((biome) => biome.name.toLowerCase().includes(lowerName) || biome.id === name);
 }
 
-async function showBiomeDetails(message: any, biome: any) {
+async function showBiomeDetails(message: any, biome: any, t: (key: string, options?: any) => string) {
   // Get biome image from Minecraft API
   const imageUrl = `https://minecraft-api.com/api/biomes/${encodeURIComponent(biome.name)}.png`;
 
   const embed = new EmbedBuilder()
     .setColor("#2ECC71")
-    .setTitle(`Biome: ${biome.name}`)
-    .setDescription(`**Category:** ${biome.category}`)
+    .setTitle(`${t("detailTitle")}: ${biome.name}`)
+    .setDescription(`**${t("category")}** ${biome.category}`)
     .addFields(
       {
-        name: "Biome Details",
-        value: `**ID:** ${biome.id}\n**Temperature:** ${biome.temperature}\n**Has Precipitation:** ${biome.has_precipitation}\n**Dimension:** ${biome.dimension}`,
+        name: t("detailField"),
+        value: `**${t("id")}** ${biome.id}\n**${t("temperature")}** ${biome.temperature}\n**${t("hasPrecipitation")}** ${biome.has_precipitation}\n**${t("dimension")}** ${biome.dimension}`,
         inline: false,
       },
       {
-        name: "Display Information",
-        value: `**Display Name:** ${biome.displayName}\n**Color Code:** ${biome.color}`,
+        name: t("displayField"),
+        value: `**${t("displayName")}** ${biome.displayName}\n**${t("color")}** ${biome.color}`,
         inline: false,
       },
     )

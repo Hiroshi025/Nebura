@@ -9,19 +9,20 @@ export default new Event("guildMemberAdd", async (member) => {
   const { guild, id } = member;
   if (!guild) return;
 
+  // Obtener idioma preferido del usuario o usar "es-ES" por defecto
+  const userLang = member.guild.preferredLocale || "es-ES";
+  const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+  const t = client.translations.getFixedT(lang, "discord");
+
   const messages = {
-    success: `${client.getEmoji(member.guild.id, "correct")} Thanks for joining **${guild.name}**! You have now gained access to the server.`,
-    failed: `${client.getEmoji(member.guild.id, "error")} Oh no! You failed the verification stage. Please try again.`,
-    timedout: `${client.getEmoji(member.guild.id, "error")}Oh no! You failed! Next time, be a little faster.`,
-    wrongCode: `${client.getEmoji(member.guild.id, "error")}Oh no! You sent me the wrong captcha. Please try again.`,
-    dmDisabled: `${client.getEmoji(member.guild.id, "error")}Oh no! Your DMs are disabled.`,
-    roleInvalid: `${client.getEmoji(member.guild.id, "error")} Oh no! I couldn't find the verification role. Please contact a staff member.`,
-    description: `Please type the captcha below to be able to access **${guild.name}**.`,
-    notes: [
-      `1. Type out the traced colored characters from left to right.`,
-      `2. Ignore the decoy characters spread-around.`,
-      `3. You don't have to respect characters cases (upper/lower case)!`,
-    ].join("\n"),
+    success: `${client.getEmoji(member.guild.id, "correct")} ${t("captcha.success", { guild: guild.name })}`,
+    failed: `${client.getEmoji(member.guild.id, "error")} ${t("captcha.failed")}`,
+    timedout: `${client.getEmoji(member.guild.id, "error")} ${t("captcha.timedout")}`,
+    wrongCode: `${client.getEmoji(member.guild.id, "error")} ${t("captcha.wrongCode")}`,
+    dmDisabled: `${client.getEmoji(member.guild.id, "error")} ${t("captcha.dmDisabled")}`,
+    roleInvalid: `${client.getEmoji(member.guild.id, "error")} ${t("captcha.roleInvalid")}`,
+    description: t("captcha.description", { guild: guild.name }),
+    notes: t("captcha.notes"),
   };
 
   const settings = await main.prisma.myGuild.findFirst({
@@ -54,15 +55,13 @@ export default new Event("guildMemberAdd", async (member) => {
     .send({
       embeds: [
         new EmbedCorrect()
-          .setTitle("Verification Instructions")
+          .setTitle(t("captcha.instructionsTitle"))
           .setDescription(
-            `Welcome to **${guild.name}**! To gain access to the server, you need to complete the captcha verification.\n\n` +
-              `**Instructions:**\n` +
-              `1. Type the traced colored characters from left to right.\n` +
-              `2. Ignore the decoy characters spread around.\n` +
-              `3. You don't need to respect character cases (uppercase/lowercase).\n\n` +
-              `**Attempts:** You have a maximum of 3 attempts to complete the verification.\n` +
-              `**Failed Attempts:** ${attempts}/3`,
+            t("captcha.instructions", {
+              guild: guild.name,
+              attempts: attempts,
+              maxAttempts: 3,
+            }),
           ),
       ],
     })
@@ -74,9 +73,9 @@ export default new Event("guildMemberAdd", async (member) => {
     .send({
       embeds: [
         new EmbedCorrect()
-          .setTitle("Verification Captcha")
+          .setTitle(t("captcha.captchaTitle"))
           .setDescription(messages.description)
-          .addFields({ name: `Additional Notes:`, value: messages.notes })
+          .addFields({ name: t("captcha.additionalNotes"), value: messages.notes })
           .setImage(`attachment://captcha.png`),
       ],
       files: [attachment],
@@ -116,20 +115,20 @@ export default new Event("guildMemberAdd", async (member) => {
         member.send({
           embeds: [
             new EmbedCorrect().setDescription(
-              `${messages.failed} You will be kicked in 1 minute if you do not complete the verification.`,
+              `${messages.failed} ${t("captcha.kickWarning")}`,
             ),
           ],
         });
         setTimeout(() => {
           member.kick(messages.failed);
-        }, 60000); // 1 minute
+        }, 60000); // 1 minuto
       } else {
         member.send({
           embeds: [
             new EmbedCorrect()
-              .setTitle("Verification Failed")
+              .setTitle(t("captcha.failedTitle"))
               .setDescription(
-                `You entered the wrong captcha. Please try again.\n\n` + `**Failed Attempts:** ${attempts}/3`,
+                t("captcha.failedDescription", { attempts, maxAttempts: 3 }),
               ),
           ],
         });

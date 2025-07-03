@@ -11,6 +11,7 @@ const logChannelClient: Menus = {
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel || !interaction.member) return;
+    const lang = interaction.locale || interaction.guildLocale || "es-ES";
     const channelId = interaction.values[0];
     await main.prisma.discord.update({
       where: { clientId: client.user?.id as string },
@@ -19,10 +20,9 @@ const logChannelClient: Menus = {
     await interaction.reply({
       embeds: [
         new EmbedCorrect()
-          .setTitle("Configuration")
+          .setTitle(client.t("config.logChannelSetTitle", {}, lang))
           .setDescription(
-            `${client.getEmoji(interaction.guildId as string, "correct")} **Configuration**\n` +
-              `The log channel has been successfully set to <#${channelId}>.`,
+            `${client.getEmoji(interaction.guildId as string, "correct")} ${client.t("config.logChannelSetDesc", { channel: `<#${channelId}>` }, lang)}`,
           ),
       ],
       components: [],

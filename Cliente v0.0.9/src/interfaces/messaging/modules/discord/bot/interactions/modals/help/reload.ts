@@ -10,6 +10,8 @@ const ModalCommandReload: Modals = {
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel) return;
+    // Detecta el idioma preferido del usuario o servidor
+    const lang = interaction.locale || interaction.guild.preferredLocale || "es-ES";
     const commandName = interaction.fields.getTextInputValue("command_name");
     try {
       await main.utils.reloadCommand(commandName);
@@ -17,9 +19,9 @@ const ModalCommandReload: Modals = {
         embeds: [
           new EmbedCorrect().setDescription(
             [
-              `${client.getEmoji(interaction.guild.id, "correct")} Command \`${commandName}\` reloaded successfully.`,
-              `**Command:** \`${commandName}\``,
-              `**Total Commands:** ${client.precommands.size} (\`${client.commands.size}\`)`,
+              `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("help.reloadSuccess", { commandName, total: client.precommands.size, loaded: client.commands.size, lng: lang })}`,
+              `**${client.t("help.reloadCommandField", { lng: lang })}:** \`${commandName}\``,
+              `**${client.t("help.reloadTotalField", { lng: lang })}:** ${client.precommands.size} (\`${client.commands.size}\`)`,
             ].join("\n"),
           ),
         ],
@@ -29,11 +31,11 @@ const ModalCommandReload: Modals = {
       await interaction.reply({
         embeds: [
           new ErrorEmbed()
-            .setTitle("Error Reloading Command")
+            .setTitle(client.t("help.reloadErrorTitle", { lng: lang }))
             .setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "error")} An error occurred while trying to reload the command.`,
-                `Please try again later or contact the support team.`,
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("help.reloadErrorDesc", { lng: lang })}`,
+                client.t("help.reloadErrorHint", { lng: lang }),
               ].join("\n"),
             ),
         ],

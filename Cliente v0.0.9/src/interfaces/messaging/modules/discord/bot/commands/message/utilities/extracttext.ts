@@ -163,12 +163,12 @@ const ocrCommand: Precommand = {
                     name: "extracted_text.txt",
                   },
                 ],
-                ephemeral: true,
+                flags: "Ephemeral",
               });
             } else {
               await interaction.reply({
                 content: `**Complete Extracted Text:**\n\`\`\`\n${extractedText}\n\`\`\``,
-                ephemeral: true,
+                flags: "Ephemeral",
               });
             }
           } else if (interaction.customId.startsWith(`rawdata_`)) {
@@ -182,14 +182,14 @@ const ocrCommand: Precommand = {
 
             await interaction.reply({
               content: `**Raw OCR Data:**\n\`\`\`json\n${JSON.stringify(rawData, null, 2).slice(0, 1900)}\n\`\`\``,
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           }
         } catch (error) {
           console.error("Error handling button interaction:", error);
           await interaction.reply({
             content: "❌ An error occurred while processing your request.",
-            ephemeral: true,
+            flags: "Ephemeral",
           });
         }
       });

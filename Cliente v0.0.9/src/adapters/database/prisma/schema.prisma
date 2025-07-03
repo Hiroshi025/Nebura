@@ -27,6 +27,7 @@ model Client {
   createdAt   DateTime @default(now()) /// Fecha de creación del cliente.
   updatedAt   DateTime @updatedAt /// Fecha de última actualización del cliente.
   modulesId   String?  @db.ObjectId
+  language    String   @default("en-US")
 }
 
 /// ------------------------------------------------------------
@@ -477,6 +478,7 @@ model WhatsApp {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   session   String   @unique
   createdAt DateTime @default(now())
+  language  String   @default("en-US")
   updatedAt DateTime
   Modules   Modules?
 }
@@ -487,6 +489,7 @@ model Discord {
   username     String   @default("Nebura")
   activity     Json     @default("{\"name\": \"Nebura AI Client\", \"url\": \"https://www.hiroshi-dev.me\", \"status\": \"idle\"}")
   clientId     String   @unique
+  language     String   @default("en-US")
   clientSecret String
   token        String
   logconsole   Boolean  @default(false)

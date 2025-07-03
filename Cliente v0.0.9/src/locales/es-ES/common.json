@@ -22,5 +22,6 @@
     "discord_updates_fetched_successfully": "Actualizaciones de Discord obtenidas exitosamente.",
     "discord_incidents_fetched_successfully": "Incidentes de Discord obtenidos exitosamente.",
     "reminders_fetched_successfully": "Recordatorios obtenidos exitosamente."
-  }
+  },
+  "default_text": "Texto por defecto para Gemini."
 }

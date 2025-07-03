@@ -13,13 +13,17 @@ const OwnerSelectMenu: Menus = {
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel || !interaction.member) return;
+    // Detecta el idioma preferido del usuario o servidor
+    const lang = interaction.locale || interaction.guildLocale || "es-ES";
     if (interaction.values.includes("reload_command")) {
-      const reloadModal = new ModalBuilder().setCustomId("reload_command_modal").setTitle("Reload Command");
+      const reloadModal = new ModalBuilder()
+        .setCustomId("reload_command_modal")
+        .setTitle(client.t("help.reloadCommandModalTitle", {}, lang)); // multilenguaje
 
       const commandInput = new TextInputBuilder()
         .setCustomId("command_name")
-        .setLabel("Command Name")
-        .setPlaceholder("Enter the command name to reload")
+        .setLabel(client.t("help.reloadCommandModalLabel", {}, lang))
+        .setPlaceholder(client.t("help.reloadCommandModalPlaceholder", {}, lang))
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
 
@@ -34,8 +38,8 @@ const OwnerSelectMenu: Menus = {
           embeds: [
             new EmbedCorrect().setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "correct")} All commands have been reloaded successfully.`,
-                `**Total Commands:** ${client.precommands.size} (\`${client.commands.size}\`)`,
+                `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("help.reloadAllSuccess", {}, lang)}`,
+                `**${client.t("help.reloadTotalField", {}, lang)}:** ${client.precommands.size} (\`${client.commands.size}\`)`,
               ].join("\n"),
             ),
           ],
@@ -46,11 +50,11 @@ const OwnerSelectMenu: Menus = {
         await interaction.reply({
           embeds: [
             new ErrorEmbed()
-              .setTitle("Error Reloading Commands")
+              .setTitle(client.t("help.reloadErrorTitle", {}, lang))
               .setDescription(
                 [
-                  `${client.getEmoji(interaction.guild.id, "error")} An error occurred while trying to reload the commands.`,
-                  `Please try again later or contact the support team.`,
+                  `${client.getEmoji(interaction.guild.id, "error")} ${client.t("help.reloadErrorDesc", {}, lang)}`,
+                  client.t("help.reloadErrorHint", {}, lang),
                 ].join("\n"),
               ),
           ],
@@ -58,12 +62,14 @@ const OwnerSelectMenu: Menus = {
         });
       }
     } else if (interaction.values.includes("delete_command")) {
-      const deleteModal = new ModalBuilder().setCustomId("delete_command_modal").setTitle("Delete Command");
+      const deleteModal = new ModalBuilder()
+        .setCustomId("delete_command_modal")
+        .setTitle(client.t("help.deleteCommandModalTitle", {}, lang));
 
       const deleteInput = new TextInputBuilder()
         .setCustomId("command_to_delete")
-        .setLabel("Command Name")
-        .setPlaceholder("Enter the command name to delete")
+        .setLabel(client.t("help.deleteCommandModalLabel", {}, lang))
+        .setPlaceholder(client.t("help.deleteCommandModalPlaceholder", {}, lang))
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
 
@@ -72,12 +78,14 @@ const OwnerSelectMenu: Menus = {
 
       await interaction.showModal(deleteModal);
     } else if (interaction.values.includes("download_command")) {
-      const downloadModal = new ModalBuilder().setCustomId("download_command_modal").setTitle("Download Command");
+      const downloadModal = new ModalBuilder()
+        .setCustomId("download_command_modal")
+        .setTitle(client.t("help.downloadCommandModalTitle", {}, lang));
 
       const downloadInput = new TextInputBuilder()
         .setCustomId("command_to_download")
-        .setLabel("Command Name")
-        .setPlaceholder("Enter the command name to download")
+        .setLabel(client.t("help.downloadCommandModalLabel", {}, lang))
+        .setPlaceholder(client.t("help.downloadCommandModalPlaceholder", {}, lang))
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
 
@@ -91,8 +99,8 @@ const OwnerSelectMenu: Menus = {
           new EmbedCorrect()
             .setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "correct")} The menu has been closed.`,
-                `thanks for using the owner tools!`,
+                `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("help.menuClosed", {}, lang)}`,
+                client.t("help.menuClosedThanks", {}, lang),
               ].join("\n"),
             )
             .setColor("Green"),

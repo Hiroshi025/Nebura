@@ -76,12 +76,17 @@ export default new Command(
         }),
     ),
   async (client, interaction) => {
+    // Multilenguaje
+    const userLang = interaction.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = client.translations.getFixedT(lang, "discord");
+
     switch (interaction.options.getSubcommand()) {
       case "add":
         {
           const { options, guild, member } = interaction;
           const user = options.getUser("user");
-          const reason = options.getString("reason") || "Not provided reason the warn";
+          const reason = options.getString("reason") || t("warn.defaultReason");
           const warnTime = time();
 
           if (!guild || !member || !user)
@@ -89,8 +94,8 @@ export default new Command(
               embeds: [
                 new ErrorEmbed().setDescription(
                   [
-                    `${client.getEmoji(interaction.guildId as string, "error")} Warn Error Options`,
-                    `Check the data entered and where you are executing the command`,
+                    `${client.getEmoji(interaction.guildId as string, "error")} ${t("warn.errorOptionsTitle")}`,
+                    t("warn.errorOptionsDesc"),
                   ].join("\n"),
                 ),
               ],
@@ -109,8 +114,8 @@ export default new Command(
           await interaction.reply({
             embeds: [
               new EmbedCorrect()
-                .setTitle("User warned!")
-                .setDescription(`<@${user.id}> has been warned for \`${reason}\`!`),
+                .setTitle(t("warn.userWarnedTitle"))
+                .setDescription(t("warn.userWarnedDesc", { user: `<@${user.id}>`, reason })),
             ],
             flags: "Ephemeral",
           });
@@ -129,29 +134,29 @@ export default new Command(
             const channel = client.channels.cache.get(modData.channelId) as TextChannel;
             channel.send({
               embeds: [
-                new EmbedCorrect().setTitle("New user warned").addFields(
+                new EmbedCorrect().setTitle(t("warn.modlogTitle")).addFields(
                   {
-                    name: "User warned",
+                    name: t("warn.modlogUser"),
                     value: `<@${user.id}>`,
                     inline: true,
                   },
                   {
-                    name: "Warned by",
+                    name: t("warn.modlogBy"),
                     value: `<@${member.user.id}>`,
                     inline: true,
                   },
                   {
-                    name: "Warned at",
+                    name: t("warn.modlogAt"),
                     value: `${warnTime}`,
                     inline: true,
                   },
                   {
-                    name: "Warn ID",
-                    value: `\`${data?.id ? data.id : "Not ID"}\``,
+                    name: t("warn.modlogId"),
+                    value: `\`${data?.id ? data.id : t("warn.noId")}\``,
                     inline: true,
                   },
                   {
-                    name: "Warn Reason",
+                    name: t("warn.modlogReason"),
                     value: `\`\`\`${reason}\`\`\``,
                   },
                 ),
@@ -163,15 +168,15 @@ export default new Command(
             .send({
               embeds: [
                 new EmbedCorrect()
-                  .setTitle(`You have been warned in: ${guild.name}`)
+                  .setTitle(t("warn.dmTitle", { guild: guild.name }))
                   .addFields(
                     {
-                      name: "Warned for",
+                      name: t("warn.dmReason"),
                       value: `\`${reason}\``,
                       inline: true,
                     },
                     {
-                      name: "Warned at",
+                      name: t("warn.dmAt"),
                       value: `${warnTime}`,
                       inline: true,
                     },
@@ -181,11 +186,7 @@ export default new Command(
             })
             .catch(async () => {
               await interaction.followUp({
-                embeds: [
-                  new ErrorEmbed()
-                    .setTitle("DM Notification Failed")
-                    .setDescription("The user has DMs disabled, so no notification was sent."),
-                ],
+                embeds: [new ErrorEmbed().setTitle(t("warn.dmFailTitle")).setDescription(t("warn.dmFailDesc"))],
                 flags: "Ephemeral",
               });
             });
@@ -199,8 +200,8 @@ export default new Command(
             embeds: [
               new ErrorEmbed().setDescription(
                 [
-                  `${client.getEmoji(interaction.guildId as string, "error")} Warn Error Options`,
-                  `Check the data entered and where you are executing the command`,
+                  `${client.getEmoji(interaction.guildId as string, "error")} ${t("warn.errorOptionsTitle")}`,
+                  t("warn.errorOptionsDesc"),
                 ].join("\n"),
               ),
             ],
@@ -208,15 +209,15 @@ export default new Command(
 
         const data = await main.prisma.userWarn.findUnique({ where: { id: warnId } });
 
-        const err = new EmbedCorrect().setDescription(`No warn Id watching \`${warnId}\` was found!`);
+        const err = new EmbedCorrect().setDescription(t("warn.noWarnId", { warnId }));
 
         if (!data) return await interaction.reply({ embeds: [err] });
 
         await main.prisma.userWarn.delete({ where: { id: warnId } });
 
         const embed = new EmbedCorrect()
-          .setTitle("Remove Infraction")
-          .setDescription(`Successfully removed the warn with the ID matching ${warnId}`);
+          .setTitle(t("warn.removeTitle"))
+          .setDescription(t("warn.removeDesc", { warnId }));
         return await interaction.reply({ embeds: [embed] });
       }
     }

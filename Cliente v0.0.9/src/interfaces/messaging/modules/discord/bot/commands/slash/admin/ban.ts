@@ -83,13 +83,14 @@ export default new Command(
     if (!interaction.guild || !interaction.channel || interaction.user.bot || !client.user) return;
     await interaction.deferReply({ flags: "Ephemeral" });
 
+    const lang = interaction.locale || interaction.guildLocale || "en-US";
     const subcommand = interaction.options.getSubcommand();
     const embed = new EmbedBuilder();
 
     // Validación de permisos del usuario ejecutor
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.BanMembers)) {
       return interaction.followUp({
-        embeds: [embed.setColor("Red").setDescription("You do not have permission to ban members.")],
+        embeds: [embed.setColor("Red").setDescription(client.t("discord:ban.noPermission", { lng: lang }))],
       });
     }
 
@@ -102,47 +103,45 @@ export default new Command(
           return interaction.followUp({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Ban Command Error")
+                .setTitle(client.t("discord:ban.errorTitle", { lng: lang }))
                 .setDescription(
-                  `${client.getEmoji(interaction.guild.id, "error")} Invalid parameters. Please provide valid data.`,
+                  `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:ban.invalidParams", { lng: lang })}`,
                 ),
             ],
           });
         }
 
-        const reason = options.getString("reason") || "No reason provided.";
+        const reason = options.getString("reason") || client.t("discord:ban.noReason", { lng: lang });
         try {
           await target.user.fetch();
         } catch (err: any) {
           logWithLabel("error", err);
           return interaction.followUp({
-            embeds: [embed.setColor("Red").setDescription("Failed to fetch target user information.")],
+            embeds: [embed.setColor("Red").setDescription(client.t("discord:ban.fetchUserError", { lng: lang }))],
           });
         }
 
         if (target.user.id === client.user.id) {
           return interaction.followUp({
-            embeds: [embed.setColor("Red").setDescription("You cannot ban me!")],
+            embeds: [embed.setColor("Red").setDescription(client.t("discord:ban.cannotBanMe", { lng: lang }))],
           });
         }
 
         if (target.user.id === interaction.user.id) {
           return interaction.followUp({
-            embeds: [embed.setColor("Yellow").setDescription("You cannot ban yourself.")],
+            embeds: [embed.setColor("Yellow").setDescription(client.t("discord:ban.cannotBanSelf", { lng: lang }))],
           });
         }
 
         if (target.roles.highest.position >= (member.roles as GuildMemberRoleManager).highest.position) {
           return interaction.followUp({
-            embeds: [
-              embed.setColor("Red").setDescription("The member has a higher role than you, so you cannot ban them."),
-            ],
+            embeds: [embed.setColor("Red").setDescription(client.t("discord:ban.higherRole", { lng: lang }))],
           });
         }
 
         if (!guild.members.me?.permissions.has("BanMembers")) {
           return interaction.followUp({
-            embeds: [embed.setColor("Red").setDescription("I do not have permission to ban members.")],
+            embeds: [embed.setColor("Red").setDescription(client.t("discord:ban.noBotPermission", { lng: lang }))],
           });
         }
 
@@ -153,9 +152,9 @@ export default new Command(
           return interaction.followUp({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Ban Command Error")
+                .setTitle(client.t("discord:ban.errorTitle", { lng: lang }))
                 .setDescription(
-                  `${client.getEmoji(interaction.guild.id, "error")} Missing configuration. Please set up the ban logs channel using \`/ban setup\`.`,
+                  `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:ban.noConfig", { lng: lang })}`,
                 ),
             ],
           });
@@ -180,12 +179,14 @@ export default new Command(
                 embeds: [
                   new EmbedBuilder()
                     .setColor("Red")
-                    .setTitle(`User banned by ${userMention(member.user.id)}`)
+                    .setTitle(
+                      client.t("discord:ban.modlogTitle", { moderator: userMention(member.user.id), lng: lang }),
+                    )
                     .addFields(
-                      { name: "Banned User", value: `<@${target.id}>` },
-                      { name: "User ID", value: `${target.id}` },
-                      { name: "Ban Date", value: `${new Date().toISOString()}` },
-                      { name: "Reason", value: `\`\`\`${reason}\`\`\`` },
+                      { name: client.t("discord:ban.modlogUser", { lng: lang }), value: `<@${target.id}>` },
+                      { name: client.t("discord:ban.modlogUserId", { lng: lang }), value: `${target.id}` },
+                      { name: client.t("discord:ban.modlogDate", { lng: lang }), value: `${new Date().toISOString()}` },
+                      { name: client.t("discord:ban.modlogReason", { lng: lang }), value: `\`\`\`${reason}\`\`\`` },
                     ),
                 ],
               });
@@ -193,21 +194,21 @@ export default new Command(
           }
 
           const response = new EmbedBuilder()
-            .setTitle("User successfully banned!")
+            .setTitle(client.t("discord:ban.successTitle", { lng: lang }))
             .setColor("Green")
             .setThumbnail(target.user.avatarURL({ forceStatic: true }))
             .addFields(
               { name: "ID", value: target.user.id },
-              { name: "Reason", value: reason },
+              { name: client.t("discord:ban.reason", { lng: lang }), value: reason },
               {
-                name: "Joined Server",
+                name: client.t("discord:ban.joinedServer", { lng: lang }),
                 value: target.joinedTimestamp
                   ? `<t:${parseInt((target.joinedTimestamp / 1000).toString())}:R>`
-                  : "Unknown",
+                  : client.t("discord:ban.unknown", { lng: lang }),
                 inline: true,
               },
               {
-                name: "Account Created",
+                name: client.t("discord:ban.accountCreated", { lng: lang }),
                 value: `<t:${parseInt((target.user.createdTimestamp / 1000).toString())}:R>`,
                 inline: true,
               },
@@ -215,17 +216,17 @@ export default new Command(
 
           try {
             const targetDM = new EmbedBuilder()
-              .setTitle(`You have been banned from the server: ${interaction.guild.name}!`)
+              .setTitle(client.t("discord:ban.dmTitle", { guild: interaction.guild.name, lng: lang }))
               .setColor("Red")
               .setThumbnail(target.user.avatarURL({ forceStatic: true }))
               .addFields(
                 { name: "ID", value: target.user.id },
-                { name: "Reason", value: reason },
+                { name: client.t("discord:ban.reason", { lng: lang }), value: reason },
                 {
-                  name: "Joined Server",
+                  name: client.t("discord:ban.joinedServer", { lng: lang }),
                   value: target.joinedTimestamp
                     ? `<t:${parseInt((target.joinedTimestamp / 1000).toString())}:R>`
-                    : "Unknown",
+                    : client.t("discord:ban.unknown", { lng: lang }),
                   inline: true,
                 },
               );
@@ -234,11 +235,7 @@ export default new Command(
             logWithLabel("error", err);
             await new Promise((resolve) => setTimeout(resolve, 1000));
             await (interaction.channel as TextChannel).send({
-              embeds: [
-                embed
-                  .setColor("Red")
-                  .setDescription("Failed to send a direct message to the banned user. They might have DMs disabled."),
-              ],
+              embeds: [embed.setColor("Red").setDescription(client.t("discord:ban.dmFail", { lng: lang }))],
             });
           }
 
@@ -249,8 +246,8 @@ export default new Command(
           interaction.followUp({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Command Execution Error")
-                .setDescription("An unexpected error occurred. Please try again."),
+                .setTitle(client.t("discord:ban.execErrorTitle", { lng: lang }))
+                .setDescription(client.t("discord:ban.execErrorDesc", { lng: lang })),
             ],
           });
         }
@@ -264,8 +261,10 @@ export default new Command(
           return interaction.followUp({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Error Ban Command")
-                .setDescription(`${client.getEmoji(interaction.guild.id, "error")} Please provide a valid channel.`),
+                .setTitle(client.t("discord:ban.errorTitle", { lng: lang }))
+                .setDescription(
+                  `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:ban.noChannel", { lng: lang })}`,
+                ),
             ],
           });
         }
@@ -278,7 +277,9 @@ export default new Command(
           });
 
           const successEmbed = new EmbedBuilder()
-            .setDescription(`${client.getEmoji(guild.id, "correct")} Ban logs are now enabled in <#${channel.id}>!`)
+            .setDescription(
+              `${client.getEmoji(guild.id, "correct")} ${client.t("discord:ban.setupSuccess", { channel: `<#${channel.id}>`, lng: lang })}`,
+            )
             .setColor("#00ff00");
 
           interaction.followUp({
@@ -289,8 +290,8 @@ export default new Command(
           interaction.followUp({
             embeds: [
               new ErrorEmbed()
-                .setTitle("Setup Error")
-                .setDescription("An error occurred while setting up the ban logs."),
+                .setTitle(client.t("discord:ban.setupErrorTitle", { lng: lang }))
+                .setDescription(client.t("discord:ban.setupErrorDesc", { lng: lang })),
             ],
           });
         }

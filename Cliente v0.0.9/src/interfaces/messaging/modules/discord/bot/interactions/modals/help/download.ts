@@ -35,6 +35,8 @@ const ModalDownloadCommand: Modals = {
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel) return;
+    // Detecta el idioma preferido del usuario o servidor
+    const lang = interaction.locale || interaction.guild.preferredLocale || "es-ES";
     const commandName = interaction.fields.getTextInputValue("command_to_download");
     const categories = readdirSync(
       config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands,
@@ -59,15 +61,15 @@ const ModalDownloadCommand: Modals = {
       if (found) {
         const attachment = new AttachmentBuilder(Buffer.from(fileContent), {
           name: `${commandName}.ts`,
-          description: `Source code for ${commandName} command`,
+          description: client.t("help.downloadAttachmentDesc", { commandName, lng: lang }),
         });
 
         await interaction.reply({
           embeds: [
             new EmbedCorrect().setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "correct")} Command \`${commandName}\` downloaded successfully.`,
-                `**Command:** \`${commandName}\` `,
+                `${client.getEmoji(interaction.guild.id, "correct")} ${client.t("help.downloadSuccess", { commandName, lng: lang })}`,
+                `**${client.t("help.downloadCommandField", { lng: lang })}:** \`${commandName}\` `,
               ].join("\n"),
             ),
           ],
@@ -79,8 +81,8 @@ const ModalDownloadCommand: Modals = {
           embeds: [
             new ErrorEmbed().setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "error")} Command \`${commandName}\` not found.`,
-                `**Command:** \`${commandName}\` not found in the system.`,
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("help.downloadNotFound", { commandName, lng: lang })}`,
+                `**${client.t("help.downloadCommandField", { lng: lang })}:** \`${commandName}\` ${client.t("help.downloadNotFoundSystem", { lng: lang })}`,
               ].join("\n"),
             ),
           ],
@@ -92,9 +94,9 @@ const ModalDownloadCommand: Modals = {
         embeds: [
           new ErrorEmbed().setDescription(
             [
-              `${client.getEmoji(interaction.guild.id, "error")} An error occurred while trying to download the command.`,
-              `**Command:** \`${commandName}\``,
-              `Error: ${error}`,
+              `${client.getEmoji(interaction.guild.id, "error")} ${client.t("help.downloadError", { lng: lang })}`,
+              `**${client.t("help.downloadCommandField", { lng: lang })}:** \`${commandName}\``,
+              `${client.t("help.downloadErrorDetail", { error, lng: lang })}`,
             ].join("\n"),
           ),
         ],

@@ -22,20 +22,25 @@ export default new Command(
 
     const guildId = interaction.guild.id;
 
+    // Multilenguaje
+    const userLang = interaction.guild.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = _client.translations.getFixedT(lang, "discord");
+
     // Embed inicial para configurar el canal de sugerencias
     const embed = new EmbedBuilder()
-      .setTitle("💡 Suggestion Channel Configuration")
-      .setDescription("Select a channel to use for suggestions or disable the suggestion feature.")
+      .setTitle(t("suggest.configTitle"))
+      .setDescription(t("suggest.configDesc"))
       .setColor("Blue");
 
     const channelMenu = new ChannelSelectMenuBuilder()
       .setCustomId("select-suggestion-channel")
-      .setPlaceholder("Select a channel")
+      .setPlaceholder(t("suggest.selectChannel"))
       .setChannelTypes(ChannelType.GuildText);
 
     const disableButton = new ButtonBuilder()
       .setCustomId("disable-suggestions")
-      .setLabel("Disable Suggestions")
+      .setLabel(t("suggest.disableButton"))
       .setStyle(ButtonStyle.Danger);
 
     const row1 = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelMenu);
@@ -55,15 +60,12 @@ export default new Command(
     collector?.on("collect", async (componentInteraction) => {
       if (componentInteraction.user.id !== interaction.user.id) {
         return componentInteraction.reply({
-          content: "You cannot interact with this configuration.",
+          content: t("suggest.noInteract"),
           flags: "Ephemeral",
         });
       }
 
-      if (
-        componentInteraction.isChannelSelectMenu() &&
-        componentInteraction.customId === "select-suggestion-channel"
-      ) {
+      if (componentInteraction.isChannelSelectMenu() && componentInteraction.customId === "select-suggestion-channel") {
         const selectedChannelId = componentInteraction.values[0];
 
         await main.prisma.myGuild.upsert({
@@ -77,23 +79,20 @@ export default new Command(
         });
 
         await componentInteraction.update({
-          content: `✅ Suggestion channel has been set to <#${selectedChannelId}>.`,
+          content: t("suggest.setChannel", { channel: `<#${selectedChannelId}>` }),
           embeds: [],
           components: [],
         });
       }
 
-      if (
-        componentInteraction.isButton() &&
-        componentInteraction.customId === "disable-suggestions"
-      ) {
+      if (componentInteraction.isButton() && componentInteraction.customId === "disable-suggestions") {
         await main.prisma.myGuild.update({
           where: { guildId },
           data: { suggestChannel: null },
         });
 
         await componentInteraction.update({
-          content: "❌ Suggestion feature has been disabled.",
+          content: t("suggest.disabled"),
           embeds: [],
           components: [],
         });

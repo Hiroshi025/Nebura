@@ -13,7 +13,15 @@ import { logWithLabel } from "@utils/functions/console";
 
 const adminBanCommand: Precommand = {
   name: "ban",
+  nameLocalizations: {
+    "es-ES": "prohibir",
+    "en-US": "ban",
+  },
   description: "Comprehensive ban management system",
+  descriptionLocalizations: {
+    "es-ES": "Sistema de gestión de prohibiciones completo",
+    "en-US": "Comprehensive ban management system",
+  },
   examples: ["ban member @user reason", "ban setup #channel", "ban list"],
   nsfw: false,
   owner: false,
@@ -62,42 +70,44 @@ const adminBanCommand: Precommand = {
  * Handles banning a member with interactive confirmation
  */
 async function handleBanMember(client: any, message: any, args: string[]) {
+  const lang = message.guild?.preferredLocale || "es-ES"; // O usa la lógica que prefieras para detectar idioma
   const target = message.mentions.members?.first();
-  const reason = args.slice(1).join(" ") || "No reason provided";
+  const reason = args.slice(1).join(" ") || client.t("ban.noReason", {}, lang);
 
   if (!target) {
     return message.channel.send({
-      embeds: [new ErrorEmbed().setTitle("Ban Command Error").setDescription("Please mention a valid user to ban.")],
+      embeds: [
+        new ErrorEmbed()
+          .setTitle(client.t("ban.errorTitle", {}, lang))
+          .setDescription(client.t("ban.invalidParams", {}, lang)),
+      ],
     });
   }
 
-  // Validation checks
   if (target.user.id === client.user?.id) {
     return message.channel.send({
-      embeds: [new ErrorEmbed().setDescription("You cannot ban me!")],
+      embeds: [new ErrorEmbed().setDescription(client.t("ban.cannotBanMe", {}, lang))],
     });
   }
 
   if (target.user.id === message.author.id) {
     return message.channel.send({
-      embeds: [new ErrorEmbed().setDescription("You cannot ban yourself.")],
+      embeds: [new ErrorEmbed().setDescription(client.t("ban.cannotBanSelf", {}, lang))],
     });
   }
 
   if (target.roles.highest.position >= (message.member.roles as GuildMemberRoleManager).highest.position) {
     return message.channel.send({
-      embeds: [new ErrorEmbed().setDescription("The member has a higher role than you, so you cannot ban them.")],
+      embeds: [new ErrorEmbed().setDescription(client.t("ban.higherRole", {}, lang))],
     });
   }
 
   if (!message.guild.members.me?.permissions.has("BanMembers")) {
     return message.channel.send({
-      embeds: [new ErrorEmbed().setDescription("I don't have permission to ban members.")],
+      embeds: [new ErrorEmbed().setDescription(client.t("ban.noBotPermission", {}, lang))],
     });
   }
 
-  // Check if ban system is configured
-  // Buscar la configuración en una tabla/configuración separada
   const guildConfig = await main.prisma.myGuild.findFirst({
     where: { guildId: message.guild.id },
   });
@@ -106,29 +116,32 @@ async function handleBanMember(client: any, message: any, args: string[]) {
     return message.channel.send({
       embeds: [
         new ErrorEmbed()
-          .setTitle("Configuration Required")
-          .setDescription("The ban system needs to be configured first. Use `/ban setup` to set up the logs channel."),
+          .setTitle(client.t("ban.errorTitle", {}, lang))
+          .setDescription(client.t("ban.noConfig", {}, lang)),
       ],
       components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder().setLabel("Setup Ban System").setStyle(ButtonStyle.Primary).setCustomId("ban-setup-init"),
+          new ButtonBuilder()
+            .setLabel(client.t("ban.setupButton", {}, lang))
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId("ban-setup-init"),
         ),
       ],
     });
   }
 
-  // Create confirmation embed
+  // Confirmation embed
   const confirmationEmbed = new EmbedBuilder()
-    .setTitle("⚠️ Ban Confirmation")
-    .setDescription(`You are about to ban ${target.user.tag}`)
+    .setTitle(client.t("ban.confirmTitle", {}, lang))
+    .setDescription(client.t("ban.confirmDesc", { user: target.user.tag }, lang))
     .setColor("Yellow")
     .addFields(
-      { name: "User", value: target.toString(), inline: true },
-      { name: "ID", value: target.id, inline: true },
-      { name: "Reason", value: reason },
+      { name: client.t("ban.modlogUser", {}, lang), value: target.toString(), inline: true },
+      { name: client.t("ban.modlogUserId", {}, lang), value: target.id, inline: true },
+      { name: client.t("ban.reason", {}, lang), value: reason },
     )
     .setThumbnail(target.user.displayAvatarURL())
-    .setFooter({ text: "This action cannot be undone" });
+    .setFooter({ text: client.t("ban.confirmFooter", {}, lang) });
 
   // Send confirmation message with buttons
   const confirmationMessage = await message.channel.send({

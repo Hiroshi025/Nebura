@@ -123,7 +123,7 @@ const suggestCommand: Precommand = {
 
             await modalInteraction.reply({
               content: "Your suggestion has been submitted!",
-              ephemeral: true,
+              flags: "Ephemeral",
             });
           } catch (error) {
             console.error("Modal error:", error);
@@ -160,7 +160,7 @@ const suggestCommand: Precommand = {
 
           await interaction.reply({
             embeds: [helpEmbed],
-            ephemeral: true,
+            flags: "Ephemeral",
           });
           break;
       }

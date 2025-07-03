@@ -140,7 +140,7 @@ export default new Event("interactionCreate", async (interaction) => {
       {
         // Manejo especial para el modal del scraper
         if (interaction.customId.startsWith("scrape_url_modal_")) {
-          await interaction.deferReply({ ephemeral: true });
+          await interaction.deferReply({ flags: "Ephemeral" });
           const platform = interaction.customId.replace("scrape_url_modal_", "");
           const url = interaction.fields.getTextInputValue("scrape_url_input");
           // Importa el comando si es necesario

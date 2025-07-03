@@ -50,7 +50,7 @@ export default new Command(
     const channel = options.getChannel("channel") || interaction.channel;
 
     const data = await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild?.id as string } });
-    const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+    const t = (key: string, options?: any) => client.translations.t("discord:" + key, { lng: lang, ...options });
     const lang = data?.lenguage || interaction.locale || "es-ES";
 
     /**

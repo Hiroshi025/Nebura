@@ -11,18 +11,42 @@ export default new Command(
   new SlashCommandBuilder()
     .setName("youtube")
     .setDescription("Configure YouTube notifications system")
+    .setDescriptionLocalizations({
+      "es-ES": "Configurar el sistema de notificaciones de YouTube"
+    })
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand((sub) =>
       sub
         .setName("add")
+        .setNameLocalizations({
+          "es-ES": "agregar"
+        })
         .setDescription("Add a YouTube channel for notifications")
+        .setDescriptionLocalizations({
+          "es-ES": "Agregar un canal de YouTube para notificaciones"
+        })
         .addStringOption((opt) =>
-          opt.setName("link").setDescription("Provide the YouTube channel link").setRequired(true),
+          opt
+        .setName("link")
+        .setNameLocalizations({
+          "es-ES": "enlace"
+        })
+        .setDescription("Provide the YouTube channel link")
+        .setDescriptionLocalizations({
+          "es-ES": "Proporciona el enlace del canal de YouTube"
+        })
+        .setRequired(true),
         )
         .addChannelOption((opt) =>
           opt
             .setName("channel")
+            .setNameLocalizations({
+              "es-ES": "canal"
+            })
             .setDescription("Select the channel to send notifications")
+            .setDescriptionLocalizations({
+              "es-ES": "Selecciona el canal para enviar notificaciones"
+            })
             .addChannelTypes(
               ChannelType.GuildText,
               ChannelType.GuildForum,
@@ -32,21 +56,61 @@ export default new Command(
             .setRequired(true),
         )
         .addStringOption((opt) =>
-          opt.setName("message").setDescription("Custom notification message, {user} = youtuber").setRequired(false),
+          opt
+        .setName("message")
+        .setNameLocalizations({
+          "es-ES": "mensaje"
+        })
+        .setDescription("Custom notification message, {user} = youtuber")
+        .setDescriptionLocalizations({
+          "es-ES": "Mensaje de notificación personalizado, {user} = youtuber"
+        })
+        .setRequired(false),
         ),
     )
     .addSubcommand((sub) =>
       sub
         .setName("edit")
+        .setNameLocalizations({
+          "es-ES": "editar"
+        })
         .setDescription("Edit the notification message or channel")
-        .addStringOption((opt) => opt.setName("link").setDescription("YouTube channel link to edit").setRequired(true))
+        .setDescriptionLocalizations({
+          "es-ES": "Editar el mensaje de notificación o canal"
+        })
+        .addStringOption((opt) => 
+          opt
+        .setName("link")
+        .setNameLocalizations({
+          "es-ES": "enlace"
+        })
+        .setDescription("YouTube channel link to edit")
+        .setDescriptionLocalizations({
+          "es-ES": "Enlace del canal de YouTube a editar"
+        })
+        .setRequired(true))
         .addStringOption((opt) =>
-          opt.setName("message").setDescription("New custom message, {user} = youtuber").setRequired(true),
+          opt
+        .setName("message")
+        .setNameLocalizations({
+          "es-ES": "mensaje"
+        })
+        .setDescription("New custom message, {user} = youtuber")
+        .setDescriptionLocalizations({
+          "es-ES": "Nuevo mensaje personalizado, {user} = youtuber"
+        })
+        .setRequired(true),
         )
         .addChannelOption((opt) =>
           opt
             .setName("channel")
+            .setNameLocalizations({
+              "es-ES": "canal"
+            })
             .setDescription("New channel for notifications")
+            .setDescriptionLocalizations({
+              "es-ES": "Nuevo canal para notificaciones"
+            })
             .addChannelTypes(
               ChannelType.GuildText,
               ChannelType.GuildForum,
@@ -59,13 +123,36 @@ export default new Command(
     .addSubcommand((sub) =>
       sub
         .setName("remove")
+        .setNameLocalizations({
+          "es-ES": "eliminar"
+        })
         .setDescription("Remove a YouTube channel from notifications")
+        .setDescriptionLocalizations({
+          "es-ES": "Eliminar un canal de YouTube de las notificaciones"
+        })
         .addStringOption((opt) =>
-          opt.setName("link").setDescription("YouTube channel link to remove").setRequired(true),
+          opt
+        .setName("link")
+        .setNameLocalizations({
+          "es-ES": "enlace"
+        })
+        .setDescription("YouTube channel link to remove")
+        .setDescriptionLocalizations({
+          "es-ES": "Enlace del canal de YouTube a eliminar"
+        })
+        .setRequired(true),
         ),
     )
     .addSubcommand((sub) =>
-      sub.setName("list").setDescription("List all YouTube channels configured for notifications"),
+      sub
+    .setName("list")
+    .setNameLocalizations({
+      "es-ES": "listar"
+    })
+    .setDescription("List all YouTube channels configured for notifications")
+    .setDescriptionLocalizations({
+      "es-ES": "Listar todos los canales de YouTube configurados para notificaciones"
+    })
     ),
   async (client, interaction) => {
     const { options, guild } = interaction;
@@ -93,6 +180,10 @@ export default new Command(
       });
     }
 
+    const userLang = interaction.guild?.preferredLocale || "es-ES";
+    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+    const t = client.translations.getFixedT(lang, "discord");
+
     switch (subcommands) {
       case "add":
         {
@@ -104,11 +195,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("Invalid YouTube Link")
+                  .setTitle(t("youtube.invalidLinkTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "error")} The provided link is not a valid YouTube channel link.`,
-                      `Please ensure the link is a valid YouTube channel URL.`,
+                      `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.invalidLinkDesc1")}`,
+                      t("youtube.invalidLinkDesc2"),
                     ].join("\n"),
                   ),
               ],
@@ -119,11 +210,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("Channel Already Exists")
+                  .setTitle(t("youtube.existsTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "error")} This YouTube channel is already configured for notifications.`,
-                      `Please use the edit command to modify the existing channel.`,
+                      `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.existsDesc1")}`,
+                      t("youtube.existsDesc2"),
                     ].join("\n"),
                   ),
               ],
@@ -140,11 +231,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("Invalid Channel Type")
+                  .setTitle(t("youtube.invalidChannelTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "error")} The selected channel type is not supported.`,
-                      `Please choose a text, forum, voice, or announcement channel.`,
+                      `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.invalidChannelDesc1")}`,
+                      t("youtube.invalidChannelDesc2"),
                     ].join("\n"),
                   ),
               ],
@@ -161,11 +252,11 @@ export default new Command(
                   await interaction.reply({
                     embeds: [
                       new ErrorEmbed()
-                        .setTitle("Channel Already Exists")
+                        .setTitle(t("youtube.existsTitle"))
                         .setDescription(
                           [
-                            `${client.getEmoji(guild.id as string, "error")} This YouTube channel is already configured for notifications.`,
-                            `Please use the edit command to modify the existing channel.`,
+                            `${client.getEmoji(guild.id as string, "error")} ${t("youtube.existsDesc1")}`,
+                            t("youtube.existsDesc2"),
                           ].join("\n"),
                         ),
                     ],
@@ -186,13 +277,13 @@ export default new Command(
                 await interaction.reply({
                   embeds: [
                     new EmbedCorrect()
-                      .setTitle("YouTube Channel Added")
+                      .setTitle(t("youtube.addedTitle"))
                       .setDescription(
                         [
-                          `${client.getEmoji(guild.id as string, "success")} Successfully added YouTube channel notifications.`,
-                          `Channel: ${channel.name}`,
-                          `User: ${name}`,
-                          `URL: ${url}`,
+                          `${client.getEmoji(guild.id as string, "success")} ${t("youtube.addedDesc")}`,
+                          `${t("youtube.channel")}: ${channel.name}`,
+                          `${t("youtube.user")}: ${name}`,
+                          `${t("youtube.url")}: ${url}`,
                         ].join("\n"),
                       ),
                   ],
@@ -202,11 +293,11 @@ export default new Command(
                   await interaction.reply({
                     embeds: [
                       new ErrorEmbed()
-                        .setTitle("Message Too Long")
+                        .setTitle(t("youtube.msgLongTitle"))
                         .setDescription(
                           [
-                            `${client.getEmoji(guild?.id as string, "error")} The custom message exceeds the maximum length of 1024 characters.`,
-                            `Please shorten the message and try again.`,
+                            `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.msgLongDesc1")}`,
+                            t("youtube.msgLongDesc2"),
                           ].join("\n"),
                         ),
                     ],
@@ -218,11 +309,11 @@ export default new Command(
                   await interaction.reply({
                     embeds: [
                       new ErrorEmbed()
-                        .setTitle("Channel Already Exists")
+                        .setTitle(t("youtube.existsTitle"))
                         .setDescription(
                           [
-                            `${client.getEmoji(guild?.id as string, "error")} This YouTube channel is already configured for notifications.`,
-                            `Please use the edit command to modify the existing channel.`,
+                            `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.existsDesc1")}`,
+                            t("youtube.existsDesc2"),
                           ].join("\n"),
                         ),
                     ],
@@ -244,14 +335,14 @@ export default new Command(
                 await interaction.reply({
                   embeds: [
                     new EmbedCorrect()
-                      .setTitle("YouTube Channel Added")
+                      .setTitle(t("youtube.addedTitle"))
                       .setDescription(
                         [
-                          `${client.getEmoji(guild?.id as string, "success")} Successfully added YouTube channel notifications.`,
-                          `Channel: ${channel.name}`,
-                          `User: ${name}`,
-                          `URL: ${url}`,
-                          `Message: ${message}`,
+                          `${client.getEmoji(guild?.id as string, "success")} ${t("youtube.addedDesc")}`,
+                          `${t("youtube.channel")}: ${channel.name}`,
+                          `${t("youtube.user")}: ${name}`,
+                          `${t("youtube.url")}: ${url}`,
+                          `${t("youtube.message")}: ${message}`,
                         ].join("\n"),
                       ),
                   ],
@@ -271,11 +362,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("Invalid YouTube Link")
+                  .setTitle(t("youtube.invalidLinkTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "error")} The provided link is not a valid YouTube channel link.`,
-                      `Valid link formats are:\n\`https://www.youtube.com/google\`\n\`https://www.youtube.com/c/google\`\n\`https://www.youtube.com/channel/UCgEOyR8izj0bWnf0zwjzGVA\``,
+                      `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.invalidLinkDesc1")}`,
+                      t("youtube.validLinks"),
                     ].join("\n"),
                   ),
               ],
@@ -290,11 +381,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("Channel Not Found")
+                  .setTitle(t("youtube.notFoundTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "error")} The YouTube channel \`${link}\` is not configured for notifications.`,
-                      `Use \`/youtube list\` to see all configured channels.`,
+                      `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.notFoundDesc1", { link })}`,
+                      t("youtube.notFoundDesc2"),
                     ].join("\n"),
                   ),
               ],
@@ -307,11 +398,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("Message Too Long")
+                  .setTitle(t("youtube.msgLongTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "error")} The custom message exceeds the maximum length of 1024 characters.`,
-                      `Please shorten the message and try again.`,
+                      `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.msgLongDesc1")}`,
+                      t("youtube.msgLongDesc2"),
                     ].join("\n"),
                   ),
               ],
@@ -330,11 +421,11 @@ export default new Command(
               await interaction.reply({
                 embeds: [
                   new ErrorEmbed()
-                    .setTitle("Invalid Channel Type")
+                    .setTitle(t("youtube.invalidChannelTitle"))
                     .setDescription(
                       [
-                        `${client.getEmoji(guild?.id as string, "error")} The selected channel type is not supported.`,
-                        `Allowed channel types: Text, Forum, Voice, or Announcement channels.`,
+                        `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.invalidChannelDesc1")}`,
+                        t("youtube.invalidChannelDesc3"),
                       ].join("\n"),
                     ),
                 ],
@@ -357,12 +448,12 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new EmbedCorrect()
-                  .setTitle("YouTube Channel Updated")
+                  .setTitle(t("youtube.updatedTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "success")} Successfully updated YouTube channel notifications.`,
-                      `New Channel: ${channel.name}`,
-                      `New Message: ${message}`,
+                      `${client.getEmoji(guild?.id as string, "success")} ${t("youtube.updatedDesc")}`,
+                      `${t("youtube.newChannel")}: ${channel.name}`,
+                      `${t("youtube.newMessage")}: ${message}`,
                     ].join("\n"),
                   ),
               ],
@@ -381,11 +472,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new EmbedCorrect()
-                  .setTitle("YouTube Channel Updated")
+                  .setTitle(t("youtube.updatedTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "success")} Successfully updated YouTube channel message.`,
-                      `New Message: ${message}`,
+                      `${client.getEmoji(guild?.id as string, "success")} ${t("youtube.updatedMsgDesc")}`,
+                      `${t("youtube.newMessage")}: ${message}`,
                     ].join("\n"),
                   ),
               ],
@@ -405,11 +496,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("Channel Not Found")
+                  .setTitle(t("youtube.notFoundTitle"))
                   .setDescription(
-                    [
-                      `${client.getEmoji(guild?.id as string, "error")} The YouTube channel \`${link}\` is not configured for notifications.`,
-                    ].join("\n"),
+                    [`${client.getEmoji(guild?.id as string, "error")} ${t("youtube.notFoundDesc1", { link })}`].join(
+                      "\n",
+                    ),
                   ),
               ],
               flags: "Ephemeral",
@@ -426,11 +517,11 @@ export default new Command(
           await interaction.reply({
             embeds: [
               new EmbedCorrect()
-                .setTitle("YouTube Channel Removed")
+                .setTitle(t("youtube.removedTitle"))
                 .setDescription(
                   [
-                    `${client.getEmoji(guild?.id as string, "success")} Successfully removed YouTube channel notifications.`,
-                    `Channel: ${youtuber.name} (${youtuber.url})`,
+                    `${client.getEmoji(guild?.id as string, "success")} ${t("youtube.removedDesc")}`,
+                    `${t("youtube.channel")}: ${youtuber.name} (${youtuber.url})`,
                   ].join("\n"),
                 ),
             ],
@@ -445,11 +536,11 @@ export default new Command(
             await interaction.reply({
               embeds: [
                 new ErrorEmbed()
-                  .setTitle("No YouTube Channels Configured")
+                  .setTitle(t("youtube.noChannelsTitle"))
                   .setDescription(
                     [
-                      `${client.getEmoji(guild?.id as string, "error")} No YouTube channels are configured for notifications.`,
-                      `Use \`/youtube add\` to add YouTube channels.`,
+                      `${client.getEmoji(guild?.id as string, "error")} ${t("youtube.noChannelsDesc1")}`,
+                      t("youtube.noChannelsDesc2"),
                     ].join("\n"),
                   ),
               ],
@@ -462,10 +553,10 @@ export default new Command(
             return {
               name: `${index + 1}. ${youtuber.name}`,
               value: [
-                `**User ID:** \`${youtuber.userId}\``,
-                `**Channel:** <#${youtuber.channelId}> (\`${youtuber.channelName}\`)`,
-                `**URL:** [Link](${youtuber.url})`,
-                `**Message:** \`${youtuber.message}\``,
+                `**${t("youtube.userId")}:** \`${youtuber.userId}\``,
+                `**${t("youtube.channel")}:** <#${youtuber.channelId}> (\`${youtuber.channelName}\`)`,
+                `**${t("youtube.url")}:** [Link](${youtuber.url})`,
+                `**${t("youtube.message")}:** \`${youtuber.message}\``,
               ].join("\n"),
             };
           });
@@ -473,13 +564,12 @@ export default new Command(
           await interaction.reply({
             embeds: [
               new EmbedCorrect()
-                .setTitle(`YouTube Notifications for ${guild?.name}`)
+                .setTitle(t(`youtube.listTitle`, { guild: guild?.name }))
                 .addFields(fields)
                 .setFooter({
                   text: `${client.user?.username} | Team`,
                   iconURL: client.user?.displayAvatarURL(),
                 })
-                .setTimestamp(),
             ],
             flags: "Ephemeral",
           });

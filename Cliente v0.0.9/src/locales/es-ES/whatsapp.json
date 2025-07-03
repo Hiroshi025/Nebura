@@ -1,0 +1,23 @@
+{
+  "scheduled_backup": "Respaldo de estado de WhatsApp programado cada 24 horas.",
+  "generating_scheduled_backup": "Generando respaldo de estado de WhatsApp programado...",
+  "stat": "Estadística",
+  "value": "Valor",
+  "uptime": "Tiempo en línea",
+  "excel_files_generated": "Archivos Excel generados",
+  "last_excel_file": "Último archivo Excel",
+  "excel_files_location": "Ubicación de archivos Excel",
+  "unread_messages": "Mensajes no leídos",
+  "backup_generated_at": "Respaldo generado en",
+  "chat_excel_files": "Archivos Excel de chat",
+  "file": "Archivo",
+  "qr_received": "QR RECIBIDO. POR FAVOR ESCANEE",
+  "authenticated": "AUTENTICADO. La sesión está lista para usarse.",
+  "registered_client": "Cliente registrado en la Web",
+  "status_message": "🟢 *Estado del Bot de WhatsApp*\n\n*Tiempo en línea:* {{uptime}}\n*Archivos Excel generados:* {{excelCount}}\n*Último archivo:* {{lastExcel}}\n*Ubicación de archivos Excel:* {{excelPath}}\n*Mensajes no leídos:* {{unread}}\n\n*Respaldos de estado:* {{backupCount}}\n*Último respaldo:* {{lastBackup}}\n*Ubicación de respaldos:* {{backupPath}}",
+  "unknown": "Desconocido",
+  "message_from": "Mensaje de {{sender}}: {{message}}",
+  "error_processing_message": "Error procesando mensaje: {{error}}",
+  "client_ready": "¡Cliente listo!",
+  "api_module_started": "El módulo de la API de WhatsApp ha iniciado."
+}

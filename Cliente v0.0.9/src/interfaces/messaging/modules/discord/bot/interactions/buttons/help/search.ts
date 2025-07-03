@@ -8,16 +8,17 @@ const ButtonModalSearch: Buttons = {
   owner: false,
   permissions: ["ManageChannels"],
   botpermissions: ["SendMessages"],
-  async execute(interaction, _client) {
+  async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel) return;
+    const lang = interaction.locale || interaction.guildLocale || "es-ES";
     const searchModal = new ModalBuilder()
       .setCustomId(`search_modal`)
-      .setTitle("Command Search");
+      .setTitle(client.t("help.searchModalTitle", {}, lang));
 
     const searchInput = new TextInputBuilder()
       .setCustomId("search_query")
-      .setLabel("Search for commands")
-      .setPlaceholder("Enter command name, alias, or description...")
+      .setLabel(client.t("help.searchModalLabel", {}, lang))
+      .setPlaceholder(client.t("help.searchModalPlaceholder", {}, lang))
       .setStyle(TextInputStyle.Short)
       .setRequired(true);
 

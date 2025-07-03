@@ -381,6 +381,16 @@ export async function createGuild(guildId: string, client: MyDiscord) {
         lenguage: client.guilds.cache.get(guildId)?.preferredLocale || "en-US",
       },
     });
+  } else {
+    await main.prisma.myGuild.update({
+      where: {
+        guildId: guildId,
+      },
+      data: {
+        discordId: data.clientId as string,
+        lenguage: client.guilds.cache.get(guildId)?.preferredLocale || "en-US",
+      },
+    });
   }
 
   return true;
@@ -1902,7 +1912,6 @@ export async function setupCollectors(message: any, data: any) {
       if (!interaction.customId.includes(interaction.user.id)) {
         return interaction.reply({
           content: "❌ You didn't execute this command.",
-          flags: "Ephemeral",
         });
       }
 
@@ -1949,7 +1958,7 @@ export async function setupCollectors(message: any, data: any) {
       isStringSelectMenu: () => any;
       customId: string | any[];
       user: { id: any };
-      reply: (arg0: { content: string; ephemeral: boolean }) => any;
+      reply: any;
       deferUpdate: () => any;
       values: any[];
       followUp: (arg0: {
@@ -1970,7 +1979,7 @@ ${any}
       if (!interaction.customId.includes(interaction.user.id)) {
         return interaction.reply({
           content: "❌ You didn't execute this command.",
-          ephemeral: true,
+          flags: "Ephemeral",
         });
       }
 

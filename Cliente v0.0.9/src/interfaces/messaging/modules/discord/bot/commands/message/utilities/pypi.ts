@@ -23,10 +23,10 @@ const commandPyPI: Precommand = {
       return message.reply({
         embeds: [
           {
-            title: "Error - PyPI Package",
+            title: client.t("discord:pypi.errorTitle", { lng: message.guild.preferredLocale }),
             description: [
-              `${client.getEmoji(message.guild.id, "error")} Please provide a package name.`,
-              `Usage: \`${prefix}${this.name} <package-name>\``,
+              `${client.getEmoji(message.guild.id, "error")} ${client.t("discord:pypi.noPackage", { prefix, lng: message.guild.preferredLocale })}`,
+              client.t("discord:pypi.usage", { prefix, command: this.name, lng: message.guild.preferredLocale }),
             ].join("\n"),
           },
         ],
@@ -45,10 +45,10 @@ const commandPyPI: Precommand = {
           return message.reply({
             embeds: [
               {
-                title: "Error - PyPI Package",
+                title: client.t("discord:pypi.errorTitle", { lng: message.guild.preferredLocale }),
                 description: [
-                  `${client.getEmoji(message.guild.id, "error")} Package not found on PyPI.`,
-                  `Please check the package name and try again.`,
+                  `${client.getEmoji(message.guild.id, "error")} ${client.t("discord:pypi.notFound", { lng: message.guild.preferredLocale })}`,
+                  client.t("discord:pypi.checkName", { lng: message.guild.preferredLocale }),
                 ].join("\n"),
               },
             ],
@@ -59,10 +59,10 @@ const commandPyPI: Precommand = {
       return message.reply({
         embeds: [
           {
-            title: "Error - PyPI Package",
+            title: client.t("discord:pypi.errorTitle", { lng: message.guild.preferredLocale }),
             description: [
-              `${client.getEmoji(message.guild.id, "error")} An error occurred while fetching the package data.`,
-              `Please try again later or check the package name.`,
+              `${client.getEmoji(message.guild.id, "error")} ${client.t("discord:pypi.fetchError", { lng: message.guild.preferredLocale })}`,
+              client.t("discord:pypi.tryAgain", { lng: message.guild.preferredLocale }),
             ].join("\n"),
           },
         ],
@@ -71,15 +71,28 @@ const commandPyPI: Precommand = {
 
     // Main embed with basic info
     const mainEmbed = new EmbedBuilder()
-      .setTitle(`PyPI Package: ${pkgData.info.name}`)
+      .setTitle(client.t("discord:pypi.title", { name: pkgData.info.name, lng: message.guild.preferredLocale }))
       .setColor(0x3776ab) // PyPI blue color
-      .setDescription(pkgData.info.summary || "No summary provided")
+      .setDescription(
+        pkgData.info.summary || client.t("discord:pypi.noSummary", { lng: message.guild.preferredLocale }),
+      )
       .addFields(
-        { name: "Latest Version", value: pkgData.info.version, inline: true },
-        { name: "License", value: pkgData.info.license || "Unknown", inline: true },
         {
-          name: "Author",
-          value: pkgData.info.author || pkgData.info.author_email || "Unknown",
+          name: client.t("discord:pypi.latestVersion", { lng: message.guild.preferredLocale }),
+          value: pkgData.info.version,
+          inline: true,
+        },
+        {
+          name: client.t("discord:pypi.license", { lng: message.guild.preferredLocale }),
+          value: pkgData.info.license || client.t("discord:pypi.unknown", { lng: message.guild.preferredLocale }),
+          inline: true,
+        },
+        {
+          name: client.t("discord:pypi.author", { lng: message.guild.preferredLocale }),
+          value:
+            pkgData.info.author ||
+            pkgData.info.author_email ||
+            client.t("discord:pypi.unknown", { lng: message.guild.preferredLocale }),
           inline: true,
         },
       );
@@ -87,8 +100,8 @@ const commandPyPI: Precommand = {
     // Add homepage if available
     if (pkgData.info.home_page) {
       mainEmbed.addFields({
-        name: "Homepage",
-        value: `[Visit Website](${pkgData.info.home_page})`,
+        name: client.t("discord:pypi.homepage", { lng: message.guild.preferredLocale }),
+        value: `[${client.t("discord:pypi.visitWebsite", { lng: message.guild.preferredLocale })}](${pkgData.info.home_page})`,
         inline: true,
       });
     }
@@ -100,7 +113,7 @@ const commandPyPI: Precommand = {
         .join(" • ");
 
       mainEmbed.addFields({
-        name: "Project Links",
+        name: client.t("discord:pypi.projectLinks", { lng: message.guild.preferredLocale }),
         value: urls,
       });
     }

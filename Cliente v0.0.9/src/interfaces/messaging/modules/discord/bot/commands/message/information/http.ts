@@ -20,6 +20,7 @@ const httpCommand: Precommand = {
   async execute(client, message, args, prefix) {
     try {
       if (!message.guild) return;
+      const lang = message.guild.preferredLocale || "en-US";
       const status = args[0];
       if (!status)
         return message.reply({
@@ -27,13 +28,13 @@ const httpCommand: Precommand = {
             new EmbedBuilder()
               .setColor("Red")
               .setFooter({
-                text: `Requested by: ${message.author.tag}`,
+                text: client.t("discord:http.requestedBy", { user: message.author.tag, lng: lang }),
                 iconURL: client.user?.displayAvatarURL(),
               })
               .setDescription(
                 [
-                  `${emojis.error} You did not provide a status code to lookup for a meme!`,
-                  `Usage: \`${prefix}httpstatus <status>\``,
+                  `${emojis.error} ${client.t("discord:http.noStatus", { lng: lang })}`,
+                  client.t("discord:http.usage", { prefix, lng: lang }),
                 ].join("\n"),
               ),
           ],
@@ -42,8 +43,8 @@ const httpCommand: Precommand = {
       if (status !== "599" && !STATUS_CODES[status])
         return message.reply({
           content: [
-            `${emojis.error} The status code is invalid or not provided (100-599) or (599)`,
-            `Usage: \`${prefix}httpstatus <status>\``,
+            `${emojis.error} ${client.t("discord:http.invalidStatus", { lng: lang })}`,
+            client.t("discord:http.usage", { prefix, lng: lang }),
           ].join("\n"),
         });
 
@@ -51,17 +52,18 @@ const httpCommand: Precommand = {
         content: `https://http.cat/${status}.jpg`,
       });
     } catch (e: any) {
+      const lang = message.guild?.preferredLocale || "en-US";
       return message.reply({
         embeds: [
           new ErrorEmbed()
             .setFooter({
-              text: `Requested by: ${message.author.tag}`,
+              text: client.t("discord:http.requestedBy", { user: message.author.tag, lng: lang }),
               iconURL: message.author.displayAvatarURL(),
             })
             .setDescription(
               [
-                `${emojis.error} An error occurred while executing this command!`,
-                `please try again later or join our support server for help!`,
+                `${emojis.error} ${client.t("discord:http.errorExec", { lng: lang })}`,
+                client.t("discord:http.tryAgain", { lng: lang }),
               ].join("\n"),
             )
             .setErrorFormat(e.stack),

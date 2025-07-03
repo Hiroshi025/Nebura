@@ -116,7 +116,7 @@ async function showMainMenu(message: any, prefix: string) {
           { name: "HTTP Status", value: `\`${prefix}dns status discord.com\`` },
         );
 
-      await interaction.reply({ embeds: [examplesEmbed], ephemeral: true });
+      await interaction.reply({ embeds: [examplesEmbed], flags: "Ephemeral" });
     }
   });
 
@@ -244,7 +244,7 @@ async function showFullAnalysis(interaction: any, domain: string) {
   await interaction.reply({
     embeds: [embed],
     components: [row],
-    ephemeral: true,
+    flags: "Ephemeral",
   });
 
   // Handle select menu interaction
@@ -286,7 +286,7 @@ async function showAllDNSRecords(interaction: any, domain: string) {
       .setTitle(`Fetching all DNS records for ${domain}`)
       .setDescription("This may take a moment...");
 
-    await interaction.reply({ embeds: [loadingEmbed], ephemeral: true });
+    await interaction.reply({ embeds: [loadingEmbed], flags: "Ephemeral" });
 
     const records: any = {};
 
@@ -387,7 +387,7 @@ async function showDetailedPing(interaction: any, domain: string) {
       .setTitle(`Pinging ${domain}`)
       .setDescription("Measuring network latency...");
 
-    await interaction.reply({ embeds: [loadingEmbed], ephemeral: true });
+    await interaction.reply({ embeds: [loadingEmbed], flags: "Ephemeral" });
 
     const result = await pingDomain(domain, 5); // 5 pings for more accurate results
 
@@ -424,7 +424,7 @@ async function showTraceroute(interaction: any, domain: string) {
       .setTitle(`Tracing route to ${domain}`)
       .setDescription("This may take up to 30 seconds...");
 
-    await interaction.reply({ embeds: [loadingEmbed], ephemeral: true });
+    await interaction.reply({ embeds: [loadingEmbed], flags: "Ephemeral" });
 
     // Note: This uses the system's traceroute command
     const { stdout } = await execPromise(`traceroute ${domain}`);
@@ -455,7 +455,7 @@ async function showHTTPHeaders(interaction: any, domain: string) {
       .setTitle(`Fetching HTTP headers for ${domain}`)
       .setDescription("Connecting to server...");
 
-    await interaction.reply({ embeds: [loadingEmbed], ephemeral: true });
+    await interaction.reply({ embeds: [loadingEmbed], flags: "Ephemeral" });
 
     const { stdout } = await execPromise(`curl -I https://${domain}`);
 
@@ -485,7 +485,7 @@ async function showSSLCertificate(interaction: any, domain: string) {
       .setTitle(`Fetching SSL certificate for ${domain}`)
       .setDescription("Connecting to server...");
 
-    await interaction.reply({ embeds: [loadingEmbed], ephemeral: true });
+    await interaction.reply({ embeds: [loadingEmbed], flags: "Ephemeral" });
 
     const { stdout } = await execPromise(
       `openssl s_client -showcerts -connect ${domain}:443 </dev/null 2>/dev/null | openssl x509 -noout -text`,

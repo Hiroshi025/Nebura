@@ -31,6 +31,11 @@
     "failed_to_fetch_discord_status": "No se pudo obtener el estado de Discord.",
     "failed_to_fetch_discord_updates": "No se pudieron obtener las actualizaciones de Discord.",
     "failed_to_fetch_discord_incidents": "No se pudieron obtener los incidentes de Discord.",
-    "failed_to_fetch_reminders": "No se pudieron obtener los recordatorios."
+    "failed_to_fetch_reminders": "No se pudieron obtener los recordatorios.",
+    "failed_to_process_text": "No se pudo procesar el texto.",
+    "failed_to_process_file": "No se pudo procesar el archivo.",
+    "failed_to_process_combined": "No se pudo procesar la solicitud combinada.",
+    "file_upload_failed": "La carga del archivo falló.",
+    "no_file_uploaded": "No se subió ningún archivo."
   }
 }

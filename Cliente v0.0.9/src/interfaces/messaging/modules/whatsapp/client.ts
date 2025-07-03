@@ -6,6 +6,7 @@ import path from "path";
 import qrcode from "qrcode-terminal";
 import { Client, LocalAuth, Message } from "whatsapp-web.js";
 
+import i18n from "@/shared/i18n"; // Importar i18n
 import { config } from "@/shared/utils/config";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import emojis from "@config/json/emojis.json";
@@ -107,14 +108,14 @@ export class MyWhatsApp {
     this.generateStatusBackup();
 
     // Log when scheduling the interval
-    logWithLabel("custom", "Scheduled WhatsApp status backup every 24 hours.", {
-      customLabel: "WhatsApp"
+    logWithLabel("custom", i18n.t("whatsapp:scheduled_backup"), {
+      customLabel: "WhatsApp",
     });
 
     setInterval(
       async () => {
-        logWithLabel("custom", "Generating scheduled WhatsApp status backup...", {
-          customLabel: "WhatsApp"
+        logWithLabel("custom", i18n.t("whatsapp:generating_scheduled_backup"), {
+          customLabel: "WhatsApp",
         });
         await this.generateStatusBackup();
       },
@@ -157,22 +158,22 @@ export class MyWhatsApp {
     const ws = wb.addWorksheet("Status");
 
     ws.columns = [
-      { header: "Stat", key: "stat", width: 30 },
-      { header: "Value", key: "value", width: 50 },
+      { header: i18n.t("whatsapp:stat"), key: "stat", width: 30 },
+      { header: i18n.t("whatsapp:value"), key: "value", width: 50 },
     ];
 
-    ws.addRow({ stat: "Uptime", value: uptimeStr });
-    ws.addRow({ stat: "Excel files generated", value: excelCount });
-    ws.addRow({ stat: "Last Excel file", value: lastExcel });
-    ws.addRow({ stat: "Excel files location", value: excelPath });
-    ws.addRow({ stat: "Unread messages", value: unread });
-    ws.addRow({ stat: "Backup generated at", value: now.toLocaleString() });
+    ws.addRow({ stat: i18n.t("whatsapp:uptime"), value: uptimeStr });
+    ws.addRow({ stat: i18n.t("whatsapp:excel_files_generated"), value: excelCount });
+    ws.addRow({ stat: i18n.t("whatsapp:last_excel_file"), value: lastExcel });
+    ws.addRow({ stat: i18n.t("whatsapp:excel_files_location"), value: excelPath });
+    ws.addRow({ stat: i18n.t("whatsapp:unread_messages"), value: unread });
+    ws.addRow({ stat: i18n.t("whatsapp:backup_generated_at"), value: now.toLocaleString() });
 
     // Add chat Excel files info
     ws.addRow({});
-    ws.addRow({ stat: "Chat Excel Files", value: "" });
+    ws.addRow({ stat: i18n.t("whatsapp:chat_excel_files"), value: "" });
     files.forEach((f) => {
-      ws.addRow({ stat: "File", value: f });
+      ws.addRow({ stat: i18n.t("whatsapp:file"), value: f });
     });
 
     await wb.xlsx.writeFile(backupFilePath);
@@ -197,7 +198,7 @@ export class MyWhatsApp {
     });
 
     this.client.on("qr", (qr) => {
-      logWithLabel("custom", "QR RECEIVED. PLEASE SCAN", {
+      logWithLabel("custom", i18n.t("whatsapp:qr_received"), {
         customLabel: "WhatsApp",
         context: {
           clientId: this.client.info.wid.user,
@@ -209,10 +210,10 @@ export class MyWhatsApp {
     });
 
     this.client.on("authenticated", () => {
-      logWithLabel("custom", "AUTHENTICATED. The session is ready to be used.", {
+      logWithLabel("custom", i18n.t("whatsapp:authenticated"), {
         customLabel: "WhatsApp",
       });
-      logWithLabel("custom", "Registered Client on the Web", {
+      logWithLabel("custom", i18n.t("whatsapp:registered_client"), {
         customLabel: "WhatsApp",
       });
     });
@@ -249,15 +250,16 @@ export class MyWhatsApp {
 
           // Reply with status
           await msg.reply(
-            `🟢 *WhatsApp Bot Status*\n` +
-              `\n*Uptime:* ${uptimeStr}` +
-              `\n*Excel files generated:* ${excelCount}` +
-              `\n*Last file:* ${lastExcel}` +
-              `\n*Excel files location:* ${excelPath}` +
-              `\n*Unread messages:* ${unread}` +
-              `\n\n*Status Backups:* ${backupFiles.length}` +
-              `\n*Last backup:* ${lastBackup}` +
-              `\n*Backup location:* ${backupPath}`,
+            i18n.t("whatsapp:status_message", {
+              uptime: uptimeStr,
+              excelCount,
+              lastExcel,
+              excelPath,
+              unread,
+              backupCount: backupFiles.length,
+              lastBackup,
+              backupPath,
+            }),
           );
           return;
         }
@@ -269,7 +271,7 @@ export class MyWhatsApp {
 
         const messageData = {
           timestamp: msg.timestamp,
-          sender: contact.name || contact.pushname || "Unknown",
+          sender: contact.name || contact.pushname || i18n.t("whatsapp:unknown"),
           number: msg.from,
           hasAttachment: msg.hasMedia,
           attachmentType: msg.hasMedia ? (await msg.downloadMedia()).mimetype.split("/")[0] : null,
@@ -283,7 +285,10 @@ export class MyWhatsApp {
         // Log to console
         logWithLabel(
           "info",
-          `[${new Date().toLocaleTimeString()}] Message from ${messageData.sender}: ${messageData.message.substring(0, 30)}${messageData.message.length > 30 ? "..." : ""}`,
+          `[${new Date().toLocaleTimeString()}] ${i18n.t("whatsapp:message_from", {
+            sender: messageData.sender,
+            message: messageData.message.substring(0, 30) + (messageData.message.length > 30 ? "..." : ""),
+          })}`,
           {
             customLabel: "WhatsApp",
             context: {
@@ -294,7 +299,7 @@ export class MyWhatsApp {
           },
         );
       } catch (error) {
-        logWithLabel("error", `Error processing message: ${error}`, {
+        logWithLabel("error", i18n.t("whatsapp:error_processing_message", { error }), {
           customLabel: "WhatsApp",
           context: {
             clientId: this.client.info.wid.user,
@@ -349,8 +354,7 @@ export class MyWhatsApp {
 
     if (fs.existsSync(filePath)) {
       await this.workbook.xlsx.readFile(filePath);
-      this.worksheet =
-        this.workbook.getWorksheet("Messages") || this.workbook.addWorksheet("Messages");
+      this.worksheet = this.workbook.getWorksheet("Messages") || this.workbook.addWorksheet("Messages");
     } else {
       this.worksheet = this.workbook.addWorksheet("Messages");
       this.worksheet.columns = [
@@ -397,8 +401,8 @@ export class MyWhatsApp {
       logWithLabel(
         "custom",
         [
-          "Client is ready!",
-          `  ${emojis.info}  ${chalk.gray("The WhatsApp API module has started.")}`,
+          i18n.t("whatsapp:client_ready"),
+          `  ${emojis.info}  ${chalk.gray(i18n.t("whatsapp:api_module_started"))}`,
         ].join("\n"),
         {
           customLabel: "WhatsApp",

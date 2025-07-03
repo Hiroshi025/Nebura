@@ -1,4 +1,6 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder } from "discord.js";
+import {
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder
+} from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
@@ -72,7 +74,7 @@ export default new Command(
           (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
         interaction.locale ||
         "es-ES";
-      const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+      const t = (key: string, options?: any) => client.translations.t("discord:" + key, { lng: lang, ...options });
 
       switch (interaction.options.getSubcommand()) {
         case "warns":

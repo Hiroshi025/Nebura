@@ -30,7 +30,7 @@ export default new Command(
           (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
         interaction.locale ||
         "es-ES";
-      const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+      const t = (key: string, options?: any) => client.translations.t("discord:" + key, { lng: lang, ...options });
 
       const guild = await main.prisma.myGuild.findUnique({
         where: { guildId: interaction.guild.id },

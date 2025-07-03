@@ -2,7 +2,9 @@ import { Profile } from "discord-arts";
 import { AttachmentBuilder, EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
-import { getTopUsers } from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
+import {
+	getTopUsers
+} from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
 import { main } from "@/main";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
@@ -58,7 +60,7 @@ export default new Command(
         (await main.prisma.myGuild.findUnique({ where: { guildId: interaction.guild.id } }))?.lenguage) ||
       interaction.locale ||
       "es-ES";
-    const t = (key: string, options?: any) => client.translations.t(key, { lng: lang, ...options });
+    const t = (key: string, options?: any) => client.translations.t("discord:" + key, { lng: lang, ...options });
 
     await interaction.deferReply(); // Ensure the response doesn't take too long
 

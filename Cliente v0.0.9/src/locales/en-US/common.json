@@ -21,6 +21,6 @@
   "license_created_successfully": "License created successfully.",
   "discord_status_fetched_successfully": "Discord status fetched successfully.",
   "discord_updates_fetched_successfully": "Discord updates fetched successfully.",
-  "discord_incidents_fetched_successfully": "Discord incidents fetched successfully.",
-  "reminders_fetched_successfully": "Reminders fetched successfully."
+  "reminders_fetched_successfully": "Reminders fetched successfully.",
+  "default_text": "Default text for Gemini."
 }

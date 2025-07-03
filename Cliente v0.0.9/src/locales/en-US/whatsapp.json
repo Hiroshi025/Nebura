@@ -1,0 +1,23 @@
+{
+  "scheduled_backup": "Scheduled WhatsApp status backup every 24 hours.",
+  "generating_scheduled_backup": "Generating scheduled WhatsApp status backup...",
+  "stat": "Stat",
+  "value": "Value",
+  "uptime": "Uptime",
+  "excel_files_generated": "Excel files generated",
+  "last_excel_file": "Last Excel file",
+  "excel_files_location": "Excel files location",
+  "unread_messages": "Unread messages",
+  "backup_generated_at": "Backup generated at",
+  "chat_excel_files": "Chat Excel Files",
+  "file": "File",
+  "qr_received": "QR RECEIVED. PLEASE SCAN",
+  "authenticated": "AUTHENTICATED. The session is ready to be used.",
+  "registered_client": "Registered Client on the Web",
+  "status_message": "🟢 *WhatsApp Bot Status*\n\n*Uptime:* {{uptime}}\n*Excel files generated:* {{excelCount}}\n*Last file:* {{lastExcel}}\n*Excel files location:* {{excelPath}}\n*Unread messages:* {{unread}}\n\n*Status Backups:* {{backupCount}}\n*Last backup:* {{lastBackup}}\n*Backup location:* {{backupPath}}",
+  "unknown": "Unknown",
+  "message_from": "Message from {{sender}}: {{message}}",
+  "error_processing_message": "Error processing message: {{error}}",
+  "client_ready": "Client is ready!",
+  "api_module_started": "The WhatsApp API module has started."
+}

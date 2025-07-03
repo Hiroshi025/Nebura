@@ -9,6 +9,8 @@ const ModalSearch: Modals = {
   botpermissions: ["SendMessages"],
   async execute(interaction, client) {
     if (!interaction.guild || !interaction.channel) return;
+    // Detecta el idioma preferido del usuario o servidor
+    const lang = interaction.locale || interaction.guild.preferredLocale || "es-ES";
     const query = interaction.fields.getTextInputValue("search_query").toLowerCase();
     const allCommands = Array.from(client.precommands.values());
 
@@ -23,11 +25,11 @@ const ModalSearch: Modals = {
       return interaction.reply({
         embeds: [
           new ErrorEmbed()
-            .setTitle("No Results Found")
+            .setTitle(client.t("help.noResultsTitle", { lng: lang }))
             .setDescription(
               [
-                `${client.getEmoji(interaction.guild.id, "error")} No commands found matching your search.`,
-                `Try using different keywords or check the command list.`,
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("help.noResultsDesc", { query, lng: lang })}`,
+                client.t("help.searchNoResultsHint", { lng: lang }),
               ].join("\n"),
             ),
         ],
@@ -36,11 +38,11 @@ const ModalSearch: Modals = {
     }
 
     const searchEmbed = new EmbedCorrect()
-      .setTitle(`Search Results for "${query}"`)
+      .setTitle(client.t("help.searchResultsTitle", { query, lng: lang }))
       .setColor("#7289DA")
-      .setDescription(`Found ${matchedCommands.length} matching commands`)
+      .setDescription(client.t("help.searchResultsDesc", { count: matchedCommands.length, lng: lang }))
       .addFields({
-        name: "Commands",
+        name: client.t("help.commands", { lng: lang }),
         value: matchedCommands
           .slice(0, 15)
           .map(
@@ -52,7 +54,11 @@ const ModalSearch: Modals = {
 
     if (matchedCommands.length > 15) {
       searchEmbed.setFooter({
-        text: `Showing 15 of ${matchedCommands.length} results. Refine your search for more precise results.`,
+        text: client.t("help.showingResults", {
+          shown: 15,
+          total: matchedCommands.length,
+          lng: lang,
+        }),
       });
     }
 

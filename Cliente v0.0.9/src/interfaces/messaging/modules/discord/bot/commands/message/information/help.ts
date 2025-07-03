@@ -8,6 +8,7 @@ import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
 import { MyDiscord } from "@/interfaces/messaging/modules/discord/client";
+import { Command } from "@messaging/modules/discord/structure/utils/builders";
 import { Precommand } from "@typings/modules/discord";
 import { config } from "@utils/config";
 import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
@@ -78,6 +79,28 @@ function createCommandEmbed(command: Precommand, prefix: string, client: MyDisco
       name: "Aliases",
       value: command.aliases.map((a) => `\`${a}\``).join(", "),
       inline: true,
+    });
+  }
+
+  if (command.nameLocalizations) {
+    const localizedNames = Object.entries(command.nameLocalizations)
+      .map(([lang, name]) => `**${lang}**: \`${name}\``)
+      .join("\n");
+    embed.addFields({
+      name: "Localized Names",
+      value: localizedNames || "No localized names available",
+      inline: false,
+    });
+  }
+
+  if (command.descriptionLocalizations) {
+    const localizedDescriptions = Object.entries(command.descriptionLocalizations)
+      .map(([lang, desc]) => `**${lang}**: ${desc}`)
+      .join("\n");
+    embed.addFields({
+      name: "Localized Descriptions",
+      value: localizedDescriptions || "No localized descriptions available",
+      inline: false,
     });
   }
 
@@ -171,9 +194,7 @@ const helpCommand: Precommand = {
       if (matchedCommands.length === 0) {
         return message.reply({
           embeds: [
-            new ErrorEmbed()
-              .setTitle(t("help.noResultsTitle"))
-              .setDescription(t("help.noResultsDesc", { query })),
+            new ErrorEmbed().setTitle(t("help.noResultsTitle")).setDescription(t("help.noResultsDesc", { query })),
           ],
         });
       }
@@ -252,9 +273,7 @@ const helpCommand: Precommand = {
           embeds: [
             new ErrorEmbed()
               .setTitle(t("help.notFoundTitle"))
-              .setDescription(
-                t("help.notFoundDesc", { arg: args[0], prefix }),
-              ),
+              .setDescription(t("help.notFoundDesc", { arg: args[0], prefix })),
           ],
         });
       }
@@ -279,7 +298,7 @@ const helpCommand: Precommand = {
     let currentPage = 0;
 
     // --- SELECTOR DE IDIOMA ---
-/*     const languageSelect = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    /*     const languageSelect = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("help_language_select")
         .setPlaceholder(t("help.languageSelectPlaceholder"))
@@ -326,8 +345,8 @@ const helpCommand: Precommand = {
           name: t("help.botStats"),
           value: stripIndent`
                         • **${t("help.servers")}:** ${client.guilds.cache.size}
-                        • **${t("help.commands")}:** ${client.precommands.size}
-                        • **${t("help.categories")}:** ${categories.length}
+                        • **${t("help.textCommands")}:** ${client.precommands.size}
+                        • **${t("help.slashCommands")}:** ${client.commands.size}
                         • **${t("help.ping")}:** ${client.ws.ping}ms
                     `,
           inline: true,
@@ -343,10 +362,28 @@ const helpCommand: Precommand = {
           inline: true,
         },
       )
-      .setFooter(
-        getPageFooter(1, categories.length + 1, prefix, message.guild.iconURL({ forceStatic: true }) as string, t),
+      .addFields(
+        {
+          name: t("help.textCommands"),
+          value: client.precommands.size
+            ? (Array.from(client.precommands.values()) as Precommand[])
+                .map((cmd) => `• \`${prefix}${cmd.name}\` - ${cmd.description}`)
+                .join("\n")
+            : t("help.noTextCommands"),
+          inline: false,
+        },
+        {
+          name: t("help.slashCommands"),
+          value: client.commands.size
+            ? (Array.from(client.commands.values()) as Command[])
+                .map((cmd) => `• </${cmd.structure.name}:${cmd.structure.name}> - ${cmd.structure.name_localizations}`)
+                .join("\n")
+            : t("help.noSlashCommands"),
+          inline: false,
+        },
       )
-      .setTitle(t("help.pageTitle", { page: 1, total: categories.length + 1 }));
+      .setFooter(getPageFooter(1, 1, prefix, message.guild.iconURL({ forceStatic: true }) as string, t))
+      .setTitle(t("help.pageTitle", { page: 1, total: 1 }));
 
     // Crear categoryEmbeds
     const categoryEmbeds = categories.map((category, index) => {
@@ -376,7 +413,9 @@ const helpCommand: Precommand = {
         .setColor("#5865F2")
         .setDescription(
           commands.length > 0
-            ? t("help.categoryDesc", { count: commands.length }) + "\n" + commands.map((cmd) => `• \`${cmd}\``).join("\n")
+            ? t("help.categoryDesc", { count: commands.length }) +
+                "\n" +
+                commands.map((cmd) => `• \`${cmd}\``).join("\n")
             : t("help.noCommandsInCategory"),
         )
         .setFooter(
@@ -404,7 +443,9 @@ const helpCommand: Precommand = {
             label: category,
             value: category,
             description: t("help.categoryOptionDesc", {
-              count: getCommandsFromFolder(`${config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands}${category}`).length,
+              count: getCommandsFromFolder(
+                `${config.modules.discord.configs.default + config.modules.discord.configs.paths.precommands}${category}`,
+              ).length,
             }),
             emoji: "📁",
           })),
@@ -413,11 +454,31 @@ const helpCommand: Precommand = {
 
     // Create navigation buttons
     const navButtonsRow1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setCustomId("help_prev").setLabel(t("help.prev")).setStyle(ButtonStyle.Secondary).setEmoji("⬅️"),
-      new ButtonBuilder().setCustomId("help_home").setLabel(t("help.home")).setStyle(ButtonStyle.Primary).setEmoji("🏠"),
-      new ButtonBuilder().setCustomId("help_next").setLabel(t("help.next")).setStyle(ButtonStyle.Secondary).setEmoji("➡️"),
-      new ButtonBuilder().setCustomId("help_jump").setLabel(t("help.jump")).setStyle(ButtonStyle.Secondary).setEmoji("🔢"),
-      new ButtonBuilder().setCustomId("help_search").setLabel(t("help.search")).setStyle(ButtonStyle.Success).setEmoji("🔍"),
+      new ButtonBuilder()
+        .setCustomId("help_prev")
+        .setLabel(t("help.prev"))
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("⬅️"),
+      new ButtonBuilder()
+        .setCustomId("help_home")
+        .setLabel(t("help.home"))
+        .setStyle(ButtonStyle.Primary)
+        .setEmoji("🏠"),
+      new ButtonBuilder()
+        .setCustomId("help_next")
+        .setLabel(t("help.next"))
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("➡️"),
+      new ButtonBuilder()
+        .setCustomId("help_jump")
+        .setLabel(t("help.jump"))
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("🔢"),
+      new ButtonBuilder()
+        .setCustomId("help_search")
+        .setLabel(t("help.search"))
+        .setStyle(ButtonStyle.Success)
+        .setEmoji("🔍"),
     );
 
     const navButtonsRow2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -427,7 +488,11 @@ const helpCommand: Precommand = {
         .setStyle(ButtonStyle.Danger)
         .setEmoji("⚙️")
         .setDisabled(!isOwner),
-      new ButtonBuilder().setCustomId("help_close").setLabel(t("help.close")).setStyle(ButtonStyle.Danger).setEmoji("❌"),
+      new ButtonBuilder()
+        .setCustomId("help_close")
+        .setLabel(t("help.close"))
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji("❌"),
     );
 
     // Send the initial message with conditional components
@@ -622,8 +687,6 @@ const helpCommand: Precommand = {
             });
           }
         }
-
-
       } catch (error) {
         console.error("Error in select menu interaction:", error);
         await interaction
@@ -642,11 +705,7 @@ const helpCommand: Precommand = {
       helpMessage
         .edit({
           components: [],
-          embeds: [
-            new EmbedBuilder()
-              .setDescription(t("help.menuExpired"))
-              .setColor("#808080"),
-          ],
+          embeds: [new EmbedBuilder().setDescription(t("help.menuExpired")).setColor("#808080")],
         })
         .catch(() => {});
     };
