@@ -1,6 +1,6 @@
 {
   "name": "nebura-assistent",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "main": "src/main.js",
   "scripts": {
     "lint": "eslint --ext .ts .",
