@@ -1,0 +1,773 @@
+/// ------------------------------------------------------------
+/// GENERADORES Y FUENTES DE DATOS
+/// ------------------------------------------------------------
+/// [Prisma Generators](https://www.prisma.io/docs/concepts/components/prisma-schema/generators)
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["metrics"]
+}
+
+/// [Prisma Datasource](https://www.prisma.io/docs/concepts/components/prisma-schema/datasources)
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+/// ------------------------------------------------------------
+/// MODELO PRINCIPAL MANAGER
+/// ------------------------------------------------------------
+model Client {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId /// Identificador único del cliente.
+  clientId    String   @unique /// ID único del cliente.
+  name        String /// Nombre del cliente.
+  version     String
+  maintenance Boolean  @default(false) /// Indica si el cliente está en mantenimiento.
+  webhookUrl  String? /// URL del webhook para notificaciones.
+  modules     Modules? @relation(fields: [modulesId], references: [id]) /// Módulos opcionales del cliente.
+  createdAt   DateTime @default(now()) /// Fecha de creación del cliente.
+  updatedAt   DateTime @updatedAt /// Fecha de última actualización del cliente.
+  modulesId   String?  @db.ObjectId
+  language    String   @default("en-US")
+}
+
+/// ------------------------------------------------------------
+/// MODELOS PRINCIPALES DE LA API
+/// ------------------------------------------------------------
+
+/// Modelo principal de usuario de la API.
+/// [Documentación de modelos](https://www.prisma.io/docs/concepts/components/prisma-schema/models)
+model UserAPI {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId /// Identificador único del usuario.
+  name        String /// Nombre del usuario.
+  email       String       @unique /// Email único.
+  password    String /// Contraseña hasheada.
+  discord     DiscordData? /// Datos de Discord opcionales.
+  role        String       @default("user") /// Rol del usuario (por defecto "user").
+  transcripts Json? /// Transcripciones relacionadas.
+  createdAt   DateTime     @default(now()) /// Fecha de creación.
+  updatedAt   DateTime     @updatedAt /// Fecha de última actualización.
+  blockedIPs  BlockedIP[]  @relation("BlockedUserRelation") /// IPs bloqueadas asociadas.
+  tasks       Task[]       @relation("UserTasks") /// Tareas asociadas.
+}
+
+/// Licencias asociadas a los usuarios.
+/// [Relaciones en Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/relations)
+model License {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId /// ID único.
+  key          String      @unique /// Clave de la licencia.
+  type         LicenseType /// Tipo de licencia (enum).
+  userId       String /// ID del usuario propietario.
+  adminId      String /// ID del administrador asignador.
+  hwid         String[] /// Lista de HWIDs asociados.
+  requestLimit Int         @default(1000) /// Límite de peticiones.
+  requestCount Int         @default(0) /// Peticiones realizadas.
+  validUntil   DateTime /// Fecha de expiración.
+  lastUsedIp   String? /// Última IP usada.
+  lastUsedHwid String? /// Último HWID usado.
+  ips          String[]    @default([]) /// Lista de IPs asociadas.
+  maxIps       Int?        @default(5) /// Máximo de IPs permitidas.
+  createdAt    DateTime    @default(now()) /// Fecha de creación.
+  updatedAt    DateTime    @updatedAt /// Fecha de actualización.
+}
+
+model BlockedIP {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  ipAddress   String    @unique
+  blockedUser UserAPI   @relation("BlockedUserRelation", fields: [blockedBy], references: [id])
+  blockedBy   String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+  reason      String?
+  isActive    Boolean   @default(true)
+}
+
+model FailedAttempt {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  ipAddress   String
+  attemptTime DateTime @default(now())
+  userAgent   String?
+  licenseKey  String?
+
+  @@index([ipAddress])
+  @@index([attemptTime])
+}
+
+model RateLimitViolation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  ipAddress     String
+  endpoint      String
+  violationTime DateTime @default(now())
+
+  @@index([ipAddress])
+  @@index([violationTime])
+}
+
+/// ------------------------------------------------------------
+/// MODELOS DE TAREAS
+/// ------------------------------------------------------------
+model Task {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  dueDate     String
+  status      String    @default("pending")
+  priority    String    @default("medium")
+  tags        String[]
+  reminder    Json?
+  recurrence  Json?
+  autoDelete  String    @default("never") /// Opciones: "never", "afterCompletion", "afterDueDate"
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  completedAt DateTime? @map("completed_at")
+  UserAPI     UserAPI?  @relation("UserTasks", fields: [userAPIId], references: [id])
+  userAPIId   String?   @db.ObjectId
+
+  @@map("tasks")
+}
+
+/// ------------------------------------------------------------
+/// MODELOS DE DISCORD
+/// ------------------------------------------------------------
+model MyGuild {
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId         String  @unique
+  prefix          String? @default("!")
+  discordId       String
+  rooms           String?
+  roomcategory    String?
+  nsfwChannel     String?
+  commandUsage    Json? // { commandName: usageCount }
+  channelActivity Json? // { channelId: activityCount }
+  lenguage        String  @default("en-US")
+
+  bans BanUser[]
+
+  eventlogs EventLogs?
+  economy   Economy?
+  captcha   Captcha?
+
+  membercount_channel1 String?
+  membercount_message1 String?
+  membercount_channel2 String?
+  membercount_message2 String?
+  membercount_channel3 String?
+  membercount_message3 String?
+  membercount_channel4 String?
+  membercount_message4 String?
+  membercount_channel5 String?
+  membercount_message5 String?
+
+  suggestChannel String?
+  embedColor     String?
+  footerText     String?
+  approveEmoji   String?
+  denyEmoji      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Giveaway {
+  id           String                @id @default(auto()) @map("_id") @db.ObjectId
+  messageId    String                @unique
+  channelId    String
+  guildId      String
+  prize        String
+  winnerCount  Int
+  endsAt       DateTime
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  hostedBy     String
+  requirements GiveawayRequirements?
+}
+
+model GiveawayRequirements {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  giveawayId    String   @unique @db.ObjectId
+  giveaway      Giveaway @relation(fields: [giveawayId], references: [id])
+  requiredRoles String[]
+  minAccountAge Int?
+  minMessages   Int?
+}
+
+model BanUser {
+  id        String    @id @default(cuid()) @map("_id")
+  guildId   String    @db.ObjectId
+  guild     MyGuild   @relation(fields: [guildId], references: [id])
+  userId    String
+  banReason String?
+  banTime   DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model UserWarn {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String
+  userId     String
+  warnReason String
+  warnDate   String
+  moderator  String
+}
+
+model ServerModlog {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId   String @unique
+  channelId String
+
+  @@map("serverModlogs")
+}
+
+model Reminder {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  guildId   String
+  message   String
+  remindAt  DateTime
+  createdAt DateTime @default(now())
+  isSent    Boolean  @default(false)
+
+  @@index([remindAt])
+}
+
+model Command {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId        String
+  name           String
+  embed          Boolean  @default(false)
+  embedColor     String?  @default("Red")
+  embedTitle     String?
+  embedFooter    String?
+  embedImage     String?
+  embedThumbnail String?
+  embedAuthor    String?
+  buttons        Json? // Array of { label: String, style: String, customId: String }
+  fields         Json? // Array of { name: String, value: String, inline: Boolean }
+  file           String?
+  usageCount     Int      @default(0)
+  description    String?
+  response       String?
+  isEnabled      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model CommandCategory {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String      @unique
+  description String?
+  enabled     Boolean     @default(true)
+  commands    Component[]
+}
+
+model Component {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String
+  name       String
+  categoryId String?          @db.ObjectId
+  category   CommandCategory? @relation(fields: [categoryId], references: [id])
+}
+
+/// ------------------------------------------------------------
+/// MODELOS DE ECONOMÍA
+/// ------------------------------------------------------------
+model Economy {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  guildId        String  @unique @db.ObjectId
+  guild          MyGuild @relation(fields: [guildId], references: [id])
+  currencyName   String
+  currencyEmoji  String
+  currencyPerMsg String
+}
+
+model UserInventory {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId         String
+  userId          String
+  itemIdentifier  String
+  itemName        String
+  itemDescription String
+  itemPrice       String
+  role            String
+  money           Float
+}
+
+model ShopEconomy {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId String
+
+  itemName        String
+  itemDescription String
+  itemPrice       String
+  itemIdentifier  String @unique
+
+  role  String
+  money Float
+}
+
+model UserEconomy {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  guildId      String
+  userId       String
+  messageCount Int?   @default(0)
+
+  balance   Float @default(0)
+  lostduels Int?  @default(0)
+  wonduels  Int?  @default(0)
+
+  userId_guildId String @unique(map: "userId_guildId")
+
+  job          String?
+  jobStartDate DateTime?
+  lastWorkDate DateTime?
+  jobCooldown  DateTime?
+
+  // NUEVAS COLUMNAS
+  jobRank    Int?  @default(1)
+  skills     Json? // { jobName: level }
+  reputation Int?  @default(0)
+  prestige   Int?  @default(0)
+}
+
+model UserLoan {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String
+  guildId  String
+  amount   Float
+  interest Float
+  takenAt  DateTime @default(now())
+  dueDate  DateTime
+  paid     Boolean  @default(false)
+}
+
+/// ------------------------------------------------------------
+/// MODELOS DE NIVELES DE DISCORD
+/// ------------------------------------------------------------
+model UserDiscord {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique
+  guilds Int?   @default(0)
+}
+
+model LevelConfig {
+  id             String  @id @default(cuid()) @map("_id")
+  guildId        String  @unique
+  channelId      String?
+  status         Boolean
+  bonusChannels  Json? // Array of { channelId: String, multiplier: Number }
+  maxLevel       Int     @default(100)
+  weeklyRewards  Json? // <-- agrega esto
+  monthlyRewards Json? // <-- y esto/*  */
+}
+
+model UserLevel {
+  id            String    @id @default(cuid()) @map("_id")
+  guildId       String
+  userId        String
+  xp            Int
+  level         Int
+  prestige      Int       @default(0)
+  weeklyXp      Int       @default(0)
+  monthlyXp     Int       @default(0)
+  totalMessages Int       @default(0)
+  lastActive    DateTime?
+  background    String?
+  barColor      String?
+  borderColor   String?
+  blur          Int?
+
+  streaks         Streak?
+  quests          UserQuests?       @relation("UserLevelQuests")
+  achievements    UserAchievements? @relation("UserLevelAchievements")
+  prestigeHistory PrestigeHistory[] @relation("UserLevelToPrestigeHistory")
+
+  @@unique([guildId, userId])
+}
+
+model Streak {
+  id            String @id @default(cuid()) @map("_id")
+  userId        String
+  guildId       String
+  lastActive    String // YYYY-MM-DD
+  currentStreak Int    @default(1)
+  longestStreak Int    @default(1)
+
+  userLevel UserLevel? @relation(fields: [userId, guildId], references: [userId, guildId])
+
+  @@unique([userId, guildId])
+}
+
+model UserQuests {
+  id              String @id @default(cuid()) @map("_id")
+  userId          String
+  guildId         String
+  dailyProgress   Json // { questId: progress }
+  dailyCompleted  Json // { questId: boolean }
+  weeklyProgress  Json
+  weeklyCompleted Json
+
+  userLevel UserLevel? @relation("UserLevelQuests", fields: [userId, guildId], references: [userId, guildId])
+
+  @@unique([userId, guildId])
+}
+
+model UserAchievements {
+  id           String   @id @default(cuid()) @map("_id")
+  userId       String
+  guildId      String
+  achievements String[] // Array of achievement IDs
+
+  userLevel UserLevel? @relation("UserLevelAchievements", fields: [userId, guildId], references: [userId, guildId])
+
+  @@unique([userId, guildId])
+}
+
+model PrestigeHistory {
+  id            String   @id @default(cuid()) @map("_id")
+  userId        String
+  guildId       String
+  date          DateTime
+  levelAchieved Int
+
+  userLevel UserLevel @relation("UserLevelToPrestigeHistory", fields: [userId, guildId], references: [userId, guildId])
+
+  @@index([userId, guildId])
+}
+
+model WeeklyLeaderboard {
+  id        String   @id @default(cuid()) @map("_id")
+  guildId   String
+  week      Int // Week number of the year
+  data      Json // Top users data
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, week])
+}
+
+model MonthlyLeaderboard {
+  id        String   @id @default(cuid()) @map("_id")
+  guildId   String
+  month     Int // 1-12
+  year      Int
+  data      Json // Top users data
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, month, year])
+}
+
+model LeaderboardReset {
+  id        String @id @default(cuid()) @map("_id")
+  guildId   String @unique
+  lastWeek  Int
+  lastMonth Int
+}
+
+/// ------------------------------------------------------------
+/// OTROS MODELOS
+/// ------------------------------------------------------------
+model Modules {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  whatsapp   WhatsApp? @relation(fields: [whatsappId], references: [id])
+  whatsappId String?   @unique @db.ObjectId
+  discord    Discord?  @relation(fields: [discordId], references: [id])
+  discordId  String?   @unique @db.ObjectId
+  Client     Client[]
+}
+
+model WhatsApp {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  session   String   @unique
+  createdAt DateTime @default(now())
+  language  String   @default("en-US")
+  updatedAt DateTime
+  Modules   Modules?
+}
+
+model Discord {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  avatar       String   @default("https://i.pinimg.com/736x/38/c2/83/38c283baebbc461a062a2992ae438fbe.jpg")
+  username     String   @default("Nebura")
+  activity     Json     @default("{\"name\": \"Nebura AI Client\", \"url\": \"https://www.hiroshi-dev.me\", \"status\": \"idle\"}")
+  clientId     String   @unique
+  language     String   @default("en-US")
+  clientSecret String
+  token        String
+  logconsole   Boolean  @default(false)
+  errorlog     Boolean  @default(false)
+  webhookURL   String?
+  logchannel   String?
+  owners       String[] @default([])
+  createdAt    DateTime @default(now())
+  modules      Modules?
+}
+
+model Captcha {
+  id        String  @id @map("_id") @db.ObjectId
+  isEnabled Boolean @default(false)
+  role      String
+  guild     MyGuild @relation(fields: [id], references: [id])
+}
+
+model Review {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId     String
+  channelId   String
+  messageId   String?  // For tracking the review message
+  customId    String   @unique // Custom ID for each review
+  stars       Int      // Rating from 1-5 stars
+  content     String   // Review content
+  targetId    String   // User ID of who's being reviewed
+  authorId    String   // User ID of who wrote the review
+  anonymous   Boolean  @default(false) // If review is anonymous
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([guildId, customId])
+}
+
+model ReviewConfig {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId          String   @unique
+  channelId        String   // Where reviews are posted
+  requiredRoleId   String?  // Role required to submit reviews
+  minReviewLength  Int      @default(10) // Minimum characters for review
+  maxReviewLength  Int      @default(500) // Maximum characters for review
+  allowAnonymous   Boolean  @default(true) // If anonymous reviews are allowed
+  cooldown         Int      @default(0) // Cooldown in seconds between reviews
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+model Suggestion {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  suggestId  String
+  messageId  String   @unique
+  content    String
+  imageUrl   String?
+  upvotes    Int      @default(0)
+  downvotes  Int      @default(0)
+  voters     String[] @default([]) // Array of user IDs who upvoted
+  downvoters String[] @default([]) // Array of user IDs who downvoted
+  authorId   String
+  guildId    String
+  status     String
+  lastVoter  String?
+  resolvedBy String?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime? @map("resolved_at")
+}
+
+model ReactionRole {
+  id           String   @id @default(cuid()) @map("_id")
+  guildId      String
+  messageId    String
+  removeOthers Boolean
+  parameters   Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([guildId])
+  @@index([messageId])
+}
+
+model Metrics {
+  id                       String   @id @default(auto()) @map("_id") @db.ObjectId
+  endpoint_clientId_system String   @unique
+  endpoint                 String
+  clientId                 String?
+  system                   String
+  requests                 Int      @default(0)
+  errors                   Int      @default(0)
+  latency                  Float    @default(0.0) // Promedio de latencia en ms
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([endpoint, clientId, system])
+}
+
+model FileMetadata {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String
+  originalName String
+  fileName     String
+  title        String
+  description  String?
+  uploadedAt   DateTime @default(now())
+  uploadedBy   String
+  path         String
+  size         Int
+  mimeType     String
+  downloadUrl  String
+
+  @@map("file_metadata")
+}
+
+model sharedLinkCDN {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  fileId       String
+  url          String
+  expiresAt    DateTime? // Puede ser null si no expira
+  maxDownloads Int? // Puede ser null si no hay límite
+  downloads    Int       @default(0)
+  password     String? // Puede ser null si no tiene contraseña
+}
+
+// ------------------------------------------------------------
+// MODELOS DE TICKETS WEB
+// ------------------------------------------------------------
+
+model TicketUser {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String
+  guildId       String? //para los sistemas de discord
+  channelId     String? //para los sistemas de discord
+  ticketId      String          @unique
+  messageId     String? //para los sistemas de discord
+  status        TicketStatus    @default(OPEN)
+  assignedTo    DiscordData?
+  messages      TicketMessage[]
+  userName      String?
+  userAvatar    String?
+  reason        String?
+  closedBy      String? // ID del usuario que cerró el ticket
+  closedAt      DateTime? // Fecha de cierre del ticket
+  notes         String[]        @default([]) // Array de notas del ticket
+  attachments   String[]        @default([]) // Array de URLs de archivos adjuntos
+  userDiscordId String? // ID del usuario de Discord asociado al ticket
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([userId])
+}
+
+model TicketMessage {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  ticketId     String
+  senderId     String
+  senderName   String
+  senderAvatar String?
+  isAdmin      Boolean    @default(false)
+  content      String
+  timestamp    DateTime   @default(now())
+  ticket       TicketUser @relation(fields: [ticketId], references: [ticketId])
+}
+
+//-------------------------------------------------------------
+// MODELOS DE TICKETS DEL SISTEMA
+//-------------------------------------------------------------
+
+model TicketSystem {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId    String
+  channelId  String
+  messageId  String
+  category   String
+  transcript String
+  options    Json // Opciones del sistema de tickets
+  content    String // Contenido del mensaje de creación de tickets
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Youtube {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  serverId   String?
+  serverName String?
+  youtubers  Youtuber[]
+}
+
+model Youtuber {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  youtubeId    String?  @unique @db.ObjectId
+  guildId      String?
+  name         String?
+  userId       String?
+  lastVideo    String?
+  lastVideoUrl String?
+  channelId    String?
+  channelName  String?
+  url          String?
+  message      String   @default("Our friend **{user}** made a new post!")
+  Youtube      Youtube? @relation(fields: [youtubeId], references: [id])
+}
+
+/// ------------------------------------------------------------
+/// ENUMS (TIPOS ENUMERADOS)
+/// ------------------------------------------------------------
+/// [Enums en Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/enums)
+enum TicketStatus {
+  OPEN
+  CLOSED
+  PENDING
+}
+
+enum LicenseType {
+  FREE
+  BASIC
+  PREMIUM
+  ENTERPRISE
+  CUSTOM
+}
+
+enum LicenseStatus {
+  ACTIVE
+  EXPIRED
+  BANNED
+  REVOKED
+}
+
+/// ------------------------------------------------------------
+/// TIPOS PERSONALIZADOS
+/// ------------------------------------------------------------
+/// [Tipos personalizados en Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema/unsupported-and-custom-types)
+type DiscordData {
+  userId     String?
+  userAvatar String?
+  userName   String?
+}
+
+type EventLogs {
+  enabled   Boolean
+  channelId String?
+  events    String[]
+}
+
+/// ------------------------------------------------------------
+/// MODELOS DE TRANSCRIPCIONES Y MENSAJES GLOBALES
+/// ------------------------------------------------------------
+model Transcript {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  type         String // 'ticket' | 'chat'
+  referenceId  String // ticketId o chatId
+  participants String[]
+  content      Json // Mensajes serializados
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([participants])
+}
+
+model GlobalChatMessage {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String
+  username    String
+  avatar      String?
+  content     String
+  attachments String[] @default([])
+  createdAt   DateTime @default(now())
+}
+
+model OnlineUser {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String   @unique
+  username String
+  avatar   String?
+  lastSeen DateTime @default(now())
+}
+
+/// ------------------------------------------------------------
+/// FIN DEL ESQUEMA PRISMA
+/// ------------------------------------------------------------
+
+/// Más información y ejemplos en la [documentación oficial de Prisma](https://www.prisma.io/docs/concepts/components/prisma-schema).

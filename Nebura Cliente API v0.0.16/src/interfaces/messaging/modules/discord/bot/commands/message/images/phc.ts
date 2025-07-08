@@ -1,0 +1,93 @@
+import { AttachmentBuilder, ChannelType } from "discord.js";
+
+import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { Precommand } from "@typings/modules/discord";
+import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+
+const phComment: Precommand = {
+  name: "ph-comment",
+  nameLocalizations: {
+    "es-ES": "ph-comment",
+    "en-US": "ph-comment",
+  },
+  description: "The command to create a PornHub comment image.",
+  descriptionLocalizations: {
+    "es-ES": "El comando para crear una imagen de comentario de PornHub.",
+    "en-US": "The command to create a PornHub comment image.",
+  },
+  examples: ["ph-comment @user I love this image!"],
+  nsfw: false,
+  owner: false,
+  cooldown: 5,
+  category: "images",
+  aliases: ["phc", "ph-comments"],
+  botpermissions: ["SendMessages"],
+  permissions: ["SendMessages"],
+  async execute(client, message, args, prefix) {
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
+    const lang = message.guild?.preferredLocale || "es-ES";
+    const user = message.mentions.users.first() || message.author;
+    const image = user.displayAvatarURL({
+      size: 128,
+      extension: "png",
+      forceStatic: true,
+    });
+
+    const comment = args.slice(1).join(" ");
+    if (!comment)
+      return message.channel.send({
+        embeds: [
+          new ErrorEmbed().setDescription(
+            [
+              `${client.getEmoji(message.guild.id, "error")} ${client.t("discord:phc.noComment", { lng: lang })}`,
+              `**${client.t("discord:phc.usage", { prefix, lng: lang })}**`,
+            ].join("\n"),
+          ),
+        ],
+      });
+
+    const background = await loadImage("./assets/images/ph-comment.png");
+    const targetImage = await loadImage(image.split("?")[0]);
+    const canvas = createCanvas(background.width, background.height);
+    const context = canvas.getContext("2d");
+
+    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+    context.save();
+    context.beginPath();
+    context.arc(25 + 25, 130 + 25, 25, 0, Math.PI * 2, true);
+    context.closePath();
+    context.clip();
+    context.drawImage(targetImage, 25, 130, 50, 50);
+    context.restore();
+
+    context.font = "bold 16px Arial";
+    context.fillStyle = "#F28705";
+
+    const usernameWidth = context.measureText(user.username).width;
+
+    context.fillText(user.username, 85, 160);
+
+    context.font = "16px Arial";
+    context.fillStyle = "#969696";
+    context.fillText(client.t("discord:phc.timeAgo", { lng: lang }), 85 + usernameWidth + 10, 160);
+
+    context.font = "20px Arial";
+    context.fillStyle = "#c6c6c6";
+    context.fillText(comment, 25, 215);
+
+    const file = new AttachmentBuilder(canvas.toBuffer("image/png"), {
+      name: "ph-comment.png",
+    });
+
+    const embed = new EmbedCorrect()
+      .setImage("attachment://ph-comment.png")
+      .setColor("Random")
+      .setTitle(client.t("discord:phc.title", { lng: lang }))
+      .setTimestamp();
+
+    await message.delete();
+    return await message.channel.send({ embeds: [embed], files: [file] });
+  },
+};
+export = phComment;
