@@ -1,7 +1,12 @@
 import axios from "axios";
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder,
-	StringSelectMenuBuilder
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  ComponentType,
+  EmbedBuilder,
+  StringSelectMenuBuilder,
 } from "discord.js";
 
 import { NPMPackage, Precommand } from "@typings/modules/discord";
@@ -174,7 +179,8 @@ const commandNpm: Precommand = {
             value: version,
             description: client.t("discord:npmv.releasedOn", {
               date:
-                pkgData.time?.[version] || client.t("discord:npmv.unknownDate", { lng: message.guild?.preferredLocale }),
+                pkgData.time?.[version] ||
+                client.t("discord:npmv.unknownDate", { lng: message.guild?.preferredLocale }),
               lng: message.guild?.preferredLocale,
             }),
             default: version === pkgData["dist-tags"]?.latest,
@@ -338,4 +344,4 @@ const commandNpm: Precommand = {
   },
 };
 
-export = commandNpm;
+export default commandNpm;

@@ -41,4 +41,4 @@ const commandServerInfo: Precommand = {
   },
 };
 
-export = commandServerInfo;
+export default commandServerInfo;

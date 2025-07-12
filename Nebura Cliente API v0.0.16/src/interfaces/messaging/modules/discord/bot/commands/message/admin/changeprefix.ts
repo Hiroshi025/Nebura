@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } from "discord.js";
 
 import { main } from "@/main";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const ChangePrefixCommand: Precommand = {
   name: "changeprefix",
@@ -185,4 +185,4 @@ const ChangePrefixCommand: Precommand = {
   },
 };
 
-export = ChangePrefixCommand;
+export default ChangePrefixCommand;

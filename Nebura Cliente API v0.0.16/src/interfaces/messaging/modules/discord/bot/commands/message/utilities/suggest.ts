@@ -6,8 +6,8 @@ import {
 import { main } from "@/main";
 import { clientID } from "@/shared/class/DB";
 import { MyDiscord } from "@messaging/modules/discord/client";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const suggestCommand: Precommand = {
   name: "suggest",
@@ -199,4 +199,4 @@ async function sendSuggestion(_client: MyDiscord, message: Message<boolean>, sug
   }
 }
 
-export = suggestCommand;
+export default suggestCommand;

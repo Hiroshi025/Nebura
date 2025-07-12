@@ -1,6 +1,6 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionFlagsBits,
-	SlashCommandBuilder, StringSelectMenuBuilder, TextChannel
+	ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle, ChannelType,
+	EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, TextChannel
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
@@ -21,6 +21,7 @@ export default new Command(
    */
   new SlashCommandBuilder()
     .setName("embed-creator")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "creador-embed",
     })

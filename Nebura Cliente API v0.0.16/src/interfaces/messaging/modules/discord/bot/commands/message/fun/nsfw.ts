@@ -1,8 +1,8 @@
 import { ChannelType, codeBlock } from "discord.js";
 import { Nsfw } from "eternal-support";
 
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const nsfwCommands: Precommand = {
   name: "nsfw",
@@ -109,4 +109,4 @@ const nsfwCommands: Precommand = {
     return message.channel.send({ embeds: [embed] });
   },
 };
-export = nsfwCommands;
+export default nsfwCommands;

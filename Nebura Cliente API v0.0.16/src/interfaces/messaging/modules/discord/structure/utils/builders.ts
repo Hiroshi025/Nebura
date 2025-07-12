@@ -153,3 +153,15 @@ export class Command {
     this.maintenance = maintenance;
   }
 }
+
+/**
+ * Helper to create an Event with a simple object syntax.
+ * @param params - Object with `data` (must include `name`) and `run` function.
+ */
+export function createEvent<K extends keyof ClientEvents>(params: {
+  data: { name: K };
+  run: (...args: ClientEvents[K]) => void;
+  once?: boolean;
+}): Event<K> {
+  return new Event(params.data.name, params.run, params.once);
+}

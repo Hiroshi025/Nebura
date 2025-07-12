@@ -1,8 +1,8 @@
 import { AttachmentBuilder, ChannelType } from "discord.js";
 
 import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const fbiCommand: Precommand = {
   name: "fbi",
@@ -64,4 +64,4 @@ const fbiCommand: Precommand = {
     return await message.channel.send({ embeds: [embed], files: [file] });
   },
 };
-export = fbiCommand;
+export default fbiCommand;

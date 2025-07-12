@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import { randomUUID } from "crypto";
 import { ClientEvents, REST, Routes } from "discord.js";
 import { Discord } from "eternal-support";
 import { readdirSync } from "fs";
@@ -270,7 +269,7 @@ export class DiscordHandler {
           await this.readComponentsRecursively(fullPath, stats, loadedFiles, failedFiles);
         } else if (item.name.endsWith(".ts") || item.name.endsWith(".js")) {
           stats.files++;
-          await this.loadPrecommandFile(fullPath, stats, loadedFiles, failedFiles);
+          //await this.loadPrecommandFile(fullPath, stats, loadedFiles, failedFiles);
         }
       }),
     );
@@ -285,7 +284,7 @@ export class DiscordHandler {
    * @param failedFiles - Array to collect failed file info.
    * @private
    */
-  private async loadPrecommandFile(
+  /*   private async loadPrecommandFile(
     filePath: string,
     stats: { files: number; loaded: number; code: number },
     loadedFiles: string[] = [],
@@ -309,9 +308,7 @@ export class DiscordHandler {
         loadedFiles.push(filePath);
 
         // --- REGISTRO EN LA BASE DE DATOS ---
-        // 1. Determinar la categoría
         const categoryName = commandModule.category || "General";
-        // 2. Buscar o crear la categoría
         let category = await main.prisma.commandCategory.findUnique({ where: { name: categoryName } });
         if (!category) {
           category = await main.prisma.commandCategory.create({
@@ -322,10 +319,7 @@ export class DiscordHandler {
             },
           });
         }
-        // 3. Registrar el componente (Precommand) en la colección Components
-        // Puedes usar un guildId por defecto si es global, por ejemplo "global"
         const guildId = "global";
-        // Busca si ya existe el componente
         let component = await main.prisma.component.findFirst({
           where: { name: commandModule.name, guildId },
         });
@@ -338,7 +332,6 @@ export class DiscordHandler {
             },
           });
         } else {
-          // Si ya existe, asegúrate de que la categoría esté actualizada
           await main.prisma.component.update({
             where: { id: component.id },
             data: { categoryId: category.id },
@@ -349,19 +342,42 @@ export class DiscordHandler {
       failedFiles.push({ file: filePath, error: error.message || error });
       logWithLabel("error", `Failed to load precommand ${filePath}: ${error}`);
     }
-  }
+  } */
 
   /**
-   * Deploys slash commands to Discord's API.
+   * Deploys slash commands to Discord's API only if there are changes.
+   * Also caches the commands in ./commands.json.
    * @throws {Error} If deployment fails.
    */
   public async deployCommands(): Promise<void> {
     const startTime = performance.now();
-    const commands = [...this.client.commands.values()].map((cmd) => cmd.structure);
+    const commands = [...this.client.commands.values()].map((cmd) => cmd.structure.toJSON?.() ?? cmd.structure);
+    const cachePath = path.resolve("./commands.json");
+
+    // Leer el cache si existe
+    let cachedCommands: any[] = [];
+    try {
+      const cacheContent = await fs.readFile(cachePath, "utf8");
+      cachedCommands = JSON.parse(cacheContent);
+    } catch {
+      // No existe el archivo, se considera vacío
+      cachedCommands = [];
+    }
+
+    // Comparar comandos actuales con el cache
+    const isEqual = (a: any[], b: any[]) => JSON.stringify(a) === JSON.stringify(b);
+
+    if (isEqual(commands, cachedCommands)) {
+      logWithLabel("info", "The commands are identical to the cached version. Skipping deployment.");
+      return;
+    }
 
     try {
       await this.rest.put(Routes.applicationCommands(this.settings.id), { body: commands });
       const duration = Math.round(performance.now() - startTime);
+
+      // Guardar el nuevo cache
+      await fs.writeFile(cachePath, JSON.stringify(commands, null, 2), "utf8");
 
       logWithLabel(
         "info",

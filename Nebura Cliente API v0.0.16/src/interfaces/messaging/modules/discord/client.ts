@@ -231,7 +231,6 @@ export class MyDiscord extends Client {
       }
 
       if (this.user.verified === true) return;
-
       this.user.setUsername(data.username);
       this.user.setAvatar(data.avatar);
     });

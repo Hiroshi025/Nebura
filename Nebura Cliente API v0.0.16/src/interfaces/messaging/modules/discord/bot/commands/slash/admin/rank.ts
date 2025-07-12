@@ -1,15 +1,17 @@
 import { Profile } from "discord-arts";
 import {
-	AttachmentBuilder, GuildMember, PermissionFlagsBits, SlashCommandBuilder
+	ApplicationIntegrationType, AttachmentBuilder, GuildMember, PermissionFlagsBits,
+	SlashCommandBuilder
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("rank")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "rank",
     })
@@ -644,7 +646,9 @@ export default new Command(
           embeds: [
             new ErrorEmbed()
               .setColor("Red")
-              .setDescription(`${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.statusRequired", {}, lang)}`),
+              .setDescription(
+                `${client.getEmoji(interaction.guild.id, "error")} ${client.t("discord:rank.statusRequired", {}, lang)}`,
+              ),
           ],
         });
       }

@@ -1,6 +1,6 @@
 import { main } from "@/main";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Modals } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const modalLogsEvents: Modals = {
   id: "button-enabled-logevents-modal",
@@ -71,4 +71,4 @@ const modalLogsEvents: Modals = {
   },
 };
 
-export = modalLogsEvents;
+export default modalLogsEvents;

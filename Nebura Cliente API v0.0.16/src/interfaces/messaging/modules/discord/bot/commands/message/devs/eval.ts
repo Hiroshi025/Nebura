@@ -3,10 +3,7 @@ import { performance } from "perf_hooks";
 import { inspect } from "util";
 
 import {
-  createDebugInfo,
-  parseInput,
-  sendError,
-  sendResponse,
+	createDebugInfo, parseInput, sendError, sendResponse
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { logWithLabel } from "@/shared/utils/functions/console";
 import { Precommand } from "@typings/modules/discord";
@@ -111,4 +108,4 @@ const EvalCommand: Precommand = {
   },
 };
 
-export = EvalCommand;
+export default EvalCommand;

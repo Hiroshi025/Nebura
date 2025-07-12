@@ -21,8 +21,7 @@ const commandUserInfo: Precommand = {
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(client, message, args) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     // Obtener el usuario objetivo
     const targetUser = await await getTargetUserv2(message, args);
@@ -66,4 +65,4 @@ const commandUserInfo: Precommand = {
   },
 };
 
-export = commandUserInfo;
+export default commandUserInfo;

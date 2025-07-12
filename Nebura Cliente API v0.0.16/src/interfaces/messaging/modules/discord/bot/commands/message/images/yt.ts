@@ -1,8 +1,8 @@
 import { AttachmentBuilder, ChannelType } from "discord.js";
 
 import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const ytCommand: Precommand = {
   name: "yt-comment",
@@ -88,12 +88,10 @@ const ytCommand: Precommand = {
       name: "yt-comment.png",
     });
 
-    const embed = new EmbedCorrect()
-      .setImage("attachment://yt-comment.png")
-      .setColor("Random");
+    const embed = new EmbedCorrect().setImage("attachment://yt-comment.png").setColor("Random");
 
     await message.delete();
     return await message.channel.send({ embeds: [embed], files: [file] });
   },
 };
-export = ytCommand;
+export default ytCommand;

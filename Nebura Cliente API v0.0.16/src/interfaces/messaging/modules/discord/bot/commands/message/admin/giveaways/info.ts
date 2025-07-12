@@ -49,5 +49,5 @@ const GiveawayInfo: Precommand = {
   },
 };
 
-export = GiveawayInfo;
+export default GiveawayInfo;
  */

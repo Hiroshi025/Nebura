@@ -6,8 +6,8 @@ import {
 
 import emojis from "@config/json/emojis.json";
 import { Pagination } from "@discordx/pagination";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const mcblockCommand: Precommand = {
   name: "mcblock",
@@ -242,4 +242,4 @@ async function showBlockDetails(message: any, block: any, blocks: any[], t: any)
 
 // (Removed unused handleBlockInteractions function)
 
-export = mcblockCommand;
+export default mcblockCommand;

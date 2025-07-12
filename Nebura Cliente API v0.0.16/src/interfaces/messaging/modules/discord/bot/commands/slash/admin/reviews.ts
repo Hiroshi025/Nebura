@@ -1,17 +1,18 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ModalBuilder,
-	PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle
+	ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle,
+	ChatInputCommandInteraction, ModalBuilder, PermissionFlagsBits, SlashCommandBuilder,
+	StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder, TextInputStyle
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
 import { MyDiscord } from "@messaging/modules/discord/client";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("review")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "reseñas",
     })

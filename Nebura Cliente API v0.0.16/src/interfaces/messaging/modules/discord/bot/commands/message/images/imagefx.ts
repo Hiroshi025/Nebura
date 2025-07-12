@@ -62,14 +62,38 @@ const effectsCommand: Precommand = {
         .setCustomId("effect_selector")
         .setPlaceholder(t("imagefx.selectPlaceholder"))
         .addOptions(
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.blur")).setValue("blur").setDescription(t("imagefx.blurDesc")),
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.sharpen")).setValue("sharpen").setDescription(t("imagefx.sharpenDesc")),
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.pixelate")).setValue("pixelate").setDescription(t("imagefx.pixelateDesc")),
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.sepia")).setValue("sepia").setDescription(t("imagefx.sepiaDesc")),
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.grayscale")).setValue("grayscale").setDescription(t("imagefx.grayscaleDesc")),
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.invert")).setValue("invert").setDescription(t("imagefx.invertDesc")),
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.vignette")).setValue("vignette").setDescription(t("imagefx.vignetteDesc")),
-          new StringSelectMenuOptionBuilder().setLabel(t("imagefx.posterize")).setValue("posterize").setDescription(t("imagefx.posterizeDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.blur"))
+            .setValue("blur")
+            .setDescription(t("imagefx.blurDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.sharpen"))
+            .setValue("sharpen")
+            .setDescription(t("imagefx.sharpenDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.pixelate"))
+            .setValue("pixelate")
+            .setDescription(t("imagefx.pixelateDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.sepia"))
+            .setValue("sepia")
+            .setDescription(t("imagefx.sepiaDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.grayscale"))
+            .setValue("grayscale")
+            .setDescription(t("imagefx.grayscaleDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.invert"))
+            .setValue("invert")
+            .setDescription(t("imagefx.invertDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.vignette"))
+            .setValue("vignette")
+            .setDescription(t("imagefx.vignetteDesc")),
+          new StringSelectMenuOptionBuilder()
+            .setLabel(t("imagefx.posterize"))
+            .setValue("posterize")
+            .setDescription(t("imagefx.posterizeDesc")),
         );
 
       const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
@@ -173,7 +197,7 @@ const effectsCommand: Precommand = {
                   .setTitle(t("imagefx.processingErrorTitle"))
                   .setDescription(t("imagefx.processingErrorDesc")),
               ],
-              flags: "Ephemeral"
+              flags: "Ephemeral",
             });
           }
         }
@@ -321,4 +345,4 @@ async function showEffectPreviews(interaction: any, originalBuffer: Buffer, t: a
   return;
 }
 
-export = effectsCommand;
+export default effectsCommand;

@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { ApplicationIntegrationType, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import {
@@ -26,6 +26,7 @@ import {
 export default new Command(
   new SlashCommandBuilder()
     .setName("economy")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "economía",
     })

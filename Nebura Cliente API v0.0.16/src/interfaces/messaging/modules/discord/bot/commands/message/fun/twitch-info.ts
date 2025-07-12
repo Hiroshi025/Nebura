@@ -1,8 +1,8 @@
 import axios from "axios";
 import { ChannelType } from "discord.js";
 
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const twitchInfo: Precommand = {
   name: "twitch-info",
@@ -95,4 +95,4 @@ const twitchInfo: Precommand = {
   },
 };
 
-export = twitchInfo;
+export default twitchInfo;

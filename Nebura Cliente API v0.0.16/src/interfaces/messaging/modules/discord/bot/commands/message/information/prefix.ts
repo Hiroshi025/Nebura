@@ -68,4 +68,4 @@ const commandPrefix: Precommand = {
   },
 };
 
-export = commandPrefix;
+export default commandPrefix;

@@ -186,4 +186,4 @@ const kickCommand: Precommand = {
   },
 };
 
-export = kickCommand;
+export default kickCommand;

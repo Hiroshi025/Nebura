@@ -1,16 +1,17 @@
 import {
-	ChannelType, EmbedBuilder, GuildMember, GuildMemberRoleManager, PermissionFlagsBits,
-	SlashCommandBuilder, TextChannel, userMention
+	ApplicationIntegrationType, ChannelType, EmbedBuilder, GuildMember, GuildMemberRoleManager,
+	PermissionFlagsBits, SlashCommandBuilder, TextChannel, userMention
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { ErrorEmbed } from "@utils/extends/embeds.extension";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { logWithLabel } from "@utils/functions/console";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("ban")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "banear",
     })

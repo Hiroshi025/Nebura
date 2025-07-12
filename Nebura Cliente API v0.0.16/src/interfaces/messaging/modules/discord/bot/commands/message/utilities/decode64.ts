@@ -3,8 +3,8 @@ import {
 	StringSelectMenuBuilder, TextInputBuilder, TextInputStyle
 } from "discord.js";
 
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const decode64Command: Precommand = {
   name: "decode64",
@@ -220,4 +220,4 @@ const decode64Command: Precommand = {
   },
 };
 
-export = decode64Command;
+export default decode64Command;

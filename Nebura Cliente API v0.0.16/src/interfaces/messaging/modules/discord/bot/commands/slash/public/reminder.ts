@@ -1,14 +1,15 @@
-import { GuildMember, SlashCommandBuilder } from "discord.js";
+import { ApplicationIntegrationType, GuildMember, SlashCommandBuilder } from "discord.js";
 import schedule from "node-schedule";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { isValidObjectId } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("remind")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "recordar",
     })

@@ -4,8 +4,8 @@ import {
 } from "discord.js";
 
 import { main } from "@/main";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extends/embeds.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 // Asume que existe un modelo separado para la configuración de ban logs, por ejemplo: banConfig
@@ -30,12 +30,7 @@ const adminBanCommand: Precommand = {
   aliases: ["adminban"],
   botpermissions: ["BanMembers", "SendMessages", "EmbedLinks"],
   permissions: ["BanMembers"],
-  subcommands: [
-    "ban member <user> [reason]", 
-    "ban list [page]", 
-    "ban remove <case_id>", 
-    "ban info <case_id>",
-  ],
+  subcommands: ["ban member <user> [reason]", "ban list [page]", "ban remove <case_id>", "ban info <case_id>"],
   async execute(client, message, args, prefix) {
     if (!message.guild || message.channel.type !== ChannelType.GuildText) return;
 
@@ -743,4 +738,4 @@ async function showBanHelp(message: Message, prefix: string) {
   return await (message.channel as TextChannel).send({ embeds: [helpEmbed] });
 }
 
-export = adminBanCommand;
+export default adminBanCommand;

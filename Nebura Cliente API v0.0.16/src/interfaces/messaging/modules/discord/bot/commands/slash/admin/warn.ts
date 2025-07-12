@@ -1,11 +1,14 @@
-import { PermissionFlagsBits, SlashCommandBuilder, TextChannel, time } from "discord.js";
+import {
+	ApplicationIntegrationType, PermissionFlagsBits, SlashCommandBuilder, TextChannel, time
+} from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 export default new Command(
   new SlashCommandBuilder()
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .setName("warn")
     .setNameLocalizations({

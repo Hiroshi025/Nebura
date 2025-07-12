@@ -10,8 +10,8 @@ import { ping } from "tcp-ping";
 import { promisify } from "util";
 
 import emojis from "@config/json/emojis.json";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const execPromise = promisify(exec);
 
@@ -541,4 +541,4 @@ async function pingDomain(domain: string, count = 3): Promise<any> {
   });
 }
 
-export = dnsCommand;
+export default dnsCommand;

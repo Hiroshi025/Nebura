@@ -1,10 +1,12 @@
-import { ChannelType, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import {
+	ApplicationIntegrationType, ChannelType, PermissionFlagsBits, SlashCommandBuilder
+} from "discord.js";
 import Parser from "rss-parser";
 
 import { main } from "@/main";
 import { channelId } from "@gonetone/get-youtube-id-by-url";
 import { Command } from "@messaging/modules/discord/structure/utils/builders";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 const fetch = new Parser();
 export default new Command(
@@ -12,40 +14,41 @@ export default new Command(
     .setName("youtube")
     .setDescription("Configure YouTube notifications system")
     .setDescriptionLocalizations({
-      "es-ES": "Configurar el sistema de notificaciones de YouTube"
+      "es-ES": "Configurar el sistema de notificaciones de YouTube",
     })
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .addSubcommand((sub) =>
       sub
         .setName("add")
         .setNameLocalizations({
-          "es-ES": "agregar"
+          "es-ES": "agregar",
         })
         .setDescription("Add a YouTube channel for notifications")
         .setDescriptionLocalizations({
-          "es-ES": "Agregar un canal de YouTube para notificaciones"
+          "es-ES": "Agregar un canal de YouTube para notificaciones",
         })
         .addStringOption((opt) =>
           opt
-        .setName("link")
-        .setNameLocalizations({
-          "es-ES": "enlace"
-        })
-        .setDescription("Provide the YouTube channel link")
-        .setDescriptionLocalizations({
-          "es-ES": "Proporciona el enlace del canal de YouTube"
-        })
-        .setRequired(true),
+            .setName("link")
+            .setNameLocalizations({
+              "es-ES": "enlace",
+            })
+            .setDescription("Provide the YouTube channel link")
+            .setDescriptionLocalizations({
+              "es-ES": "Proporciona el enlace del canal de YouTube",
+            })
+            .setRequired(true),
         )
         .addChannelOption((opt) =>
           opt
             .setName("channel")
             .setNameLocalizations({
-              "es-ES": "canal"
+              "es-ES": "canal",
             })
             .setDescription("Select the channel to send notifications")
             .setDescriptionLocalizations({
-              "es-ES": "Selecciona el canal para enviar notificaciones"
+              "es-ES": "Selecciona el canal para enviar notificaciones",
             })
             .addChannelTypes(
               ChannelType.GuildText,
@@ -57,59 +60,60 @@ export default new Command(
         )
         .addStringOption((opt) =>
           opt
-        .setName("message")
-        .setNameLocalizations({
-          "es-ES": "mensaje"
-        })
-        .setDescription("Custom notification message, {user} = youtuber")
-        .setDescriptionLocalizations({
-          "es-ES": "Mensaje de notificación personalizado, {user} = youtuber"
-        })
-        .setRequired(false),
+            .setName("message")
+            .setNameLocalizations({
+              "es-ES": "mensaje",
+            })
+            .setDescription("Custom notification message, {user} = youtuber")
+            .setDescriptionLocalizations({
+              "es-ES": "Mensaje de notificación personalizado, {user} = youtuber",
+            })
+            .setRequired(false),
         ),
     )
     .addSubcommand((sub) =>
       sub
         .setName("edit")
         .setNameLocalizations({
-          "es-ES": "editar"
+          "es-ES": "editar",
         })
         .setDescription("Edit the notification message or channel")
         .setDescriptionLocalizations({
-          "es-ES": "Editar el mensaje de notificación o canal"
+          "es-ES": "Editar el mensaje de notificación o canal",
         })
-        .addStringOption((opt) => 
-          opt
-        .setName("link")
-        .setNameLocalizations({
-          "es-ES": "enlace"
-        })
-        .setDescription("YouTube channel link to edit")
-        .setDescriptionLocalizations({
-          "es-ES": "Enlace del canal de YouTube a editar"
-        })
-        .setRequired(true))
         .addStringOption((opt) =>
           opt
-        .setName("message")
-        .setNameLocalizations({
-          "es-ES": "mensaje"
-        })
-        .setDescription("New custom message, {user} = youtuber")
-        .setDescriptionLocalizations({
-          "es-ES": "Nuevo mensaje personalizado, {user} = youtuber"
-        })
-        .setRequired(true),
+            .setName("link")
+            .setNameLocalizations({
+              "es-ES": "enlace",
+            })
+            .setDescription("YouTube channel link to edit")
+            .setDescriptionLocalizations({
+              "es-ES": "Enlace del canal de YouTube a editar",
+            })
+            .setRequired(true),
+        )
+        .addStringOption((opt) =>
+          opt
+            .setName("message")
+            .setNameLocalizations({
+              "es-ES": "mensaje",
+            })
+            .setDescription("New custom message, {user} = youtuber")
+            .setDescriptionLocalizations({
+              "es-ES": "Nuevo mensaje personalizado, {user} = youtuber",
+            })
+            .setRequired(true),
         )
         .addChannelOption((opt) =>
           opt
             .setName("channel")
             .setNameLocalizations({
-              "es-ES": "canal"
+              "es-ES": "canal",
             })
             .setDescription("New channel for notifications")
             .setDescriptionLocalizations({
-              "es-ES": "Nuevo canal para notificaciones"
+              "es-ES": "Nuevo canal para notificaciones",
             })
             .addChannelTypes(
               ChannelType.GuildText,
@@ -124,35 +128,35 @@ export default new Command(
       sub
         .setName("remove")
         .setNameLocalizations({
-          "es-ES": "eliminar"
+          "es-ES": "eliminar",
         })
         .setDescription("Remove a YouTube channel from notifications")
         .setDescriptionLocalizations({
-          "es-ES": "Eliminar un canal de YouTube de las notificaciones"
+          "es-ES": "Eliminar un canal de YouTube de las notificaciones",
         })
         .addStringOption((opt) =>
           opt
-        .setName("link")
-        .setNameLocalizations({
-          "es-ES": "enlace"
-        })
-        .setDescription("YouTube channel link to remove")
-        .setDescriptionLocalizations({
-          "es-ES": "Enlace del canal de YouTube a eliminar"
-        })
-        .setRequired(true),
+            .setName("link")
+            .setNameLocalizations({
+              "es-ES": "enlace",
+            })
+            .setDescription("YouTube channel link to remove")
+            .setDescriptionLocalizations({
+              "es-ES": "Enlace del canal de YouTube a eliminar",
+            })
+            .setRequired(true),
         ),
     )
     .addSubcommand((sub) =>
       sub
-    .setName("list")
-    .setNameLocalizations({
-      "es-ES": "listar"
-    })
-    .setDescription("List all YouTube channels configured for notifications")
-    .setDescriptionLocalizations({
-      "es-ES": "Listar todos los canales de YouTube configurados para notificaciones"
-    })
+        .setName("list")
+        .setNameLocalizations({
+          "es-ES": "listar",
+        })
+        .setDescription("List all YouTube channels configured for notifications")
+        .setDescriptionLocalizations({
+          "es-ES": "Listar todos los canales de YouTube configurados para notificaciones",
+        }),
     ),
   async (client, interaction) => {
     const { options, guild } = interaction;
@@ -569,7 +573,7 @@ export default new Command(
                 .setFooter({
                   text: `${client.user?.username} | Team`,
                   iconURL: client.user?.displayAvatarURL(),
-                })
+                }),
             ],
             flags: "Ephemeral",
           });

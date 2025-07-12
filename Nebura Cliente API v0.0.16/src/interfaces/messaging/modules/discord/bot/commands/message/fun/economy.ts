@@ -53,4 +53,4 @@ const economyCommand: Precommand = {
   },
 };
 
-export = economyCommand;
+export default economyCommand;

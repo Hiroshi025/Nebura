@@ -3,8 +3,8 @@ import { ActionRowBuilder, EmbedBuilder, StringSelectMenuBuilder } from "discord
 
 import emojis from "@config/json/emojis.json";
 import { Pagination } from "@discordx/pagination";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const mcbiomeCommand: Precommand = {
   name: "mcbiome",
@@ -29,10 +29,10 @@ const mcbiomeCommand: Precommand = {
     try {
       if (!message.guild) return;
 
-    // Multilenguaje
-    const userLang = message.guild?.preferredLocale || "es-ES";
-    const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
-    const t = _client.translations.getFixedT(lang, "discord");
+      // Multilenguaje
+      const userLang = message.guild?.preferredLocale || "es-ES";
+      const lang = ["es-ES", "en-US"].includes(userLang) ? userLang : "es-ES";
+      const t = _client.translations.getFixedT(lang, "discord");
 
       // Fetch biomes from Mojang API
       const response = await axios.get(
@@ -61,10 +61,7 @@ const mcbiomeCommand: Precommand = {
       return await showBiomeDetails(message, biome, t);
     } catch (e: any) {
       return message.reply({
-        embeds: [
-          new ErrorEmbed()
-            .setErrorFormat(e.stack),
-        ],
+        embeds: [new ErrorEmbed().setErrorFormat(e.stack)],
       });
     }
   },
@@ -160,4 +157,4 @@ async function showBiomeDetails(message: any, biome: any, t: (key: string, optio
   await message.reply({ embeds: [embed] });
 }
 
-export = mcbiomeCommand;
+export default mcbiomeCommand;

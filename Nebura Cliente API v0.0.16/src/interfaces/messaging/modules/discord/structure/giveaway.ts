@@ -3,8 +3,8 @@ import { ChannelType, NewsChannel, TextChannel, ThreadChannel, User } from "disc
 
 import { client, main } from "@/main";
 import { Prisma } from "@prisma/client";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { GiveawayInterface } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import { MyDiscord } from "../client";
 

@@ -30,4 +30,4 @@ const setWebhookConfig: Buttons = {
   },
 };
 
-export = setWebhookConfig;
+export default setWebhookConfig;

@@ -665,5 +665,5 @@ const AddRoleCommand: Precommand = {
   },
 };
 
-export = AddRoleCommand;
+export default AddRoleCommand;
  */

@@ -164,7 +164,7 @@ const timeoutCommand: Precommand = {
                       .setTitle(t("timeout.permissionDeniedTitle"))
                       .setDescription(t("timeout.removeTimeoutDeniedDesc")),
                   ],
-                  flags: "Ephemeral"
+                  flags: "Ephemeral",
                 });
               }
 
@@ -420,4 +420,4 @@ function formatDuration(ms: number, t: any): string {
   return parts.join(" ");
 }
 
-export = timeoutCommand;
+export default timeoutCommand;

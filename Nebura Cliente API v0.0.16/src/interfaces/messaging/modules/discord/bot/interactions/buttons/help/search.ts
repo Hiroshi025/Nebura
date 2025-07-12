@@ -29,4 +29,4 @@ const ButtonModalSearch: Buttons = {
   },
 };
 
-export = ButtonModalSearch;
+export default ButtonModalSearch;

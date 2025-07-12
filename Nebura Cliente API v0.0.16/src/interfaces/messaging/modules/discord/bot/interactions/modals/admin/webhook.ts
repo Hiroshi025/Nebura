@@ -1,6 +1,6 @@
 import { main } from "@/main";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Modals } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const modalWebhook: Modals = {
   id: "modal-webhook-config",
@@ -11,8 +11,6 @@ const modalWebhook: Modals = {
   async execute(interaction, client) {
     const input = interaction.fields.getTextInputValue("input-webhook-url");
     if (!interaction.guild || !interaction.channel || !client.user) return;
-
-    // Detecta idioma preferido del usuario o servidor
     const lang = interaction.locale || interaction.guild?.preferredLocale || "en-US";
 
     const data = await main.DB.findDiscord(client.user.id);
@@ -57,4 +55,4 @@ const modalWebhook: Modals = {
   },
 };
 
-export = modalWebhook;
+export default modalWebhook;

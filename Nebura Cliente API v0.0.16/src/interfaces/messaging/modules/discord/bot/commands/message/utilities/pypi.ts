@@ -352,4 +352,4 @@ const commandPyPI: Precommand = {
   },
 };
 
-export = commandPyPI;
+export default commandPyPI;

@@ -1,6 +1,6 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
-	EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder
+	ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle,
+	ChannelSelectMenuBuilder, ChannelType, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
@@ -9,6 +9,7 @@ import { main } from "@/main";
 export default new Command(
   new SlashCommandBuilder()
     .setName("suggest-config")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "config-sugerencias",
     })

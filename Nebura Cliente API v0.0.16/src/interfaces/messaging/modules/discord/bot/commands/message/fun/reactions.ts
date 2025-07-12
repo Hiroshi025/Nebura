@@ -3,8 +3,8 @@ import { AttachmentBuilder, ChannelType, EmbedBuilder, TextChannel } from "disco
 import { NekoClient } from "eternal-support";
 
 import emojis from "@config/json/emojis.json";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { ErrorEmbed } from "@utils/extends/embeds.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 async function animeApi(action: string) {
@@ -359,4 +359,4 @@ const emotionsCommand: Precommand = {
     }
   },
 };
-export = emotionsCommand;
+export default emotionsCommand;

@@ -4,8 +4,8 @@ import {
 } from "discord.js";
 import { createWorker } from "tesseract.js";
 
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const ocrCommand: Precommand = {
   name: "extracttext",
@@ -269,4 +269,4 @@ async function extractImageMetadata(buffer: Buffer): Promise<{
   }
 }
 
-export = ocrCommand;
+export default ocrCommand;

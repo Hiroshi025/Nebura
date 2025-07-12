@@ -1,6 +1,6 @@
 import { main } from "@/main";
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 import { Menus } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const logChannelClient: Menus = {
   id: "select-log-channel",
@@ -30,4 +30,4 @@ const logChannelClient: Menus = {
   },
 };
 
-export = logChannelClient;
+export default logChannelClient;

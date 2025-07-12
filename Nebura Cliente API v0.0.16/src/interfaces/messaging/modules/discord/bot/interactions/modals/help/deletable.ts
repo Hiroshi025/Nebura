@@ -1,9 +1,9 @@
 import { readdirSync, statSync, unlinkSync } from "fs";
 import { join } from "path";
 
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Modals } from "@typings/modules/discord";
 import { config } from "@utils/config";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 import { logWithLabel } from "@utils/functions/console";
 
 function getCommandsFromFolder(path: string): string[] {
@@ -103,4 +103,4 @@ const ModalDeleteCommand: Modals = {
   },
 };
 
-export = ModalDeleteCommand;
+export default ModalDeleteCommand;

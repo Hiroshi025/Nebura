@@ -1,7 +1,9 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder } from "discord.js";
+import {
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder
+} from "discord.js";
 
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const leaveCommand: Precommand = {
   name: "leave",
@@ -250,4 +252,4 @@ async function sendSuccess(message: any, guild: any, client: any, lang: string) 
   });
 }
 
-export = leaveCommand;
+export default leaveCommand;

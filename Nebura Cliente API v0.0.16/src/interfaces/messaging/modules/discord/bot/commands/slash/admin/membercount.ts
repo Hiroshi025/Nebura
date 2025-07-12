@@ -1,7 +1,8 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType,
-	EmbedBuilder, ModalBuilder, ModalSubmitInteraction, PermissionFlagsBits, SlashCommandBuilder,
-	StringSelectMenuBuilder, TextInputBuilder, TextInputStyle
+	ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle,
+	ChannelSelectMenuBuilder, ChannelType, EmbedBuilder, ModalBuilder, ModalSubmitInteraction,
+	PermissionFlagsBits, SlashCommandBuilder, StringSelectMenuBuilder, TextInputBuilder,
+	TextInputStyle
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
@@ -11,6 +12,7 @@ import { config } from "@utils/config";
 export default new Command(
   new SlashCommandBuilder()
     .setName("membercount")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "contador-miembros",
     })

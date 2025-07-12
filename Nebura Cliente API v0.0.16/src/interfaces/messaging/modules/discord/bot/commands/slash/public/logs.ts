@@ -1,14 +1,16 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, SlashCommandBuilder
+	ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle, ComponentType,
+	SlashCommandBuilder
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("logs")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "registros",
     })

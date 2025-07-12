@@ -88,4 +88,4 @@ const commandPing: Precommand = {
   },
 };
 
-export = commandPing;
+export default commandPing;

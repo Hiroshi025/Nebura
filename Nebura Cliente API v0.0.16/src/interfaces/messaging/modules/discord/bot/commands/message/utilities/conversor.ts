@@ -6,13 +6,21 @@ import {
 } from "discord.js";
 
 import currency from "@config/json/coins.json";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const precommandConversor: Precommand = {
   name: "conversor",
+  nameLocalizations: {
+    "es-ES": "conversor",
+    "en-US": "converter",
+  },
   description: "Converts a currency to another currency",
+  descriptionLocalizations: {
+    "es-ES": "Convierte una moneda a otra moneda",
+    "en-US": "Converts a currency to another currency",
+  },
   examples: ["conversor 100"],
   nsfw: false,
   owner: false,
@@ -268,4 +276,4 @@ const precommandConversor: Precommand = {
     return;
   },
 };
-export = precommandConversor;
+export default precommandConversor;

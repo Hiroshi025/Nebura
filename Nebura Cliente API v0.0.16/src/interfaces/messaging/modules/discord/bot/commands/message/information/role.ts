@@ -3,8 +3,8 @@ import {
 	PermissionFlagsBits, PermissionsBitField, Role, StringSelectMenuBuilder, time
 } from "discord.js";
 
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const roleInfo: Precommand = {
   name: "roleinfo",
@@ -453,4 +453,4 @@ function formatPermission(permission: string) {
     .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
-export = roleInfo;
+export default roleInfo;

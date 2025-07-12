@@ -1,12 +1,12 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChannelSelectMenuBuilder,
-	ChannelType, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction,
-	StringSelectMenuOptionBuilder
+	ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonInteraction, ButtonStyle,
+	ChannelSelectMenuBuilder, ChannelType, SlashCommandBuilder, StringSelectMenuBuilder,
+	StringSelectMenuInteraction, StringSelectMenuOptionBuilder
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { logWithLabel } from "@utils/functions/console";
 
 //TODO: Seguir Mejorandolo
@@ -14,6 +14,7 @@ import { logWithLabel } from "@utils/functions/console";
 export default new Command(
   new SlashCommandBuilder()
     .setName("config")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "configuracion",
     })

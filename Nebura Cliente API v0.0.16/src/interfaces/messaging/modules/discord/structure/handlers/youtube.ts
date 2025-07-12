@@ -31,7 +31,7 @@ import ms from "ms";
 import { Innertube } from "youtubei.js";
 
 import { main } from "@/main";
-import { EmbedCorrect } from "@utils/extends/embeds.extension";
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 
 import { MyDiscord } from "../../client";
 

@@ -14,6 +14,19 @@
     "build": false, // Carpeta de builds,
     "**/node_modules": true
   },
+  "files.associations": {
+    "*.ejs": "html",
+    "*.ts": "typescript" // Asocia archivos .ts con TypeScript
+  },
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.js",
+    "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
+    "*.jsx": "${capture}.js",
+    "*.tsx": "${capture}.ts",
+    "tsconfig.json": "tsconfig.*.json, typedoc.json, tsconfig.build.tsbuildinfo",
+    ".eslintrc.cjs": ".eslintignore, .eslintrc.js, .eslintrc.json, .eslintrc.yaml, .eslintrc.yml, .editorconfig, jest.config.ts, .prettierrc, .lintstagedrc.json",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock, .gitattributes, .npmrc, .yarnrc, .pnpmfile.cjs, .npmignore, .yarnclean"
+  },
 
   // ==========================================================================
   // SECCIÓN: Configuración del editor

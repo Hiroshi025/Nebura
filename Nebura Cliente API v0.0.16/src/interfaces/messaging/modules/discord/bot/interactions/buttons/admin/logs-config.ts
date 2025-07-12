@@ -42,4 +42,4 @@ const logSetButton: Buttons = {
   },
 };
 
-export = logSetButton;
+export default logSetButton;

@@ -285,5 +285,5 @@ function formatDuration(remainingTime: number): string {
   return parts.join(" ");
 }
 
-export = GiveawayEnd;
+export default GiveawayEnd;
  */

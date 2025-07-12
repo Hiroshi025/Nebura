@@ -1,8 +1,10 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType } from "discord.js";
+import {
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType
+} from "discord.js";
 
 import { main } from "@/main";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const logAdminCommand: Precommand = {
   name: "logs",
@@ -254,4 +256,4 @@ const logAdminCommand: Precommand = {
   },
 };
 
-export = logAdminCommand;
+export default logAdminCommand;

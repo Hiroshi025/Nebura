@@ -1,16 +1,17 @@
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionFlagsBits,
-	SlashCommandBuilder
+	ActionRowBuilder, ApplicationIntegrationType, ButtonBuilder, ButtonStyle, ChannelType,
+	EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder
 } from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import { main } from "@/main";
 import { clientID } from "@/shared/class/DB";
-import { ErrorEmbed } from "@utils/extends/embeds.extension";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("reactionrole")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "rol-reaccion",
     })

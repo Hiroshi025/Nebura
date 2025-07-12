@@ -3,8 +3,8 @@ import {
 	Message, MessageComponentInteraction, TextChannel
 } from "discord.js";
 
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 // Dummy logger para evitar error de símbolo no encontrado
 function logWithLabel(label: string, message: string) {
@@ -720,4 +720,4 @@ async function showEmojiHelp(message: Message, prefix: string) {
   await message.channel.send({ embeds: [helpEmbed] });
 }
 
-export = emojisCommand;
+export default emojisCommand;

@@ -3,8 +3,8 @@ import {
 	StringSelectMenuBuilder, TextInputBuilder, TextInputStyle
 } from "discord.js";
 
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
-import { EmbedCorrect } from "@utils/extends/embeds.extension";
 
 const passwordCommand: Precommand = {
   name: "passgen",
@@ -12,6 +12,7 @@ const passwordCommand: Precommand = {
   examples: ["password"],
   nsfw: false,
   owner: false,
+
   cooldown: 20,
   category: "Utilities",
   aliases: ["genpass", "generatepassword", "securepass"],
@@ -305,4 +306,4 @@ const passwordCommand: Precommand = {
   },
 };
 
-export = passwordCommand;
+export default passwordCommand;

@@ -13,9 +13,9 @@ import { promisify } from "util";
 
 import { main } from "@/main";
 import emojis from "@config/json/emojis.json";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { GitHubRepo, GitHubSearchResult, GitHubUser } from "@typings/modules/discord";
 import { config } from "@utils/config";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import { MyDiscord } from "../../client";
 

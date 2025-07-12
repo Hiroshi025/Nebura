@@ -8,10 +8,9 @@ import { readdirSync, statSync } from "fs";
 import { join } from "path";
 
 import { MyDiscord } from "@/interfaces/messaging/modules/discord/client";
-import { Command } from "@messaging/modules/discord/structure/utils/builders";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
 import { config } from "@utils/config";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 import packages from "../../../../../../../../../package.json";
 
@@ -370,26 +369,6 @@ const helpCommand: Precommand = {
           inline: true,
         },
       )
-      .addFields(
-        {
-          name: t("help.textCommands"),
-          value: client.precommands.size
-            ? (Array.from(client.precommands.values()) as Precommand[])
-                .map((cmd) => `• \`${prefix}${cmd.name}\` - ${cmd.description}`)
-                .join("\n")
-            : t("help.noTextCommands"),
-          inline: false,
-        },
-        {
-          name: t("help.slashCommands"),
-          value: client.commands.size
-            ? (Array.from(client.commands.values()) as Command[])
-                .map((cmd) => `• </${cmd.structure.name}:${cmd.structure.name}> - ${cmd.structure.name_localizations}`)
-                .join("\n")
-            : t("help.noSlashCommands"),
-          inline: false,
-        },
-      )
       .setFooter(getPageFooter(1, 1, prefix, message.guild.iconURL({ forceStatic: true }) as string, t))
       .setTitle(t("help.pageTitle", { page: 1, total: 1 }));
 
@@ -724,4 +703,4 @@ const helpCommand: Precommand = {
   },
 };
 
-export = helpCommand;
+export default helpCommand;

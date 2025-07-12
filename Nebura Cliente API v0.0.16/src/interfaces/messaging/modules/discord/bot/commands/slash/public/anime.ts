@@ -1,15 +1,16 @@
 import axios from "axios";
-import { SlashCommandBuilder } from "discord.js";
+import { ApplicationIntegrationType, SlashCommandBuilder } from "discord.js";
 import moment from "moment";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import translate from "@iamtraction/google-translate";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Entretenment } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("anime")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "anime",
     })

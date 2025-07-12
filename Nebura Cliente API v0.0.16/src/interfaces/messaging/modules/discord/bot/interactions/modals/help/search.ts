@@ -1,5 +1,5 @@
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { Modals, Precommand } from "@typings/modules/discord";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
 
 const ModalSearch: Modals = {
   id: `search_modal`,
@@ -71,4 +71,4 @@ const ModalSearch: Modals = {
   },
 };
 
-export = ModalSearch;
+export default ModalSearch;

@@ -16,4 +16,4 @@ const pay_taxButton: Buttons = {
   },
 };
 
-export = pay_taxButton;
+export default pay_taxButton;

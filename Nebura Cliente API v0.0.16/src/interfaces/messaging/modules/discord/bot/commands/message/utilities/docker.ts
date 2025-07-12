@@ -1,7 +1,15 @@
 import axios from "axios";
 import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder,
-	ModalBuilder, StringSelectMenuBuilder, TextInputBuilder, TextInputStyle
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChannelType,
+  ComponentType,
+  EmbedBuilder,
+  ModalBuilder,
+  StringSelectMenuBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 
 import { DockerImage, DockerImageDetail, Precommand } from "@typings/modules/discord";
@@ -17,8 +25,7 @@ const commandDocker: Precommand = {
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(_client, message, args, _prefix) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     // If no arguments, show search modal
     if (!args[0]) {
@@ -31,9 +38,7 @@ const commandDocker: Precommand = {
 };
 
 async function showDockerSearchModal(message: any) {
-  const modal = new ModalBuilder()
-    .setCustomId("docker_search_modal")
-    .setTitle("Search Docker Images");
+  const modal = new ModalBuilder().setCustomId("docker_search_modal").setTitle("Search Docker Images");
 
   const searchInput = new TextInputBuilder()
     .setCustomId("search_input")
@@ -101,10 +106,7 @@ async function searchAndDisplayDockerImages(message: any, imageName: string) {
         .setPlaceholder("Select an image for details")
         .addOptions(
           images.map((image) => ({
-            label:
-              image.repo_name.length > 100
-                ? `${image.repo_name.substring(0, 97)}...`
-                : image.repo_name,
+            label: image.repo_name.length > 100 ? `${image.repo_name.substring(0, 97)}...` : image.repo_name,
             description: image.short_description
               ? image.short_description.length > 50
                 ? `${image.short_description.substring(0, 47)}...`
@@ -117,14 +119,8 @@ async function searchAndDisplayDockerImages(message: any, imageName: string) {
 
     // Create buttons
     const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId("docker_refresh")
-        .setLabel("Refresh Results")
-        .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
-        .setCustomId("docker_new_search")
-        .setLabel("New Search")
-        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId("docker_refresh").setLabel("Refresh Results").setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId("docker_new_search").setLabel("New Search").setStyle(ButtonStyle.Primary),
     );
 
     const resultsEmbed = new EmbedBuilder()
@@ -225,17 +221,13 @@ async function showDockerImageDetails(interaction: any, image: DockerImage) {
       .setColor("#2496ED") // Docker blue
       .setTitle(image.repo_name)
       .setURL(`https://hub.docker.com/r/${image.repo_name}`)
-      .setDescription(
-        details.full_description || image.short_description || "No description available",
-      )
+      .setDescription(details.full_description || image.short_description || "No description available")
       .addFields(
         { name: "Stars", value: `⭐ ${image.star_count.toLocaleString()}`, inline: true },
         { name: "Pulls", value: `📥 ${image.pull_count.toLocaleString()}`, inline: true },
         {
           name: "Last Updated",
-          value: details.last_updated
-            ? new Date(details.last_updated).toLocaleDateString()
-            : "Unknown",
+          value: details.last_updated ? new Date(details.last_updated).toLocaleDateString() : "Unknown",
           inline: true,
         },
         { name: "Official", value: image.is_official ? "✅ Yes" : "❌ No", inline: true },
@@ -316,9 +308,7 @@ async function showDockerImageDetails(interaction: any, image: DockerImage) {
 async function showAllTags(interaction: any, imageName: string) {
   try {
     // Fetch all tags for the image
-    const response = await axios.get(
-      `https://hub.docker.com/v2/repositories/${imageName}/tags/?page_size=50`,
-    );
+    const response = await axios.get(`https://hub.docker.com/v2/repositories/${imageName}/tags/?page_size=50`);
     const tags = response.data.results.map((tag: any) => tag.name);
 
     if (tags.length === 0) {
@@ -413,4 +403,4 @@ function createPaginationButtons(currentPage: number, totalPages: number, type: 
   );
 }
 
-export = commandDocker;
+export default commandDocker;

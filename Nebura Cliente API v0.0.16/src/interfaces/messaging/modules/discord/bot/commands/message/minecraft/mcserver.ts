@@ -4,19 +4,19 @@ import {
 } from "discord.js";
 
 import i18next from "@shared/i18n";
-import { ErrorEmbed } from "@shared/utils/extends/embeds.extension";
+import { ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 import { MinecraftServer, Precommand } from "@typings/modules/discord";
 
 const commandMinecraft: Precommand = {
   name: "mcserver",
   nameLocalizations: {
     "es-ES": "mc-servidor",
-    "en-US": "mcserver"
+    "en-US": "mcserver",
   },
   description: "Check the status of a Minecraft server using API v3",
   descriptionLocalizations: {
     "es-ES": "Comprueba el estado de un servidor de Minecraft usando la API v3",
-    "en-US": "Check the status of a Minecraft server using API v3"
+    "en-US": "Check the status of a Minecraft server using API v3",
   },
   examples: ["mcserver <ip>", "mcserver play.example.com", "mcserver 123.45.67.89:25565"],
   nsfw: false,
@@ -40,8 +40,8 @@ const commandMinecraft: Precommand = {
           new ErrorEmbed()
             .setTitle(t("mcserver.noInputTitle"))
             .setDescription(t("mcserver.noInputDesc", { prefix, command: "mcserver" }))
-            .setFooter({ text: t("mcserver.noInputFooter") })
-        ]
+            .setFooter({ text: t("mcserver.noInputFooter") }),
+        ],
       });
     }
 
@@ -566,4 +566,4 @@ function createPaginationButtons(currentPage: number, totalPages: number, type: 
   );
 }
 
-export = commandMinecraft;
+export default commandMinecraft;

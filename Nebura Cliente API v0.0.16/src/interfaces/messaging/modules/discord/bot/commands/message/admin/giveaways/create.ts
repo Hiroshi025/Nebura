@@ -581,5 +581,5 @@ function formatDuration(ms: number): string {
   return parts.join(", ") || "0 minutes";
 }
 
-export = GiveawayCreate;
+export default GiveawayCreate;
  */

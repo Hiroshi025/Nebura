@@ -1,7 +1,7 @@
 import { scheduleJob } from "node-schedule";
 
 import { client, main } from "@/main";
-import { EmbedCorrect } from "@utils/extends/embeds.extension";
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 
 /**
  * Loads pending reminders from the database and schedules them.

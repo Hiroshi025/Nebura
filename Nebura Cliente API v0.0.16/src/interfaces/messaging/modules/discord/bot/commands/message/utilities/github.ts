@@ -1,7 +1,9 @@
 import { ChannelType } from "discord.js";
 
 import {
-	handleRepository, handleSearch, handleUser
+  handleRepository,
+  handleSearch,
+  handleUser,
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { Precommand } from "@typings/modules/discord";
 
@@ -21,8 +23,7 @@ const commandGithub: Precommand = {
   botpermissions: ["SendMessages", "EmbedLinks"],
   permissions: ["SendMessages"],
   async execute(_client, message, args) {
-    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText)
-      return;
+    if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText) return;
 
     if (!args[0]) {
       return message.reply(
@@ -46,4 +47,4 @@ const commandGithub: Precommand = {
   },
 };
 
-export = commandGithub;
+export default commandGithub;

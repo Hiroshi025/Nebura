@@ -1,5 +1,6 @@
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder } from "discord.js";
 
+import { TextInputRow } from "@shared/utils/extends/discord/modal.extends";
 import { Buttons } from "@typings/modules/discord";
 
 const AdvancedSearchCommand: Buttons = {
@@ -15,12 +16,10 @@ const AdvancedSearchCommand: Buttons = {
       .setCustomId(`search_modal`)
       .setTitle(client.t("help.searchModalTitle", {}, lang));
 
-    const searchInput = new TextInputBuilder()
+    const searchInput = new TextInputRow(true)
       .setCustomId("search_query")
       .setLabel(client.t("help.searchModalLabel", {}, lang))
-      .setPlaceholder(client.t("help.searchModalPlaceholder", {}, lang))
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true);
+      .setPlaceholder(client.t("help.searchModalPlaceholder", {}, lang));
 
     const modalRow = new ActionRowBuilder<TextInputBuilder>().addComponents(searchInput);
     searchModal.addComponents(modalRow);
@@ -29,4 +28,4 @@ const AdvancedSearchCommand: Buttons = {
   },
 };
 
-export = AdvancedSearchCommand;
+export default AdvancedSearchCommand;

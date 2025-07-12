@@ -1,16 +1,19 @@
 import { Profile } from "discord-arts";
-import { AttachmentBuilder, EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
+import {
+	ApplicationIntegrationType, AttachmentBuilder, EmbedBuilder, GuildMember, SlashCommandBuilder
+} from "discord.js";
 
 import { Command } from "@/interfaces/messaging/modules/discord/structure/utils/builders";
 import {
 	getTopUsers
 } from "@/interfaces/messaging/modules/discord/structure/utils/ranking/helpers";
 import { main } from "@/main";
-import { EmbedCorrect, ErrorEmbed } from "@utils/extends/embeds.extension";
+import { EmbedCorrect, ErrorEmbed } from "@shared/utils/extends/discord/embeds.extends";
 
 export default new Command(
   new SlashCommandBuilder()
     .setName("levels")
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setNameLocalizations({
       "es-ES": "niveles",
     })
