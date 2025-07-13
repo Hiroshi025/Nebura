@@ -1,5 +1,7 @@
 import { Profile } from "discord-arts";
-import { AttachmentBuilder, ChannelType, Message, PermissionFlagsBits, TextChannel } from "discord.js";
+import {
+	AttachmentBuilder, ChannelType, Message, PermissionFlagsBits, TextChannel
+} from "discord.js";
 
 import { client, main } from "@/main";
 import { LevelConfig, UserLevel } from "@prisma/client";

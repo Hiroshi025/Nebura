@@ -208,7 +208,7 @@ export default new Command(
       const response = await interaction.reply({
         embeds: [confirmEmbed],
         components: [confirmButtons],
-        ephemeral: true,
+        flags: "Ephemeral"
       });
 
       // Colector de interacción

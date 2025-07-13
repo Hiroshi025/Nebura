@@ -1,12 +1,7 @@
 import axios from "axios";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  ComponentType,
-  EmbedBuilder,
-  StringSelectMenuBuilder,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder,
+	StringSelectMenuBuilder
 } from "discord.js";
 
 import { NPMPackage, Precommand } from "@typings/modules/discord";

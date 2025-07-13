@@ -107,11 +107,6 @@ export class MyWhatsApp {
     // Generate immediately on startup
     this.generateStatusBackup();
 
-    // Log when scheduling the interval
-    logWithLabel("custom", i18n.t("whatsapp:scheduled_backup"), {
-      customLabel: "WhatsApp",
-    });
-
     setInterval(
       async () => {
         logWithLabel("custom", i18n.t("whatsapp:generating_scheduled_backup"), {

@@ -474,6 +474,14 @@ model Modules {
   Client     Client[]
 }
 
+model QueueData {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  guildId   String   @unique
+  data      String   // Aquí se guarda el stringificado de la queue
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
 model WhatsApp {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   session   String   @unique

@@ -1,4 +1,5 @@
 import { Client, Collection, GatewayIntentBits, Options, Partials } from "discord.js";
+import { LavalinkManager } from "lavalink-client";
 
 import { main } from "@/main";
 import i18next from "@/shared/i18n";
@@ -8,6 +9,7 @@ import emojis from "@config/json/emojis.json";
 import { Buttons, Menus, Modals } from "@typings/modules/discord";
 import { DiscordError } from "@utils/extends/error.extension";
 
+import { LavalinkClient } from "./bot/lavalink/nodeManager";
 //import { GiveawayService } from "./structure/giveaway";
 import { DiscordHandler } from "./structure/handlers/collection";
 import { YouTube } from "./structure/handlers/youtube";
@@ -108,6 +110,7 @@ export class MyDiscord extends Client {
    * Instance of i18next or similar translation library, used for internationalization and localization.
    */
   translations: any;
+  lavalink: LavalinkManager;
 
   //giveaways: GiveawayService;
 
@@ -194,10 +197,19 @@ export class MyDiscord extends Client {
     //this.giveaways = new GiveawayService(this);
     this.handlers = new DiscordHandler(this);
     this.settings = config.modules.discord;
-    this.cooldown = new Collection();
     this.translations = i18next;
+    this.lavalink = new LavalinkManager({
+      nodes: [],
+      sendToShard: (guildId, payload) => this.guilds.cache.get(guildId)?.shard?.send(payload),
+      autoSkip: true,
+      client: {
+        username: this.user?.username,
+        id: this.user?.id as string,
+      }
+    });
 
     this.categories = new Collection();
+    this.cooldown = new Collection();
     this.commands = new Collection();
     this.buttons = new Collection();
 
@@ -216,12 +228,15 @@ export class MyDiscord extends Client {
     this.on("ready", async () => {
       const data = await main.DB.findDiscord(this.user?.id as string);
       if (!data || !this.user || !data.activity) return;
+      this.lavalink.init({ id: this.user.id, username: this.user.username });
+
       let activityName: string | undefined;
       if (typeof data.activity === "object" && data.activity !== null && "name" in data.activity) {
         activityName = (data.activity as { name: string }).name;
       } else if (typeof data.activity === "string") {
         activityName = data.activity;
       }
+      
       if (activityName) {
         this.user.setActivity({
           name: activityName,
@@ -268,6 +283,8 @@ export class MyDiscord extends Client {
      * This method is asynchronous and returns a promise that resolves when the login is successful.
      */
     console.debug(`[DEBUG][Discord] Logging in with token... ${TOKEN_DISCORD}`);
+    await LavalinkClient(this);
+
     await this.login(TOKEN_DISCORD);
     logWithLabel(
       "debug",

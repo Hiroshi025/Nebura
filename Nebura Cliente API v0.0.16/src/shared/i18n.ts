@@ -11,8 +11,7 @@
 import i18next from "i18next";
 import Backend from "i18next-fs-backend";
 
-import { ProyectError } from "./utils/extends/error.extension";
-import { logWithLabel } from "./utils/functions/console";
+
 
 /**
  * Initializes i18next with the following configuration:
@@ -78,20 +77,7 @@ i18next
        * If true, missing translation keys will be sent to the backend for saving.
        */
       saveMissing: true
-    },
-    async (err, _t) => {
-      if (err) throw new ProyectError("i18next initialization failed");
-      logWithLabel(
-        "custom",
-        [
-          "i18next initialized successfully with the following configuration:",
-          `Supported languages: ${i18next.languages.join(", ")}`,
-        ].join("\n"),
-        {
-          customLabel: "i18next",
-        },
-      );
-    },
+    }
   );
 
 /**

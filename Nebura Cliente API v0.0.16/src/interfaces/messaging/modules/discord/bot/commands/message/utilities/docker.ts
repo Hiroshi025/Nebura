@@ -1,15 +1,7 @@
 import axios from "axios";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ChannelType,
-  ComponentType,
-  EmbedBuilder,
-  ModalBuilder,
-  StringSelectMenuBuilder,
-  TextInputBuilder,
-  TextInputStyle,
+	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ComponentType, EmbedBuilder,
+	ModalBuilder, StringSelectMenuBuilder, TextInputBuilder, TextInputStyle
 } from "discord.js";
 
 import { DockerImage, DockerImageDetail, Precommand } from "@typings/modules/discord";

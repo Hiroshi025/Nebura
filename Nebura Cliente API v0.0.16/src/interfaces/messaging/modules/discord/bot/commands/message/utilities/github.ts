@@ -1,9 +1,7 @@
 import { ChannelType } from "discord.js";
 
 import {
-  handleRepository,
-  handleSearch,
-  handleUser,
+	handleRepository, handleSearch, handleUser
 } from "@/interfaces/messaging/modules/discord/structure/utils/functions";
 import { Precommand } from "@typings/modules/discord";
 

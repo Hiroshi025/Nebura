@@ -1,7 +1,6 @@
-import {
-	ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType } from "discord.js";
 
+import { EmbedCorrect } from "@shared/utils/extends/discord/embeds.extends";
 import { Precommand } from "@typings/modules/discord";
 
 const commandPrefix: Precommand = {
@@ -27,17 +26,11 @@ const commandPrefix: Precommand = {
 
     const t = client.translations.getFixedT(message.guild.preferredLocale || "es-ES", "discord");
 
-    const embed = new EmbedBuilder()
+    const embed = new EmbedCorrect()
       .setTitle(t("prefix.title"))
-      .setColor(0x5865f2)
       .setDescription(
         [t("prefix.current", { prefix }), "", t("prefix.help", { prefix }), t("prefix.mention")].join("\n"),
-      )
-      .setFooter({
-        text: t("prefix.requestedBy", { user: message.author.tag }),
-        iconURL: message.author.displayAvatarURL(),
-      })
-      .setTimestamp();
+      );
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()

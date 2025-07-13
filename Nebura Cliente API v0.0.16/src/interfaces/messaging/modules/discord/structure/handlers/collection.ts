@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { ClientEvents, REST, Routes } from "discord.js";
 import { Discord } from "eternal-support";
-import { readdirSync } from "fs";
+import fsSync, { readdirSync } from "fs";
 import fs from "fs/promises";
 import path from "path";
 
@@ -27,6 +27,13 @@ const { TOKEN_DISCORD } = process.env;
 /**
  * Core handler for Discord module functionality.
  * Handles loading, deployment, and management of commands, events, addons, and components for the Discord module.
+ *
+ * @example
+ * ```typescript
+ * const handler = new DiscordHandler(client);
+ * await handler.loadAll();
+ * await handler.deployCommands();
+ * ```
  */
 export class DiscordHandler {
   private readonly settings: typeof config.modules.discord;
@@ -36,6 +43,11 @@ export class DiscordHandler {
   /**
    * Create a new DiscordHandler instance.
    * @param client - The Discord client instance.
+   * @throws {DiscordError} If the Discord token is not set.
+   * @example
+   * ```typescript
+   * const handler = new DiscordHandler(client);
+   * ```
    */
   constructor(client: MyDiscord) {
     this.settings = config.modules.discord;
@@ -51,7 +63,11 @@ export class DiscordHandler {
 
   /**
    * Loads all Discord components (commands, events, addons, precommands) asynchronously.
-   * @throws {Error} If any component fails to load.
+   * @throws {DiscordError} If any component fails to load.
+   * @example
+   * ```typescript
+   * await handler.loadAll();
+   * ```
    */
   public async loadAll(): Promise<void> {
     try {
@@ -65,6 +81,10 @@ export class DiscordHandler {
    * Loads commands from the configured commands directory.
    * Organizes commands by category and registers them in the client.
    * @private
+   * @example
+   * ```typescript
+   * await handler['loadCommands']();
+   * ```
    */
   private async loadCommands(): Promise<void> {
     const commandsPath = path.join(this.settings.configs.default, this.settings.configs.paths.commands);
@@ -90,6 +110,10 @@ export class DiscordHandler {
    * @param command - The command to register.
    * @param category - The command category.
    * @private
+   * @example
+   * ```typescript
+   * handler['registerCommand'](command, 'utility');
+   * ```
    */
   private registerCommand(command: Command, category: string): void {
     this.client.commands.set(command.structure.name, command);
@@ -102,6 +126,10 @@ export class DiscordHandler {
    * Loads events from the configured events directory.
    * Binds events to the client with appropriate once/on handlers.
    * @private
+   * @example
+   * ```typescript
+   * await handler['loadEvents']();
+   * ```
    */
   private async loadEvents(): Promise<void> {
     const eventsPath = path.join(this.settings.configs.default, this.settings.configs.paths.events);
@@ -125,6 +153,10 @@ export class DiscordHandler {
    * Registers a single event in the client.
    * @param event - The event to register.
    * @private
+   * @example
+   * ```typescript
+   * handler['registerEvent'](event);
+   * ```
    */
   private registerEvent(event: Event<keyof ClientEvents>): void {
     if (event.once) {
@@ -138,7 +170,12 @@ export class DiscordHandler {
    * Loads addons from the configured addons directory.
    * Initializes each addon and registers it in the client.
    * Skips loading if the client is in maintenance mode.
+   *
    * @private
+   * @example
+   * ```typescript
+   * await handler['loadAddons']();
+   * ```
    */
   private async loadAddons(): Promise<void> {
     // Verificar si el cliente está en mantenimiento antes de cargar addons
@@ -150,13 +187,17 @@ export class DiscordHandler {
 
     const addonBasePath = path.join(this.settings.configs.default, this.settings.configs.paths.addons);
 
-    console.log("\n[DEBUG] Starting Addon loading...");
-    console.time("Addon Loading Time");
+    // Eliminar manejo de caché para addons
 
+    // Obtener la estructura actual de los addons y cargarlos
+    //let currentAddonStructures: any[] = [];
     try {
       const addonDirs = (await fs.readdir(addonBasePath, { withFileTypes: true }))
         .filter((dirent) => dirent.isDirectory())
         .map((dirent) => dirent.name);
+
+      console.log("\n[DEBUG] Starting Addon loading...");
+      console.time("Addon Loading Time");
 
       const loadResults = await Promise.all(addonDirs.map(async (dir) => this.loadAddonFromDir(addonBasePath, dir)));
 
@@ -183,6 +224,10 @@ export class DiscordHandler {
    * @param dir - The name of the specific addon directory.
    * @returns Loading statistics or null if loading failed.
    * @private
+   * @example
+   * ```typescript
+   * await handler['loadAddonFromDir']('/path/to/addons', 'myAddon');
+   * ```
    */
   private async loadAddonFromDir(
     basePath: string,
@@ -214,6 +259,10 @@ export class DiscordHandler {
   /**
    * Loads precommands (prefix commands) from the configured directory.
    * @private
+   * @example
+   * ```typescript
+   * await handler['loadPrecommands']();
+   * ```
    */
   private async loadPrecommands(): Promise<void> {
     const globalStart = performance.now();
@@ -253,6 +302,10 @@ export class DiscordHandler {
    * @param loadedFiles - Array to collect loaded file paths.
    * @param failedFiles - Array to collect failed file info.
    * @private
+   * @example
+   * ```typescript
+   * await handler['readComponentsRecursively']('/path', stats, [], []);
+   * ```
    */
   private async readComponentsRecursively(
     directory: string,
@@ -346,13 +399,23 @@ export class DiscordHandler {
 
   /**
    * Deploys slash commands to Discord's API only if there are changes.
-   * Also caches the commands in ./commands.json.
-   * @throws {Error} If deployment fails.
+   * Also caches the commands in ./cache/commands.json.
+   * @throws {DiscordError} If deployment fails.
+   * @example
+   * ```typescript
+   * await handler.deployCommands();
+   * ```
    */
   public async deployCommands(): Promise<void> {
     const startTime = performance.now();
     const commands = [...this.client.commands.values()].map((cmd) => cmd.structure.toJSON?.() ?? cmd.structure);
-    const cachePath = path.resolve("./commands.json");
+    const cacheDir = path.resolve("./cache");
+    const cachePath = path.join(cacheDir, "commands.json");
+
+    // Crear carpeta cache si no existe
+    if (!fsSync.existsSync(cacheDir)) {
+      fsSync.mkdirSync(cacheDir, { recursive: true });
+    }
 
     // Leer el cache si existe
     let cachedCommands: any[] = [];
@@ -404,6 +467,10 @@ export class DiscordHandler {
    * Loads and registers interactive components (buttons, modals, menus).
    * @param fileType - The type of component to load ("buttons", "modals", or "menus").
    * @throws {DiscordError} If loading fails.
+   * @example
+   * ```typescript
+   * await handler.loadComponents('buttons');
+   * ```
    */
   public async loadComponents(fileType: FileType): Promise<void> {
     const folderPath = path.join(
