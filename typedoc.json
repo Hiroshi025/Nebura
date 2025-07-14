@@ -1,0 +1,104 @@
+{
+  // The output directory for the generated documentation.
+  "out": "docs",
+
+  // Excludes external modules from the documentation.
+  "excludeExternals": true,
+
+  // Hides the TypeDoc generator branding in the documentation.
+  "hideGenerator": true,
+
+  // The name of the project, shown as the documentation title.
+  "name": "Nebura",
+
+  // Plugins to extend TypeDoc functionality.
+  // - "typedoc-plugin-zod": Adds support for Zod schemas.
+  // - "typedoc-github-theme": Applies the GitHub theme to the docs.
+  "plugin": ["typedoc-plugin-zod", "typedoc-github-theme"],
+
+  // Patterns for files and folders to exclude from documentation.
+  // - Excludes test files, type definitions, node_modules, and specific folders.
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.d.ts",
+    "**/node_modules/**",
+    "**/bot/**",
+    "**/routes/**",
+    "**/views/**",
+    "**/economy/**",
+    "**/ranking/**",
+  ],
+
+  // Path to the project's tsconfig file, used for TypeScript settings.
+  "tsconfig": "tsconfig.json",
+
+  // Entry points for documentation generation (all .ts files in src).
+  "entryPoints": ["./src/**/*.ts"],
+
+  // Strategy for resolving entry points. "resolve" means TypeDoc will resolve the modules.
+  "entryPointStrategy": "resolve",
+
+  // "githubPages": true, // (Commented) Enables GitHub Pages support for publishing docs.
+
+  // The git branch or revision to use for source links.
+  "gitRevision": "main",
+
+  // Includes the project version in the documentation.
+  "includeVersion": true,
+
+  // Enables searching within comments in the documentation.
+  "searchInComments": true,
+
+  // --- Additional options (commented out) ---
+  // "cname": "help.hiroshi-dev.me",  // (Commented) Custom domain for GitHub Pages.
+  // "cleanOutputDir": true,  // (Commented) Cleans the output directory before generating docs.
+  // "excludePrivate": true,  // (Commented) Excludes private members from docs.
+  // "excludeProtected": true,  // (Commented) Excludes protected members from docs.
+  // "excludeInternal": true,  // (Commented) Excludes internal members from docs.
+  // "visibilityFilters": {},  // (Commented) Custom visibility filters for documentation.
+
+  // --- Project metadata (commented out) ---
+  // "description": "Documentación de Nebura AI",  // (Commented) Project description for docs.
+  // "gaID": "G-XXXXXXX",  // (Commented) Google Analytics ID for tracking.
+
+  // Template for source code links in the documentation.
+  // {gitRevision}, {path}, and {line} are replaced with actual values.
+  "sourceLinkTemplate": "https://github.com/Hiroshi025/Nebura-AI/blob/{gitRevision}/{path}#L{line}",
+
+  // The name of the git remote to use for source links.
+  "gitRemote": "origin",
+
+  // Path to the README file to include as the main page of the docs.
+  "readme": "README.md",
+
+  // Navigation options for the documentation sidebar.
+  // - includeCategories: Show categories in navigation.
+  // - includeGroups: Show groups in navigation.
+  // - includeFolders: Show folder structure in navigation.
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true,
+    "includeFolders": true
+  },
+
+  // --- Theme options (commented out) ---
+  // "theme": "github",  // (Commented) Use the GitHub theme for documentation.
+
+  // --- Markdown options (commented out) ---
+  /*"markedOptions": {
+    "gfm": true,      // Use GitHub Flavored Markdown.
+    "breaks": true,   // Enable line breaks in markdown.
+    "mangle": false   // Disable email address mangling.
+  }*/
+  "sidebarLinks": {
+    "Docs": "https://help.hiroshi-dev.me/",
+    "Github": "https://github.com/Hiroshi025",
+    "Discord": "https://discord.gg/YZQCen5xH3",
+    "Hiroshi": "https://www.hiroshi-dev.me/",
+    "Status": "https://host.hiroshi-dev.me/dashboard/status"
+  },
+  "hostedBaseUrl": "https://host.hiroshi-dev.me/documentation",
+  "useHostedBaseUrlForAbsoluteLinks": true,
+  "favicon": "https://i.pinimg.com/736x/c8/22/df/c822df2eb74a141dc1370aa3e0426288.jpg"
+}
