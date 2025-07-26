@@ -408,3 +408,5 @@ Estos son unos ejemplos de como configurar al minimo las propiedades de el proye
 {% file src="../../.gitbook/assets/.env (2)" %}
 
 ya configurados, deberas de ejecutar el archivo ./src/main.js y se debera mostrar algo similar a lo siguiente:
+
+<figure><img src="../../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
