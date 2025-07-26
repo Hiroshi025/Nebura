@@ -398,3 +398,13 @@ src/
 * Los módulos de bots (Discord, WhatsApp) están bajo `src/interfaces/messaging/modules/`.
 * Las vistas y recursos estáticos se encuentran en `src/interfaces/http/views/public/`.
 * Los servicios de negocio y utilidades están en `src/application/services/` y `src/shared/`.
+
+## Ejemplo de Configuracion
+
+Estos son unos ejemplos de como configurar al minimo las propiedades de el proyecto para el funcionamiento
+
+{% file src="../../.gitbook/assets/config.yml" %}
+
+{% file src="../../.gitbook/assets/.env (2)" %}
+
+ya configurados, deberas de ejecutar el archivo ./src/main.js y se debera mostrar algo similar a lo siguiente:

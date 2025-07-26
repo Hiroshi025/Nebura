@@ -1,0 +1,95 @@
+# ==============================================================================
+# Nebura Platform - Environment Variables File (.env)
+# This file is loaded automatically. Do NOT commit secrets to version control.
+# Copy structure from .env.example if needed.
+# ==============================================================================
+
+#########################################
+# DATABASE CONFIGURATION
+# Docs: https://pris.ly/d/connection-strings
+#########################################
+DATABASE_URL="mongodb+srv://alchemistdevs:oIoKvQnRR7tx3Scr@sofiadevs.pgady.mongodb.net/nebura_works-canary?retryWrites=true&w=majority&appName=SofiaDevs"
+
+#########################################
+# RUNTIME ENVIRONMENT
+#########################################
+NODE_ENV=development
+CLIENT_ID="nebura_ai-"
+DEBUG=true
+DEBUG_LEVEL=1
+
+#########################################
+# API VERSION
+#########################################
+API_VERSION=1.0.3
+LICENCE= ""
+HWID= ""
+
+#########################################
+# SECRETS CONFIGURATION
+#########################################
+WEB_SECRET="12345"
+JWT_SECRET=""
+ADMIN_SECRET=""
+CUSTOMER_SECRET=""
+
+#########################################
+# API STATUS & BLOG LINKS
+#########################################
+STATUS_API_URL="https://discordstatus.com/api/v2/status.json"
+BLOG_URL="https://discord.com/blog"
+STATUS_PAGE_URL="https://discordstatus.com"
+
+#########################################
+# GITHUB & LOGGING
+#########################################
+GTIHUB_TOKEN=""
+WINSTON_LOG_DIR=""
+
+#########################################
+# GEMINI AI CONFIGURATION
+# Docs: https://ai.google.dev/gemini-api/docs
+#########################################
+# Gemini API key.
+# Example: AIzaSyD-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+GEMINI_KEY="AIzaSyDVmVAafS5DJDm2iG_gRSZnH5Zhkf5HvJo"
+# Gemini model to use.
+# Example: gemini-2.0-flash
+GEMINI_MODEL="gemini-2.0-flash"
+# Custom instructions for the Gemini model.
+# Example: "Always respond in English"
+GEMINI_MODEL_INSTRUCTION="Actua como un experto en IA, proporcionando respuestas precisas y detalladas a las consultas de los usuarios. Utiliza un tono profesional y evita el uso de jerga técnica innecesaria. Siempre responde en español."
+
+#########################################
+# DISCORD BOT CONFIGURATION
+# Discord developer portal: https://discord.com/developers/applications
+#########################################
+TOKEN_DISCORD="MTM1NjY0ODI0MDM2MzIxMzAxMQ.GEJOEA.H62f5Uqj63xA2i3ootc9fbtsSTKB_gHgWbyqUs"
+DISCORD_MODULE=true
+
+#########################################
+# TELEGRAM BOT CONFIGURATION.
+#########################################
+TELEGRAM_ENABLED=false
+TELEGRAM_BOT_TOKEN= ""
+
+#########################################
+# SENTRY & CRON BACKUPS
+# Sentry: https://docs.sentry.io/platforms/node/
+# Cron: https://crontab.guru/
+#########################################
+SENTRY_NODE_KEY=""
+CRON_BACKUPS_TIME="0 2 * * *" # Daily at 2 AM
+
+#########################################
+# EMAIL CONFIGURATION
+#########################################
+USER_EMAIL=""
+PASS_EMAIL=""
+
+#########################################
+# WHATSAPP MODULE CONFIGURATION
+# whatsapp-web.js: https://wwebjs.dev/
+#########################################
+WHATSAPP_BACKUPS= false
+WHATSAPP_MODULE= false

@@ -1,0 +1,108 @@
+# ============================================================
+# PROJECT CONFIGURATION
+# ============================================================
+project:
+  name: "Nebura" # Project name
+  version: "0.0.9" # Current project version
+  type: "monorepo" # Indicates if the project uses a monorepo approach (optional)
+  api-version: "v1" # API version used
+  logs: "config/logs-apps/" # Path where application logs are stored
+  winstonlog: "config/logs-apps/proyect" # Path for Winston logger logs
+  cdnpath: "config/backups/cdn-client"
+
+# ============================================================
+# ENVIRONMENTS CONFIGURATION
+# ============================================================
+environments:
+  # ------------------------------------------
+  # Default environment settings (can be inherited)
+  # ------------------------------------------
+  default: &default
+    api:
+      port: 3000 # Port where the API will run
+      host: "localhost" # Host address for the API
+      swagger:
+        local: "config/api-docs/swagger.yml" # Path to Swagger config file
+        name: "" # API name for Swagger documentation
+        version: "" # API version for Swagger
+        url: "/api/v1/admin-monitor" # Base URL for admin monitor
+        docs: "/api/v1/api-docs" # URL to access API documentation
+        auth:
+          name: "luis" # Username for Swagger authentication
+          password: "luis" # Password for Swagger authentication
+    database:
+      sessions:
+        url: "src/adapters/database/" # Path to session database
+        name: "sessions" # Session database name
+    website:
+      role: "admin"
+
+  # ------------------------------------------
+  # Production environment settings (inherits from default)
+  # ------------------------------------------
+  production:
+    <<: *default
+    api:
+      port: 3000 # Port for API in production
+      host: "" # Host address for production (must be set)
+
+# ============================================================
+# MODULES CONFIGURATION
+# ============================================================
+modules:
+  # ------------------------------------------
+  # Discord module configuration
+  # ------------------------------------------
+  discord:
+    id: "1378855139699458098" # Discord client ID
+    callback: "dashboard/auth/discord"
+    channel: ""
+    token: "MTM3ODg1NTEzOTY5OTQ1ODA5OA.G051Fu.aGAyD-vhNOEfe0VbLwKosPDGHa-Br2V6XnWbPw"
+    secret: "K0yEqzC6ln1wwOeYLbQHmkiacpK-zBQy" # Discord client secret
+    guildId: "" # Discord guild/server ID
+    owners:
+      - "" # List of bot owner user IDs
+    prefix: "!" # Prefix for bot commands
+    configs:
+      default: "src/interfaces/messaging/modules" # Default path for Discord module
+      paths:
+        precommands: "/discord/bot/commands/message/" # Path to precommands
+        components: "/discord/bot/interactions" # Path to bot components
+        commands: "/discord/bot/commands/slash/" # Path to slash commands
+        addons: "/discord/addons/" # Path to bot addons
+        events: "/discord/bot/events/" # Path to bot events
+      bot-extensions:
+        - ".js" # Supported file extensions for the bot
+        - ".ts"
+  # ------------------------------------------
+  # WhatsApp module configuration
+  # ------------------------------------------
+  whatsapp:
+    enabled: false # Indicates if WhatsApp module is enabled
+    backups: "./config/backups/whatsapp"
+
+# ============================================================
+# MODERATION CONFIGURATION
+# ============================================================
+moderation:
+  notifications:
+    urlapi: "" # Base URL for Discord API
+    version: "v10" # Discord API version
+    webhooks:
+      token: "" # Webhook token
+      id: "" # Webhook ID
+      avatarURL: "" # Webhook avatar URL (optional)
+
+# ============================================================
+# TASKS CONFIGURATION
+# ============================================================
+tasks:
+  reloadproyect:
+    enabled: false # Indicates if project reload task is enabled
+    cron: "0 0 * * *" # Cron schedule for reloading the project (e.g., every day at midnight)
+    cmd: "" # Command to execute for reload (optional)
+    cmdreload: "" # Command to execute for reload (optional)
+  backups:
+    enabled: false
+    path: "../../../config/backups/database"
+    cron: "0 2 * * *"
